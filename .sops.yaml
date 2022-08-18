@@ -1,0 +1,7 @@
+keys:
+  - &elxreno age1frn6df3pw3ks05vzc6q5fmfxzwcen44sq4c7xj86hwymfsg3qadq7mxf0d
+creation_rules:
+  - path_regex: secrets/[^/]+\.yaml$
+    key_groups:
+    - age:
+      - *elxreno
