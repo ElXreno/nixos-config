@@ -1,0 +1,22 @@
+name: Build NixOS
+
+on:
+  push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+
+      - name: Install Cachix
+        uses: cachix/cachix-action@v10
+        with:
+          name: elxreno
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+
+      - name: Build NixOS for Honor Laptop
+        run: nix build -L --no-link .#nixosConfigurations.Honor-MB-AMD-Laptop.config.system.build.toplevel
