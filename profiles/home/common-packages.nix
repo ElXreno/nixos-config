@@ -103,14 +103,8 @@ in
 
             # IDEs editors and other dev stuff
 
-            ## Jetbrains stuff
-            jetbrains.rider
-            jetbrains.clion
-            jetbrains.goland
             # go
             # vscode
-            # jetbrains.pycharm-professional
-            #jetbrains.webstorm
             # dotnet-sdk_6
             # dotnetCorePackages.runtime_6_0
             # dotnetCorePackages.aspnetcore_6_0
