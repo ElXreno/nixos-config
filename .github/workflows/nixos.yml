@@ -36,6 +36,3 @@ jobs:
 
       - name: Build NixOS for Honor Laptop
         run: nix build -L --no-link .#nixosConfigurations.Honor-MB-AMD-Laptop.config.system.build.toplevel
-
-      - name: Build NixOS for Desktop
-        run: nix build -L --no-link .#nixosConfigurations.AMD-Desktop.config.system.build.toplevel
