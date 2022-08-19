@@ -18,7 +18,14 @@ in
 {
   nixpkgs = {
     config = {
-      allowUnfree = true;
+      allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+        "gitkraken"
+        "megasync"
+        "nvidia-settings"
+        "nvidia-x11"
+        "unrar"
+        "vscode"
+      ];
       permittedInsecurePackages = [
         "electron-11.5.0"
       ];
