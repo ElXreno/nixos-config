@@ -1,4 +1,8 @@
-{ config, pkgs, inputs, lib, ... }: {
+{ config, pkgs, inputs, lib, ... }:
+let
+  nixpkgs-kernel = import inputs.nixpkgs-kernel { inherit (config.nixpkgs) config system; };
+in
+{
   boot = {
     loader = lib.mkIf (!config.deviceSpecific.isServer) {
       timeout = 3;
@@ -12,7 +16,7 @@
     # kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
     # Disable latest kernel for desktop due nvidia driver
     kernelPackages = lib.mkMerge [
-      (lib.mkIf (!config.deviceSpecific.isServer) inputs.nixpkgs-kernel.legacyPackages.${pkgs.stdenv.hostPlatform.system}.linuxKernel.packages.linux_xanmod_latest)
+      (lib.mkIf (!config.deviceSpecific.isServer) nixpkgs-kernel.pkgs.linuxPackages_xanmod_latest)
       # (lib.mkIf (!config.deviceSpecific.isServer) pkgs.linuxPackages_xanmod_latest)
 
       # Servers
