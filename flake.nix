@@ -121,13 +121,14 @@
         user = "root";
         sshUser = "elxreno";
         nodes = {
-          # AMD-Desktop = {
-          #   hostname = "desktop";
-          #   profiles.system = {
-          #     path = deploy-rs.lib.x86_64-linux.activate.nixos
-          #       self.nixosConfigurations.AMD-Desktop;
-          #   };
-          # };
+          AMD-Desktop = {
+            hostname = "desktop";
+            profiles.system = {
+              path = deploy-rs.lib.x86_64-linux.activate.nixos
+                self.nixosConfigurations.AMD-Desktop;
+            };
+            fastConnection = true;
+          };
         };
       };
     };
