@@ -1,4 +1,4 @@
-{ pkgs, config }:
+{ pkgs, ... }:
 let python = pkgs.python39;
 in
 pkgs.mkShell {

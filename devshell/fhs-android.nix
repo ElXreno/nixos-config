@@ -1,4 +1,4 @@
-{ pkgs, config }:
+{ pkgs, ... }:
 
 (pkgs.buildFHSUserEnv {
   name = "fhs-android";

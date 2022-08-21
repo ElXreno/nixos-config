@@ -109,10 +109,13 @@
 
       inherit (deploy-rs) defaultApp;
 
-      devShell.x86_64-linux = import ./fhs-android.nix {
-        inherit ((builtins.head (builtins.attrValues self.nixosConfigurations))) pkgs;
-        inherit ((builtins.head (builtins.attrValues self.nixosConfigurations))) config;
-      };
+      devShells.x86_64-linux = with nixpkgs.lib;
+        let
+          inherit ((builtins.head (builtins.attrValues self.nixosConfigurations))) pkgs config;
+          mkShells = mapAttrs
+            (name: value: import value { inherit pkgs config; });
+        in
+        mkShells (builtins.listToAttrs (findModules ./devshell));
 
       deploy = {
         user = "root";
