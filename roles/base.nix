@@ -13,6 +13,7 @@
     git
     gpg
     gpg-agent
+    helix
     htop
     misc
     network

@@ -23,7 +23,7 @@
       sessionPath = [ "${config.users.users.elxreno.home}/bin" ];
       sessionVariables = lib.mkMerge [
         {
-          EDITOR = "vim";
+          EDITOR = "hx";
           _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
           DOTNET_CLI_TELEMETRY_OPTOUT = true;
         }

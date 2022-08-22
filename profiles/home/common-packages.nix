@@ -43,7 +43,6 @@ in
           tree
           unzip
           usbutils
-          vim
           wget
           yt-dlp
 
