@@ -25,6 +25,10 @@ in
         "nvidia-x11"
         "unrar"
         "vscode"
+
+        # IDE
+        "clion"
+        "rider"
       ];
       permittedInsecurePackages = [
         "electron-11.5.0"

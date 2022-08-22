@@ -8,7 +8,10 @@ pkgs.mkShell {
     gnumake
     rustup
     python3
-  ];
+  ] ++ (with jetbrains; [
+    clion
+    rider
+  ]);
 
   buildInputs = with pkgs; with python.pkgs; [
     # Rust
