@@ -23,6 +23,8 @@ in
         "megasync"
         "nvidia-settings"
         "nvidia-x11"
+        "steam"
+        "steam-original"
         "unrar"
         "vscode"
 
