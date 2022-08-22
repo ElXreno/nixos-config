@@ -56,39 +56,41 @@
 
   services.matrix-synapse = {
     enable = true;
-    server_name = "elxreno.ninja";
-    public_baseurl = "https://matrix.elxreno.ninja";
-    listeners = [
-      {
-        bind_address = "127.0.0.1";
-        port = 8008;
-        resources = [
-          {
-            names = [ "client" "webclient" "federation" ];
-            compress = false;
-          }
-        ];
-        tls = false;
-        type = "http";
-        x_forwarded = true;
-      }
-    ];
-    turn_uris = [
-      "turn:turn.elxreno.ninja:5349?transport=udp"
-      "turn:turn.elxreno.ninja:5350?transport=udp"
-      "turn:turn.elxreno.ninja:5349?transport=tcp"
-      "turn:turn.elxreno.ninja:5350?transport=tcp"
-    ];
+    settings = {
+      server_name = "elxreno.ninja";
+      public_baseurl = "https://matrix.elxreno.ninja";
+      listeners = [
+        {
+          bind_addresses = [ "127.0.0.1" ];
+          port = 8008;
+          resources = [
+            {
+              names = [ "client" "federation" ];
+              compress = false;
+            }
+          ];
+          tls = false;
+          type = "http";
+          x_forwarded = true;
+        }
+      ];
+      turn_uris = [
+        "turn:turn.elxreno.ninja:5349?transport=udp"
+        "turn:turn.elxreno.ninja:5350?transport=udp"
+        "turn:turn.elxreno.ninja:5349?transport=tcp"
+        "turn:turn.elxreno.ninja:5350?transport=tcp"
+      ];
+      turn_user_lifetime = "1h";
+      url_preview_enabled = true;
+      max_upload_size = "100M";
+    };
     extraConfigFiles = [ config.sops.secrets.coturn.path ];
-    turn_user_lifetime = "1h";
-    url_preview_enabled = true;
-    max_upload_size = "100M";
   };
 
   # networking.firewall.allowedTCPPorts = [ 8448 ];
 
   services.nginx = {
-    clientMaxBodySize = config.services.matrix-synapse.max_upload_size;
+    clientMaxBodySize = config.services.matrix-synapse.settings.max_upload_size;
     virtualHosts = {
       "elxreno.ninja" = {
         locations."= /.well-known/matrix/server".extraConfig =
