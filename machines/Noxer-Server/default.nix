@@ -79,7 +79,7 @@
       "turn:turn.elxreno.ninja:5349?transport=tcp"
       "turn:turn.elxreno.ninja:5350?transport=tcp"
     ];
-    extraConfigFiles = [ sops.secrets.coturn.path ];
+    extraConfigFiles = [ config.sops.secrets.coturn.path ];
     turn_user_lifetime = "1h";
     url_preview_enabled = true;
     max_upload_size = "100M";
@@ -155,7 +155,7 @@
     noxer-backups = {
       repository = "rclone:gdrive:noxer-backups";
       rcloneConfigFile = "/home/elxreno/.config/rclone/rclone.conf";
-      passwordFile = sops.secrets."restic/gdrive_password".path;
+      passwordFile = config.sops.secrets."restic/gdrive_password".path;
       paths = [
         "/var/backup/postgresql"
         "/var/lib/acme"

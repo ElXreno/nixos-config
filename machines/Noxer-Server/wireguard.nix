@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   networking.firewall.allowedUDPPorts = [ 17532 ];
 
