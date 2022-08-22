@@ -26,8 +26,6 @@
   services.gitea = {
     enable = true;
     appName = config.services.gitea.domain;
-    cookieSecure = true;
-    disableRegistration = true;
     domain = "code.elxreno.ninja";
     lfs.enable = true;
     rootUrl = "https://${config.services.gitea.domain}";
@@ -44,6 +42,8 @@
         TIMEOUT = "180m";
         ARGS = "--auto --aggressive";
       };
+      service.DISABLE_REGISTRATION = true;
+      session.COOKIE_SECURE = true;
     };
   };
 
