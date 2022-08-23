@@ -344,22 +344,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-kernel": {
-      "locked": {
-        "lastModified": 1661248213,
-        "narHash": "sha256-/fSS/ApYb1ohaaBA1g0nXpIHiO6Wqd7848fFtV9/aWM=",
-        "owner": "ElXreno",
-        "repo": "nixpkgs",
-        "rev": "f446f96da5eecdcce343316feda3a418df32fdda",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ElXreno",
-        "ref": "nixos-unstable-cust-kernel",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-regression": {
       "locked": {
         "lastModified": 1643052045,
@@ -471,7 +455,6 @@
         "nix-ld": "nix-ld",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-kernel": "nixpkgs-kernel",
         "nixpkgs-update": "nixpkgs-update",
         "plasma-manager": "plasma-manager",
         "rust-overlay": "rust-overlay",

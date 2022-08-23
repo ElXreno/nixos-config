@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
-    nixpkgs-kernel.url = "github:ElXreno/nixpkgs/nixos-unstable-cust-kernel";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     nixpkgs-update = {
