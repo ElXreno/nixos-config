@@ -10,8 +10,6 @@
         useOSProber = true;
       };
     };
-    # kernelPackages = pkgs.linuxKernel.packages.linux_xanmod_latest;
-    # Disable latest kernel for desktop due nvidia driver
     kernelPackages = lib.mkMerge [
       (lib.mkIf (!config.deviceSpecific.isServer) pkgs.linuxPackages_xanmod_latest)
 
@@ -86,9 +84,7 @@
 
             "net.ipv4.tcp_congestion_control" = lib.mkForce "bbr2";
 
-            "vm.clean_min_kbytes" = 524288;
             "vm.page-cluster" = 6;
-            # "vm.laptop_mode" = 5;
           }
       )
     ];
