@@ -119,6 +119,16 @@ in
           cassowary = super.callPackage ../modules/cassowary.nix { };
           universal-android-debloater = super.callPackage ../modules/universal-android-debloater.nix { };
           bees = optimizeForThisHostStdenv super.bees;
+
+          # Work-arounds
+          kleopatra = super.kleopatra.overrideAttrs (old: {
+            patches = old.patches or [ ] ++ [
+              (super.fetchpatch {
+                url = "https://invent.kde.org/pim/kleopatra/-/commit/87d8b00d4b2286489d5fadc9cfa07f1d721cdfe3.patch";
+                sha256 = "sha256-PGUftWWHpMw1W+/BlCxoC7bHxZKzXCtDL2rmisdretM=";
+              })
+            ];
+          });
         })
     ];
   };
