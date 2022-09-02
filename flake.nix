@@ -42,17 +42,9 @@
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
 
-    # wg-bond stuff
-    naersk.url = "github:nmattia/naersk";
-    naersk.inputs.nixpkgs.follows = "nixpkgs";
-
-    fenix.url = "github:nix-community/fenix";
-    fenix.inputs.nixpkgs.follows = "nixpkgs";
-
+    # wg-bond
     wg-bond.url = "github:cab404/wg-bond";
     wg-bond.inputs.nixpkgs.follows = "nixpkgs";
-    wg-bond.inputs.fenix.follows = "fenix";
-    wg-bond.inputs.naersk.follows = "naersk";
 
     sops-nix = {
       url = "github:Mic92/sops-nix";
