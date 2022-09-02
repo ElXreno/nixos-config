@@ -31,6 +31,8 @@
     opengl = {
       enable = true;
       driSupport32Bit = true;
+      # Work-around for LibreOffice to get OpenCL work
+      setLdLibraryPath = true;
     };
 
     bluetooth = {
