@@ -8,9 +8,16 @@ pkgs.mkShell {
     gnumake
     rustup
     python3
-  ] ++ (with jetbrains; [
+
+    # bruh
+    php
+  ] ++ (with jetbrains; with androidStudioPackages; [
     clion
+    idea-ultimate
+    phpstorm
     rider
+
+    canary
   ]);
 
   buildInputs = with pkgs; with python.pkgs; [

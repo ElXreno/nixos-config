@@ -9,8 +9,8 @@
         CPU_SCALING_GOVERNOR_ON_BAT = "powersave";
         PCIE_ASPM_ON_BAT = "powersupersave";
         RADEON_POWER_PROFILE_ON_BAT = "low";
-        START_CHARGE_THRESH_BAT0 = 70;
-        STOP_CHARGE_THRESH_BAT0 = 80;
+        START_CHARGE_THRESH_BAT0 = 80;
+        STOP_CHARGE_THRESH_BAT0 = 90;
         USB_BLACKLIST = "046d:c542"; # Logitech M190
       };
     };

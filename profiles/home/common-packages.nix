@@ -31,7 +31,7 @@ in
           iotop
           jq
           mtr
-          nmap-unfree
+          nmap
           pciutils
           pigz
           restic
@@ -137,7 +137,6 @@ in
             # adoptopenjdk-hotspot-bin-16
 
             wireguard-tools
-            wg-bond
 
             strawberry
 

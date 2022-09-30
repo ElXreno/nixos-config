@@ -30,7 +30,11 @@ in
 
         # IDE
         "clion"
+        "idea-ultimate"
+        "phpstorm"
         "rider"
+
+        "android-studio-canary"
       ];
       permittedInsecurePackages = [
         "electron-11.5.0"
@@ -107,7 +111,6 @@ in
           # papermc = super.papermc.override { jre = pkgs.adoptopenjdk-jre-hotspot-bin-16; };
           # jdkNative = optimizeForThisHost super.jdk;
           # polymc = (optimizeForThisHost (super.polymc)).override { jdk = self.jdkNative; };
-          wg-bond = inputs.wg-bond.defaultPackage.${super.system};
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
           # smart-home-server = inputs.smart-home-server.defaultPackage.${super.system};
           # multimc = super.multimc.override { jdk = pkgs.adoptopenjdk-hotspot-bin-16; };

@@ -25,7 +25,24 @@
     options snd-hda-intel power_save=1 power_save_controller=y
   '';
 
+  networking.firewall.allowedTCPPorts = [ 25565 30037 ];
+  networking.firewall.allowedUDPPorts = [ 25565 30037 ];
+
   powerManagement.cpuFreqGovernor = "schedutil";
+
+  sops.secrets."smb/college" = { };
+  fileSystems."/mnt/college" = {
+    device = "//Server3";
+    fsType = "cifs";
+    options = [
+      "x-systemd.automount"
+      "noauto"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
+      "credentials=${config.sops.secrets."smb/college".path}"
+    ];
+  };
 
   # For shindows
   time.hardwareClockInLocalTime = true;
@@ -45,6 +62,27 @@
     libvirtd = {
       enable = true;
       qemu.package = pkgs.qemu_kvm;
+    };
+  };
+
+  programs.gamemode = {
+    enable = true;
+    settings = {
+      general = {
+        renice = 10;
+      };
+
+      # Warning: GPU optimisations have the potential to damage hardware
+      gpu = {
+        apply_gpu_optimisations = "accept-responsibility";
+        gpu_device = 0;
+        amd_performance_level = "high";
+      };
+
+      custom = {
+        start = "${pkgs.libnotify}/bin/notify-send 'GameMode started'";
+        end = "${pkgs.libnotify}/bin/notify-send 'GameMode ended'";
+      };
     };
   };
 
