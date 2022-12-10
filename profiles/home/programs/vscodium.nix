@@ -35,6 +35,7 @@
       "security.workspace.trust.untrustedFiles" = "open";
       "telemetry.telemetryLevel" = "off";
       "update.mode" = "manual";
+      "editor.fontSize" = 15;
     };
     # Work-around: https://github.com/nix-community/home-manager/issues/2798#issuecomment-1073165352
     mutableExtensionsDir = false;
