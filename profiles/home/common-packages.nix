@@ -132,8 +132,7 @@ in
             virt-manager
 
             # Minecraft
-            # multimc
-            polymc
+            prismlauncher
             # adoptopenjdk-hotspot-bin-16
 
             wireguard-tools
