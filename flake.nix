@@ -15,16 +15,6 @@
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
-    # nix-alien stuff
-    nix-alien = {
-      url = "github:thiagokokada/nix-alien";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-ld = {
-      url = "github:Mic92/nix-ld/main";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # home-manager stuff
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";

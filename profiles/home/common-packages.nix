@@ -70,7 +70,7 @@ in
           thunderbird
         ])
         (lib.mkIf (config.deviceSpecific.isLaptop || config.device == "nixos-iso")
-          (with inputs.nix-alien.packages.${pkgs.stdenv.hostPlatform.system}; with inputs.nixpkgs-update.packages.${pkgs.stdenv.hostPlatform.system}; [
+          (with inputs.nixpkgs-update.packages.${pkgs.stdenv.hostPlatform.system}; [
             # CLI Stuff
             acpi
             apktool
@@ -150,10 +150,6 @@ in
 
             nix-casync
             remmina
-
-            # nix-alien
-            nix-alien
-            nix-index-update
 
             nixpkgs-update
           ]))

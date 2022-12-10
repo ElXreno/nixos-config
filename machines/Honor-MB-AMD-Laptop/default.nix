@@ -14,7 +14,6 @@
       inputs.self.nixosProfiles.kde
       # Lazy to configure everything from zero
       # inputs.self.nixosProfiles.sway
-      inputs.nix-ld.nixosModules.nix-ld
     ];
 
   networking.hostId = "20a7d5d8";
