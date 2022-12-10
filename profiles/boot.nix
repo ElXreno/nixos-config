@@ -11,8 +11,8 @@
       };
     };
     kernelPackages = lib.mkMerge [
-      (lib.mkIf (!config.deviceSpecific.isServer) pkgs.linuxPackages_xanmod_latest)
-
+      (lib.mkIf config.deviceSpecific.isLaptop pkgs.linuxPackages_xanmod_latest)
+      (lib.mkIf config.deviceSpecific.isDesktop pkgs.linuxPackages_5_15)
       # Servers
       (lib.mkIf config.deviceSpecific.isServer pkgs.linuxPackages_latest)
     ];
