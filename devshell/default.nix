@@ -36,7 +36,7 @@ pkgs.mkShell {
     venvShellHook
   ];
 
-  venvDir = "/home/elxreno/projects/repos/github.com/ElXreno/yt-dlp/venv";
+  venvDir = "/home/elxreno/.cache/nix-python-venv";
 
   postVenv = ''
     unset SOURCE_DATE_EPOCH
