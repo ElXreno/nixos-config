@@ -1,5 +1,6 @@
 { pkgs, ... }:
 {
+  programs.fish.enable = true;
   home-manager.users.elxreno.programs.fish = {
     enable = true;
     shellAliases = {
