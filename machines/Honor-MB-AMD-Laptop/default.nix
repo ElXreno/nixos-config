@@ -106,5 +106,15 @@
     # ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="${pkgs.hdparm}/sbin/hdparm -B 254 /dev/%k"
   '';
 
+  services.postgresql = {
+    enable = true;
+    package = pkgs.postgresql_15;
+    authentication = pkgs.lib.mkOverride 10 ''
+      local all all trust
+      host all all 127.0.0.1/32 trust
+      host all all ::1/128 trust
+    '';
+  };
+
   system.stateVersion = "22.05";
 }
