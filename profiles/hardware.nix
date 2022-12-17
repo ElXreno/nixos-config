@@ -27,6 +27,11 @@
       KEYBOARD_KEY_287=f20
   '';
 
+  # Until micmute led is broken with pipewire, blink when there's network activity
+  systemd.tmpfiles.rules = [
+    "w- /sys/class/leds/platform::micmute/trigger - - - - phy0tx"
+  ];
+
   hardware = {
     cpu = {
       amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "Honor-MB-AMD-Laptop") true;
