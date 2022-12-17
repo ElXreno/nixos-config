@@ -27,7 +27,7 @@
   networking.firewall.allowedTCPPorts = [ 25565 30037 ];
   networking.firewall.allowedUDPPorts = [ 25565 30037 ];
 
-  powerManagement.cpuFreqGovernor = "schedutil";
+  powerManagement.cpuFreqGovernor = "performance";
 
   sops.secrets."smb/college" = { };
   fileSystems."/mnt/college" = {
@@ -64,27 +64,6 @@
     };
   };
 
-  programs.gamemode = {
-    enable = true;
-    settings = {
-      general = {
-        renice = 10;
-      };
-
-      # Warning: GPU optimisations have the potential to damage hardware
-      gpu = {
-        apply_gpu_optimisations = "accept-responsibility";
-        gpu_device = 0;
-        amd_performance_level = "high";
-      };
-
-      custom = {
-        start = "${pkgs.libnotify}/bin/notify-send 'GameMode started'";
-        end = "${pkgs.libnotify}/bin/notify-send 'GameMode ended'";
-      };
-    };
-  };
-
   services.yggdrasil = {
     # enable = true;
     persistentKeys = true;
@@ -102,8 +81,6 @@
 
   services.udev.extraRules = ''
     ACTION=="add|change", KERNEL=="sd[a-z]*[0-9]*|mmcblk[0-9]*p[0-9]*|nvme[0-9]*n[0-9]*p[0-9]*", ENV{ID_FS_TYPE}=="zfs_member", ATTR{../queue/scheduler}="none"
-
-    # ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="${pkgs.hdparm}/sbin/hdparm -B 254 /dev/%k"
   '';
 
   services.postgresql = {

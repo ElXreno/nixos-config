@@ -9,8 +9,6 @@
     };
     desktopManager.plasma5 = {
       enable = true;
-      # https://github.com/NixOS/nixpkgs/pull/117102
-      runUsingSystemd = true;
     };
   };
 

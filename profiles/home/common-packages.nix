@@ -9,7 +9,7 @@ in
 
   home-manager.users.elxreno = {
     home = {
-      packages = with pkgs; lib.mkMerge [
+      packages = with pkgs; with inputs.nixpkgs-update.packages.${pkgs.stdenv.hostPlatform.system}; lib.mkMerge [
         [
           # CLI Stuff
           age
@@ -24,7 +24,6 @@ in
           dua
           fd
           ffmpeg-full
-          ffsend
           file
           gitRepo
           inetutils
@@ -44,6 +43,7 @@ in
           unzip
           usbutils
           wget
+          wireguard-tools
           yt-dlp
 
           # Nix stuff
@@ -51,9 +51,7 @@ in
           nix-tree
           nixpkgs-fmt
           nixpkgs-review
-
-          # For some python scripts
-          python3
+          nixpkgs-update
         ]
         (lib.mkIf (!config.deviceSpecific.isServer) [
           # Messengers
@@ -65,26 +63,22 @@ in
           hunspellDicts.ru-ru
 
           keepassxc
-          # libnotify
           qbittorrent
           thunderbird
         ])
         (lib.mkIf (config.deviceSpecific.isLaptop || config.device == "nixos-iso")
-          (with inputs.nixpkgs-update.packages.${pkgs.stdenv.hostPlatform.system}; [
+          ([
             # CLI Stuff
             acpi
-            apktool
             aircrack-ng
-            mdk4
-            #ngrok
+            apktool
             deploy-rs
             elfshaker
-            # diesel-cli
-            # cassowary
-            wgcf
+            mdk4
+            ngrok
+            nix-casync
             statix
-
-            # universal-android-debloater
+            wgcf
 
             # flatpak stuff
             flatpak-builder
@@ -92,66 +86,31 @@ in
 
             # Games
             ddnet
-
-            # Messengers
-            # slack
+            prismlauncher
 
             # MEGA
             megasync
             megasync_autostart
 
-            # IDEs editors and other dev stuff
-
-            # go
-            # vscode
-            # dotnet-sdk_6
-            # dotnetCorePackages.runtime_6_0
-            # dotnetCorePackages.aspnetcore_6_0
-            # mono6
-            # kotlin
-            # clang-tools
-
+            # DB
             pgmodeler
 
-            ## Android stuff
-            # androidStudioPackages.beta
-            # flutter
+            # Dev
+            gitkraken
 
             # Photos
-            digikam
             darktable
+            digikam
             rawtherapee
-
-            ## etc
-            gitkraken
-            rustup
-            # clang
-            #notion-repackaged
 
             # Libvirtd manager
             virt-manager
 
-            # Minecraft
-            prismlauncher
-            # adoptopenjdk-hotspot-bin-16
-
-            wireguard-tools
-
+            # Music
             strawberry
 
-            # UEFI stuff
-            # ifr-extractor
-            # uefitool
-
-            # For kate
-            # TODO: Integrate to kate
-            # btw this is a slow shit
-            # nodePackages.bash-language-server
-
-            nix-casync
+            ## etc
             remmina
-
-            nixpkgs-update
           ]))
       ];
     };

@@ -33,10 +33,7 @@
       (
         lib.mkIf (config.device == "Honor-MB-AMD-Laptop")
           [
-            # Disable NVMe powersave because this is a piece of shit maked by WD
-            # sometimes hangs
-            # "nvme_core.default_ps_max_latency_us=0"
-            "zfs.zfs_arc_min=1610612736"
+            "zfs.zfs_arc_min=536870912"
             "zfs.zfs_arc_max=1610612736"
             "zfs.zfs_arc_sys_free=1073741824"
             "zfs.arc_shrink_shift=5"

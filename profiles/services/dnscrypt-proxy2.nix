@@ -4,7 +4,7 @@
   services.dnscrypt-proxy2 = {
     enable = true;
     settings = {
-      ipv6_servers = true;
+      http3 = true;
       server_names = [ "cloudflare" "scaleway-fr" ];
       sources = {
         public-resolvers = {

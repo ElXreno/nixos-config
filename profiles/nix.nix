@@ -28,9 +28,7 @@
 
     daemonCPUSchedPolicy = "idle";
     daemonIOSchedClass = "idle";
-
-    # Deprecated, see #175603
-    # package = pkgs.nixUnstable;
+    daemonIOSchedPriority = 7;
 
     registry.nixpkgs.flake = inputs.nixpkgs;
 
