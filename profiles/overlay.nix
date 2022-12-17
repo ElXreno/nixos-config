@@ -35,6 +35,8 @@ in
         "rider"
 
         "android-studio-canary"
+
+        "vscode-extension-github-copilot"
       ];
       permittedInsecurePackages = [
         "electron-11.5.0"

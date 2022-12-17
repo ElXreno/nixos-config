@@ -6,13 +6,8 @@
     package = pkgs.vscode;
     extensions = with pkgs.vscode-extensions; [
       jnoortheen.nix-ide
+      github.copilot
     ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-      {
-        name = "copilot";
-        publisher = "GitHub";
-        version = "1.34.6280";
-        sha256 = "05yh66zjgafas1svyjk73nibjnsfq6yvcb3sikkhr8s8d2dsdiy8";
-      }
       {
         name = "logcat-color";
         publisher = "RaidXu";
