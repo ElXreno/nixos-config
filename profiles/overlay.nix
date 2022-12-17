@@ -115,7 +115,7 @@ in
           # polymc = (optimizeForThisHost (super.polymc)).override { jdk = self.jdkNative; };
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
           # smart-home-server = inputs.smart-home-server.defaultPackage.${super.system};
-          # multimc = super.multimc.override { jdk = pkgs.adoptopenjdk-hotspot-bin-16; };
+          prismlauncher = super.prismlauncher.override { jdks = with pkgs; [ jdk8 jdk17 ]; };
           # crowdsec = super.callPackage ../modules/crowdsec { };
           ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
           av1an = super.callPackage ../modules/av1an.nix { };
