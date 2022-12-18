@@ -26,7 +26,7 @@
       # auto-optimise-store = config.deviceSpecific.isLaptop;
     };
 
-    daemonCPUSchedPolicy = "idle";
+    daemonCPUSchedPolicy = "batch";
     daemonIOSchedClass = "idle";
     daemonIOSchedPriority = 7;
 
