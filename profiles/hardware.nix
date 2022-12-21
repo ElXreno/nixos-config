@@ -15,7 +15,7 @@
     # jack.enable = true;
   };
 
-  services.udev.extraHwdb = lib.mkIf (config.device == "Honor-MB-AMD-Laptop") ''
+  services.udev.extraHwdb = lib.mkIf (config.device == "INFINITY") ''
     evdev:name:Huawei WMI hotkeys:*
       KEYBOARD_KEY_287=f20
   '';
@@ -27,7 +27,7 @@
 
   hardware = {
     cpu = {
-      amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "Honor-MB-AMD-Laptop") true;
+      amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") true;
       intel.updateMicrocode = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
     };
 

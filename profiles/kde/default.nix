@@ -12,7 +12,7 @@
     };
   };
 
-  services.colord.enable = config.device == "Honor-MB-AMD-Laptop";
+  services.colord.enable = config.device == "INFINITY";
 
   environment.systemPackages = with pkgs; [
     ark

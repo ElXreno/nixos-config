@@ -4,7 +4,7 @@
   imports = [
     "${inputs.nixpkgs}/nixos/modules/profiles/qemu-guest.nix"
     "${inputs.nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix"
-    ../Honor-MB-AMD-Laptop
+    ../INFINITY
   ];
 
   config = {

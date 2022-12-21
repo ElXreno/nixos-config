@@ -31,7 +31,7 @@
           ]
       )
       (
-        lib.mkIf (config.device == "Honor-MB-AMD-Laptop")
+        lib.mkIf (config.device == "INFINITY")
           [
             "zfs.zfs_arc_min=536870912"
             "zfs.zfs_arc_max=1610612736"
@@ -93,7 +93,7 @@
       )
     ];
     supportedFilesystems = lib.mkIf (!config.deviceSpecific.isServer) [ "ntfs" ];
-    tmpOnTmpfs = config.device != "Honor-MB-AMD-Laptop";
+    tmpOnTmpfs = config.device != "INFINITY";
   };
 
   systemd.services.fq-as-default = lib.mkIf config.deviceSpecific.isLaptop {
