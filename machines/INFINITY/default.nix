@@ -24,8 +24,6 @@
     options snd-hda-intel power_save=1 power_save_controller=y
   '';
 
-  networking.firewall.allowPing = false;
-
   services.tailscale.enable = true;
 
   powerManagement.cpuFreqGovernor = "performance";
