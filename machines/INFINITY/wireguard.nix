@@ -11,6 +11,33 @@
           publicKey = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=";
           allowedIPs = [ "0.0.0.0/0" "::/0" ];
           endpoint = "engage.cloudflareclient.com:2408";
+          persistentKeepalive = 5;
+        }
+      ];
+    };
+    "nl" = {
+      privateKeyFile = config.sops.secrets."wg/nl".path;
+      address = [ "10.6.0.7/24" ];
+      dns = [ "1.1.1.1" ];
+      peers = [
+        {
+          publicKey = "RWdtN7Aguq1Z6l602+1LZowlrVRZMl350TZO24w6eWM=";
+          presharedKeyFile = config.sops.secrets."wg/nl-preshared".path;
+          allowedIPs = [ "0.0.0.0/0" "::/0" ];
+          endpoint = "141.144.252.150:51820";
+          persistentKeepalive = 5;
+        }
+      ];
+    };
+    "rtx4d-local" = {
+      privateKeyFile = config.sops.secrets."wg/rtx4d-local".path;
+      address = [ "10.11.12.2/24" ];
+      peers = [
+        {
+          publicKey = "MzQPQzUFr4aQYD/fdAVvitNXXbRf0LL4pmpal+VNbQ4=";
+          allowedIPs = [ "10.11.12.1/32" "192.168.1.0/24" ];
+          endpoint = "109.171.24.112:65534";
+          persistentKeepalive = 5;
         }
       ];
     };
@@ -20,7 +47,16 @@
     "wg-quick-cloudflare" = {
       wantedBy = lib.mkForce [ ];
     };
+    "wg-quick-nl" = {
+      wantedBy = lib.mkForce [ ];
+    };
+    "wg-quick-rtx4d-local" = {
+      wantedBy = lib.mkForce [ ];
+    };
   };
 
   sops.secrets."wg/cloudflare" = { };
+  sops.secrets."wg/nl" = { };
+  sops.secrets."wg/nl-preshared" = { };
+  sops.secrets."wg/rtx4d-local" = { };
 }
