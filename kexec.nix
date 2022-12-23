@@ -35,13 +35,34 @@
         }
       ];
       contents = [ ];
+      compressCommand = "cat";
+      compressionExtension = "";
     };
+    kexec_tarball_self_extract_script = pkgs.writeTextFile {
+      executable = true;
+      name = "kexec-nixos";
+      text = ''
+        #!/bin/sh
+        set -eu
+        ARCHIVE=`awk '/^__ARCHIVE_BELOW__/ { print NR + 1; exit 0; }' $0`
+        tail -n+$ARCHIVE $0 | tar x -C /
+        /kexec_nixos $@
+        exit 1
+        __ARCHIVE_BELOW__
+      '';
+    };
+    kexec_bundle = pkgs.runCommand "kexec_bundle" { } ''
+      cat \
+        ${kexec_tarball_self_extract_script} \
+        ${kexec_tarball}/tarball/nixos-system-${kexec_tarball.system}.tar \
+        > $out
+      chmod +x $out
+    '';
   };
 
   boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" ];
   boot.kernelParams = [
-    "panic=30"
-    "boot.panic_on_fail" # reboot the machine upon fatal boot issues
+    "panic=30" "boot.panic_on_fail" # reboot the machine upon fatal boot issues
     "console=ttyS0" # enable serial console
     "console=tty1"
   ];
@@ -59,8 +80,24 @@
     passwordAuthentication = false;
   };
 
+  documentation.enable = false;
+  documentation.nixos.enable = false;
+  fonts.fontconfig.enable = false;
+  programs.bash.enableCompletion = false;
+  programs.command-not-found.enable = false;
+  security.polkit.enable = false;
+  security.rtkit.enable = pkgs.lib.mkForce false;
+  services.udisks2.enable = false;
+  i18n.supportedLocales = [ (config.i18n.defaultLocale + "/UTF-8") ];
+
   users.users.root.openssh.authorizedKeys.keys = [
     "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAH/QtzrqDZ/isIpMslg5FJvT6BoyeqpmiaDjuzcHaIpTexaq/UK4pAdG7IYvs++6JfdfAToWeU7TnOqRj8eubfFXADNwHC3w7gHjx/w8Yq76gcRG+UU/JtUbphzs2EdWWIupaZV+nFiTSbdGlak4fnnqSLIDhRgNa3pBbvSyf2OdD02bA== elxreno@desktop.local"
     "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBN4tzbWa0rhRF7oBin51NcO57YIeJ5oZsg4z4Uez0QNcGqKLfTr/oUGcSDsJZdKThdn55qegvacxD/LW0z50sDs= elxreno@Fujitsu-AH531-Laptop"
   ];
+
+  zramSwap = {
+    enable = true;
+    algorithm = "lzo-rle";
+    memoryPercent = 100;
+  };
 }
