@@ -13,4 +13,6 @@
     printing
     syncthing
   ];
+
+  deviceSpecific.isDesktop = true;
 }

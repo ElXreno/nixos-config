@@ -5,4 +5,6 @@
     # Profiles
     # fail2ban
   ];
+
+  deviceSpecific.isServer = true;
 }

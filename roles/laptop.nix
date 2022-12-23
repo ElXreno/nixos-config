@@ -20,4 +20,6 @@
 
     distributed-builds
   ];
+
+  deviceSpecific.isLaptop = true;
 }
