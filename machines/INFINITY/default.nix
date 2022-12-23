@@ -24,8 +24,7 @@
     options snd-hda-intel power_save=1 power_save_controller=y
   '';
 
-  networking.firewall.allowedTCPPorts = [ 25565 30037 ];
-  networking.firewall.allowedUDPPorts = [ 25565 30037 ];
+  networking.firewall.allowPing = false;
 
   powerManagement.cpuFreqGovernor = "performance";
 
