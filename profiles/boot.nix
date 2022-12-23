@@ -98,13 +98,21 @@
 
   systemd.services.fq-as-default = lib.mkIf config.deviceSpecific.isLaptop {
     script = ''
-      export FILEPATH="/tmp/fq_pie-activated"
-      if [ ! -f $FILEPATH ]; then
-        ${pkgs.iproute2}/bin/tc qdisc add dev wlp1s0 handle 1: root fq
-        touch $FILEPATH
-      fi
+      for interface in $(ls /sys/class/net/); do
+        if [ "$interface" != "lo" ]; then
+          if ${pkgs.iproute2}/bin/tc qdisc show dev $interface | grep -q "qdisc noqueue"; then
+            ${pkgs.iproute2}/bin/tc qdisc add dev $interface handle 1: root fq
+            echo "Added fq to $interface"
+          else
+            echo "$interface already has a qdisc"
+          fi
+        else
+          echo "Skipping $interface"
+        fi
+      done
     '';
     serviceConfig.Type = "oneshot";
     wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
   };
 }
