@@ -52,8 +52,6 @@
     package = pkgs.postgresql_11;
   };
 
-  sops.secrets.coturn = { };
-
   services.matrix-synapse = {
     enable = true;
     settings = {
@@ -84,7 +82,6 @@
       url_preview_enabled = true;
       max_upload_size = "100M";
     };
-    extraConfigFiles = [ config.sops.secrets.coturn.path ];
   };
 
   # networking.firewall.allowedTCPPorts = [ 8448 ];

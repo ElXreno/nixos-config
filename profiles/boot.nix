@@ -93,7 +93,7 @@
       )
     ];
     supportedFilesystems = lib.mkIf (!config.deviceSpecific.isServer) [ "ntfs" ];
-    tmpOnTmpfs = config.device != "INFINITY";
+    tmpOnTmpfs = config.device != "Nixis-Server";
   };
 
   systemd.services.fq-as-default = lib.mkIf config.deviceSpecific.isLaptop {
