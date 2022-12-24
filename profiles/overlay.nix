@@ -34,6 +34,7 @@ in
         "clion"
         "idea-ultimate"
         "phpstorm"
+        "pycharm-professional"
         "rider"
 
         "vscode-extension-github-copilot"
