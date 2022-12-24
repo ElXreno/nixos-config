@@ -14,6 +14,9 @@
         hostname = "109.171.24.112";
         port = 23;
       };
+      "nixis" = {
+        hostname = "13.73.228.81";
+      };
 
       "fedoraproject" = {
         host = "*.fedoraproject.org *.fedorahosted.org *.fedorainfracloud.org fedorapeople.org";
