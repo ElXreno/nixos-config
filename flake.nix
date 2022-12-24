@@ -40,7 +40,8 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
-    # smart-home-server.url = "git+ssh://gitea@code.elxreno.ninja/ElXreno/smart-home_server?ref=main";
+    fun-quiz-server.url = "git+ssh://git@github.com/ElXreno/fun-quiz_server.git?ref=main";
+    fun-quiz-server.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, nix, deploy-rs, ... }@inputs:

@@ -56,6 +56,21 @@
     },
     "flake-utils": {
       "locked": {
+        "lastModified": 1667395993,
+        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "locked": {
         "lastModified": 1659877975,
         "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
         "owner": "numtide",
@@ -67,6 +82,28 @@
         "owner": "numtide",
         "repo": "flake-utils",
         "type": "github"
+      }
+    },
+    "fun-quiz-server": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1671918085,
+        "narHash": "sha256-2IePrNyDZTT3bvQ7FBaZVLpv0FfiLo5DgIPGQzU9tDQ=",
+        "ref": "main",
+        "rev": "1fd5dc3723bad3de155a81246978aad3569ff809",
+        "revCount": 14,
+        "type": "git",
+        "url": "ssh://git@github.com/ElXreno/fun-quiz_server.git"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "ssh://git@github.com/ElXreno/fun-quiz_server.git"
       }
     },
     "home-manager": {
@@ -182,11 +219,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1671852058,
-        "narHash": "sha256-pgEpJYUPMTf6ZGUX1kwir59gdR6IZcuJC8KstQd7Tig=",
+        "lastModified": 1671882789,
+        "narHash": "sha256-F/c0Rq3G3DLeGPUNFGIMm3tvLCJQrSwyxvPf3n8C8Vo=",
         "owner": "ElXreno",
         "repo": "nixpkgs",
-        "rev": "33001812ab6005bd1256ab650e5e482c5af7df97",
+        "rev": "a37989f860ce095c3afd217c0f8305b551ad9744",
         "type": "github"
       },
       "original": {
@@ -305,6 +342,7 @@
     "root": {
       "inputs": {
         "deploy-rs": "deploy-rs",
+        "fun-quiz-server": "fun-quiz-server",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nix": "nix",
@@ -318,7 +356,7 @@
     },
     "rust-overlay": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "flake-utils": "flake-utils_2",
         "nixpkgs": [
           "nixpkgs"
         ]

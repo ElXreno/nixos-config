@@ -20,6 +20,19 @@
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
       virtualHosts = {
+        "elxreno.me" = lib.mkIf (config.device == "Nixis-Server") {
+          forceSSL = true;
+          enableACME = true;
+          root = "/var/www/elxreno.me";
+        };
+        "funquiz.elxreno.me" = lib.mkIf (config.device == "Nixis-Server" && config.services.fun-quiz-api.enable) {
+          forceSSL = true;
+          enableACME = true;
+          locations."/" = {
+            proxyPass = "http://localhost:${toString config.services.fun-quiz-api.port}";
+            extraConfig = "proxy_pass_header Authorization;";
+          };
+        };
         # "code.elxreno.ninja" = lib.mkIf (config.device == "Noxer-Server" && config.services.gitea.enable) {
         #   addSSL = true;
         #   enableACME = true;
