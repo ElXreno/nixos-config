@@ -218,11 +218,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1672102306,
-        "narHash": "sha256-ZDUOzBO2gNppItIp2QNFb/LQnK9GtgFj5E2ai2W9R+A=",
+        "lastModified": 1672102291,
+        "narHash": "sha256-8Ib1Gn6yIj7K/QnRgMGyVwFoQV/9X60vKTf2/Er9jjY=",
         "owner": "ElXreno",
         "repo": "nixpkgs",
-        "rev": "86a4b41e81a1c654f38012ec1699ced5f315b14b",
+        "rev": "a481a24b3e27f64b48a334f0ffe760b835328aa9",
         "type": "github"
       },
       "original": {
