@@ -1,17 +1,14 @@
 { pkgs, ... }:
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
+    # Rust
     pkg-config
     clang
     gnumake
     rustup
-
-    # bruh
-    php
   ] ++ (with jetbrains; [
     clion
     idea-ultimate
-    phpstorm
   ]);
 
   buildInputs = with pkgs; [
