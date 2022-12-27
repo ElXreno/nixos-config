@@ -92,18 +92,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1671918085,
-        "narHash": "sha256-2IePrNyDZTT3bvQ7FBaZVLpv0FfiLo5DgIPGQzU9tDQ=",
-        "ref": "main",
-        "rev": "1fd5dc3723bad3de155a81246978aad3569ff809",
-        "revCount": 14,
-        "type": "git",
-        "url": "ssh://git@github.com/ElXreno/fun-quiz_server.git"
+        "lastModified": 1672112459,
+        "narHash": "sha256-zTuQXDJVdkfGdHDKr2KsUnFJNXEF4TRx1m8sAEqkgTc=",
+        "owner": "ElXreno",
+        "repo": "fun-quiz_server",
+        "rev": "4dcc9acd011a1cdeda3eab7069df089efd6c9a00",
+        "type": "github"
       },
       "original": {
-        "ref": "main",
-        "type": "git",
-        "url": "ssh://git@github.com/ElXreno/fun-quiz_server.git"
+        "owner": "ElXreno",
+        "repo": "fun-quiz_server",
+        "type": "github"
       }
     },
     "home-manager": {
@@ -362,11 +361,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1672062046,
-        "narHash": "sha256-4qEJkmwnAseKSloDdCIcgYFDUxKQgkq8kbMKYmkF2VA=",
+        "lastModified": 1672107670,
+        "narHash": "sha256-m4kP+8k46JwSXYDugykIVvRyoNofZDG7atjbi5+sLoU=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "33d196f944676bdbd1965f5bf436b8b8d4ea4e5f",
+        "rev": "f4827ef0518463f31a52ab2e5c500c80558fdd78",
         "type": "github"
       },
       "original": {

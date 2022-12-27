@@ -40,7 +40,7 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
 
-    fun-quiz-server.url = "git+ssh://git@github.com/ElXreno/fun-quiz_server.git?ref=main";
+    fun-quiz-server.url = "github:ElXreno/fun-quiz_server";
     fun-quiz-server.inputs.nixpkgs.follows = "nixpkgs";
   };
 
