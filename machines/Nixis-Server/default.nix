@@ -12,6 +12,8 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  services.tailscale.enable = true;
+
   services.postgresql = {
     enable = true;
     package = pkgs.postgresql_15;

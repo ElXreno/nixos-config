@@ -26,6 +26,8 @@
 
   networking.firewall.allowPing = false;
 
+  services.tailscale.enable = true;
+
   powerManagement.cpuFreqGovernor = "performance";
 
   sops.secrets."smb/college" = { };
