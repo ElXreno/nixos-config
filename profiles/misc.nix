@@ -25,7 +25,7 @@
         {
           EDITOR = "hx";
           _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
-          DOTNET_CLI_TELEMETRY_OPTOUT = true;
+          DOTNET_CLI_TELEMETRY_OPTOUT = 1;
         }
         (
           lib.mkIf config.deviceSpecific.isLaptop {
