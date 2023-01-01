@@ -21,12 +21,13 @@ pkgs.mkShell {
     venvShellHook
   ];
 
-  venvDir = "/home/elxreno/.cache/nix-python-venv";
+  venvDir = "./venv";
 
-  postVenv = ''
+  postVenvCreation = ''
     unset SOURCE_DATE_EPOCH
-    ./scripts/install_local_packages.sh
+    pip install -r requirements.txt
   '';
+
   postShellHook = ''
     # Allow the use of wheels.
     unset SOURCE_DATE_EPOCH
