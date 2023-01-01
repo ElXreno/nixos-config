@@ -29,16 +29,63 @@
   powerManagement.cpuFreqGovernor = "performance";
 
   sops.secrets."smb/college" = { };
-  fileSystems."/mnt/college" = {
-    device = "//Server3";
+  fileSystems."/mnt/college/Study" = {
+    device = "//10.1.37.4/Study";
     fsType = "cifs";
     options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "actimeo=300"
+      "cache=loose"
       "credentials=${config.sops.secrets."smb/college".path}"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=5s"
+    ];
+  };
+
+  fileSystems."/mnt/college/Install" = {
+    device = "//10.1.37.4/Install";
+    fsType = "cifs";
+    options = [
+      "actimeo=300"
+      "cache=loose"
+      "credentials=${config.sops.secrets."smb/college".path}"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=5s"
+    ];
+  };
+
+  fileSystems."/mnt/college/Data" = {
+    device = "//10.1.37.4/Data";
+    fsType = "cifs";
+    options = [
+      "actimeo=300"
+      "cache=loose"
+      "credentials=${config.sops.secrets."smb/college".path}"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=5s"
+    ];
+  };
+
+  fileSystems."/mnt/college/Control-works" = {
+    device = "//10.1.37.4/Контрольные работы";
+    fsType = "cifs";
+    options = [
+      "actimeo=300"
+      "cache=loose"
+      "credentials=${config.sops.secrets."smb/college".path}"
+      "noauto"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=5s"
     ];
   };
 
