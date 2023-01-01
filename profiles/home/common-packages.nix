@@ -102,6 +102,7 @@ in
             darktable
             digikam
             rawtherapee
+            upscaler
 
             # Libvirtd manager
             virt-manager
