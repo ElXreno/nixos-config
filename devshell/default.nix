@@ -8,7 +8,6 @@ pkgs.mkShell {
     rustup
   ] ++ (with jetbrains; [
     clion
-    idea-ultimate
   ]);
 
   buildInputs = with pkgs; [
