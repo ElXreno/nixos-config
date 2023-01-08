@@ -54,5 +54,5 @@
   systemd.services.NetworkManager-wait-online.enable = false;
 
   # Disable suspend on lid switch on laptop
-  services.logind.lidSwitch = lib.mkIf config.deviceSpecific.isLaptop "ignore";
+  services.logind.lidSwitch = lib.mkIf (config.deviceSpecific.isLaptop || config.device == "Noxer-Server") "ignore";
 }
