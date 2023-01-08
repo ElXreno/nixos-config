@@ -3,7 +3,7 @@
   networking = {
     hostName = config.device;
     networkmanager = {
-      enable = lib.mkIf (!config.deviceSpecific.isServer) true;
+      enable = lib.mkIf (!config.deviceSpecific.isServer || config.device == "Noxer-Server") true;
       wifi = {
         backend = "iwd";
         powersave = false;
