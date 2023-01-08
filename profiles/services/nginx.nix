@@ -14,10 +14,11 @@
   services = {
     nginx = {
       enable = true;
+      enableReload = true;
       recommendedTlsSettings = true;
       recommendedProxySettings = true;
       recommendedOptimisation = true;
-      recommendedGzipSettings = true;
+      recommendedBrotliSettings = true;
       virtualHosts = {
         "elxreno.me" = lib.mkIf (config.device == "Nixis-Server") {
           forceSSL = true;
