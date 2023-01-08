@@ -87,6 +87,8 @@ in
             # Games
             ddnet
             prismlauncher
+            gamemode
+            bottles
 
             # MEGA
             megasync
