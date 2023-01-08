@@ -17,12 +17,10 @@ in
 {
   imports = [ ./rofi.nix (import ./swayidle.nix { inherit pkgs lock unlock screen-off resume; }) ./swaylock.nix ./waybar.nix ];
 
-  startupApplications = [ "${pkgs.megasync}/bin/megasync" ];
-
   programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [ swayidle xwayland ];
+    extraPackages = with pkgs; [ swayidle xwayland foot ];
   };
 
   environment.loginShellInit = lib.mkAfter ''
@@ -55,7 +53,7 @@ in
         };
         modifier = "Mod4";
         window = {
-          border = 1;
+          border = 0;
           titlebar = false;
         };
         bars = [
@@ -63,7 +61,7 @@ in
             command = "${pkgs.waybar}/bin/waybar";
           }
         ];
-        startup = map (command: { inherit command; }) config.startupApplications
+        startup = map (command: { inherit command; }) [ "${pkgs.megasync}/bin/megasync" ]
           #   ++ [
           #   {
           #     command =
@@ -73,8 +71,8 @@ in
         ;
         keybindings =
           let
-            # workspaces = (lib.lists.drop 1 (builtins.genList (x: [ (toString x) (toString x) ]) 10));
-            workspaces = builtins.genList (x: [ (toString x) (toString (if x == 0 then 10 else x)) ]) 10;
+            workspaces = (lib.lists.drop 1 (builtins.genList (x: [ (toString x) (toString x) ]) 10));
+            # workspaces = builtins.genList (x: [ (toString x) (toString (if x == 0 then 10 else x)) ]) 10;
           in
           {
             "${modifier}+F5" = "reload";
