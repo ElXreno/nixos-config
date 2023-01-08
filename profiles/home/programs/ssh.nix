@@ -15,7 +15,10 @@
         port = 23;
       };
       "nixis" = {
-        hostname = "13.73.228.81";
+        hostname = "100.77.238.46";
+      };
+      "noxer" = {
+        hostname = "100.67.12.44";
       };
 
       "fedoraproject" = {
