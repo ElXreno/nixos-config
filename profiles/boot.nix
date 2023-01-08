@@ -19,11 +19,21 @@
     kernelModules = [ "kvm-amd" "kvm-intel" ];
     kernelParams = lib.mkMerge [
       [
-        "mitigations=off"
-        "i915.mitigations=off"
-        # "delayacct"
         "nohibernate"
       ]
+      (
+        lib.mkIf (config.deviceSpecific.isDesktop || config.deviceSpecific.isLaptop || config.device == "Noxer-Server")
+          [
+            "i915.mitigations=off"
+            "mitigations=off"
+          ]
+      )
+      (
+        lib.mkIf (config.deviceSpecific.isDesktop || config.deviceSpecific.isLaptop)
+          [
+            "preempt=full"
+          ]
+      )
       (
         lib.mkIf config.deviceSpecific.isDesktop
           [
@@ -86,9 +96,10 @@
             "net.ipv6.conf.wlp1s0.hop_limit" = 65;
 
             # Memory
+            "vm.min_free_kbytes" = 157057;
             "vm.extfrag_threshold" = 0;
             "vm.vfs_cache_pressure" = 3000;
-            "vm.page-cluster" = 2;
+            "vm.page-cluster" = 0;
           }
       )
     ];
