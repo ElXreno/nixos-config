@@ -21,6 +21,8 @@
         Persistent = true;
       };
       extraBackupArgs = [
+        "--compression=max"
+
         "--exclude=/home/elxreno/.android"
         "--exclude=/home/elxreno/.aspnet"
         "--exclude=/home/elxreno/.cache"
