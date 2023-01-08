@@ -53,6 +53,8 @@ in
             ];
           });
 
+          tlp = super.tlp.override { inherit (config.boot.kernelPackages) x86_energy_perf_policy; };
+
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
           prismlauncher = super.prismlauncher.override { jdks = with pkgs; [ jdk8 jdk17 ]; };
