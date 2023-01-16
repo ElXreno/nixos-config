@@ -62,9 +62,24 @@
         ksmserverrc.General.loginMode = "restoreSavedSession";
 
         konsolerc = {
+          "Desktop Entry".DefaultProfile = "default.profile";
+
+          KonsoleWindow.RememberWindowSize = false;
+
           TabBar = {
             NewTabBehavior = "PutNewTabAfterCurrentTab";
             TabBarVisibility = "AlwaysShowTabBar";
+          };
+        };
+        "../.local/share/konsole/default.profile" = {
+          Appearance.Font = "JetBrains Mono,10,-1,5,50,0,0,0,0,0";
+          General = {
+            Name = "default";
+            TerminalColumns = 120;
+            TerminalRows = 30;
+          };
+          Scrolling = {
+            HistorySize = 50000;
           };
         };
 
