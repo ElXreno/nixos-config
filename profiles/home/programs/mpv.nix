@@ -7,8 +7,8 @@
       vo = "gpu";
       save-position-on-quit = "yes";
       hr-seek = "yes";
-      demuxer-max-bytes = "300M";
-      demuxer-max-back-bytes = "100M";
+      demuxer-max-bytes = "128M";
+      demuxer-max-back-bytes = "32M";
     };
   };
 }
