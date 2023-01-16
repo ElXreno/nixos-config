@@ -31,12 +31,22 @@
       intel.updateMicrocode = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
     };
 
-    opengl = {
-      enable = true;
-      driSupport32Bit = true;
-      # Work-around for LibreOffice to get OpenCL work
-      setLdLibraryPath = true;
-    };
+    opengl =
+      let
+        mesa-overrides = {
+          galliumDrivers = [ "zink" "radeonsi" "swrast" "virgl" ];
+          vulkanDrivers = [ "amd" "swrast" "virtio-experimental" ];
+        };
+      in
+      {
+        enable = true;
+        driSupport32Bit = true;
+        package = lib.mkIf (config.device == "INFINITY") (pkgs.mesa.override mesa-overrides).drivers;
+        package32 = lib.mkIf (config.device == "INFINITY") (pkgs.driversi686Linux.mesa.override mesa-overrides).drivers;
+
+        # Work-around for LibreOffice to get OpenCL work
+        setLdLibraryPath = true;
+      };
 
     bluetooth = {
       # TODO: Fix state after persist
