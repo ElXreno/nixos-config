@@ -89,6 +89,7 @@ in
             prismlauncher
             gamemode
             bottles
+            xclicker
 
             # MEGA
             megasync
