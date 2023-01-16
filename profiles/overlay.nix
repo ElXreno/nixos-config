@@ -57,7 +57,7 @@ in
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
-          prismlauncher = super.prismlauncher.override { jdks = with pkgs; [ jdk8 jdk17 ]; };
+          prismlauncher = super.prismlauncher.override { jdk17 = pkgs.graalvm17-ce; jdks = with pkgs; [ graalvm17-ce ]; };
 
           av1an = super.callPackage ../modules/av1an.nix { };
           cassowary = super.callPackage ../modules/cassowary.nix { };
