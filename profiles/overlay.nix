@@ -63,8 +63,6 @@ in
           cassowary = super.callPackage ../modules/cassowary.nix { };
           elfshaker = super.callPackage ../modules/elfshaker.nix { };
           ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
-          nix-casync = super.callPackage ../modules/nix-casync.nix { };
-          universal-android-debloater = super.callPackage ../modules/universal-android-debloater.nix { };
 
           fun-quiz-server = inputs.fun-quiz-server.packages.${super.system}.default;
         })

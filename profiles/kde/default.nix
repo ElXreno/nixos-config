@@ -9,10 +9,15 @@
     };
     desktopManager.plasma5 = {
       enable = true;
+      excludePackages = with pkgs; [ elisa ];
     };
   };
 
   services.colord.enable = config.device == "INFINITY";
+
+  fonts.fonts = with pkgs; [
+    jetbrains-mono
+  ];
 
   environment.systemPackages = with pkgs; [
     ark
@@ -28,12 +33,6 @@
 
     # Icons
     papirus-icon-theme
-
-    # Fonts
-    jetbrains-mono
-
-    ## For telegram font fix
-    open-sans
   ] ++ lib.optional config.services.colord.enable gnome.gnome-color-manager;
 
   home-manager.users.elxreno = {

@@ -30,7 +30,6 @@ in
           iotop
           jq
           mtr
-          nmap
           pciutils
           pigz
           restic
@@ -47,20 +46,18 @@ in
           yt-dlp
 
           # Nix stuff
+          deadnix
           nix-prefetch-github
           nix-tree
           nixpkgs-fmt
           nixpkgs-review
           nixpkgs-update
+          statix
         ]
         (lib.mkIf (!config.deviceSpecific.isServer) [
           # Messengers
           element-desktop
           tdesktop
-
-          # Office and language packs
-          libreoffice
-          hunspellDicts.ru-ru
 
           keepassxc
           qbittorrent
@@ -70,14 +67,9 @@ in
           ([
             # CLI Stuff
             acpi
-            aircrack-ng
-            apktool
             deploy-rs
             elfshaker
-            mdk4
             ngrok
-            nix-casync
-            statix
             wgcf
 
             # flatpak stuff
@@ -103,7 +95,6 @@ in
 
             # Photos
             darktable
-            digikam
             rawtherapee
             upscaler
 
