@@ -51,8 +51,7 @@
 
   zramSwap = {
     enable = true;
-    # zstd is bad for high-load memory tasks
-    algorithm = "lzo-rle";
+    algorithm = "zstd";
     memoryPercent = 150;
   };
 }
