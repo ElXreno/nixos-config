@@ -25,6 +25,7 @@
   '';
 
   services.tailscale.enable = true;
+  programs.steam.enable = true;
 
   powerManagement.cpuFreqGovernor = "performance";
 

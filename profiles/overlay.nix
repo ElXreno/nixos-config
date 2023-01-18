@@ -25,6 +25,7 @@ in
         "nvidia-settings"
         "nvidia-x11"
         "steam-original"
+        "steam-run"
         "steam"
         "unrar"
         "vscode"
