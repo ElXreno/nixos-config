@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, ... }:
+{ inputs, ... }:
 {
   imports = [
     inputs.self.nixosRoles.server

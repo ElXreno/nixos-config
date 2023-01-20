@@ -1,4 +1,4 @@
-{ lib, rust, stdenv, rustPlatform, fetchFromGitHub }:
+{ lib, rustPlatform, fetchFromGitHub }:
 
 rustPlatform.buildRustPackage rec {
   pname = "elfshaker";

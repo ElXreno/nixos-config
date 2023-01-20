@@ -1,4 +1,4 @@
-{ lib, rust, stdenv, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, llvmPackages, ffmpeg, vapoursynth, rav1e }:
+{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, llvmPackages, ffmpeg, vapoursynth, rav1e }:
 
 rustPlatform.buildRustPackage rec {
   pname = "av1an";

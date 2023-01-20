@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, lib, ... }:
+{ config, pkgs, lib, ... }:
 {
   boot = {
     loader = lib.mkIf (!config.deviceSpecific.isServer) {

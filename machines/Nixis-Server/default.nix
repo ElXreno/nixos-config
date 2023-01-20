@@ -36,7 +36,7 @@
       secretFile = config.sops.secrets."fun-quiz-jwt-secret".path;
     };
     user = config.users.users.root.name;
-    group = config.users.users.root.group;
+    inherit (config.users.users.root) group;
   };
 
   system.stateVersion = "22.05";

@@ -64,7 +64,7 @@ in
           thunderbird
         ])
         (lib.mkIf (config.deviceSpecific.isLaptop || config.device == "nixos-iso")
-          ([
+          [
             # CLI Stuff
             acpi
             deploy-rs
@@ -106,7 +106,7 @@ in
 
             ## etc
             remmina
-          ]))
+          ])
       ];
     };
 

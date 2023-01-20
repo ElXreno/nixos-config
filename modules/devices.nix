@@ -1,6 +1,6 @@
 # Source: https://github.com/balsoft/nixos-config/blob/2f90786d28115f95976adf635f2eb7877a4bc2f5/modules/devices.nix
 
-{ inputs, pkgs, lib, config, ... }:
+{ lib, config, ... }:
 with lib;
 with types; {
   options = {

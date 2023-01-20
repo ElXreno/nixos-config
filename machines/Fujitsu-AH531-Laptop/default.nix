@@ -1,4 +1,4 @@
-{ config, inputs, pkgs, lib, ... }:
+{ inputs, pkgs, lib, ... }:
 
 {
   imports = with inputs.self.nixosProfiles;

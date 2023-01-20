@@ -1,4 +1,3 @@
-{ pkgs, ... }:
 {
   home-manager.users.elxreno.programs = {
     direnv = {

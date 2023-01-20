@@ -10,9 +10,6 @@
       # inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix.url = "github:nixos/nix";
-    nix.inputs.nixpkgs.follows = "nixpkgs";
-
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     # home-manager stuff
@@ -44,7 +41,7 @@
     fun-quiz-server.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, nix, deploy-rs, ... }@inputs:
+  outputs = { self, nixpkgs, deploy-rs, ... }@inputs:
     let
       findModules = dir:
         builtins.concatLists (builtins.attrValues (builtins.mapAttrs
@@ -91,7 +88,7 @@
         let
           inherit ((builtins.head (builtins.attrValues self.nixosConfigurations))) pkgs config;
           mkShells = mapAttrs
-            (name: value: import value { inherit pkgs config; });
+            (_name: value: import value { inherit pkgs config; });
         in
         mkShells (builtins.listToAttrs (findModules ./devshell));
 

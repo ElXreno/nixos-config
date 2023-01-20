@@ -1,4 +1,4 @@
-{ pkgs, lock, unlock, screen-off, resume, ... }:
+{ lock, unlock, screen-off, resume, ... }:
 
 {
   home-manager.users.elxreno.services.swayidle = {

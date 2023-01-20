@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, lib, ... }:
 
 {
   services.restic.backups = lib.mkIf (!config.deviceSpecific.isVM) {

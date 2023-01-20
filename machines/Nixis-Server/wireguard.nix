@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, ... }:
 
 {
   networking.firewall.allowedUDPPorts = [ 21367 ];

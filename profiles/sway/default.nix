@@ -71,7 +71,7 @@ in
         ;
         keybindings =
           let
-            workspaces = (lib.lists.drop 1 (builtins.genList (x: [ (toString x) (toString x) ]) 10));
+            workspaces = lib.lists.drop 1 (builtins.genList (x: [ (toString x) (toString x) ]) 10);
             # workspaces = builtins.genList (x: [ (toString x) (toString (if x == 0 then 10 else x)) ]) 10;
           in
           {

@@ -1,20 +1,4 @@
 { config, inputs, pkgs, lib, ... }:
-let
-  optimizeForThisHost = pkg:
-    pkg.overrideAttrs (attrs: {
-      NIX_CFLAGS_COMPILE = (attrs.NIX_CFLAGS_COMPILE or "") + " -march=znver2 -mtune=znver2 -Ofast -fPIC -ffat-lto-objects -flto=auto -funroll-loops -fomit-frame-pointer ";
-      RUSTFLAGS = (attrs.RUSTFLAGS or "") + " -C target-cpu=native";
-    });
-  optimizeForThisHostStdenv = pkg:
-    pkg.override {
-      stdenv = pkgs.stdenvAdapters.addAttrsToDerivation
-        {
-          NIX_CFLAGS_COMPILE = "-march=znver2 -mtune=znver2 -Ofast -fPIC -ffat-lto-objects -flto=auto -funroll-loops -fomit-frame-pointer";
-          RUSTFLAGS = "-C target-cpu=native";
-        }
-        pkgs.stdenv;
-    };
-in
 {
   nixpkgs = {
     config = {
@@ -43,7 +27,7 @@ in
     };
     overlays = with inputs; [
       rust-overlay.overlays.default
-      (self: super:
+      (_self: super:
         {
           bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
             patches = (old.patches or [ ]) == [

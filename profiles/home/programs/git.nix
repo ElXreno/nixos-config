@@ -1,5 +1,3 @@
-{ config, lib, ... }:
-
 {
   home-manager.users.elxreno.programs.git = {
     enable = true;
