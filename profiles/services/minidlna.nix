@@ -1,11 +1,11 @@
 { lib, ... }:
 {
-  networking.firewall.allowedTCPPorts = [ 8200 ];
-
   services.minidlna = {
     enable = true;
+    openFirewall = true;
     settings = {
-      media_dir = [ "/home/elxreno/Videos" ];
+      media_dir = [ "/mnt/media" ];
+      inotify = "yes";
     };
   };
 

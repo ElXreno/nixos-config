@@ -2,7 +2,9 @@
 {
   imports = [
     inputs.self.nixosRoles.server
+    inputs.self.nixosProfiles.minidlna
     ./hardware-configuration.nix
+    ./qbittorrent-nox.nix
     # ./wireguard.nix
   ];
 
