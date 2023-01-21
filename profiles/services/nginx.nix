@@ -25,14 +25,6 @@
           enableACME = true;
           root = "/var/www/elxreno.me";
         };
-        "funquiz.elxreno.me" = lib.mkIf (config.device == "Nixis-Server" && config.services.fun-quiz-api.enable) {
-          forceSSL = true;
-          enableACME = true;
-          locations."/" = {
-            proxyPass = "http://localhost:${toString config.services.fun-quiz-api.port}";
-            extraConfig = "proxy_pass_header Authorization;";
-          };
-        };
       };
     };
   };

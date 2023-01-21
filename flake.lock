@@ -40,21 +40,6 @@
     },
     "flake-utils": {
       "locked": {
-        "lastModified": 1667395993,
-        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "flake-utils_2": {
-      "locked": {
         "lastModified": 1659877975,
         "narHash": "sha256-zllb8aq3YO3h8B/U0/J1WBgAL8EX5yWf5pMj3G0NAmc=",
         "owner": "numtide",
@@ -65,27 +50,6 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "fun-quiz-server": {
-      "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1672112459,
-        "narHash": "sha256-zTuQXDJVdkfGdHDKr2KsUnFJNXEF4TRx1m8sAEqkgTc=",
-        "owner": "ElXreno",
-        "repo": "fun-quiz_server",
-        "rev": "4dcc9acd011a1cdeda3eab7069df089efd6c9a00",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ElXreno",
-        "repo": "fun-quiz_server",
         "type": "github"
       }
     },
@@ -323,7 +287,6 @@
     "root": {
       "inputs": {
         "deploy-rs": "deploy-rs",
-        "fun-quiz-server": "fun-quiz-server",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "nix": "nix",
@@ -337,7 +300,7 @@
     },
     "rust-overlay": {
       "inputs": {
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
         ]

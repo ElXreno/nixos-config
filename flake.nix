@@ -36,9 +36,6 @@
 
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-
-    fun-quiz-server.url = "github:ElXreno/fun-quiz_server";
-    fun-quiz-server.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, deploy-rs, ... }@inputs:

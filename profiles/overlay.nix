@@ -48,8 +48,6 @@
           cassowary = super.callPackage ../modules/cassowary.nix { };
           elfshaker = super.callPackage ../modules/elfshaker.nix { };
           ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
-
-          fun-quiz-server = inputs.fun-quiz-server.packages.${super.system}.default;
         })
     ];
   };

@@ -130,16 +130,6 @@
     ACTION=="add|change", KERNEL=="sd[a-z]*[0-9]*|mmcblk[0-9]*p[0-9]*|nvme[0-9]*n[0-9]*p[0-9]*", ENV{ID_FS_TYPE}=="zfs_member", ATTR{../queue/scheduler}="none"
   '';
 
-  services.postgresql = {
-    enable = true;
-    package = pkgs.postgresql_15;
-    authentication = pkgs.lib.mkOverride 10 ''
-      local all all trust
-      host all all 127.0.0.1/32 trust
-      host all all ::1/128 trust
-    '';
-  };
-
   programs.gamemode = {
     enable = true;
     settings = {
