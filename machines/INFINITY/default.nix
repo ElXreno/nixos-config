@@ -1,5 +1,26 @@
 { config, inputs, pkgs, lib, ... }:
 
+let
+  cifsOptions = [
+    "actimeo=300"
+    "cache=loose"
+    "noauto"
+    "x-systemd.automount"
+    "x-systemd.device-timeout=5s"
+    "x-systemd.idle-timeout=60"
+    "x-systemd.mount-timeout=5s"
+  ];
+  mkMountPath = prefix: path: "/mnt/${prefix}/${path}";
+  mkDevicePath = addr: path: "//${addr}/${path}";
+  mkCifsFilesystem = path: prefix: addr: credentials: {
+    name = "${mkMountPath prefix path}";
+    value = {
+      device = mkDevicePath addr path;
+      fsType = "cifs";
+      options = cifsOptions ++ lib.optional (credentials != null) "credentials=${credentials}";
+    };
+  };
+in
 {
   imports = with inputs.self.nixosProfiles;
     [
@@ -30,65 +51,11 @@
   powerManagement.cpuFreqGovernor = "performance";
 
   sops.secrets."smb/college" = { };
-  fileSystems."/mnt/college/Study" = {
-    device = "//10.1.37.4/Study";
-    fsType = "cifs";
-    options = [
-      "actimeo=300"
-      "cache=loose"
-      "credentials=${config.sops.secrets."smb/college".path}"
-      "noauto"
-      "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.mount-timeout=5s"
-    ];
-  };
-
-  fileSystems."/mnt/college/Install" = {
-    device = "//10.1.37.4/Install";
-    fsType = "cifs";
-    options = [
-      "actimeo=300"
-      "cache=loose"
-      "credentials=${config.sops.secrets."smb/college".path}"
-      "noauto"
-      "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.mount-timeout=5s"
-    ];
-  };
-
-  fileSystems."/mnt/college/Data" = {
-    device = "//10.1.37.4/Data";
-    fsType = "cifs";
-    options = [
-      "actimeo=300"
-      "cache=loose"
-      "credentials=${config.sops.secrets."smb/college".path}"
-      "noauto"
-      "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.mount-timeout=5s"
-    ];
-  };
-
-  fileSystems."/mnt/college/Control-works" = {
-    device = "//10.1.37.4/Контрольные работы";
-    fsType = "cifs";
-    options = [
-      "actimeo=300"
-      "cache=loose"
-      "credentials=${config.sops.secrets."smb/college".path}"
-      "noauto"
-      "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.mount-timeout=5s"
-    ];
-  };
+  fileSystems =
+    let collegeCifs = map
+      (path: mkCifsFilesystem path "college" "10.1.37.4" config.sops.secrets."smb/college".path)
+      [ "Study" "Install" "Data" ];
+    in builtins.listToAttrs collegeCifs;
 
   # For shindows
   time.hardwareClockInLocalTime = true;
