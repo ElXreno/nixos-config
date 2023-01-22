@@ -1,13 +1,12 @@
-{ config, inputs, pkgs, lib, ... }:
+{ inputs, ... }:
 
 {
-  imports =
-    [
-      ./wireguard.nix
-      "${inputs.nixpkgs}/nixos/modules/virtualisation/azure-common.nix"
-      inputs.self.nixosProfiles.nginx
-      inputs.self.nixosRoles.server
-    ];
+  imports = [
+    ./wireguard.nix
+    "${inputs.nixpkgs}/nixos/modules/virtualisation/azure-common.nix"
+    inputs.self.nixosProfiles.nginx
+    inputs.self.nixosRoles.server
+  ];
 
   security.sudo.wheelNeedsPassword = false;
 

@@ -1,4 +1,7 @@
 { config, pkgs, lib, ... }:
+
+let inherit (config.deviceSpecific) isDesktop isLaptop isServer;
+in
 {
   boot = {
     loader = lib.mkIf (!config.deviceSpecific.isServer) {
@@ -11,46 +14,23 @@
       };
     };
     kernelPackages = lib.mkMerge [
-      (lib.mkIf config.deviceSpecific.isLaptop pkgs.linuxPackages_xanmod_latest)
-      (lib.mkIf config.deviceSpecific.isDesktop pkgs.linuxPackages_5_15)
+      (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
+      (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
       # Servers
-      (lib.mkIf config.deviceSpecific.isServer pkgs.linuxPackages_latest)
+      (lib.mkIf isServer pkgs.linuxPackages_latest)
     ];
-    kernelModules = [ "kvm-amd" "kvm-intel" ];
-    kernelParams = lib.mkMerge [
-      [
-        "nohibernate"
-      ]
-      (
-        lib.mkIf (config.deviceSpecific.isDesktop || config.deviceSpecific.isLaptop || config.device == "Noxer-Server")
-          [
-            "i915.mitigations=off"
-            "mitigations=off"
-          ]
-      )
-      (
-        lib.mkIf (config.deviceSpecific.isDesktop || config.deviceSpecific.isLaptop)
-          [
-            "preempt=full"
-          ]
-      )
-      (
-        lib.mkIf config.deviceSpecific.isDesktop
-          [
-            "systemd.gpt_auto=0"
-          ]
-      )
-      (
-        lib.mkIf (config.device == "INFINITY")
-          [
-            "zfs.zfs_arc_min=536870912"
-            "zfs.zfs_arc_max=1610612736"
-            "zfs.zfs_arc_sys_free=1073741824"
-            "zfs.arc_shrink_shift=5"
-            "zfs.metaslab_lba_weighting_enabled=0"
-          ]
-      )
+
+    kernelParams = [
+      "nohibernate"
+    ] ++ lib.optionals (isDesktop || isLaptop || config.device == "Noxer-Server") [
+      "i915.mitigations=off"
+      "mitigations=off"
+    ] ++ lib.optionals (isDesktop || isLaptop) [
+      "preempt=full"
+    ] ++ lib.optionals isDesktop [
+      "systemd.gpt_auto=0"
     ];
+
     kernel.sysctl = lib.mkMerge [
       {
         # Network
@@ -74,19 +54,19 @@
         "vm.swappiness" = 80;
       }
       (
-        lib.mkIf (!config.deviceSpecific.isServer)
+        lib.mkIf (!isServer)
           {
             "kernel.sysrq" = 1;
           }
       )
       (
-        lib.mkIf config.deviceSpecific.isDesktop
+        lib.mkIf isDesktop
           {
             "vm.swappiness" = lib.mkForce 200;
           }
       )
       (
-        lib.mkIf config.deviceSpecific.isLaptop
+        lib.mkIf isLaptop
           {
             # Network
             "net.ipv4.ip_default_ttl" = 65;
@@ -103,11 +83,11 @@
           }
       )
     ];
-    supportedFilesystems = lib.mkIf (!config.deviceSpecific.isServer) [ "ntfs" ];
+    supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
     tmpOnTmpfs = config.device != "Nixis-Server";
   };
 
-  systemd.services.fq-as-default = lib.mkIf config.deviceSpecific.isLaptop {
+  systemd.services.fq-as-default = lib.mkIf isLaptop {
     script = ''
       for interface in $(ls /sys/class/net/); do
         if [ "$interface" != "lo" ]; then
