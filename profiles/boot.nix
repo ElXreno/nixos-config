@@ -4,15 +4,22 @@ let inherit (config.deviceSpecific) isDesktop isLaptop isServer;
 in
 {
   boot = {
-    loader = lib.mkIf (!config.deviceSpecific.isServer) {
-      timeout = 3;
+    loader = {
+      timeout = if isServer then 0 else 3;
+     } // (if (config.deviceSpecific.devInfo.legacy) then {
       grub = {
         enable = true;
         version = 2;
-        device = "/dev/sda";
-        useOSProber = true;
+        device = lib.mkDefault "/dev/sda";
       };
-    };
+    } else {
+      efi.canTouchEfiVariables = true;
+      systemd-boot = {
+        enable = true;
+        configurationLimit = 3;
+      };
+    }
+    );
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)

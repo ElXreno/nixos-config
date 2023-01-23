@@ -13,6 +13,8 @@
       inputs.impermanence.nixosModules.impermanence
     ];
 
+  deviceSpecific.devInfo.legacy = true;
+
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_xanmod;
 
   # services.xserver.videoDrivers = [ "nvidia" ];

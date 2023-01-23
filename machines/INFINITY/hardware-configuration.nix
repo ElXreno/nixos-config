@@ -36,14 +36,8 @@
       options = [ "subvol=nix" "compress-force=zstd" "discard=async" ];
     };
 
-
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/4e43791f-f4be-4272-a87d-d6f146defaca";
-      fsType = "ext4";
-    };
-
-  fileSystems."/boot/efi" =
-    { device = "/dev/disk/by-uuid/FE41-CBB2";
+    { device = "/dev/disk/by-uuid/1311-928C";
       fsType = "vfat";
     };
 

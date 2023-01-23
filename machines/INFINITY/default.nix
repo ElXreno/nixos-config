@@ -39,18 +39,6 @@ in
     # inputs.self.nixosProfiles.sway
   ];
 
-  boot.loader = {
-    efi = {
-      canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi";
-    };
-    grub = {
-      device = lib.mkForce "nodev";
-      efiSupport = true;
-      enableCryptodisk = true;
-    };
-  };
-
   boot.extraModprobeConfig = ''
     # enable power savings mode of snd_hda_intel
     options snd-hda-intel power_save=1 power_save_controller=y
