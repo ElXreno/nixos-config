@@ -6,7 +6,6 @@
     devices
 
     # Profiles
-    common-packages
     dnscrypt-proxy2
     fish
     git
@@ -15,7 +14,6 @@
     htop
     misc
     network
-    nix-index
     nix
     openssh
     overlay
