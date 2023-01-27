@@ -5,11 +5,6 @@
     nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    nixpkgs-update = {
-      url = "github:ryantm/nixpkgs-update";
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
     nix-index-database.url = "github:Mic92/nix-index-database";

@@ -9,7 +9,7 @@ in
 
   home-manager.users.elxreno = {
     home = {
-      packages = with pkgs; with inputs.nixpkgs-update.packages.${pkgs.stdenv.hostPlatform.system}; lib.mkMerge [
+      packages = with pkgs; lib.mkMerge [
         [
           # CLI Stuff
           age
@@ -51,7 +51,6 @@ in
           nix-tree
           nixpkgs-fmt
           nixpkgs-review
-          nixpkgs-update
           statix
         ]
         (lib.mkIf (!config.deviceSpecific.isServer) [
