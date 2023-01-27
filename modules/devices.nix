@@ -65,6 +65,10 @@ with types; {
         type = bool;
         default = !config.deviceSpecific.isServer;
       };
+      usesCustomBootloader = mkOption {
+        type = bool;
+        default = false;
+      };
     };
   };
 }

@@ -6,19 +6,21 @@ in
   boot = {
     loader = {
       timeout = if isServer then 0 else 3;
-     } // (if (config.deviceSpecific.devInfo.legacy) then {
-      grub = {
-        enable = true;
-        version = 2;
-        device = lib.mkDefault "/dev/sda";
-      };
-    } else {
-      efi.canTouchEfiVariables = true;
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 3;
-      };
-    }
+    } // (
+      if config.deviceSpecific.usesCustomBootloader then { }
+      else if (config.deviceSpecific.devInfo.legacy) then {
+        grub = {
+          enable = true;
+          version = 2;
+          device = lib.mkDefault "/dev/sda";
+        };
+      } else {
+        efi.canTouchEfiVariables = true;
+        systemd-boot = {
+          enable = true;
+          configurationLimit = 3;
+        };
+      }
     );
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)

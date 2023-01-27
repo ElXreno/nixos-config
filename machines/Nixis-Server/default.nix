@@ -8,6 +8,8 @@
     inputs.self.nixosRoles.server
   ];
 
+  deviceSpecific.usesCustomBootloader = true;
+
   security.sudo.wheelNeedsPassword = false;
 
   services.tailscale.enable = true;
