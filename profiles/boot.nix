@@ -58,8 +58,6 @@ in
 
         # Memory
         "vm.oom_kill_allocating_task" = 1;
-        "vm.overcommit_memory" = 2;
-        "vm.overcommit_ratio" = 400;
         "vm.swappiness" = 80;
       }
       (
