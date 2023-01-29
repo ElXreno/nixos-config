@@ -50,6 +50,8 @@
         driSupport32Bit = true;
         package = lib.mkIf (config.device == "INFINITY") (pkgs.mesa.override mesa-overrides).drivers;
         package32 = lib.mkIf (config.device == "INFINITY") (pkgs.driversi686Linux.mesa.override mesa-overrides).drivers;
+        extraPackages = with pkgs; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
+        extraPackages32 = with pkgs.driversi686Linux; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
 
         # Work-around for LibreOffice to get OpenCL work
         setLdLibraryPath = true;
