@@ -5,7 +5,7 @@
     enable = true;
     settings = {
       http3 = true;
-      server_names = [ "cloudflare" "scaleway-fr" ];
+      server_names = [ "cloudflare" ];
       sources = {
         public-resolvers = {
           urls = [
