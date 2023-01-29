@@ -80,6 +80,7 @@ in
             prismlauncher
             gamemode
             bottles
+            lutris
             xclicker
 
             # MEGA
