@@ -44,12 +44,27 @@
           galliumDrivers = [ "zink" "radeonsi" "swrast" "virgl" ];
           vulkanDrivers = [ "amd" "swrast" "virtio-experimental" ];
         };
+        # Drop when https://github.com/NixOS/nixpkgs/pull/211923 will be merged
+        mesa-overrideAttrs = old: rec {
+          version = "22.3.4";
+          branch = lib.versions.major version;
+          src = pkgs.fetchurl {
+            urls = [
+              "https://archive.mesa3d.org/mesa-${version}.tar.xz"
+              "https://mesa.freedesktop.org/archive/mesa-${version}.tar.xz"
+              "ftp://ftp.freedesktop.org/pub/mesa/mesa-${version}.tar.xz"
+              "ftp://ftp.freedesktop.org/pub/mesa/${version}/mesa-${version}.tar.xz"
+              "ftp://ftp.freedesktop.org/pub/mesa/older-versions/${branch}.x/${version}/mesa-${version}.tar.xz"
+            ];
+            sha256 = "37a1ddaf03f41919ee3c89c97cff41e87de96e00e9d3247959cc8279d8294593";
+          };
+        };
       in
       {
         enable = true;
         driSupport32Bit = true;
-        package = lib.mkIf (config.device == "INFINITY") (pkgs.mesa.override mesa-overrides).drivers;
-        package32 = lib.mkIf (config.device == "INFINITY") (pkgs.driversi686Linux.mesa.override mesa-overrides).drivers;
+        package = lib.mkIf (config.device == "INFINITY") ((pkgs.mesa.override mesa-overrides).overrideAttrs mesa-overrideAttrs).drivers;
+        package32 = lib.mkIf (config.device == "INFINITY") ((pkgs.driversi686Linux.mesa.override mesa-overrides).overrideAttrs mesa-overrideAttrs).drivers;
         extraPackages = with pkgs; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
         extraPackages32 = with pkgs.driversi686Linux; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
 
