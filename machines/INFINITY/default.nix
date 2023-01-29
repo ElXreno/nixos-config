@@ -42,6 +42,8 @@ in
   boot.extraModprobeConfig = ''
     # enable power savings mode of snd_hda_intel
     options snd-hda-intel power_save=1 power_save_controller=y
+
+    options iwlwifi amsdu_size=3
   '';
 
   powerManagement.cpuFreqGovernor = "performance";
