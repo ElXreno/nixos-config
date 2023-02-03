@@ -46,7 +46,7 @@ in
     options iwlwifi amsdu_size=3
   '';
 
-  powerManagement.cpuFreqGovernor = "performance";
+  powerManagement.cpuFreqGovernor = "schedutil";
 
   sops.secrets."smb/college" = { };
   fileSystems =
