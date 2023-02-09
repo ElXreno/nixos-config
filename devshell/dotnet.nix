@@ -15,6 +15,8 @@ pkgs.mkShell {
     monoPackage
   ];
 
+  NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
+
   shellHook = ''
     export PATH="$PATH:~/.dotnet/tools"
     export DOTNET_ROOT="${dotnetSdkPackage}"
