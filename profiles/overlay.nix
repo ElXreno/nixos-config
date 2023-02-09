@@ -4,6 +4,7 @@
     config = {
       allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
         "gitkraken"
+        "graalvm17-ee"
         "megasync"
         "ngrok"
         "nvidia-settings"
@@ -48,7 +49,31 @@
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
-          prismlauncher = super.prismlauncher.override { jdk17 = pkgs.graalvm17-ce; jdks = with pkgs; [ jdk8 graalvm17-ce  ]; };
+          graalvm17-ee =
+            let
+              javaVersion = "17";
+              defaultVersion = "22.3.1";
+              sourcesPath = ../sources/graalvm${javaVersion}-ee-sources.json;
+
+            in
+            (super.graalvmCEPackages.mkGraal rec {
+              inherit javaVersion defaultVersion sourcesPath;
+              config = {
+                x86_64-linux = {
+                  products = [
+                    "graalvm-ee"
+                  ];
+                  arch = "linux-amd64";
+                };
+              };
+            }).overrideAttrs (old: {
+              pname = "graalvm${javaVersion}-ee";
+              meta = old.meta // {
+                license = lib.licenses.unfree;
+              };
+            });
+
+          prismlauncher = super.prismlauncher.override { jdk17 = pkgs.graalvm17-ee; jdks = with pkgs; [ jdk8 graalvm17-ee ]; };
 
           av1an = super.callPackage ../modules/av1an.nix { };
           cassowary = super.callPackage ../modules/cassowary.nix { };

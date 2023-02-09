@@ -71,6 +71,9 @@ in
             ngrok
             wgcf
 
+            # GraalVM
+            graalvm17-ee
+
             # flatpak stuff
             flatpak-builder
             debugedit-unstable
