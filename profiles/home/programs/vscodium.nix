@@ -16,7 +16,7 @@
       }
     ];
     userSettings = {
-      "editor.cursorSmoothCaretAnimation" = true;
+      "editor.cursorSmoothCaretAnimation" = "on";
       "editor.inlineSuggest.enabled" = true;
       "editor.minimap.enabled" = false;
       "editor.smoothScrolling" = true;
