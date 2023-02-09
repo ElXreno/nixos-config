@@ -35,6 +35,7 @@ in
     inputs.self.nixosProfiles.gamemode
     inputs.self.nixosProfiles.virtualisation
     inputs.self.nixosProfiles.zfs
+    inputs.self.nixosProfiles.nix-serve
     # Lazy to configure everything from zero
     # inputs.self.nixosProfiles.sway
   ];
