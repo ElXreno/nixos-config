@@ -51,26 +51,18 @@
 
           graalvm17-ee =
             let
+              version = "22.3.1";
               javaVersion = "17";
-              defaultVersion = "22.3.1";
-              sourcesPath = ../sources/graalvm${javaVersion}-ee-sources.json;
-
-            in
-            (super.graalvmCEPackages.mkGraal rec {
-              inherit javaVersion defaultVersion sourcesPath;
-              config = {
-                x86_64-linux = {
-                  products = [
-                    "graalvm-ee"
-                  ];
-                  arch = "linux-amd64";
-                };
-              };
-            }).overrideAttrs (old: {
-              pname = "graalvm${javaVersion}-ee";
-              meta = old.meta // {
+              src = super.fetchurl ((import ../sources/graalvm-ee-sources.nix).graalvm-ee."${javaVersion}-linux-amd64");
+              meta = {
+                platforms = [ "x86_64-linux" ];
                 license = lib.licenses.unfree;
               };
+            in
+            (super.graalvmCEPackages.buildGraalvm rec {
+              inherit version javaVersion src meta;
+            }).overrideAttrs (old: {
+              pname = "graalvm${javaVersion}-ee";
             });
 
           prismlauncher = super.prismlauncher.override { jdk17 = pkgs.graalvm17-ee; jdks = with pkgs; [ jdk8 graalvm17-ee ]; };
