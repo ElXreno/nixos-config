@@ -50,6 +50,8 @@ in
 
   powerManagement.cpuFreqGovernor = "schedutil";
 
+  hardware.amdgpu.amdvlk = false;
+
   sops.secrets."smb/college" = { };
   fileSystems =
     let collegeCifs = map
