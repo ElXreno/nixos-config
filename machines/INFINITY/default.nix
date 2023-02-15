@@ -23,6 +23,7 @@ let
 in
 {
   imports = with inputs.self.nixosProfiles; [
+    ./graduate-project-dev.nix
     ./hardware-configuration.nix
     ./wireguard.nix
     inputs.nixos-hardware.nixosModules.common-cpu-amd
