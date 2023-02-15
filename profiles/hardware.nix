@@ -41,8 +41,6 @@
     opengl = {
       enable = true;
       driSupport32Bit = true;
-      extraPackages = with pkgs; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
-      extraPackages32 = with pkgs.driversi686Linux; lib.mkIf (config.device == "INFINITY") [ amdvlk ];
 
       # Work-around for LibreOffice to get OpenCL work
       setLdLibraryPath = true;
