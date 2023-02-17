@@ -27,7 +27,6 @@ in
     ./hardware-configuration.nix
     ./wireguard.nix
     inputs.nixos-hardware.nixosModules.common-cpu-amd
-    inputs.nixos-hardware.nixosModules.common-cpu-amd-pstate
     inputs.nixos-hardware.nixosModules.common-gpu-amd
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
@@ -48,7 +47,11 @@ in
     options iwlwifi amsdu_size=3
   '';
 
-  powerManagement.cpuFreqGovernor = "schedutil";
+  boot.kernelParams = [ "amd_pstate=active" ];
+
+  # EPP cannot be set under performance policy
+  # so use powersave by default
+  powerManagement.cpuFreqGovernor = "powersave";
 
   hardware.amdgpu.amdvlk = false;
 
