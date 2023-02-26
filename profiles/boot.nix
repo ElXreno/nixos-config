@@ -8,7 +8,7 @@ in
       timeout = if isServer then 0 else 3;
     } // (
       if config.deviceSpecific.usesCustomBootloader then { }
-      else if (config.deviceSpecific.devInfo.legacy) then {
+      else if config.deviceSpecific.devInfo.legacy then {
         grub = {
           enable = true;
           version = 2;

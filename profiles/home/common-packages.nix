@@ -1,4 +1,4 @@
-{ config, inputs, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
   megasync_autostart = pkgs.makeAutostartItem { name = "megasync"; package = pkgs.megasync; };
 in

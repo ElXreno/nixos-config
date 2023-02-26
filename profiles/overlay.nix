@@ -136,7 +136,7 @@
             let
               version = "22.3.1";
               javaVersion = "17";
-              src = super.fetchurl ((import ../sources/graalvm-ee-sources.nix).graalvm-ee."${javaVersion}-linux-amd64");
+              src = super.fetchurl (import ../sources/graalvm-ee-sources.nix).graalvm-ee."${javaVersion}-linux-amd64";
               meta = {
                 platforms = [ "x86_64-linux" ];
                 license = lib.licenses.unfree;
@@ -144,7 +144,7 @@
             in
             (super.graalvmCEPackages.buildGraalvm rec {
               inherit version javaVersion src meta;
-            }).overrideAttrs (old: {
+            }).overrideAttrs (_old: {
               pname = "graalvm${javaVersion}-ee";
             });
 
