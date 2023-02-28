@@ -128,7 +128,18 @@
             });
           });
 
-          tlp = super.tlp.override { inherit (config.boot.kernelPackages) x86_energy_perf_policy; };
+          tlp = (super.tlp.override {
+            inherit (config.boot.kernelPackages) x86_energy_perf_policy;
+          }).overrideAttrs (_old: {
+            version = "2023-02-25";
+
+            src = super.fetchFromGitHub {
+              owner = "linrunner";
+              repo = "TLP";
+              rev = "0aac593072f915c23f201e594a8b6eb27e9c94a8";
+              sha256 = "sha256-F9ivInb9C2QtbEiUQbr14Es7+uwVMaYlEuUhZ7CJdlQ=";
+            };
+          });
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
