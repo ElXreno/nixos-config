@@ -119,8 +119,9 @@
         };
       };
 
-      hydraJobs = {
-        inherit (self) nixosConfigurations devShells;
-      };
+      hydraJobs = with nixpkgs.lib;
+        (mapAttrs (name: val: val.config.system.build.toplevel)
+          self.nixosConfigurations
+        );
     };
 }
