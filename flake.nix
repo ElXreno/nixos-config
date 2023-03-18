@@ -118,5 +118,9 @@
           };
         };
       };
+
+      hydraJobs = {
+        inherit (self) nixosConfigurations devShells;
+      };
     };
 }
