@@ -82,8 +82,6 @@ in
             ddnet
             prismlauncher
             gamemode
-            bottles
-            lutris
             xclicker
 
             # MEGA
