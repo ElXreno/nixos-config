@@ -17,8 +17,6 @@
     tlp
     vscodium
     direnv
-
-    distributed-builds
   ];
 
   deviceSpecific.isLaptop = true;
