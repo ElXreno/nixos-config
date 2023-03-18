@@ -12,14 +12,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    config.pipewire = {
-      "context.properties" = {
-        "default.clock.rate" = 48000;
-        "default.clock.quantum" = 512;
-        "default.clock.min-quantum" = 512;
-        "default.clock.max-quantum" = 512;
-      };
-    };
   };
 
   services.udev.extraHwdb = lib.mkIf (config.device == "INFINITY") ''
