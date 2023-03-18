@@ -34,7 +34,6 @@ in
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.gamemode
     inputs.self.nixosProfiles.virtualisation
-    inputs.self.nixosProfiles.hydra
     # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.nix-serve
     # Lazy to configure everything from zero
