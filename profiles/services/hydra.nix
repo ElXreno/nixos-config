@@ -3,14 +3,9 @@
 let
   sshConfig = pkgs.writeText "ssh-config" ''
     Host builder1-x86_64
-      HostName 5.9.147.201
-      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
+      HostName eu.nixbuild.net
+      IdentityFile ${config.sops.secrets."ssh/nixbuild".path}
       Port 22
-    
-    Host builder2-x86_64
-      HostName 109.171.24.112
-      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
-      Port 23
 
     Host *
       Compression yes
@@ -25,6 +20,10 @@ let
 in
 {
   sops.secrets."ssh/distributed-builds" = {
+    owner = "hydra-queue-runner";
+  };
+
+  sops.secrets."ssh/nixbuild" = {
     owner = "hydra-queue-runner";
   };
 
@@ -49,18 +48,18 @@ in
   nix = {
     buildMachines = [
       {
-        hostName = "builder1-x86_64";
+        hostName = "localhost";
         systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 8;
-        speedFactor = 1;
+        maxJobs = 2;
+        speedFactor = 2;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
         mandatoryFeatures = [ ];
       }
       {
-        hostName = "builder2-x86_64";
+        hostName = "builder1-x86_64";
         systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 8;
-        speedFactor = 1;
+        maxJobs = 32;
+        speedFactor = 8;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
         mandatoryFeatures = [ ];
       }

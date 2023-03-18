@@ -21,6 +21,12 @@
         hostname = "100.67.12.44";
       };
 
+      "nixbuild" = {
+        hostname = "eu.nixbuild.net";
+        identityFile = "~/.ssh/nixbuild";
+        identitiesOnly = true;
+      };
+
       "fedoraproject" = {
         host = "*.fedoraproject.org *.fedorahosted.org *.fedorainfracloud.org fedorapeople.org";
         identityFile = "~/.ssh/id_rsa";
