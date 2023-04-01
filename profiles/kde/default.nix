@@ -21,6 +21,11 @@
   ];
 
   environment.systemPackages = with pkgs; [
+    # Utilities for Info Center
+    clinfo
+    glxinfo
+    vulkan-tools
+
     ark
     gwenview
     kate
