@@ -9,9 +9,10 @@
     };
     desktopManager.plasma5 = {
       enable = true;
-      excludePackages = with pkgs; [ elisa ];
     };
   };
+
+  environment.plasma5.excludePackages = with pkgs; [ elisa ];
 
   services.colord.enable = config.device == "INFINITY";
 
