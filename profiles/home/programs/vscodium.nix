@@ -7,6 +7,7 @@
     extensions = with pkgs.vscode-extensions; [
       jnoortheen.nix-ide
       github.copilot
+      hashicorp.terraform
     ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
       {
         name = "logcat-color";
