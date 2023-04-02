@@ -8,14 +8,12 @@
 
       trusted-users = [ "elxreno" ];
 
-      extra-substituters = [
-        "https://hydra.iohk.io"
+      substituters = [
         "https://elxreno.cachix.org"
         "https://r-ryantm.cachix.org"
         "https://nix-community.cachix.org"
       ];
-      extra-trusted-public-keys = [
-        "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
+      trusted-public-keys = [
         "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ="
         "r-ryantm.cachix.org-1:gkUbLkouDAyvBdpBX0JOdIiD2/DP1ldF3Z3Y6Gqcc4c="
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
