@@ -17,6 +17,7 @@
   };
 
   home-manager.users.elxreno = {
+    systemd.user.startServices = "sd-switch";
     xdg.mimeApps.enable = true;
     home = {
       inherit (config.system) stateVersion;
