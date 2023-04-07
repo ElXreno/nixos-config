@@ -51,7 +51,7 @@
   # Speed up boot
   # https://www.freedesktop.org/software/systemd/man/systemd-udev-settle.service.html
   systemd.services.systemd-udev-settle.enable = false;
-  systemd.services.NetworkManager-wait-online.enable = false;
+  systemd.services.NetworkManager-wait-online.enable = !config.deviceSpecific.isLaptop;
 
   # Disable suspend on lid switch on laptop
   services.logind.lidSwitch = lib.mkIf (config.deviceSpecific.isLaptop || config.device == "Noxer-Server") "ignore";
