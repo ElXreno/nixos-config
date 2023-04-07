@@ -64,8 +64,6 @@ in
   # so use powersave by default
   powerManagement.cpuFreqGovernor = "powersave";
 
-  hardware.amdgpu.amdvlk = false;
-
   sops.secrets."smb/college" = { };
   fileSystems =
     let collegeCifs = map
