@@ -131,13 +131,13 @@
           tlp = (super.tlp.override {
             inherit (config.boot.kernelPackages) x86_energy_perf_policy;
           }).overrideAttrs (_old: {
-            version = "2023-02-25";
+            version = "2023-04-03";
 
             src = super.fetchFromGitHub {
               owner = "linrunner";
               repo = "TLP";
-              rev = "0aac593072f915c23f201e594a8b6eb27e9c94a8";
-              sha256 = "sha256-F9ivInb9C2QtbEiUQbr14Es7+uwVMaYlEuUhZ7CJdlQ=";
+              rev = "520631cfb11055c4f99a8958ad8d3fba225eb474";
+              sha256 = "sha256-dH4dOiz8SC+EF25lzGVP0tpbvR3E4WDTzLsdDyEwjdI=";
             };
           });
 
