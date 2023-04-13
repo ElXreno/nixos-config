@@ -79,9 +79,11 @@ in
             debugedit-unstable
 
             # Games
+            bottles
             ddnet
-            prismlauncher
             gamemode
+            mangohud
+            prismlauncher
             xclicker
 
             # MEGA
