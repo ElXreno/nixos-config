@@ -107,6 +107,11 @@ in
             # Music
             strawberry
 
+            # K8s
+            kubectl
+            # openlens lacks some features like `shell in the pod`
+            lens
+
             ## etc
             remmina
           ])
