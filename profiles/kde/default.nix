@@ -56,7 +56,10 @@
           };
         };
 
-        kdeglobals.Icons.Theme = "Papirus";
+        kdeglobals = {
+          Icons.Theme = "Papirus";
+          KDE.SingleClick = true;
+        };
 
         kscreenlockerrc = {
           Daemon = {
