@@ -12,16 +12,14 @@ in
   boot.initrd.supportedFilesystems = lib.mkIf (device == "AMD-Desktop") [ "zfs" ];
   boot.supportedFilesystems = [ "zfs" ];
 
-  boot.kernelParams = lib.optionals (device == "AMD-Desktop") [
-    "zfs.zfs_arc_max=3758096384"
-    "zfs.zfs_arc_min=1073741824"
-    "zfs.zfs_prefetch_disable=1"
-  ] ++ lib.optionals (device == "INFINITY") [
-    "zfs.zfs_arc_min=536870912"
-    "zfs.zfs_arc_max=1610612736"
-    "zfs.zfs_arc_sys_free=1073741824"
-    "zfs.arc_shrink_shift=5"
+  boot.kernelParams = [
     "zfs.metaslab_lba_weighting_enabled=0"
+    "zfs.zfs_arc_sys_free=1073741824"
+  ] ++ lib.optionals (device == "INFINITY") [
+    "zfs.zfs_arc_max=1610612736"
+    "zfs.zfs_arc_min=536870912"
+  ] ++ lib.optionals (device == "AMD-Desktop") [
+    "init_on_alloc=0"
   ];
 
   networking.hostId =
