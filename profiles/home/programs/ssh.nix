@@ -5,7 +5,7 @@
     serverAliveInterval = 10;
     matchBlocks = {
       "desktop" = {
-        hostname = "10.10.10.30";
+        hostname = "100.107.189.129";
       };
       "biba" = {
         hostname = "109.171.24.112";
