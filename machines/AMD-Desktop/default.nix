@@ -34,5 +34,7 @@
     services.syncthing.enable = true;
   };
 
+  services.tailscale.enable = true;
+
   system.stateVersion = "22.05";
 }
