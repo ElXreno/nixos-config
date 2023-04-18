@@ -91,8 +91,11 @@ in
       )
     ];
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
-    tmpOnTmpfs = config.device != "Nixis-Server";
-    tmpOnTmpfsSize = lib.mkIf config.zramSwap.enable "180%";
+
+    tmp = {
+      useTmpfs = config.device != "Nixis-Server";
+      tmpfsSize = lib.mkIf config.zramSwap.enable "180%";
+    };
   };
 
   systemd.services.fq-as-default = lib.mkIf isLaptop {
