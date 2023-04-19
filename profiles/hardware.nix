@@ -24,6 +24,16 @@
     "w- /sys/class/leds/platform\:\:micmute/trigger - - - - phy0tx"
   ];
 
+  systemd.services.ryzenadj-limits = lib.mkIf (config.device == "INFINITY") {
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.ryzenadj}/bin/ryzenadj --tctl-temp=80";
+      RemainAfterExit = "yes";
+    };
+    wantedBy = [ "multi-user.target" ];
+    after = [ "system.target" ];
+  };
+
   hardware = {
     cpu = {
       amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") true;
