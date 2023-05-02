@@ -76,6 +76,7 @@ in
         lib.mkIf isLaptop
           {
             # Network
+            "net.ipv4.tcp_congestion_control" = lib.mkForce "bbr2";
             "net.ipv4.ip_default_ttl" = 65;
             "net.ipv6.conf.all.hop_limit" = 65;
             "net.ipv6.conf.default.hop_limit" = 65;
@@ -96,25 +97,5 @@ in
       useTmpfs = config.device != "Nixis-Server";
       tmpfsSize = lib.mkIf config.zramSwap.enable "180%";
     };
-  };
-
-  systemd.services.fq-as-default = lib.mkIf isLaptop {
-    script = ''
-      for interface in $(ls /sys/class/net/); do
-        if [ "$interface" != "lo" ]; then
-          if ${pkgs.iproute2}/bin/tc qdisc show dev $interface | grep -q "qdisc noqueue"; then
-            ${pkgs.iproute2}/bin/tc qdisc add dev $interface handle 1: root fq
-            echo "Added fq to $interface"
-          else
-            echo "$interface already has a qdisc"
-          fi
-        else
-          echo "Skipping $interface"
-        fi
-      done
-    '';
-    serviceConfig.Type = "oneshot";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
   };
 }
