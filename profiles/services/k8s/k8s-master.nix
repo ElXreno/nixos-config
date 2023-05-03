@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 let
   kubeMasterIP = "10.10.10.20";
   kubeMasterHostname = "Noxer-Server";
