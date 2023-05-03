@@ -83,7 +83,8 @@ in
             ddnet
             gamemode
             mangohud
-            prismlauncher
+            # https://github.com/NixOS/nixpkgs/issues/229358
+            # prismlauncher
             xclicker
 
             # MEGA
