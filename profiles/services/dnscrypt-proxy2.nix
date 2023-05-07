@@ -1,8 +1,11 @@
+{ config, lib, ... }:
 {
-  networking.networkmanager.dns = "none";
+  # k8s doesn't work with dnscrypt on my laptop,
+  # idk why so let's just disable it.
+  networking.networkmanager.dns = lib.mkIf (config.specialisation != { }) "none";
 
   services.dnscrypt-proxy2 = {
-    enable = true;
+    enable = config.specialisation != { };
     settings = {
       http3 = true;
       server_names = [ "cloudflare" ];

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 let
-  kubeMasterIP = "10.10.10.20";
-  kubeMasterHostname = "Noxer-Server";
+  kubeMasterIP = "100.93.5.12";
+  kubeMasterHostname = "INFINITY";
   kubeMasterAPIServerPort = 6443;
 in
 {
@@ -46,7 +46,6 @@ in
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
     apiserver = {
-      extraSANs = [ "noxer-server.tail1f457.ts.net" ];
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
     };
