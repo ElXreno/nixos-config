@@ -121,10 +121,5 @@
           };
         };
       };
-
-      hydraJobs = with nixpkgs.lib;
-        (mapAttrs (_: val: val.config.system.build.toplevel)
-          self.nixosConfigurations
-        );
     };
 }
