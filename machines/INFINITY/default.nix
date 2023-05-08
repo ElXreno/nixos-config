@@ -22,7 +22,7 @@ let
   };
 in
 {
-  imports = with inputs.self.nixosProfiles; [
+  imports = [
     ./graduate-project-dev.nix
     ./hardware-configuration.nix
     ./wireguard.nix
