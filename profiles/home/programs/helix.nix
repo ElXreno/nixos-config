@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 let
   helix-with-stuff = pkgs.symlinkJoin {
     name = "helix-with-stuff";
@@ -21,6 +21,6 @@ in
 {
   home-manager.users.elxreno.programs.helix = {
     enable = true;
-    package = helix-with-stuff;
+    package = lib.mkIf (config.device == "INFINITY") helix-with-stuff;
   };
 }
