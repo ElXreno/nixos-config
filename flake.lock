@@ -250,7 +250,9 @@
         "flake-compat": "flake-compat_2",
         "flake-parts": "flake-parts_2",
         "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
         "pre-commit-hooks-nix": "pre-commit-hooks-nix",
         "rust-overlay": "rust-overlay"
       },
@@ -305,16 +307,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1682741954,
-        "narHash": "sha256-RPZxzRu8XU0YD2WeYUFYzJy5yAvWUsxkuK+zWw+6WVk=",
-        "owner": "NixOS",
+        "lastModified": 1683470087,
+        "narHash": "sha256-9MQeS7SkJyHSay8MbPHTk2XlTkQ8A0VQfEQQ2AgqVXA=",
+        "owner": "ElXreno",
         "repo": "nixpkgs",
-        "rev": "373e9eb4c42b2fc0611d794de5ea715a35d72393",
+        "rev": "0e017a6ec78bc2f587c44a312ec2b7a5aa2b23ad",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable-small",
+        "owner": "ElXreno",
+        "ref": "nixos-unstable-cust",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -347,22 +349,6 @@
       "original": {
         "owner": "NixOS",
         "ref": "release-22.11",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1683470087,
-        "narHash": "sha256-9MQeS7SkJyHSay8MbPHTk2XlTkQ8A0VQfEQQ2AgqVXA=",
-        "owner": "ElXreno",
-        "repo": "nixpkgs",
-        "rev": "0e017a6ec78bc2f587c44a312ec2b7a5aa2b23ad",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ElXreno",
-        "ref": "nixos-unstable-cust",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -430,7 +416,7 @@
         "lanzaboote": "lanzaboote",
         "nix-index-database": "nix-index-database",
         "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "plasma-manager": "plasma-manager",
         "rust-overlay": "rust-overlay_2",
         "sops-nix": "sops-nix"

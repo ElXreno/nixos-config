@@ -14,7 +14,7 @@
     harmonia.inputs.nixpkgs.follows = "nixpkgs";
 
     lanzaboote.url = "github:nix-community/lanzaboote";
-    # lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
+    lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
 
     # home-manager stuff
     home-manager.url = "github:nix-community/home-manager";
