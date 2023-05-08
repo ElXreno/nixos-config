@@ -23,9 +23,7 @@ in
           config.boot.kernelPackages.cpupower
           dua
           fd
-          ffmpeg-full
           file
-          gitRepo
           inetutils
           iotop
           jq
@@ -37,13 +35,11 @@ in
           screen
           smartmontools
           sops
-          streamlink
           tree
           unzip
           usbutils
           wget
           wireguard-tools
-          yt-dlp
 
           # Nix stuff
           deadnix
@@ -70,6 +66,9 @@ in
             elfshaker
             ngrok
             wgcf
+            ffmpeg-full
+            gitRepo
+            yt-dlp
 
             # GraalVM
             graalvm17-ee
