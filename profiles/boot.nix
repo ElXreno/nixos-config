@@ -98,4 +98,14 @@ in
       tmpfsSize = lib.mkIf config.zramSwap.enable "180%";
     };
   };
+
+  systemd.services.ttl-fixup = lib.mkIf isLaptop {
+      description = "Force fix up TTL";
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
+      };
+   };
 }
