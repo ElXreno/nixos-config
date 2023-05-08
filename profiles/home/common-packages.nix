@@ -126,6 +126,7 @@ in
       defaultApplications = {
         "x-scheme-handler/element" = lib.mkIf (!config.deviceSpecific.isServer) "element-desktop.desktop";
         "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
+        "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens.desktop";
       };
 
       associations.removed = lib.mkIf config.deviceSpecific.isLaptop {
