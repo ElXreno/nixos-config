@@ -13,7 +13,7 @@
         "https://elxreno.cachix.org"
         "https://r-ryantm.cachix.org"
         "https://nix-community.cachix.org"
-      ] ++ lib.optional (config.device != "INFINITY" && config.services.tailscale.enable) "http://100.93.5.12:5000");
+      ] ++ lib.optional (config.device != "INFINITY" && config.services.tailscale.enable) "https://infinity.tail1f457.ts.net");
       trusted-public-keys = [
         "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ="
         "r-ryantm.cachix.org-1:gkUbLkouDAyvBdpBX0JOdIiD2/DP1ldF3Z3Y6Gqcc4c="

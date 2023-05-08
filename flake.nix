@@ -10,8 +10,8 @@
     nix-index-database.url = "github:Mic92/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
-    nix-serve-ng.url = "github:aristanetworks/nix-serve-ng";
-    nix-serve-ng.inputs.nixpkgs.follows = "nixpkgs";
+    harmonia.url = "github:nix-community/harmonia";
+    harmonia.inputs.nixpkgs.follows = "nixpkgs";
 
     lanzaboote.url = "github:nix-community/lanzaboote";
     # lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
