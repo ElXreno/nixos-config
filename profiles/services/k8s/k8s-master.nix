@@ -29,9 +29,9 @@ in
         find /sys/fs/cgroup/systemd/system.slice/containerd.service* /sys/fs/cgroup/systemd/kubepods* /sys/fs/cgroup/kubepods* -name cgroup.procs | \
             xargs -r cat | xargs -r kill -9
         mount | awk '/\/var\/lib\/kubelet|\/run\/netns|\/run\/containerd/ {print $3}' | xargs -r umount
-        dataset=$((btrfs subvolume list / | grep /var/lib/containerd/io.containerd.snapshotter.v1.btrfs /proc/mounts || :) | awk '{print $1}')
-        if [[ -n "$dataset" ]]; then
-            btrfs subvolume delete "$dataset"
+        subvolumes=$((btrfs subvolume list / | grep var/lib/containerd/io.containerd.snapshotter.v1.btrfs /proc/mounts - || :) | awk '{print $10}' | sed 's|^|/|')
+        if [[ -n "$subvolumes" ]]; then
+            btrfs subvolume delete $subvolumes
         fi
         rm -rf /var/lib/kubernetes/ /var/lib/etcd/ /var/lib/cfssl/ /var/lib/kubelet/ /etc/kube-flannel/ /etc/kubernetes/ /run/containerd /var/lib/containerd
       ''
