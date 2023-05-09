@@ -5,6 +5,10 @@ let
   kubeMasterAPIServerPort = 6443;
 in
 {
+  # Ensure that we will use overlayfs by default
+  # ref: https://github.com/containerd/containerd/issues/4217
+  virtualisation.containerd.settings.plugins."io.containerd.grpc.v1.cri".containerd.snapshotter = "overlayfs";
+
   networking.extraHosts = ''
     ${kubeMasterIP} ${kubeMasterHostname}
   '';
