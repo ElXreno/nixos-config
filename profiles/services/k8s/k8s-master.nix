@@ -50,6 +50,7 @@ in
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
     apiserver = {
+      allowPrivileged = true;
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
     };
