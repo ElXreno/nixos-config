@@ -1,10 +1,6 @@
-{ config, lib, inputs, ... }:
+{ config, lib, ... }:
 
 {
-  imports = [
-    inputs.harmonia.nixosModules.harmonia
-  ];
-
   nix.settings.allowed-users = [ "harmonia" ];
 
   sops.secrets."nix_store_cache" = { };

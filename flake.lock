@@ -90,27 +90,6 @@
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
-          "harmonia",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1683458821,
-        "narHash": "sha256-fBAUiZ0XGoYy9sBud+rR2T18yIeRzb9aVkGBkOjzFwc=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "f3e943c249229affaaabd302e1cc14c769eef9d8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_2": {
-      "inputs": {
-        "nixpkgs-lib": [
           "lanzaboote",
           "nixpkgs"
         ]
@@ -187,28 +166,6 @@
         "type": "github"
       }
     },
-    "harmonia": {
-      "inputs": {
-        "flake-parts": "flake-parts",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "treefmt-nix": "treefmt-nix"
-      },
-      "locked": {
-        "lastModified": 1683961594,
-        "narHash": "sha256-kWZikQP+PrKICpOzxs2saQEtFns/o4ggEw7K16TfcYU=",
-        "owner": "nix-community",
-        "repo": "harmonia",
-        "rev": "df2e52bf4db060be851dac98fc9919ce7e945a66",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "harmonia",
-        "type": "github"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -248,7 +205,7 @@
       "inputs": {
         "crane": "crane",
         "flake-compat": "flake-compat_2",
-        "flake-parts": "flake-parts_2",
+        "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
@@ -410,7 +367,6 @@
     "root": {
       "inputs": {
         "deploy-rs": "deploy-rs",
-        "harmonia": "harmonia",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lanzaboote": "lanzaboote",
@@ -516,27 +472,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "treefmt-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "harmonia",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1683307174,
-        "narHash": "sha256-A7nF2Q+F+Bqs4u6VS4aOzyURfly5f4ZAiihGU0FA29g=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "b44794f94514b61512352a18cd77c710f0005f15",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
         "type": "github"
       }
     },
