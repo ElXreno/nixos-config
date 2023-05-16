@@ -37,6 +37,7 @@ in
     inputs.self.nixosProfiles.virtualisation
     # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.harmonia
+    inputs.self.nixosProfiles.system76-scheduler
     # Lazy to configure everything from zero
     # inputs.self.nixosProfiles.sway
   ];
