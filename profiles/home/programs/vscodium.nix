@@ -8,6 +8,7 @@
       jnoortheen.nix-ide
       github.copilot
       hashicorp.terraform
+      redhat.vscode-yaml
     ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
       {
         name = "logcat-color";
@@ -15,15 +16,26 @@
         version = "0.0.1";
         sha256 = "sha256-sgiRl6iHPVu0S877qVjTcHVxkmckYm5kj6s0h8ikB4E=";
       }
+      {
+        name = "volar";
+        publisher = "Vue";
+        version = "1.7.2";
+        sha256 = "sha256-B1l3p2hwHDcUUoZMowRziUoSr4LGLqRatiBSHz3GMTM=";
+      }
     ];
     userSettings = {
       "editor.cursorSmoothCaretAnimation" = "on";
+      "editor.fontSize" = 15;
       "editor.inlineSuggest.enabled" = true;
       "editor.minimap.enabled" = false;
       "editor.smoothScrolling" = true;
       "extensions.autoUpdate" = false;
       "extensions.ignoreRecommendations" = true;
       "files.associations" = { "logcat" = "logcat"; };
+      "git.autoStash" = true;
+      "git.confirmSync" = false;
+      "git.enableSmartCommit" = true;
+      "git.useCommitInputAsStashMessage" = true;
       "github.copilot.enable" = { "*" = true; };
       "nix.enableLanguageServer" = true;
       "nix.formatterPath" = "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt";
@@ -31,7 +43,6 @@
       "security.workspace.trust.untrustedFiles" = "open";
       "telemetry.telemetryLevel" = "off";
       "update.mode" = "manual";
-      "editor.fontSize" = 15;
     };
     mutableExtensionsDir = false;
   };
