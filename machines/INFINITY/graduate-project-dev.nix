@@ -8,6 +8,9 @@
       ];
 
       services.kubernetes.kubelet.hostname = "infinity";
+
+      networking.firewall.allowedTCPPorts = [ 3000 ];
+      networking.firewall.allowedUDPPorts = [ 3000 ];
     };
   };
 }
