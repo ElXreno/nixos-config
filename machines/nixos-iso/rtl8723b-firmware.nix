@@ -1,6 +1,6 @@
 { lib, stdenvNoCC, fetchFromGitHub }:
 with lib;
-stdenvNoCC.mkDerivation rec {
+stdenvNoCC.mkDerivation {
   pname = "rtl8723b-firmware";
   version = "2015-01-30";
   src = fetchFromGitHub {

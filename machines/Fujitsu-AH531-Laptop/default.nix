@@ -1,7 +1,7 @@
 { inputs, pkgs, lib, ... }:
 
 {
-  imports = with inputs.self.nixosProfiles;
+  imports =
     [
       ./hardware-configuration.nix
       inputs.nixos-hardware.nixosModules.common-cpu-intel-sandy-bridge

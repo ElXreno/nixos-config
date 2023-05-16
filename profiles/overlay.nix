@@ -75,7 +75,7 @@
                 license = lib.licenses.unfree;
               };
             in
-            (super.graalvmCEPackages.buildGraalvm rec {
+            (super.graalvmCEPackages.buildGraalvm {
               inherit version javaVersion src meta;
             }).overrideAttrs (_old: {
               pname = "graalvm${javaVersion}-ee";
