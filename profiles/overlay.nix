@@ -18,9 +18,11 @@
         # IDE
         "android-studio-canary"
         "clion"
+        "datagrip"
         "idea-ultimate"
         "phpstorm"
         "pycharm-professional"
+        "postman"
         "rider"
 
         "vscode-extension-github-copilot"
