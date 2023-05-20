@@ -84,7 +84,7 @@ in
             "net.ipv6.conf.wlp1s0.hop_limit" = 65;
 
             # Memory
-            "vm.min_free_kbytes" = 157057;
+            "vm.min_free_kbytes" = 262144;
             "vm.extfrag_threshold" = 300;
             "vm.vfs_cache_pressure" = 3000;
             "vm.page-cluster" = 0;
