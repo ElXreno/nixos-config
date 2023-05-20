@@ -9,6 +9,7 @@
       github.copilot
       hashicorp.terraform
       redhat.vscode-yaml
+      jebbs.plantuml
     ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
       {
         name = "logcat-color";
