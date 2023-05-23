@@ -20,9 +20,10 @@
         "clion"
         "datagrip"
         "idea-ultimate"
+        "lens"
         "phpstorm"
-        "pycharm-professional"
         "postman"
+        "pycharm-professional"
         "rider"
 
         "vscode-extension-github-copilot"
