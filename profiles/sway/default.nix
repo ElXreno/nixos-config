@@ -49,7 +49,7 @@ in
       config = rec {
         focus = {
           followMouse = false;
-          forceWrapping = true;
+          wrapping = "force";
         };
         modifier = "Mod4";
         window = {
