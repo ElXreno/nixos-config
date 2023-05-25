@@ -32,14 +32,13 @@ in
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.nixosRoles.laptop
-    inputs.self.nixosProfiles.kde
+    # inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.gamemode
     inputs.self.nixosProfiles.virtualisation
     # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.system76-scheduler
-    # Lazy to configure everything from zero
-    # inputs.self.nixosProfiles.sway
+    inputs.self.nixosProfiles.sway
   ];
 
   # SecureBoot
