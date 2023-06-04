@@ -1,26 +1,9 @@
-{ pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
-let
-  lock = pkgs.writeScript "lock" ''
-    ${pkgs.swaylock-effects}/bin/swaylock -f --screenshots --clock --effect-greyscale
-  '';
-  unlock = pkgs.writeScript "unlock" ''
-    ${pkgs.procps}/bin/pkill swaylock
-  '';
-  screen-off = pkgs.writeScript "screenOff" ''
-    ${pkgs.sway}/bin/swaymsg "output * dpms off"
-  '';
-  resume = pkgs.writeScript "resume" ''
-    ${pkgs.sway}/bin/swaymsg "output * dpms on"
-  '';
-in
 {
-  imports = [ ./rofi.nix (import ./swayidle.nix { inherit pkgs lock unlock screen-off resume; }) ./swaylock.nix ./waybar.nix ];
-
   programs.sway = {
     enable = true;
     wrapperFeatures.gtk = true;
-    extraPackages = with pkgs; [ swayidle xwayland foot ];
   };
 
   environment.loginShellInit = lib.mkAfter ''
@@ -44,42 +27,60 @@ in
   fonts.enableDefaultFonts = true;
 
   home-manager.users.elxreno = {
-    wayland.windowManager.sway = {
+    imports = [ ./rofi.nix ./sway-bar.nix ./sway-notifications.nix ./swayidle.nix ./swaylock.nix ];
+    home.packages = with pkgs; [ ranger ];
+    wayland.windowManager.sway =
+    let 
+        rofiPackage = config.home-manager.users.elxreno.programs.rofi.finalPackage;
+    in {
       enable = true;
       config = rec {
         focus = {
           followMouse = false;
           wrapping = "force";
         };
-        modifier = "Mod4";
+
         window = {
-          border = 0;
+          border = 1;
           titlebar = false;
+          commands = [
+            {
+              criteria = { window_role = "pop-up"; };
+              command = "no_focus";
+            }
+            {
+              criteria = { window_type = "notification"; };
+              command = "no_focus";
+            }
+            {
+              criteria = { title = "KeePassXC - Browser Access Request"; };
+              command = "floating enable";
+            }
+          ];
         };
-        bars = [
-          {
-            command = "${pkgs.waybar}/bin/waybar";
-          }
-        ];
-        startup = map (command: { inherit command; }) [ "${pkgs.megasync}/bin/megasync" ]
-          #   ++ [
-          #   {
-          #     command =
-          #       "swayidle -w before-sleep '${lock}' lock '${lock}' unlock '${unlock}' timeout 600 '${screen-off}' resume '${resume}'";
-          #   }
-          # ]
-        ;
+
+        fonts = {
+          names = [ "FiraCode Nerd Font" ];
+          size = 9.0;
+        };
+
+        modifier = "Mod4";
+
+        startup = map (command: { inherit command; }) [ "${pkgs.megasync}/bin/megasync" ];
+
         keybindings =
           let
             workspaces = lib.lists.drop 1 (builtins.genList (x: [ (toString x) (toString x) ]) 10);
-            # workspaces = builtins.genList (x: [ (toString x) (toString (if x == 0 then 10 else x)) ]) 10;
           in
           {
             "${modifier}+F5" = "reload";
+            "${modifier}+Shift+q" = "kill";
+            "${modifier}+Shift+e" = "exec swaynag -t warning -m 'Do you want to exit sway?' -b 'Yes' 'swaymsg exit'";
 
             "${modifier}+Return" = "exec ${pkgs.alacritty}/bin/alacritty";
-            "${modifier}+d" = "exec ${pkgs.rofi}/bin/rofi -show drun";
-            "${modifier}+l" = "exec ${lock}";
+            "${modifier}+d" = "exec ${rofiPackage}/bin/rofi -show drun";
+            "${modifier}+c" = "exec ${rofiPackage}/bin/rofi -show calc -modi calc -no-show-match -no-sort -automatic-save-to-history -calc-command \"echo -n '{result}' | wl-copy\"";
+            "${modifier}+l" = "exec loginctl lock-session";
             "Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot copy screen";
             "${modifier}+Print" = "exec ${pkgs.sway-contrib.grimshot}/bin/grimshot copy area";
 
@@ -96,6 +97,8 @@ in
             "${modifier}+Shift+v" = "layout splitv";
             "${modifier}+h" = "split h";
             "${modifier}+v" = "split v";
+
+            "${modifier}+r" = "mode \"resize\"";
 
             "XF86MonBrightnessDown" = "exec ${pkgs.brightnessctl}/bin/brightnessctl s 5%-";
             "XF86MonBrightnessUp" = "exec ${pkgs.brightnessctl}/bin/brightnessctl s 5%+";
@@ -123,17 +126,33 @@ in
               value = "move container to workspace ${builtins.elemAt x 1}";
             })
             workspaces);
+
+        modes.resize = {
+          "Left" = "resize shrink width 10px";
+          "Down" = "resize grow height 10px";
+          "Up" = "resize shrink height 10px";
+          "Right" = "resize grow width 10px";
+
+          "Return" = ''mode "default"'';
+          "Escape" = ''mode "default"'';
+        };
+
         input = {
           "*" = {
             xkb_layout = "us,ru";
             xkb_options = "grp:alt_shift_toggle";
           };
-          "10182:480:GXTP7863:00_27C6:01E0_Touchpad" = {
+          "type:pointer" = {
+            accel_profile = "flat";
+          };
+          "type:touchpad" = {
             tap = "enabled";
+            scroll_factor = "0.45";
             natural_scroll = "enabled";
             dwt = "enabled";
           };
         };
+
         output = {
           "eDP-1" = {
             bg = "/home/elxreno/Pictures/Wallpapers/wolf_silhouette_moon_night_118727_1920x1080.jpg fill";

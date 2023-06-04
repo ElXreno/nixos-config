@@ -1,7 +1,10 @@
+{ pkgs, ... }:
 {
-  home-manager.users.elxreno.programs.rofi = {
+  programs.rofi = {
     enable = true;
+    package = pkgs.rofi-wayland;
     theme = "Arc-Dark";
-    font = "monospace 16";
+    font = "FiraCode Nerd Font 14";
+    plugins = with pkgs; [ rofi-calc ];
   };
 }

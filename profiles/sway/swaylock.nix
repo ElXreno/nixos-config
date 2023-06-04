@@ -1,5 +1,5 @@
 {
-  home-manager.users.elxreno.programs.swaylock = {
+  programs.swaylock = {
     settings = {
       indicator-radius = 100;
       indicator-thickness = 7;
