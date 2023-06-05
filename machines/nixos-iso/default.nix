@@ -8,6 +8,8 @@ in
     inputs.self.nixosRoles.iso
   ];
 
+  boot.zfs.enableUnstable = true;
+
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
 
   environment.systemPackages = with pkgs; [
