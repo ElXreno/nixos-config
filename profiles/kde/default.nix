@@ -4,8 +4,7 @@
   services.xserver = {
     displayManager = {
       sddm.enable = true;
-      # https://github.com/NixOS/nixpkgs/pull/143673
-      # defaultSession = "plasma";
+      defaultSession = lib.mkIf (config.device == "INFINITY") "plasmawayland";
     };
     desktopManager.plasma5 = {
       enable = true;
