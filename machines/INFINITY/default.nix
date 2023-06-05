@@ -1,26 +1,5 @@
-{ config, inputs, lib, ... }:
+{ inputs, lib, ... }:
 
-let
-  cifsOptions = [
-    "actimeo=300"
-    "cache=loose"
-    "noauto"
-    "x-systemd.automount"
-    "x-systemd.device-timeout=5s"
-    "x-systemd.idle-timeout=60"
-    "x-systemd.mount-timeout=5s"
-  ];
-  mkMountPath = prefix: path: "/mnt/${prefix}/${path}";
-  mkDevicePath = addr: path: "//${addr}/${path}";
-  mkCifsFilesystem = path: prefix: addr: credentials: {
-    name = "${mkMountPath prefix path}";
-    value = {
-      device = mkDevicePath addr path;
-      fsType = "cifs";
-      options = cifsOptions ++ lib.optional (credentials != null) "credentials=${credentials}";
-    };
-  };
-in
 {
   imports = [
     ./graduate-project-dev.nix
@@ -64,13 +43,6 @@ in
   # EPP cannot be set under performance policy
   # so use powersave by default
   powerManagement.cpuFreqGovernor = "powersave";
-
-  sops.secrets."smb/college" = { };
-  fileSystems =
-    let collegeCifs = map
-      (path: mkCifsFilesystem path "college" "10.1.37.4" config.sops.secrets."smb/college".path)
-      [ "Study" "Install" "Data" ];
-    in builtins.listToAttrs collegeCifs;
 
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
