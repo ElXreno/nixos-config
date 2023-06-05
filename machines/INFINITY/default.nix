@@ -5,11 +5,13 @@
     ./graduate-project-dev.nix
     ./hardware-configuration.nix
     ./wireguard.nix
+    inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.lanzaboote.nixosModules.lanzaboote
+    inputs.self.diskoConfigurations.infinity
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.gamemode

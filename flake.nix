@@ -10,6 +10,9 @@
     nix-index-database.url = "github:Mic92/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
+    disko.url = "github:nix-community/disko";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+
     lanzaboote.url = "github:nix-community/lanzaboote";
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -39,7 +42,7 @@
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, deploy-rs, ... }@inputs:
+  outputs = { self, nixpkgs, disko, deploy-rs, ... }@inputs:
     let
       findModules = dir:
         builtins.concatLists (builtins.attrValues (builtins.mapAttrs
@@ -76,6 +79,8 @@
             };
         in
         genAttrs hosts mkHost;
+
+      diskoConfigurations = builtins.listToAttrs (findModules ./disko);
 
       legacyPackages.x86_64-linux =
         (builtins.head (builtins.attrValues self.nixosConfigurations)).pkgs;
