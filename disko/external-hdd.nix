@@ -27,6 +27,7 @@
         rootFsOptions = {
           compression = "zstd";
           mountpoint = "none";
+          recordsize = "1M";
         };
         postCreateHook = "zfs snapshot externalhdd@blank";
 
