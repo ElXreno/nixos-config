@@ -42,7 +42,7 @@
 
   services.irqbalance.enable = true;
 
-  virtualisation = lib.mkIf (config.device != "nixos-iso") {
+  virtualisation = {
     podman = {
       enable = true;
       # dockerCompat = true;

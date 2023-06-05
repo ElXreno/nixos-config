@@ -58,7 +58,7 @@ in
           qbittorrent
           thunderbird
         ])
-        (lib.mkIf (config.deviceSpecific.isLaptop || config.device == "nixos-iso")
+        (lib.mkIf (config.deviceSpecific.isLaptop)
           [
             # CLI Stuff
             acpi
