@@ -16,7 +16,7 @@ in
     "zfs.metaslab_lba_weighting_enabled=0"
     "zfs.zfs_arc_sys_free=1073741824"
   ] ++ lib.optionals (device == "INFINITY") [
-    "zfs.zfs_arc_max=1610612736"
+    "zfs.zfs_arc_max=6442450944"
     "zfs.zfs_arc_min=536870912"
   ] ++ lib.optionals (device == "AMD-Desktop") [
     "init_on_alloc=0"
