@@ -45,8 +45,12 @@
     programs.plasma = {
       enable = true;
       files = {
-        # Yeah, it works without [$e] which got converted to \x5b$e\x5d by kwriteconfig5 oof
-        baloofilerc.General."exclude folders" = "$HOME/android-build/,$HOME/projects/";
+        baloofilerc = {
+          "Basic Settings"."Indexing-Enabled" = false;
+          # Yeah, it works without [$e] which got converted to \x5b$e\x5d by kwriteconfig5 oof
+          # upd at 06/06/23: Fixed by upstream
+          General."exclude folders" = "$HOME/android-build/,$HOME/projects/";
+        };
 
         dolphinrc = {
           General = {
@@ -67,6 +71,12 @@
           };
         };
 
+        kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" = lib.mkIf (config.device == "INFINITY") {
+          NaturalScroll = true;
+          ScrollFactor = 0.5;
+          TapToClick = true;
+        };
+
         ksmserverrc.General.loginMode = "restoreSavedSession";
 
         konsolerc = {
@@ -77,6 +87,7 @@
           TabBar = {
             NewTabBehavior = "PutNewTabAfterCurrentTab";
             TabBarVisibility = "AlwaysShowTabBar";
+            TabBarPosition = "Bottom";
           };
         };
         "../.local/share/konsole/default.profile" = {
@@ -91,7 +102,10 @@
           };
         };
 
-        kwinrc.NightColor.Active = true;
+        kwinrc = {
+          NightColor.Active = true;
+          Xwayland.Scale = 1;
+        };
 
         powermanagementprofilesrc = {
           "AC.DPMSControl".idleTime = 780; # 13 min
@@ -113,7 +127,7 @@
 
         # Applets
         "plasma-org.kde.plasma.desktop-appletsrc" = {
-          "Containments.2.Applets.19.Configuration.Appearance".use24hFormat = 2;
+          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat = 2; # TODO: Maybe I should change regional settings instead?
         };
       };
     };
