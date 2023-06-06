@@ -11,7 +11,6 @@ in
       else if config.deviceSpecific.devInfo.legacy then {
         grub = {
           enable = true;
-          version = 2;
           device = lib.mkDefault "/dev/sda";
         };
       } else {
