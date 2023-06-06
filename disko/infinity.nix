@@ -38,6 +38,7 @@
         type = "zpool";
         options = {
           ashift = "12";
+          autotrim = "on";
         };
         rootFsOptions = {
           compression = "zstd";
