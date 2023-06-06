@@ -94,5 +94,9 @@
       };
     };
   };
+
+  fileSystems = {
+    "/var".neededForBoot = true; # Ensure that /var will be mounted with the sops key
+  };
 }
 
