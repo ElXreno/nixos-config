@@ -20,6 +20,9 @@
       "noxer" = {
         hostname = "100.67.12.44";
       };
+      "kebab" = {
+        hostname = "100.103.121.36";
+      };
 
       "nixbuild" = {
         hostname = "eu.nixbuild.net";
