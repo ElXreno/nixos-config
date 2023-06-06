@@ -18,6 +18,7 @@ in
   ] ++ lib.optionals (device == "INFINITY") [
     "zfs.zfs_arc_max=6442450944"
     "zfs.zfs_arc_min=536870912"
+    "zfs.zfs_txg_timeout=15"
   ] ++ lib.optionals (device == "AMD-Desktop") [
     "init_on_alloc=0"
   ];
