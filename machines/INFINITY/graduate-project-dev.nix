@@ -1,13 +1,15 @@
-{ inputs, ... }:
+{ config, inputs, pkgs, lib, ... }:
 
 {
   specialisation = {
     k8s.configuration = {
       imports = [
-        inputs.self.nixosProfiles.k8s-master
+        (import inputs.self.nixosProfiles.k8s-master {
+          inherit pkgs lib;
+          kubeMasterHostname = config.device;
+          kubeMasterIP = "100.120.26.5";
+        })
       ];
-
-      services.kubernetes.kubelet.hostname = "infinity";
 
       networking.firewall.allowedTCPPorts = [ 3000 ];
       networking.firewall.allowedUDPPorts = [ 3000 ];

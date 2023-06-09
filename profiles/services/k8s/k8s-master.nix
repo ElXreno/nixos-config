@@ -1,9 +1,10 @@
-{ pkgs, ... }:
-let
-  kubeMasterIP = "100.93.5.12";
-  kubeMasterHostname = "INFINITY";
-  kubeMasterAPIServerPort = 6443;
-in
+{ pkgs
+, lib
+, kubeMasterIP
+, kubeMasterHostname
+, kubeMasterAPIServerPort ? 6443
+, ...
+}:
 {
   # Ensure that we will use overlayfs by default
   # ref: https://github.com/containerd/containerd/issues/4217
@@ -57,6 +58,7 @@ in
 
     addons.dns.enable = true;
 
+    kubelet.hostname = lib.strings.toLower kubeMasterHostname;
     kubelet.extraOpts = "--fail-swap-on=false";
   };
 
