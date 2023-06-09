@@ -2,6 +2,7 @@
 
 {
   imports = [
+    ./wireguard.nix
     "${inputs.nixpkgs}/nixos/modules/installer/scan/not-detected.nix"
     "${inputs.nixpkgs}/nixos/modules/profiles/qemu-guest.nix"
     inputs.disko.nixosModules.disko

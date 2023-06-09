@@ -5,16 +5,16 @@
 
   networking.nat = {
     enable = true;
-    externalInterface = "eth0";
+    externalInterface = "enp1s0";
     internalInterfaces = [ "wg0" ];
   };
 
   networking.wg-quick.interfaces."wg0" = {
-    privateKeyFile = config.sops.secrets."wg/nixis".path;
+    privateKeyFile = config.sops.secrets."wg/kebab".path;
     listenPort = 21367;
     address = [ "10.0.0.1" ];
-    preUp = "iptables -A POSTROUTING -t nat -j MASQUERADE -s 10.0.0.0/24 -o eth0";
-    preDown = "iptables -D POSTROUTING -t nat -j MASQUERADE -s 10.0.0.0/24 -o eth0";
+    preUp = "iptables -A POSTROUTING -t nat -j MASQUERADE -s 10.0.0.0/24 -o enp1s0";
+    preDown = "iptables -D POSTROUTING -t nat -j MASQUERADE -s 10.0.0.0/24 -o enp1s0";
     peers = [
       {
         publicKey = "lIwMys+xNAS1qNm+rYjErNkijcWQ01XazlH2Rl7uHl4=";
@@ -27,5 +27,5 @@
     ];
   };
 
-  sops.secrets."wg/nixis" = { };
+  sops.secrets."wg/kebab" = { };
 }

@@ -41,14 +41,14 @@
         }
       ];
     };
-    "nixis" = {
-      privateKeyFile = config.sops.secrets."wg/infinity-nixis".path;
+    "kebab" = {
+      privateKeyFile = config.sops.secrets."wg/infinity-kebab".path;
       address = [ "10.0.0.2/24" ];
       peers = [
         {
           publicKey = "L5OFqfoKXuC2H1htUXXzZ2iD+VEfroG55/izZzVjfT8=";
           allowedIPs = [ "0.0.0.0/0" "::/0" ];
-          endpoint = "13.73.228.81:21367";
+          endpoint = "37.27.17.16:21367";
           persistentKeepalive = 5;
         }
       ];
@@ -65,7 +65,7 @@
     "wg-quick-rtx4d-local" = {
       wantedBy = lib.mkForce [ ];
     };
-    "wg-quick-nixis" = {
+    "wg-quick-kebab" = {
       wantedBy = lib.mkForce [ ];
     };
   };
@@ -74,5 +74,5 @@
   sops.secrets."wg/nl" = { };
   sops.secrets."wg/nl-preshared" = { };
   sops.secrets."wg/rtx4d-local" = { };
-  sops.secrets."wg/infinity-nixis" = { };
+  sops.secrets."wg/infinity-kebab" = { };
 }

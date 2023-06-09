@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./wireguard.nix
     "${inputs.nixpkgs}/nixos/modules/virtualisation/azure-common.nix"
     inputs.self.nixosProfiles.nginx
     inputs.self.nixosRoles.server
