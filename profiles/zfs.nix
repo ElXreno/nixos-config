@@ -4,8 +4,8 @@ let inherit (config) device;
 in
 {
   # Enable zfs unstable for INFINITY until a new release
-  # with 6.2 kernel support is published.
-  boot.zfs.enableUnstable = config.device == "INFINITY";
+  # with 6.3 kernel support is published.
+  # boot.zfs.enableUnstable = config.device == "INFINITY";
 
   # This is not really needed, since zfs is already in the initrd
   # thanks to fileSystems."/" and fileSystems."/nix".
