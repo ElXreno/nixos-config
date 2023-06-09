@@ -8,8 +8,6 @@ in
     inputs.self.nixosRoles.iso
   ];
 
-  boot.zfs.enableUnstable = true;
-
   # isoImage.storeContents = [ inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
 
