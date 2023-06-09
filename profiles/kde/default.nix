@@ -114,6 +114,11 @@
             lidAction = 32;
             triggerLidActionWhenExternalMonitorPresent = false;
           };
+          "AC.SuspendSession" = {
+            idleTime = null;
+            suspendThenHibernate = null;
+            suspendType = null;
+          };
           "Battery.DPMSControl".idleTime = 600; # 10 min
           "Battery.DimDisplay".idleTime = 300000; # 5 min
           "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent = false;
