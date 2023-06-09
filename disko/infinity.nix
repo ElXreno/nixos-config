@@ -1,4 +1,8 @@
-{ ... }: {
+{ ... }: 
+let 
+  defaultMountOptions = [ "compress-force=zstd" ];
+in
+{
   disko.devices = {
     disk = {
       nvme = {
@@ -21,75 +25,35 @@
               };
             }
             {
-              name = "zfs";
+              name = "luks";
               start = "512MiB";
               end = "75%";
               content = {
-                type = "zfs";
-                pool = "nvmepool";
+                type = "luks";
+                name = "crypted";
+                extraOpenArgs = [ "--allow-discards" ];
+                content = {
+                  type = "btrfs";
+                  extraArgs = [ "-f" ];
+                  subvolumes = {
+                    "/root" = {
+                      mountpoint = "/";
+                      mountOptions = defaultMountOptions;
+                    };
+                    "/home" = {
+                      mountOptions = defaultMountOptions;
+                    };
+                    "/nix" = {
+                      mountOptions = defaultMountOptions ++ [ "noatime" ];
+                    };
+                    "/var" = { 
+                      mountOptions = defaultMountOptions;
+                    };
+                  };
+                };
               };
             }
           ];
-        };
-      };
-    };
-    zpool = {
-      nvmepool = {
-        type = "zpool";
-        options = {
-          ashift = "12";
-          autotrim = "on";
-        };
-        rootFsOptions = {
-          compression = "zstd";
-          dedup = "on";
-          encryption = "aes-256-gcm";
-          keyformat = "passphrase";
-          mountpoint = "none";
-          relatime = "on";
-          sync = "disabled";
-          xattr = "sa";
-        };
-        postCreateHook = "zfs snapshot nvmepool@blank";
-
-        datasets = {
-          data = {
-            type = "zfs_fs";
-            options.mountpoint = "none";
-          };
-          "data/root" = {
-            type = "zfs_fs";
-            options.mountpoint = "legacy";
-            mountpoint = "/";
-          };
-          "data/home" = {
-            type = "zfs_fs";
-            options = {
-              mountpoint = "legacy";
-              recordsize = "512K";
-            };
-            mountpoint = "/home";
-          };
-          "data/var" = {
-            type = "zfs_fs";
-            options = {
-              mountpoint = "legacy";
-              recordsize = "8K";
-            };
-            mountpoint = "/var";
-          };
-          nix = {
-            type = "zfs_fs";
-            options.mountpoint = "legacy";
-            mountpoint = "/nix";
-          };
-          reservation = {
-            type = "zfs_fs";
-            options = {
-              mountpoint = "none";
-              refreservation = "2G";
-            };
-          };
         };
       };
     };
