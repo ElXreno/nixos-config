@@ -13,6 +13,7 @@ in
 
   environment.systemPackages = with pkgs; [
     maliit-keyboard # Virtual keyboard
+    sbctl
   ];
 
   hardware.firmware = [ rtl8723b-firmware ];
