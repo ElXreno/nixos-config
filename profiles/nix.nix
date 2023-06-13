@@ -6,7 +6,7 @@
         (lib.mkIf config.programs.ccache.enable "${config.programs.ccache.cacheDir}")
       ];
 
-      trusted-users = [ "elxreno" ];
+      trusted-users = [ "elxreno" ] ++ lib.optional config.services.hydra.enable "hydra";
 
       substituters = lib.mkForce ([
         "https://aseipp-nix-cache.global.ssl.fastly.net"
