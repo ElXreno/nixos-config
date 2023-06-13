@@ -37,6 +37,8 @@ in
       "preempt=full"
     ] ++ lib.optionals isDesktop [
       "systemd.gpt_auto=0"
+    ] ++ lib.optionals (config.device == "INFINITY") [
+      "amdgpu.gttsize=1536"
     ];
 
     kernel.sysctl = lib.mkMerge [
