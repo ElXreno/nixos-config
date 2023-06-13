@@ -2,7 +2,6 @@
 
 {
   imports = [
-    ./graduate-project-dev.nix
     ./hardware-configuration.nix
     ./wireguard.nix
     inputs.disko.nixosModules.disko
