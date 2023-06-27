@@ -40,6 +40,8 @@
     papirus-icon-theme
   ] ++ lib.optional config.services.colord.enable gnome.gnome-color-manager;
 
+  programs.dconf.enable = true;
+
   home-manager.users.elxreno = {
     imports = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
     programs.plasma = {
