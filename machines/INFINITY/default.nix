@@ -48,6 +48,7 @@
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
   programs.k3b.enable = true;
+  programs.noisetorch.enable = true;
   services.tailscale.enable = true;
 
   system.stateVersion = "23.05";
