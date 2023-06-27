@@ -9,6 +9,8 @@
         "ngrok"
         "nvidia-settings"
         "nvidia-x11"
+        "slack"
+        "discord-canary"
         "steam-original"
         "steam-run"
         "steam"

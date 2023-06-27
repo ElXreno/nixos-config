@@ -53,6 +53,8 @@ in
           # Messengers
           element-desktop
           tdesktop
+          slack
+          discord-canary
 
           keepassxc
           qbittorrent
