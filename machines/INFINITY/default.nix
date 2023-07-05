@@ -50,6 +50,7 @@
   programs.k3b.enable = true;
   programs.noisetorch.enable = true;
   services.tailscale.enable = true;
+  services.bpftune.enable = true;
 
   system.stateVersion = "23.05";
 }

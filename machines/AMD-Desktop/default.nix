@@ -35,6 +35,7 @@
   };
 
   services.tailscale.enable = true;
+  services.bpftune.enable = true;
 
   system.stateVersion = "22.05";
 }
