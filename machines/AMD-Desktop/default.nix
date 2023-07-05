@@ -10,7 +10,7 @@
   deviceSpecific.devInfo.legacy = true;
 
   services.udev.extraRules = ''
-    ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="${pkgs.coreutils}/bin/echo 0 > /sys/block/sdb/queue/wbt_lat_usec"
+    ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="${pkgs.coreutils}/bin/echo 0 > /sys/block/%k/queue/wbt_lat_usec"
   '';
 
   i18n.defaultLocale = "ru_RU.UTF-8";
