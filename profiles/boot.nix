@@ -111,4 +111,8 @@ in
         ExecStart = "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
       };
    };
+
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", RUN+="${pkgs.smartmontools}/bin/smartctl -s apm,off /dev/%k"
+  '';
 }
