@@ -32,7 +32,9 @@ in
       "nohibernate"
     ] ++ lib.optionals (isDesktop || isLaptop || config.device == "Noxer-Server") [
       "i915.mitigations=off"
-      "mitigations=off"
+      # slowdown for this processor is minimal
+      # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
+      (lib.mkIf (config.device != "INFINITY") "mitigations=off")
     ] ++ lib.optionals (isDesktop || isLaptop) [
       "preempt=full"
     ] ++ lib.optionals isDesktop [
