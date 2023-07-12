@@ -1,5 +1,9 @@
 { config, inputs, pkgs, lib, ... }:
 {
+  imports = [
+    inputs.nur-xddxdd.nixosModules.setupOverlay
+  ];
+
   nixpkgs = {
     config = {
       allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
@@ -14,6 +18,7 @@
         "steam-original"
         "steam-run"
         "steam"
+        "svp"
         "unrar"
         "vscode"
 

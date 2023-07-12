@@ -122,6 +122,7 @@ in
 
             ## etc
             remmina
+            svp
           ])
       ];
     };
