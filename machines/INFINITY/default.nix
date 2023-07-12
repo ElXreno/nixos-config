@@ -45,6 +45,10 @@
   # so use powersave by default
   powerManagement.cpuFreqGovernor = "powersave";
 
+  # P2P Networking
+  networking.firewall.allowedTCPPorts = [ 36645 ];
+  networking.firewall.allowedUDPPorts = [ 36645 ];
+
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
   programs.k3b.enable = true;
