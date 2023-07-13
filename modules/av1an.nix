@@ -1,4 +1,4 @@
-{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e }:
+{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e, svt-av1, libaom, libvpx, x264, x265 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "av1an";
@@ -16,7 +16,15 @@ rustPlatform.buildRustPackage rec {
 
   postInstall = ''
     wrapProgram $out/bin/av1an \
-      --prefix PATH : ${lib.makeBinPath [ rav1e vapoursynth.python3 ]} \
+      --prefix PATH : ${lib.makeBinPath [ 
+          vapoursynth.python3
+          rav1e
+          svt-av1
+          libaom
+          libvpx
+          x264
+          x265
+        ]} \
       --prefix PYTHONPATH : "${vapoursynth}/${vapoursynth.python3.sitePackages}"
   '';
 
