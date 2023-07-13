@@ -1,24 +1,23 @@
-{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, llvmPackages, ffmpeg, vapoursynth, rav1e }:
+{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e }:
 
 rustPlatform.buildRustPackage rec {
   pname = "av1an";
-  version = "0.2.0";
+  version = "0.4.1";
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "sha256-WUroqn2yTr0wwo1GduRjNFKMi3mjdsKwoMmWLcb7c4M=";
+    sha256 = "sha256-mM0zXVmmj5ZVtMr8upWCOrxsYEUFs2PZX4E/4NYAZd8=";
   };
 
-  cargoSha256 = "sha256-ma5z8W8FpRphbz9jHaseFlH0iGnWm7kLbw6njzHfb5A=";
+  cargoSha256 = "sha256-uzaajaBL67Jca9b9E/UHUv56dmQ2XSjZTNdhOiquUrU=";
 
-  nativeBuildInputs = [ makeWrapper nasm pkg-config llvmPackages.clang ];
+  nativeBuildInputs = [ makeWrapper rustPlatform.bindgenHook nasm pkg-config ];
   buildInputs = [ ffmpeg vapoursynth ];
-
-  LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
   postInstall = ''
     wrapProgram $out/bin/av1an \
-      --prefix PATH ${rav1e}/bin
+      --prefix PATH : ${lib.makeBinPath [ rav1e vapoursynth.python3 ]} \
+      --prefix PYTHONPATH : "${vapoursynth}/${vapoursynth.python3.sitePackages}"
   '';
 
   meta = with lib; {
@@ -26,7 +25,7 @@ rustPlatform.buildRustPackage rec {
     longDescription = ''
       Cross-platform command-line AV1 / VP9 / HEVC / H264 encoding framework
       with per scene quality encoding.
-      Features: https://github.com/master-of-zen/Av1an#main-features
+      Features: https://github.com/master-of-zen/Av1an/tree/${version}#features
     '';
     homepage = "https://github.com/master-of-zen/Av1an";
     changelog = "https://github.com/master-of-zen/Av1an/releases/tag/${version}";
