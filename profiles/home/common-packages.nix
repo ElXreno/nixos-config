@@ -121,6 +121,7 @@ in
             lens
 
             ## etc
+            av1an
             remmina
             svp
           ])
