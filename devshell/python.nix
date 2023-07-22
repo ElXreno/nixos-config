@@ -1,12 +1,11 @@
 { pkgs, ... }:
-let python = pkgs.python39;
+let python = pkgs.python311;
 in
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     pkg-config
     clang
     gnumake
-    rustup
     python3
   ] ++ (with jetbrains; [
     pycharm-professional
@@ -14,10 +13,6 @@ pkgs.mkShell {
 
   buildInputs = with pkgs; with python.pkgs; [
     # Python
-    aiohttp
-    setuptools
-    toml
-    wheel
     venvShellHook
   ];
 
