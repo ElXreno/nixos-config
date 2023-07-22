@@ -134,6 +134,8 @@ in
         "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens.desktop";
         "x-scheme-handler/postman" = lib.mkIf config.deviceSpecific.isLaptop "Postman.desktop";
+        "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
+        "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
       };
 
       associations.removed = lib.mkIf config.deviceSpecific.isLaptop {
