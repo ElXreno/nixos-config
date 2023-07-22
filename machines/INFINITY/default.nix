@@ -56,5 +56,13 @@
   services.tailscale.enable = true;
   services.bpftune.enable = true;
 
+  services.beesd.filesystems = {
+    root = {
+      spec = "UUID=02f76e23-8371-4a97-a3c6-75fe096d931c";
+      workDir = "beeshome";
+    };
+  };
+  systemd.services."beesd@root".wantedBy = lib.mkForce [ ];
+
   system.stateVersion = "23.05";
 }
