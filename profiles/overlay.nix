@@ -25,7 +25,6 @@
         # IDE
         "android-studio-canary"
         "clion"
-        "datagrip"
         "idea-ultimate"
         "lens"
         "phpstorm"

@@ -96,8 +96,6 @@ in
 
             # Dev
             gitkraken
-            jetbrains.clion
-            jetbrains.datagrip
             postman
 
             # Office and language packs
