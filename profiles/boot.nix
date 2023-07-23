@@ -97,7 +97,7 @@ in
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
 
     tmp = {
-      useTmpfs = config.device != "Nixis-Server";
+      useTmpfs = true;
       tmpfsSize = lib.mkIf config.zramSwap.enable "180%";
     };
   };

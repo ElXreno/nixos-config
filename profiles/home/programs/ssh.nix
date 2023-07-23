@@ -14,9 +14,6 @@
         hostname = "109.171.24.112";
         port = 23;
       };
-      "nixis" = {
-        hostname = "100.77.238.46";
-      };
       "noxer" = {
         hostname = "100.67.12.44";
       };
