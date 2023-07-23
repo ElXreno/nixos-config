@@ -1,4 +1,4 @@
-{ inputs, lib, ... }:
+{ inputs, pkgs, lib, ... }:
 
 {
   imports = [
@@ -63,6 +63,12 @@
     };
   };
   systemd.services."beesd@root".wantedBy = lib.mkForce [ ];
+
+  services.postgresql = {
+    enable = true;
+    ensureDatabases = [ "l0_test" ];
+    package = pkgs.postgresql_15;
+  };
 
   system.stateVersion = "23.05";
 }
