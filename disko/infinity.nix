@@ -32,6 +32,9 @@ in
                 type = "luks";
                 name = "crypted";
                 extraOpenArgs = [ "--allow-discards" ];
+                settings = {
+                  allowDiscards = true;
+                };
                 content = {
                   type = "btrfs";
                   extraArgs = [ "-f" ];
