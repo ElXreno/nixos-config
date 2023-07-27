@@ -15,7 +15,7 @@
 
   services.colord.enable = config.device == "INFINITY";
 
-  fonts.fonts = with pkgs; [
+  fonts.packages = with pkgs; [
     jetbrains-mono
   ];
 
