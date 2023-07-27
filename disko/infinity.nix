@@ -44,12 +44,15 @@ in
                       mountOptions = defaultMountOptions;
                     };
                     "/home" = {
+                      mountpoint = "/home";
                       mountOptions = defaultMountOptions;
                     };
                     "/nix" = {
+                      mountpoint = "/nix";
                       mountOptions = defaultMountOptions ++ [ "noatime" ];
                     };
                     "/var" = { 
+                      mountpoint = "/var";
                       mountOptions = defaultMountOptions;
                     };
                   };
