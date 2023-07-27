@@ -33,6 +33,9 @@
   };
 
   boot.extraModprobeConfig = ''
+    # Disable hardware watchdog
+    blacklist sp5100_tco
+
     # enable power savings mode of snd_hda_intel
     options snd-hda-intel power_save=1 power_save_controller=y
 
