@@ -34,6 +34,11 @@
     services.syncthing.enable = true;
   };
 
+  networking.firewall = {
+    allowedTCPPorts = [ 34381 ]; # TCP based sync protocol traffic
+    allowedUDPPorts = [ 21028 ]; # Syncthing discovery broadcasts
+  };
+
   services.tailscale.enable = true;
   services.bpftune.enable = true;
 
