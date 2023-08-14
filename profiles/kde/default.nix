@@ -46,7 +46,7 @@
     imports = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
     programs.plasma = {
       enable = true;
-      files = {
+      configFile = {
         baloofilerc = {
           "Basic Settings"."Indexing-Enabled" = false;
           # Yeah, it works without [$e] which got converted to \x5b$e\x5d by kwriteconfig5 oof
