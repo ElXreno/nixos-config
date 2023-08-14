@@ -118,6 +118,9 @@ in
             # openlens lacks some features like `shell in the pod`
             lens
 
+            # Unrelated work
+            lsfusion-client
+
             ## etc
             av1an
             remmina
