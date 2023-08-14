@@ -106,6 +106,8 @@ in
       systemd.enable = true;
       availableKernelModules = [ "tpm_crb" ];
     };
+
+    plymouth.enable = !isServer;
   };
 
   systemd.services.ttl-fixup = lib.mkIf isLaptop {
