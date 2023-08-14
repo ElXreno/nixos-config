@@ -72,6 +72,9 @@ in
             gitRepo
             yt-dlp
 
+            # Messengers
+            viber
+
             # GraalVM
             graalvm17-ee
 
@@ -135,6 +138,7 @@ in
         "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens.desktop";
         "x-scheme-handler/postman" = lib.mkIf config.deviceSpecific.isLaptop "Postman.desktop";
+        "x-scheme-handler/viber" = lib.mkIf config.deviceSpecific.isLaptop "viber.desktop";
         "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
         "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
       };

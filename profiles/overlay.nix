@@ -21,6 +21,7 @@
         "svp"
         "unrar"
         "vscode"
+        "viber"
 
         # IDE
         "android-studio-canary"
@@ -33,6 +34,10 @@
         "rider"
 
         "vscode-extension-github-copilot"
+      ];
+      permittedInsecurePackages = [
+        # For viber
+        "openssl-1.1.1v"
       ];
     };
     overlays = with inputs; [
