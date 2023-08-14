@@ -3,8 +3,6 @@
     tlp = {
       enable = true;
       settings = {
-        START_CHARGE_THRESH_BAT0 = 80;
-        STOP_CHARGE_THRESH_BAT0 = 90;
         CPU_ENERGY_PERF_POLICY_ON_AC = "balance_performance";
         CPU_ENERGY_PERF_POLICY_ON_BAT = "balance_power";
         PCIE_ASPM_ON_BAT = "powersupersave";
