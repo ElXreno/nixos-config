@@ -22,6 +22,7 @@
         "unrar"
         "vscode"
         "viber"
+        "lens-desktop"
 
         # IDE
         "android-studio-canary"
