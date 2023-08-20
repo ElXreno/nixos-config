@@ -139,6 +139,7 @@ in
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens-desktop.desktop";
         "x-scheme-handler/postman" = lib.mkIf config.deviceSpecific.isLaptop "Postman.desktop";
         "x-scheme-handler/viber" = lib.mkIf config.deviceSpecific.isLaptop "viber.desktop";
+        "x-scheme-handler/slack" = lib.mkIf config.deviceSpecific.isLaptop "slack.desktop";
         "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
         "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
       };
