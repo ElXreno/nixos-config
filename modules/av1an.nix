@@ -1,4 +1,4 @@
-{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e, svt-av1, libaom, libvpx, x264, x265 }:
+{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e, svt-av1, libaom, libvpx, x264, x265, mkvtoolnix }:
 
 rustPlatform.buildRustPackage rec {
   pname = "av1an";
@@ -24,6 +24,7 @@ rustPlatform.buildRustPackage rec {
           libvpx
           x264
           x265
+          mkvtoolnix
         ]} \
       --prefix PYTHONPATH : "${vapoursynth}/${vapoursynth.python3.sitePackages}"
   '';
