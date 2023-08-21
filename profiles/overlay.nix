@@ -54,15 +54,6 @@
             ];
           });
 
-          linuxPackages_xanmod_latest = super.linuxPackagesFor (super.linuxPackages_xanmod_latest.kernel.override {
-            structuredExtraConfig = with lib.kernel; {
-              KFENCE = yes;
-            } // (lib.mkIf (config.device == "INFINITY") {
-              GENERIC_CPU = no;
-              GENERIC_CPU3 = yes;
-            });
-          });
-
           tlp = super.tlp.override { inherit (config.boot.kernelPackages) x86_energy_perf_policy; };
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
