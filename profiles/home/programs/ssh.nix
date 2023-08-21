@@ -14,9 +14,6 @@
         hostname = "109.171.24.112";
         port = 23;
       };
-      "noxer" = {
-        hostname = "100.67.12.44";
-      };
 
       "nixbuild" = {
         hostname = "eu.nixbuild.net";

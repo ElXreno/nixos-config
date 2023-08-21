@@ -25,7 +25,7 @@ in
         # screen_tabs = 1;
         # "screen:I/O" = [ "PID" "USER" "IO_PRIORITY" "IO_RATE" "IO_READ_RATE" "IO_WRITE_RATE" "COMM" ];
       }
-      (lib.mkIf (!config.deviceSpecific.isServer || config.device == "Noxer-Server") {
+      (lib.mkIf (!config.deviceSpecific.isServer) {
         show_cpu_frequency = true;
         show_cpu_temperature = true;
       })

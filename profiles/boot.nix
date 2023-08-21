@@ -30,7 +30,7 @@ in
 
     kernelParams = [
       "nohibernate"
-    ] ++ lib.optionals (isDesktop || isLaptop || config.device == "Noxer-Server") [
+    ] ++ lib.optionals (isDesktop || isLaptop) [
       "i915.mitigations=off"
       # slowdown for this processor is minimal
       # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
