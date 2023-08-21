@@ -14,7 +14,7 @@ in
           # CLI Stuff
           age
           aria2
-          bintools-unwrapped
+          binutils
           binwalk
           bmon
           brotli
@@ -51,11 +51,9 @@ in
         ]
         (lib.mkIf (!config.deviceSpecific.isServer) [
           # Messengers
-          element-desktop
           tdesktop
-          slack
-          discord-canary
 
+          # Etc
           keepassxc
           qbittorrent
           thunderbird
@@ -63,24 +61,21 @@ in
         (lib.mkIf (config.deviceSpecific.isLaptop)
           [
             # CLI Stuff
-            acpi
             deploy-rs
             elfshaker
-            ngrok
             wgcf
             ffmpeg-full
             gitRepo
             yt-dlp
 
             # Messengers
+            discord-canary
+            element-desktop
+            slack
             viber
 
             # GraalVM
             graalvm17-ee
-
-            # flatpak stuff
-            flatpak-builder
-            debugedit-unstable
 
             # Games
             bottles
@@ -127,7 +122,6 @@ in
             ## etc
             av1an
             remmina
-            svp
           ])
       ];
     };

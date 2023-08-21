@@ -4,7 +4,6 @@
 
     # Profiles
     adb
-    flatpak
     hardware
     firefox
     # ipfs
