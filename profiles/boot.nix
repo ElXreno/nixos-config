@@ -79,7 +79,6 @@ in
         lib.mkIf isLaptop
           {
             # Network
-            "net.ipv4.tcp_congestion_control" = lib.mkForce "bbr2";
             "net.ipv4.ip_default_ttl" = 65;
             "net.ipv6.conf.all.hop_limit" = 65;
             "net.ipv6.conf.default.hop_limit" = 65;
