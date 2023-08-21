@@ -20,7 +20,7 @@
   '';
 
   # Until micmute led is broken with pipewire, blink when there's network activity
-  systemd.tmpfiles.rules = lib.mkIf (config.device == "INFINITY") [
+  systemd.tmpfiles.rules = [
     "w- /sys/class/leds/platform\:\:micmute/trigger - - - - phy0tx"
   ];
 
