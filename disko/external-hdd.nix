@@ -46,7 +46,7 @@
             type = "zfs_fs";
             options = {
               dedup = "on";
-              mountpoint = "/mnt/external-hdd/unsafe";
+              mountpoint = "/external-hdd/unsafe";
               sync = "disabled";
             };
           };
@@ -54,7 +54,7 @@
             type = "zfs_fs";
             options = {
               copies = "2";
-              mountpoint = "/mnt/external-hdd/safe";
+              mountpoint = "/external-hdd/safe";
             };
           };
           reservation = {
