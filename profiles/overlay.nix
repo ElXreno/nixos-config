@@ -60,7 +60,7 @@
 
           graalvm17-ee =
             let
-              version = "22.3.1";
+              version = "17.0.8+9";
               javaVersion = "17";
               src = super.fetchurl (import ../sources/graalvm-ee-sources.nix).graalvm-ee."${javaVersion}-linux-amd64";
               meta = {
