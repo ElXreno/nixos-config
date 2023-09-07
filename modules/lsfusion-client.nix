@@ -3,13 +3,13 @@
 stdenv.mkDerivation rec {
   pname = "lsfusion-client";
   baseVersion = "5.1";
-  version = "${baseVersion}-20230731.103528-128";
+  version = "${baseVersion}-20230822.085139-142";
 
   # Builds available here:
   # https://repo.lsfusion.org/nexus/service/rest/repository/browse/public/lsfusion/platform/desktop-client
   src = fetchurl {
     url = "https://repo.lsfusion.org/nexus/repository/public/lsfusion/platform/desktop-client/${baseVersion}-SNAPSHOT/desktop-client-${version}-assembly.jar";
-    sha256 = "vDXuWGsRi6E/7wtin9+iLHKaHvtqpwcfUi8RMqLYd14=";
+    hash = "sha256-S2t8zCFg2yVLFVIyya1xsghTgy/2IURKcBPDuEvpQ1w=";
   };
 
   nativeBuildInputs = [ copyDesktopItems makeWrapper unzip ];
