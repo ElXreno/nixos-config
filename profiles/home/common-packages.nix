@@ -94,6 +94,8 @@ in
             # Dev
             gitkraken
             postman
+            jetbrains.pycharm-professional
+            jetbrains.clion
 
             # Office and language packs
             libreoffice
