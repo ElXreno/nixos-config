@@ -22,7 +22,7 @@
       elxreno = {
         description = "ElXreno";
         extraGroups = [ "wheel" "networkmanager" "libvirtd" "adbusers" "docker" "dialout" "cdrom" ];
-        passwordFile = lib.mkDefault config.sops.secrets."user_passwords/elxreno".path;
+        hashedPasswordFile = lib.mkDefault config.sops.secrets."user_passwords/elxreno".path;
         openssh.authorizedKeys.keys = [
           "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAH/QtzrqDZ/isIpMslg5FJvT6BoyeqpmiaDjuzcHaIpTexaq/UK4pAdG7IYvs++6JfdfAToWeU7TnOqRj8eubfFXADNwHC3w7gHjx/w8Yq76gcRG+UU/JtUbphzs2EdWWIupaZV+nFiTSbdGlak4fnnqSLIDhRgNa3pBbvSyf2OdD02bA== elxreno@desktop.local"
         ];
@@ -34,7 +34,7 @@
       alena = lib.mkIf (config.device == "AMD-Desktop") {
         description = "Alena";
         extraGroups = [ "wheel" "networkmanager" ];
-        passwordFile = lib.mkDefault config.sops.secrets."user_passwords/alena".path;
+        hashedPasswordFile = lib.mkDefault config.sops.secrets."user_passwords/alena".path;
         openssh.authorizedKeys.keys = config.users.users.elxreno.openssh.authorizedKeys.keys;
         isNormalUser = true;
         uid = 1001;

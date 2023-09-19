@@ -9,20 +9,22 @@ in
         type = "disk";
         device = "/dev/sda";
         content = {
-          type = "table";
-          format = "gpt";
-          partitions = [
-            {
-              name = "boot";
+          type = "gpt";
+          partitions = {
+            ESP = {
+              priority = 1;
+              name = "ESP";
               start = "0";
-              end = "1M";
-              flags = [ "bios_grub" ];
-            }
-            {
-              name = "root";
-              start = "1M";
-              end = "100%";
-              bootable = true;
+              end = "512MiB";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                mountpoint = "/boot";
+              };
+            };
+            root = {
+              size = "100%";
               content = {
                 type = "btrfs";
                 extraArgs = [ "-f" ];
@@ -32,15 +34,17 @@ in
                     mountOptions = defaultMountOptions;
                   };
                   "/home" = {
+                    mountpoint = "/home";
                     mountOptions = defaultMountOptions;
                   };
                   "/nix" = {
+                    mountpoint = "/nix";
                     mountOptions = defaultMountOptions ++ [ "noatime" ];
                   };
                 };
               };
-            }
-          ];
+            };
+          };
         };
       };
     };

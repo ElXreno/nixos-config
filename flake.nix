@@ -112,6 +112,14 @@
             };
             fastConnection = true;
           };
+          romeo = {
+            hostname = "100.82.185.87";
+            profiles.system = {
+              path = deploy-rs.lib.aarch64-linux.activate.nixos
+                self.nixosConfigurations.romeo;
+            };
+            remoteBuild = true;
+          };
         };
       };
 

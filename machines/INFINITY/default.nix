@@ -44,6 +44,8 @@
 
   boot.kernelParams = [ "amd_pstate=active" ];
 
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
+
   # EPP cannot be set under performance policy
   # so use powersave by default
   powerManagement.cpuFreqGovernor = "powersave";
