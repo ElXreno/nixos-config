@@ -6,10 +6,7 @@ pkgs.mkShell {
     pkg-config
     clang
     gnumake
-    python3
-
-    # For psycopg2
-    postgresql
+    python
   ] ++ (with jetbrains; [
     pycharm-professional
   ]);
