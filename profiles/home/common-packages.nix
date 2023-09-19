@@ -72,7 +72,6 @@ in
             discord-canary
             element-desktop
             slack
-            viber
 
             # GraalVM
             graalvm17-ee
@@ -132,7 +131,6 @@ in
         "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens-desktop.desktop";
         "x-scheme-handler/postman" = lib.mkIf config.deviceSpecific.isLaptop "Postman.desktop";
-        "x-scheme-handler/viber" = lib.mkIf config.deviceSpecific.isLaptop "viber.desktop";
         "x-scheme-handler/slack" = lib.mkIf config.deviceSpecific.isLaptop "slack.desktop";
         "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
         "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
