@@ -7,6 +7,7 @@
     inputs.disko.nixosModules.disko
     inputs.self.diskoConfigurations.hcloud
     inputs.self.nixosRoles.server
+    inputs.self.nixosProfiles.matrix-synapse
   ];
 
   security.sudo.wheelNeedsPassword = false;
