@@ -1,4 +1,40 @@
-{ config, inputs, pkgs, lib, ... }:
+{ config, inputs, lib, ... }:
+let
+  optimizedPkgs = import inputs.nixpkgs {
+    localSystem = {
+      gcc = {
+        arch = "znver2";
+        tune = "znver2";
+      };
+      inherit (config.nixpkgs) system;
+    };
+
+    overlays = [
+      (_self: super: {
+        python3 = super.python3.override {
+          packageOverrides = python-self: python-super: {
+            click = python-super.click.overrideAttrs (old: {
+              disabledTests = (old.disabledTests or [ ]) ++ [
+                "test_file_surrogates" # Invalid or incomplete multibyte or wide character
+              ];
+            });
+          };
+        };
+
+        jdk17 = super.jdk17.overrideAttrs (old: {
+          configureFlags =
+            let cflags = "-Ofast";
+            in (old.configureFlags or [ ]) ++ [
+              "--with-jvm-variants=server"
+              "--with-jvm-features=link-time-opt,zgc"
+              "--with-extra-cflags=${cflags}"
+              "--with-extra-cxxflags=${cflags}"
+            ];
+        });
+      })
+    ];
+  };
+in
 {
   imports = [
     inputs.nur-xddxdd.nixosModules.setupOverlay

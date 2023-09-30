@@ -18,6 +18,8 @@
       ];
 
       # auto-optimise-store = config.deviceSpecific.isLaptop;
+
+      system-features = [ "nixos-test" "benchmark" "big-parallel" "kvm" "gccarch-znver2" ];
     };
 
     daemonCPUSchedPolicy = "batch";
