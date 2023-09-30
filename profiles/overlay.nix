@@ -35,6 +35,7 @@
 
         "vscode-extension-github-copilot"
       ];
+      nvidia.acceptLicense = true;
     };
     overlays = with inputs; [
       rust-overlay.overlays.default
