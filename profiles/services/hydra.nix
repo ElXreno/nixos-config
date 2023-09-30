@@ -41,7 +41,8 @@ in
     enable = true;
     hydraURL = "http://localhost:3000";
     notificationSender = "hydra@localhost";
-    useSubstitutes = true;
+    # we rebuild everything from zero, disable it.
+    # useSubstitutes = true;
     extraConfig = ''
       <git-input>
         timeout = 3600
