@@ -1,4 +1,4 @@
-{ inputs, pkgs, lib, ... }:
+{ config, inputs, pkgs, lib, ... }:
 
 {
   imports = [
@@ -74,6 +74,16 @@
     enable = true;
     ensureDatabases = [ "l0_test" ];
     package = pkgs.postgresql_15;
+  };
+
+  nixpkgs = {
+    hostPlatform = {
+      inherit (config.nixpkgs) system;
+      gcc = {
+        arch = "znver2";
+        tune = "znver2";
+      };
+    };
   };
 
   system.stateVersion = "23.05";
