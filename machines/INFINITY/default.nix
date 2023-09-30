@@ -18,7 +18,6 @@
     inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.system76-scheduler
-    inputs.self.nixosProfiles.hydra
     # Lazy to configure everything from zero
     # inputs.self.nixosProfiles.sway
   ];
