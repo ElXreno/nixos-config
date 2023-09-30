@@ -63,7 +63,7 @@ in
         systems = [ "x86_64-linux" "i686-linux" ];
         maxJobs = 8;
         speedFactor = 8;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" "gccarch-znver2" ];
         mandatoryFeatures = [ ];
       }
       {
@@ -71,7 +71,7 @@ in
         systems = [ "x86_64-linux" "i686-linux" ];
         maxJobs = 6;
         speedFactor = 4;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" "gccarch-znver2" ];
         mandatoryFeatures = [ ];
       }
       {
@@ -79,7 +79,7 @@ in
         systems = [ "x86_64-linux" "i686-linux" ];
         maxJobs = 6;
         speedFactor = 4;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" "gccarch-znver2" ];
         mandatoryFeatures = [ ];
       }
     ];
