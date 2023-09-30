@@ -3,8 +3,18 @@
 let
   sshConfig = pkgs.writeText "ssh-config" ''
     Host builder1-x86_64
-      HostName eu.nixbuild.net
-      IdentityFile ${config.sops.secrets."ssh/nixbuild".path}
+      HostName 100.78.254.88
+      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
+      Port 22
+
+    Host builder2-x86_64
+      HostName 100.69.244.92
+      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
+      Port 22
+
+    Host builder3-x86_64
+      HostName 100.81.8.111
+      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
       Port 22
 
     Host *
@@ -15,7 +25,7 @@ let
       ForwardAgent no
       IdentitiesOnly yes
       StrictHostKeyChecking accept-new
-      User elxreno
+      User builder
   '';
 in
 {
@@ -48,18 +58,26 @@ in
   nix = {
     buildMachines = [
       {
-        hostName = "localhost";
+        hostName = "builder1-x86_64";
         systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 2;
-        speedFactor = 2;
+        maxJobs = 8;
+        speedFactor = 8;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
         mandatoryFeatures = [ ];
       }
       {
-        hostName = "builder1-x86_64";
+        hostName = "builder2-x86_64";
         systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 32;
-        speedFactor = 8;
+        maxJobs = 6;
+        speedFactor = 4;
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        mandatoryFeatures = [ ];
+      }
+      {
+        hostName = "builder3-x86_64";
+        systems = [ "x86_64-linux" "i686-linux" ];
+        maxJobs = 6;
+        speedFactor = 4;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
         mandatoryFeatures = [ ];
       }
