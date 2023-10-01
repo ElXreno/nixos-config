@@ -74,7 +74,7 @@ in
             slack
 
             # GraalVM
-            graalvm17-ee
+            graalvm-ce
 
             # Games
             bottles
