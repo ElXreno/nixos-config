@@ -6,7 +6,7 @@
       cp = "cherry-pick";
     };
     signing = {
-      key = "635CDB7EE37B4706";
+      key = "C573235A0F2B0FE2";
       signByDefault = true;
     };
     userEmail = "elxreno@gmail.com";
