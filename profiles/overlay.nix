@@ -1,38 +1,57 @@
 { config, inputs, lib, ... }:
 let
+  arch = "znver2";
+
   optimizedPkgs = import inputs.nixpkgs {
     localSystem = {
       gcc = {
-        arch = "znver2";
-        tune = "znver2";
+        inherit arch;
+        tune = arch;
       };
       inherit (config.nixpkgs) system;
     };
 
-    overlays = [
-      (_self: super: {
-        python3 = super.python3.override {
-          packageOverrides = python-self: python-super: {
-            click = python-super.click.overrideAttrs (old: {
-              disabledTests = (old.disabledTests or [ ]) ++ [
-                "test_file_surrogates" # Invalid or incomplete multibyte or wide character
-              ];
-            });
-          };
-        };
+    overlays =
+      let
+        optimizedStdenv = stdenvAdapters: stdenv:
+          stdenvAdapters.withCFlags
+            "-march=${arch} -mtune=${arch} -Ofast -funroll-loops -fomit-frame-pointer -ftree-vectorize"
+            (myStdenv stdenv);
 
-        jdk17 = super.jdk17.overrideAttrs (old: {
-          configureFlags =
-            let cflags = "-Ofast";
-            in (old.configureFlags or [ ]) ++ [
-              "--with-jvm-variants=server"
-              "--with-jvm-features=link-time-opt,zgc"
-              "--with-extra-cflags=${cflags}"
-              "--with-extra-cxxflags=${cflags}"
-            ];
-        });
-      })
-    ];
+        myStdenv = stdenv:
+          stdenv.override {
+            hostPlatform = stdenv.hostPlatform //
+              lib.mapAttrs (p: a: a arch) lib.systems.architectures.predicates;
+          };
+      in
+      [
+        (_self: super: {
+          optimizedStdenv = (optimizedStdenv super.stdenvAdapters super.stdenv);
+
+          python3 = super.python3.override {
+            packageOverrides = python-self: python-super: {
+              click = python-super.click.overrideAttrs (old: {
+                disabledTests = (old.disabledTests or [ ]) ++ [
+                  "test_file_surrogates" # Invalid or incomplete multibyte or wide character
+                ];
+              });
+            };
+          };
+
+          jdk17 = (super.jdk17.override {
+            stdenv = _self.optimizedStdenv;
+          }).overrideAttrs (old: {
+            configureFlags =
+              let cflags = "-Ofast";
+              in (old.configureFlags or [ ]) ++ [
+                "--with-jvm-variants=server"
+                "--with-jvm-features=link-time-opt,zgc"
+                "--with-extra-cflags=${cflags}"
+                "--with-extra-cxxflags=${cflags}"
+              ];
+          });
+        })
+      ];
   };
 in
 {
