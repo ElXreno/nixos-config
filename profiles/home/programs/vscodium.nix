@@ -44,6 +44,7 @@
       "security.workspace.trust.untrustedFiles" = "open";
       "telemetry.telemetryLevel" = "off";
       "update.mode" = "manual";
+      "workbench.colorTheme" = "Default Light Modern";
     };
     mutableExtensionsDir = false;
   };
