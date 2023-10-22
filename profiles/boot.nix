@@ -46,22 +46,26 @@ in
     kernel.sysctl = lib.mkMerge [
       {
         # Network
-        "net.core.default_qdisc" = "fq";
-        "net.core.netdev_max_backlog" = "16384";
+        "net.core.default_qdisc" = "cake";
         "net.ipv4.tcp_congestion_control" = "bbr";
-        "net.ipv4.tcp_ecn" = 1;
+
+        "net.core.netdev_max_backlog" = "16384";
+        "net.ipv4.tcp_notsent_lowat" = "16384";
+
+        "net.ipv4.tcp_fastopen" = 3;
+
         "net.ipv4.tcp_keepalive_intvl" = 10;
         "net.ipv4.tcp_keepalive_probes" = 6;
         "net.ipv4.tcp_keepalive_time" = 30;
-        "net.ipv4.tcp_low_latency" = 1;
+
         "net.ipv4.tcp_mtu_probing" = 1;
-        "net.ipv4.tcp_notsent_lowat" = "16384";
         "net.ipv4.tcp_slow_start_after_idle" = 0;
         "net.ipv4.tcp_tw_reuse" = 1;
 
         # Memory
         "vm.oom_kill_allocating_task" = 1;
         "vm.swappiness" = 80;
+        "vm.page-cluster" = 0;
       }
       (
         lib.mkIf (!isServer)
@@ -89,7 +93,6 @@ in
             "vm.min_free_kbytes" = 262144;
             "vm.extfrag_threshold" = 300;
             "vm.vfs_cache_pressure" = 3000;
-            "vm.page-cluster" = 0;
           }
       )
     ];
