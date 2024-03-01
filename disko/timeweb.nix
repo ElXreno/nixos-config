@@ -1,5 +1,5 @@
-{ ... }: 
-let 
+{ ... }:
+let
   defaultMountOptions = [ "compress-force=zstd:1" ];
 in
  {
@@ -7,21 +7,13 @@ in
     disk = {
       x = {
         type = "disk";
-        device = "/dev/sda";
+        device = "/dev/vda";
         content = {
           type = "gpt";
           partitions = {
-            ESP = {
-              priority = 1;
-              name = "ESP";
-              start = "0";
-              end = "512MiB";
-              type = "EF00";
-              content = {
-                type = "filesystem";
-                format = "vfat";
-                mountpoint = "/boot";
-              };
+            boot = {
+              size = "1M";
+              type = "EF02";
             };
             root = {
               size = "100%";

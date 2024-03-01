@@ -13,7 +13,7 @@
         "nvidia-settings"
         "nvidia-x11"
         "slack"
-        "discord-canary"
+        "discord"
         "steam-original"
         "steam-run"
         "steam"
@@ -28,7 +28,6 @@
         "idea-ultimate"
         "lens"
         "phpstorm"
-        "postman"
         "pycharm-professional"
         "rider"
 
@@ -52,6 +51,7 @@
           tlp = super.tlp.override { inherit (config.boot.kernelPackages) x86_energy_perf_policy; };
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
+          teledump = inputs.teledump.packages.${super.system}.default;
 
           prismlauncher = super.prismlauncher.override { jdk17 = super.jdk17; jdks = with super; [ jdk17 graalvm-ce ]; };
 

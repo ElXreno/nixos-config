@@ -4,7 +4,7 @@
 
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
   console = {
-    font = lib.mkDefault "Lat2-Terminus16";
+    # font = lib.mkDefault "Lat2-Terminus16";
     keyMap = lib.mkDefault "us";
   };
 
@@ -51,7 +51,7 @@
   };
 
   zramSwap = {
-    enable = true;
+    enable = lib.mkDefault true;
     algorithm = "zstd";
     memoryPercent = 200;
   };

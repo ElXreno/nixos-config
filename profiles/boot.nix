@@ -32,15 +32,17 @@ in
       "nohibernate"
     ] ++ lib.optionals (isDesktop || isLaptop) [
       "i915.mitigations=off"
-      # slowdown for this processor is minimal
+      # slowdown for INFINITY is minimal
       # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
-      (lib.mkIf (config.device != "INFINITY") "mitigations=off")
+      "mitigations=off"
     ] ++ lib.optionals (isDesktop || isLaptop) [
       "preempt=full"
     ] ++ lib.optionals isDesktop [
       "systemd.gpt_auto=0"
     ] ++ lib.optionals (config.device == "INFINITY") [
       "amdgpu.gttsize=1536"
+      # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+      "tsc=unstable"
     ];
 
     kernel.sysctl = lib.mkMerge [

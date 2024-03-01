@@ -69,7 +69,7 @@ in
             yt-dlp
 
             # Messengers
-            discord-canary
+            discord
             element-desktop
             slack
 
@@ -93,7 +93,7 @@ in
 
             # Dev
             gitkraken
-            postman
+            bruno # fuck postman: https://github.com/postmanlabs/postman-app-support/issues/12383
             jetbrains.pycharm-professional
             jetbrains.clion
 
@@ -132,7 +132,6 @@ in
         "x-scheme-handler/element" = lib.mkIf (!config.deviceSpecific.isServer) "element-desktop.desktop";
         "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens-desktop.desktop";
-        "x-scheme-handler/postman" = lib.mkIf config.deviceSpecific.isLaptop "Postman.desktop";
         "x-scheme-handler/slack" = lib.mkIf config.deviceSpecific.isLaptop "slack.desktop";
         "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
         "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";

@@ -9,12 +9,13 @@
       trusted-users = [ "elxreno" ] ++ lib.optional config.services.hydra.enable "hydra";
 
       substituters = lib.mkForce ([
-        "https://aseipp-nix-cache.global.ssl.fastly.net"
+        #"https://aseipp-nix-cache.global.ssl.fastly.net"
+        "https://cache.nixos.org"
         "https://elxreno.cachix.org"
-      ] ++ lib.optional (config.device != "INFINITY" && config.services.tailscale.enable) "https://infinity.tail1f457.ts.net");
+      ]); # ++ lib.optional (config.device != "INFINITY" && config.services.tailscale.enable) "https://infinity.tail1f457.ts.net");
       trusted-public-keys = [
         "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ="
-        "infinity.tail1f457.ts.net:tRoBCI6Slhk8+6DmvhoOQbj2yukhN+5TjchhEFEbWcI="
+#        "infinity.tail1f457.ts.net:tRoBCI6Slhk8+6DmvhoOQbj2yukhN+5TjchhEFEbWcI="
       ];
 
       # auto-optimise-store = config.deviceSpecific.isLaptop;

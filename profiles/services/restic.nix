@@ -51,6 +51,7 @@
         "--exclude=/home/elxreno/.rustup"
         "--exclude=/home/elxreno/.steam"
         "--exclude=/home/elxreno/.stellarium"
+        "--exclude=/home/elxreno/.teledump"
         "--exclude=/home/elxreno/.thunderbird"
         "--exclude=/home/elxreno/.var"
         "--exclude=/home/elxreno/.vscode*"

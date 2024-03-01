@@ -45,6 +45,8 @@
       url = "github:xddxdd/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    teledump.url = "github:ElXreno/teledump";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, ... }@inputs:
@@ -113,9 +115,9 @@
             fastConnection = true;
           };
           romeo = {
-            hostname = "100.82.185.87";
+            hostname = "100.69.61.18";
             profiles.system = {
-              path = deploy-rs.lib.aarch64-linux.activate.nixos
+              path = deploy-rs.lib.x86_64-linux.activate.nixos
                 self.nixosConfigurations.romeo;
             };
             remoteBuild = true;

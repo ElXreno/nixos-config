@@ -29,18 +29,6 @@
         }
       ];
     };
-    "rtx4d-local" = {
-      privateKeyFile = config.sops.secrets."wg/rtx4d-local".path;
-      address = [ "10.11.12.2/24" ];
-      peers = [
-        {
-          publicKey = "MzQPQzUFr4aQYD/fdAVvitNXXbRf0LL4pmpal+VNbQ4=";
-          allowedIPs = [ "10.11.12.1/32" "192.168.1.0/24" ];
-          endpoint = "109.171.24.112:65534";
-          persistentKeepalive = 5;
-        }
-      ];
-    };
   };
 
   systemd.services = {
@@ -50,13 +38,9 @@
     "wg-quick-nl" = {
       wantedBy = lib.mkForce [ ];
     };
-    "wg-quick-rtx4d-local" = {
-      wantedBy = lib.mkForce [ ];
-    };
   };
 
   sops.secrets."wg/cloudflare" = { };
   sops.secrets."wg/nl" = { };
   sops.secrets."wg/nl-preshared" = { };
-  sops.secrets."wg/rtx4d-local" = { };
 }

@@ -13,7 +13,6 @@
     printing
     restic
     syncthing
-    tlp
     vscodium
     direnv
   ];
