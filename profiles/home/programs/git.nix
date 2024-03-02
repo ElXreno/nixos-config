@@ -1,3 +1,4 @@
+{ config, ... }:
 {
   home-manager.users.elxreno.programs.git = {
     enable = true;
@@ -7,7 +8,7 @@
     };
     signing = {
       key = "C573235A0F2B0FE2";
-      signByDefault = true;
+      signByDefault = !config.deviceSpecific.isServer;
     };
     userEmail = "elxreno@gmail.com";
     userName = "ElXreno";
