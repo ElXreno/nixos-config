@@ -47,6 +47,7 @@
     };
 
     teledump.url = "github:ElXreno/teledump";
+    simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, ... }@inputs:

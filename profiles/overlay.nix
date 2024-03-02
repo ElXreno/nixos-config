@@ -52,6 +52,7 @@
 
           deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
           teledump = inputs.teledump.packages.${super.system}.default;
+          simple-reply-bot = inputs.simple-reply-bot.packages.${super.system}.default;
 
           prismlauncher = super.prismlauncher.override { jdk17 = super.jdk17; jdks = with super; [ jdk17 graalvm-ce ]; };
 
