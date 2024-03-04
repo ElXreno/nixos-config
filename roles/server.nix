@@ -4,6 +4,7 @@
 
     # Profiles
     # fail2ban
+    direnv
   ];
 
   deviceSpecific.isServer = true;
