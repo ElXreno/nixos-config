@@ -89,7 +89,7 @@ in
             megasync_autostart
 
             # DB
-            pgmodeler
+            # pgmodeler
 
             # Dev
             gitkraken
