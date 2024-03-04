@@ -21,6 +21,7 @@
         "unrar"
         "vscode"
         "lens-desktop-6.5.2" # WHAT THE FUCK
+        "freeimage-unstable-2021-11-01" # for megasync
 
         # IDE
         "android-studio-canary"
