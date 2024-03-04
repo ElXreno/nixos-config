@@ -104,7 +104,7 @@ in
             # Photos
             darktable
             rawtherapee
-            upscaler
+            # upscaler
 
             # Libvirtd manager
             virt-manager
