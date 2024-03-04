@@ -25,6 +25,7 @@
       after = [ "network.target" ];
       serviceConfig = {
         Restart = "always";
+        RuntimeMaxSec = "12h";
         User = "elxreno";
         Group = "users";
 
@@ -47,6 +48,7 @@
       after = [ "network.target" ];
       serviceConfig = {
         Restart = "always";
+        RuntimeMaxSec = "12h";
         User = "elxreno";
         Group = "users";
 
