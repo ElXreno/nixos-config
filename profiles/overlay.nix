@@ -21,7 +21,6 @@
         "unrar"
         "vscode"
         "lens-desktop-6.5.2" # WHAT THE FUCK
-        "freeimage-unstable-2021-11-01" # for megasync
 
         # IDE
         "android-studio-canary"
@@ -35,7 +34,12 @@
         "vscode-extension-github-copilot"
       ];
       nvidia.acceptLicense = true;
+
+      permittedInsecurePackages = [
+        "freeimage-unstable-2021-11-01" # for megasync
+      ];
     };
+
     overlays = with inputs; [
       rust-overlay.overlays.default
       (_self: super:
