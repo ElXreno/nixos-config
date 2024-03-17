@@ -10,6 +10,12 @@
     nix-index-database.url = "github:Mic92/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
+    nix-on-droid = {
+      url = "github:t184256/nix-on-droid";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -50,7 +56,7 @@
     simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
   };
 
-  outputs = { self, nixpkgs, disko, deploy-rs, ... }@inputs:
+  outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:
     let
       findModules = dir:
         builtins.concatLists (builtins.attrValues (builtins.mapAttrs
@@ -74,6 +80,11 @@
       nixosProfiles = builtins.listToAttrs (findModules ./profiles);
 
       nixosRoles = import ./roles;
+
+      nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
+        modules = [ ./nix-on-droid ];
+        extraSpecialArgs = { inherit inputs; };
+      };
 
       nixosConfigurations = with nixpkgs.lib;
         let
