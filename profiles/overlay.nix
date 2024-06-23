@@ -20,7 +20,7 @@
         "svp"
         "unrar"
         "vscode"
-        "lens-desktop-6.5.2" # WHAT THE FUCK
+        "lens-desktop"
 
         # IDE
         "android-studio-canary"
