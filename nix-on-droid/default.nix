@@ -32,7 +32,7 @@
   environment.etcBackupExtension = ".bak";
 
   user.shell = "${pkgs.fish}/bin/fish";
-  system.stateVersion = "23.11";
+  system.stateVersion = "24.05";
 
   home-manager = {
     backupFileExtension = "hm-bak";
@@ -40,7 +40,7 @@
 
     config = { pkgs, ... }: {
       home = {
-        stateVersion = "23.11";
+        stateVersion = "24.05";
         sessionVariables = {
           EDITOR = "hx";
         };
