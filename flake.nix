@@ -54,6 +54,9 @@
 
     teledump.url = "github:ElXreno/teledump";
     simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
+
+    elfshaker.url = "github:elfshaker/elfshaker";
+    elfshaker.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:

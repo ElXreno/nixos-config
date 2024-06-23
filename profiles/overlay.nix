@@ -63,7 +63,7 @@
 
           av1an = super.callPackage ../modules/av1an.nix { };
           cassowary = super.callPackage ../modules/cassowary.nix { };
-          elfshaker = super.callPackage ../modules/elfshaker.nix { };
+          elfshaker = inputs.elfshaker.packages.${super.system}.default;
           ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
           lsfusion-client = super.callPackage ../modules/lsfusion-client.nix { };
         })
