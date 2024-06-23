@@ -62,7 +62,7 @@ in
           [
             # CLI Stuff
             deploy-rs
-            elfshaker
+            #elfshaker
             wgcf
             ffmpeg-full
             gitRepo
