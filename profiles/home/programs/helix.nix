@@ -11,7 +11,7 @@ let
           bash-language-server
           clang-tools
           cmake-language-server
-          rnix-lsp
+          nil
           rust-analyzer
           yaml-language-server
         ])}
