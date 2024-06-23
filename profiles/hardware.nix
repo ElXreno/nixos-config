@@ -25,12 +25,9 @@
       intel.updateMicrocode = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
     };
 
-    opengl = {
+    graphics = {
       enable = true;
-      driSupport32Bit = true;
-
-      # Work-around for LibreOffice to get OpenCL work
-      setLdLibraryPath = true;
+      enable32Bit = true;
     };
 
     bluetooth = {
