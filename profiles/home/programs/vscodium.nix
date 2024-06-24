@@ -17,12 +17,6 @@
         version = "0.0.1";
         sha256 = "sha256-sgiRl6iHPVu0S877qVjTcHVxkmckYm5kj6s0h8ikB4E=";
       }
-      {
-        name = "volar";
-        publisher = "Vue";
-        version = "1.7.2";
-        sha256 = "sha256-B1l3p2hwHDcUUoZMowRziUoSr4LGLqRatiBSHz3GMTM=";
-      }
     ];
     userSettings = {
       "editor.cursorSmoothCaretAnimation" = "on";
