@@ -65,7 +65,6 @@
           cassowary = super.callPackage ../modules/cassowary.nix { };
           elfshaker = inputs.elfshaker.packages.${super.system}.default;
           ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
-          lsfusion-client = super.callPackage ../modules/lsfusion-client.nix { };
         })
     ];
   };
