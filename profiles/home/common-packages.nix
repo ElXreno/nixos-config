@@ -94,8 +94,8 @@ in
             # Dev
             gitkraken
             bruno # fuck postman: https://github.com/postmanlabs/postman-app-support/issues/12383
-            jetbrains.pycharm-professional
-            jetbrains.clion
+            #jetbrains.pycharm-professional
+            #jetbrains.clion
 
             # Office and language packs
             libreoffice
