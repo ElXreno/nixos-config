@@ -9,8 +9,8 @@
 
     diffutils
     findutils
+    fd
     utillinux
-    tzdata
     hostname
     man
     gnugrep
@@ -26,6 +26,8 @@
     rsync
     dua
     gawk
+    which
+    glibc
     (inputs.deploy-rs.defaultPackage.${builtins.currentSystem})
   ];
 
