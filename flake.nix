@@ -87,6 +87,16 @@
       nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
         modules = [ ./nix-on-droid ];
         extraSpecialArgs = { inherit inputs; };
+
+        pkgs = import nixpkgs {
+          system = "aarch64-linux";
+
+          overlays = [
+            nix-on-droid.overlays.default
+          ];
+        };
+
+        home-manager-path = inputs.home-manager.outPath;
       };
 
       nixosConfigurations = with nixpkgs.lib;
