@@ -898,11 +898,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1720863765,
-        "narHash": "sha256-Q+LSZm9w1htVrRDY1d+0T8rBdifA/6JnAWuBMneGCCE=",
+        "lastModified": 1720896694,
+        "narHash": "sha256-lKInIpVIrI4YOTwbaN6wwQ+EvhL/iVqKhpxcTj4kBhE=",
         "owner": "pjones",
         "repo": "plasma-manager",
-        "rev": "40fa15eceeda6f3fb539367ccee462fa06a4d760",
+        "rev": "809d86d6a8a48b6d71b6ece05eeb5e55f554b396",
         "type": "github"
       },
       "original": {
@@ -1255,11 +1255,11 @@
         "rust-overlay": "rust-overlay_4"
       },
       "locked": {
-        "lastModified": 1718498014,
-        "narHash": "sha256-UA+cpXZzd2HCDE9g1UxHvIZUm5NVnBcfvxeqBaN3GEk=",
+        "lastModified": 1720899933,
+        "narHash": "sha256-ovjVVG4Ny7IVmbFpJtfVE7hDT8gxNOliRB20TuO+UxE=",
         "owner": "ElXreno",
         "repo": "teledump",
-        "rev": "34cd5c1e1e2c2faaa6605e5f654ef59a9391057a",
+        "rev": "46c637463167e48c8326ab481fa1e0f90f87ada5",
         "type": "github"
       },
       "original": {
