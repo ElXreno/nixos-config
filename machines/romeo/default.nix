@@ -42,28 +42,28 @@
       };
     };
 
-    "simple-reply-bot" = {
-      description = "Start telegram reply bot";
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" ];
-      serviceConfig = {
-        Restart = "always";
-        RuntimeMaxSec = "12h";
-        User = "elxreno";
-        Group = "users";
+#    "simple-reply-bot" = {
+#      description = "Start telegram reply bot";
+#      wantedBy = [ "multi-user.target" ];
+#      after = [ "network.target" ];
+#      serviceConfig = {
+#        Restart = "always";
+#        RuntimeMaxSec = "12h";
+#        User = "elxreno";
+#        Group = "users";
 
-        EnvironmentFile = config.sops.secrets."telegram_bot-env".path;
-        Environment = [ "STORE_PATH=~/.simple-reply-bot" ];
+#        EnvironmentFile = config.sops.secrets."telegram_bot-env".path;
+#        Environment = [ "STORE_PATH=~/.simple-reply-bot" ];
 
-        ExecStart = ''
-          ${pkgs.simple-reply-bot}/bin/simple-reply-bot
-        '';
+#        ExecStart = ''
+#          ${pkgs.simple-reply-bot}/bin/simple-reply-bot
+#        '';
 
-        KillSignal = "SIGINT";
+#        KillSignal = "SIGINT";
 
-        Type = "simple";
-      };
-    };
+#        Type = "simple";
+#      };
+#    };
   };
 
   services.restic.backups = {
