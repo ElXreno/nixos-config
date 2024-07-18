@@ -2,8 +2,8 @@
 
 {
   environment.packages = with pkgs; [
-    helix
-    nil
+    nixd
+    nixfmt-classic
     openssh
     sops
 
@@ -43,20 +43,31 @@
     config = { pkgs, ... }: {
       home = {
         stateVersion = "24.05";
-        sessionVariables = {
-          EDITOR = "hx";
-        };
+        sessionVariables = { EDITOR = "hx"; };
       };
 
       programs = {
         direnv = {
           enable = true;
           nix-direnv.enable = true;
-      };
+        };
 
-      fish.enable = true;
-      starship.enable = true;
-  };
+        helix = {
+          enable = true;
+          languages = {
+            language = [{
+              name = "nix";
+              formatter.command = "nixfmt";
+              language-servers = [ "nixd" ];
+              auto-format = true;
+            }];
+            language-server = { nixd.command = "nixd"; };
+          };
+        };
+
+        fish.enable = true;
+        starship.enable = true;
+      };
     };
   };
 
