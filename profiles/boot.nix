@@ -1,26 +1,24 @@
 { config, pkgs, lib, ... }:
 
 let inherit (config.deviceSpecific) isDesktop isLaptop isServer;
-in
-{
+in {
   boot = {
     loader = {
       timeout = if isServer then 0 else 3;
-    } // (
-      if config.deviceSpecific.usesCustomBootloader then { }
-      else if config.deviceSpecific.devInfo.legacy then {
-        grub = {
-          enable = true;
-          device = lib.mkDefault "/dev/sda";
-        };
-      } else {
-        efi.canTouchEfiVariables = true;
-        systemd-boot = {
-          enable = true;
-          configurationLimit = 3;
-        };
-      }
-    );
+    } // (if config.deviceSpecific.usesCustomBootloader then
+      { }
+    else if config.deviceSpecific.devInfo.legacy then {
+      grub = {
+        enable = true;
+        device = lib.mkDefault "/dev/sda";
+      };
+    } else {
+      efi.canTouchEfiVariables = true;
+      systemd-boot = {
+        enable = true;
+        configurationLimit = 3;
+      };
+    });
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
@@ -28,22 +26,18 @@ in
       (lib.mkIf isServer pkgs.linuxPackages_latest)
     ];
 
-    kernelParams = [
-      "nohibernate"
-    ] ++ lib.optionals (isDesktop || isLaptop) [
+    kernelParams = [ "nohibernate" ] ++ lib.optionals (isDesktop || isLaptop) [
       "i915.mitigations=off"
       # slowdown for INFINITY is minimal
       # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
       "mitigations=off"
-    ] ++ lib.optionals (isDesktop || isLaptop) [
-      "preempt=full"
-    ] ++ lib.optionals isDesktop [
-      "systemd.gpt_auto=0"
-    ] ++ lib.optionals (config.device == "INFINITY") [
-      "amdgpu.gttsize=1536"
-      # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-      "tsc=unstable"
-    ];
+    ] ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
+      ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
+      ++ lib.optionals (config.device == "INFINITY") [
+        "amdgpu.gttsize=1536"
+        # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+        "tsc=unstable"
+      ];
 
     kernel.sysctl = lib.mkMerge [
       {
@@ -69,34 +63,21 @@ in
         "vm.swappiness" = 80;
         "vm.page-cluster" = 0;
       }
-      (
-        lib.mkIf (!isServer)
-          {
-            "kernel.sysrq" = 1;
-          }
-      )
-      (
-        lib.mkIf isDesktop
-          {
-            "vm.swappiness" = lib.mkForce 200;
-          }
-      )
-      (
-        lib.mkIf isLaptop
-          {
-            # Network
-            "net.ipv4.ip_default_ttl" = 65;
-            "net.ipv6.conf.all.hop_limit" = 65;
-            "net.ipv6.conf.default.hop_limit" = 65;
-            "net.ipv6.conf.lo.hop_limit" = 65;
-            "net.ipv6.conf.wlp1s0.hop_limit" = 65;
+      (lib.mkIf (!isServer) { "kernel.sysrq" = 1; })
+      (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
+      (lib.mkIf isLaptop {
+        # Network
+        "net.ipv4.ip_default_ttl" = 65;
+        "net.ipv6.conf.all.hop_limit" = 65;
+        "net.ipv6.conf.default.hop_limit" = 65;
+        "net.ipv6.conf.lo.hop_limit" = 65;
+        "net.ipv6.conf.wlp1s0.hop_limit" = 65;
 
-            # Memory
-            "vm.min_free_kbytes" = 262144;
-            "vm.extfrag_threshold" = 300;
-            "vm.vfs_cache_pressure" = 3000;
-          }
-      )
+        # Memory
+        "vm.min_free_kbytes" = 262144;
+        "vm.extfrag_threshold" = 300;
+        "vm.vfs_cache_pressure" = 3000;
+      })
     ];
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
 
@@ -120,7 +101,8 @@ in
     after = [ "network.target" "tailscale.service" ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
+      ExecStart =
+        "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
     };
   };
 

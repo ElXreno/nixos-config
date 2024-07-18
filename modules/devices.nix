@@ -8,23 +8,22 @@ with types; {
     deviceSpecific = {
       isLaptop = mkOption {
         type = bool;
-        default =
-          (builtins.match ".*Laptop" config.networking.hostName) != null;
+        default = (builtins.match ".*Laptop" config.networking.hostName)
+          != null;
       };
       isDesktop = mkOption {
         type = bool;
-        default =
-          (builtins.match ".*Desktop" config.networking.hostName) != null;
+        default = (builtins.match ".*Desktop" config.networking.hostName)
+          != null;
       };
       isServer = mkOption {
         type = bool;
-        default =
-          (builtins.match ".*Server" config.networking.hostName) != null;
+        default = (builtins.match ".*Server" config.networking.hostName)
+          != null;
       };
       isVM = mkOption {
         type = bool;
-        default =
-          (builtins.match ".*VM" config.networking.hostName) != null;
+        default = (builtins.match ".*VM" config.networking.hostName) != null;
       };
       devInfo = {
         cpu = {
@@ -39,7 +38,10 @@ with types; {
           size = mkOption { type = int; };
         };
         ram = mkOption { type = int; };
-        legacy = mkOption { type = bool; default = false; };
+        legacy = mkOption {
+          type = bool;
+          default = false;
+        };
         bigScreen = mkOption {
           type = bool;
           default = true;

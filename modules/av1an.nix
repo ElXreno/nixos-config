@@ -1,4 +1,5 @@
-{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg, vapoursynth, rav1e, svt-av1, libaom, libvpx, x264, x265, mkvtoolnix }:
+{ lib, rustPlatform, fetchCrate, makeWrapper, nasm, pkg-config, ffmpeg
+, vapoursynth, rav1e, svt-av1, libaom, libvpx, x264, x265, mkvtoolnix }:
 
 rustPlatform.buildRustPackage rec {
   pname = "av1an";
@@ -16,7 +17,8 @@ rustPlatform.buildRustPackage rec {
 
   postInstall = ''
     wrapProgram $out/bin/av1an \
-      --prefix PATH : ${lib.makeBinPath [ 
+      --prefix PATH : ${
+        lib.makeBinPath [
           vapoursynth.python3
           rav1e
           svt-av1
@@ -25,7 +27,8 @@ rustPlatform.buildRustPackage rec {
           x264
           x265
           mkvtoolnix
-        ]} \
+        ]
+      } \
       --prefix PYTHONPATH : "${vapoursynth}/${vapoursynth.python3.sitePackages}"
   '';
 
@@ -37,7 +40,8 @@ rustPlatform.buildRustPackage rec {
       Features: https://github.com/master-of-zen/Av1an/tree/${version}#features
     '';
     homepage = "https://github.com/master-of-zen/Av1an";
-    changelog = "https://github.com/master-of-zen/Av1an/releases/tag/${version}";
+    changelog =
+      "https://github.com/master-of-zen/Av1an/releases/tag/${version}";
     license = licenses.bsd2;
     maintainers = [ ];
   };

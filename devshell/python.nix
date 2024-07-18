@@ -1,20 +1,16 @@
 { pkgs, ... }:
 let python = pkgs.python311;
-in
-pkgs.mkShell {
-  nativeBuildInputs = with pkgs; [
-    pkg-config
-    clang
-    gnumake
-    python
-  ] ++ (with jetbrains; [
-    pycharm-professional
-  ]);
+in pkgs.mkShell {
+  nativeBuildInputs = with pkgs;
+    [ pkg-config clang gnumake python ]
+    ++ (with jetbrains; [ pycharm-professional ]);
 
-  buildInputs = with pkgs; with python.pkgs; [
-    # Python
-    venvShellHook
-  ];
+  buildInputs = with pkgs;
+    with python.pkgs;
+    [
+      # Python
+      venvShellHook
+    ];
 
   NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
 

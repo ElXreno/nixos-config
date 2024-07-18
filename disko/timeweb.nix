@@ -1,8 +1,6 @@
 { ... }:
-let
-  defaultMountOptions = [ "compress-force=zstd:1" ];
-in
- {
+let defaultMountOptions = [ "compress-force=zstd:1" ];
+in {
   disko.devices = {
     disk = {
       x = {

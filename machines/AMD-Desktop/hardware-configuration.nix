@@ -4,47 +4,48 @@
 { config, lib, modulesPath, ... }:
 
 {
-  imports =
-    [
-      (modulesPath + "/installer/scan/not-detected.nix")
-    ];
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules = [ "ahci" "ohci_pci" "ehci_pci" "pata_atiixp" "usb_storage" "usbhid" "sd_mod" ];
+  boot.initrd.availableKernelModules = [
+    "ahci"
+    "ohci_pci"
+    "ehci_pci"
+    "pata_atiixp"
+    "usb_storage"
+    "usbhid"
+    "sd_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
-  fileSystems."/boot" =
-    {
-      device = "/dev/disk/by-uuid/a7d0c6a7-db57-4107-a84e-c6d202a740dd";
-      fsType = "ext4";
-    };
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/a7d0c6a7-db57-4107-a84e-c6d202a740dd";
+    fsType = "ext4";
+  };
 
-  fileSystems."/" =
-    {
-      device = "rpool/safe/root";
-      fsType = "zfs";
-    };
+  fileSystems."/" = {
+    device = "rpool/safe/root";
+    fsType = "zfs";
+  };
 
-  fileSystems."/home" =
-    {
-      device = "rpool/safe/home";
-      fsType = "zfs";
-    };
+  fileSystems."/home" = {
+    device = "rpool/safe/home";
+    fsType = "zfs";
+  };
 
-  fileSystems."/nix" =
-    {
-      device = "rpool/local/nix";
-      fsType = "zfs";
-    };
+  fileSystems."/nix" = {
+    device = "rpool/local/nix";
+    fsType = "zfs";
+  };
 
-  fileSystems."/mnt/linux-files" =
-    {
-      device = "rpool/safe/data";
-      fsType = "zfs";
-    };
+  fileSystems."/mnt/linux-files" = {
+    device = "rpool/safe/data";
+    fsType = "zfs";
+  };
 
   swapDevices = [ ];
 
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.amd.updateMicrocode =
+    lib.mkDefault config.hardware.enableRedistributableFirmware;
 }

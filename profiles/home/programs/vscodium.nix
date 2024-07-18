@@ -1,23 +1,21 @@
-{ pkgs, ... }:
-{
+{ pkgs, ... }: {
   home-manager.users.elxreno.programs.vscode = {
     enable = true;
     # package = pkgs.vscodium;
     package = pkgs.vscode;
-    extensions = with pkgs.vscode-extensions; [
-      jnoortheen.nix-ide
-      github.copilot
-      hashicorp.terraform
-      redhat.vscode-yaml
-      jebbs.plantuml
-    ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
-      {
+    extensions = with pkgs.vscode-extensions;
+      [
+        jnoortheen.nix-ide
+        github.copilot
+        hashicorp.terraform
+        redhat.vscode-yaml
+        jebbs.plantuml
+      ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [{
         name = "logcat-color";
         publisher = "RaidXu";
         version = "0.0.1";
         sha256 = "sha256-sgiRl6iHPVu0S877qVjTcHVxkmckYm5kj6s0h8ikB4E=";
-      }
-    ];
+      }];
     userSettings = {
       "editor.cursorSmoothCaretAnimation" = "on";
       "editor.fontSize" = 15;

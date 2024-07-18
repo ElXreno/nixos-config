@@ -64,40 +64,35 @@
       findModules = dir:
         builtins.concatLists (builtins.attrValues (builtins.mapAttrs
           (name: type:
-            if type == "regular" then
-              [{
-                name = builtins.elemAt (builtins.match "(.*)\\.nix" name) 0;
-                value = dir + "/${name}";
-              }]
-            else if (builtins.readDir (dir + "/${name}"))
-              ? "default.nix" then [{
+            if type == "regular" then [{
+              name = builtins.elemAt (builtins.match "(.*)\\.nix" name) 0;
+              value = dir + "/${name}";
+            }] else if (builtins.readDir (dir + "/${name}"))
+            ? "default.nix" then [{
               inherit name;
               value = dir + "/${name}";
             }] else
-              findModules (dir + "/${name}"))
-          (builtins.readDir dir)));
-    in
-    {
+              findModules (dir + "/${name}")) (builtins.readDir dir)));
+    in {
       nixosModules = builtins.listToAttrs (findModules ./modules);
 
       nixosProfiles = builtins.listToAttrs (findModules ./profiles);
 
       nixosRoles = import ./roles;
 
-      nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
-        modules = [ ./nix-on-droid ];
-        extraSpecialArgs = { inherit inputs; };
+      nixOnDroidConfigurations.default =
+        nix-on-droid.lib.nixOnDroidConfiguration {
+          modules = [ ./nix-on-droid ];
+          extraSpecialArgs = { inherit inputs; };
 
-        pkgs = import nixpkgs {
-          system = "aarch64-linux";
+          pkgs = import nixpkgs {
+            system = "aarch64-linux";
 
-          overlays = [
-            nix-on-droid.overlays.default
-          ];
+            overlays = [ nix-on-droid.overlays.default ];
+          };
+
+          home-manager-path = inputs.home-manager.outPath;
         };
-
-        home-manager-path = inputs.home-manager.outPath;
-      };
 
       nixosConfigurations = with nixpkgs.lib;
         let
@@ -109,8 +104,7 @@
                 [ (import (./machines + "/${name}")) { device = name; } ];
               specialArgs = { inherit inputs; };
             };
-        in
-        genAttrs hosts mkHost;
+        in genAttrs hosts mkHost;
 
       diskoConfigurations = builtins.listToAttrs (findModules ./disko);
 
@@ -121,11 +115,12 @@
 
       devShells.x86_64-linux = with nixpkgs.lib;
         let
-          inherit ((builtins.head (builtins.attrValues self.nixosConfigurations))) pkgs config;
-          mkShells = mapAttrs
-            (_name: value: import value { inherit pkgs config; });
-        in
-        mkShells (builtins.listToAttrs (findModules ./devshell));
+          inherit ((builtins.head
+            (builtins.attrValues self.nixosConfigurations)))
+            pkgs config;
+          mkShells =
+            mapAttrs (_name: value: import value { inherit pkgs config; });
+        in mkShells (builtins.listToAttrs (findModules ./devshell));
 
       deploy = {
         user = "root";
@@ -152,7 +147,6 @@
 
       hydraJobs = with nixpkgs.lib;
         (mapAttrs (_: val: val.config.system.build.toplevel)
-          self.nixosConfigurations
-        );
+          self.nixosConfigurations);
     };
 }

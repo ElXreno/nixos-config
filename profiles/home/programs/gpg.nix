@@ -1,5 +1,1 @@
-{
-  home-manager.users.elxreno.programs.gpg = {
-    enable = true;
-  };
-}
+{ home-manager.users.elxreno.programs.gpg = { enable = true; }; }

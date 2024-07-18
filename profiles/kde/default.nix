@@ -1,44 +1,40 @@
-{ config, inputs, pkgs, lib, ... }:
-{
+{ config, inputs, pkgs, lib, ... }: {
   imports = with inputs.self.nixosProfiles; [ xserver kdeconnect ];
   services.xserver = {
     displayManager = {
       sddm.enable = true;
       defaultSession = lib.mkIf (config.device == "INFINITY") "plasmawayland";
     };
-    desktopManager.plasma5 = {
-      enable = true;
-    };
+    desktopManager.plasma5 = { enable = true; };
   };
 
   environment.plasma5.excludePackages = with pkgs; [ elisa ];
 
   services.colord.enable = config.device == "INFINITY";
 
-  fonts.packages = with pkgs; [
-    jetbrains-mono
-  ];
+  fonts.packages = with pkgs; [ jetbrains-mono ];
 
-  environment.systemPackages = with pkgs; [
-    # Utilities for Info Center
-    clinfo
-    glxinfo
-    vulkan-tools
+  environment.systemPackages = with pkgs;
+    [
+      # Utilities for Info Center
+      clinfo
+      glxinfo
+      vulkan-tools
 
-    ark
-    gwenview
-    kate
-    kompare
-    kleopatra
-    okular
-    okteta
+      ark
+      gwenview
+      kate
+      kompare
+      kleopatra
+      okular
+      okteta
 
-    # Ark dependency
-    unrar
+      # Ark dependency
+      unrar
 
-    # Icons
-    papirus-icon-theme
-  ] ++ lib.optional config.services.colord.enable gnome.gnome-color-manager;
+      # Icons
+      papirus-icon-theme
+    ] ++ lib.optional config.services.colord.enable gnome.gnome-color-manager;
 
   programs.dconf.enable = true;
 
@@ -73,11 +69,12 @@
           };
         };
 
-        kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" = lib.mkIf (config.device == "INFINITY") {
-          NaturalScroll = true;
-          ScrollFactor = 0.5;
-          TapToClick = true;
-        };
+        kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" =
+          lib.mkIf (config.device == "INFINITY") {
+            NaturalScroll = true;
+            ScrollFactor = 0.5;
+            TapToClick = true;
+          };
 
         ksmserverrc.General.loginMode = "restoreSavedSession";
 
@@ -99,9 +96,7 @@
             TerminalColumns = 120;
             TerminalRows = 30;
           };
-          Scrolling = {
-            HistorySize = 50000;
-          };
+          Scrolling = { HistorySize = 50000; };
         };
 
         kwinrc = {
@@ -123,7 +118,8 @@
           };
           "Battery.DPMSControl".idleTime = 600; # 10 min
           "Battery.DimDisplay".idleTime = 300000; # 5 min
-          "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent = false;
+          "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent =
+            false;
           "Battery.SuspendSession" = {
             idleTime = null;
             suspendThenHibernate = null;
@@ -134,7 +130,8 @@
 
         # Applets
         "plasma-org.kde.plasma.desktop-appletsrc" = {
-          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat = 2; # TODO: Maybe I should change regional settings instead?
+          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat =
+            2; # TODO: Maybe I should change regional settings instead?
         };
       };
     };

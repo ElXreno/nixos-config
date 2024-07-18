@@ -1,9 +1,7 @@
 { config, lib, ... }:
 
-let
-  zfsEnabled = builtins.elem "zfs" config.boot.supportedFilesystems;
-in
-{
+let zfsEnabled = builtins.elem "zfs" config.boot.supportedFilesystems;
+in {
   home-manager.users.elxreno.programs.htop = {
     enable = true;
     settings = lib.mkMerge [
@@ -17,9 +15,16 @@ in
         show_cpu_usage = true;
         show_program_path = true;
         header_layout = "two_50_50";
-        column_meters_0 = [ "LeftCPUs2" "Memory" "Swap" "Zram" ];# ++ lib.optionals zfsEnabled [ "ZFSARC" "ZFSCARC" ];
-        column_meter_modes_0 = [ 1 1 1 1 ];# ++ lib.optionals zfsEnabled [ 2 2 ];
-        column_meters_1 = [ "RightCPUs2" "Tasks" "LoadAverage" "Uptime" "DiskIO" "NetworkIO" ];
+        column_meters_0 = [
+          "LeftCPUs2"
+          "Memory"
+          "Swap"
+          "Zram"
+        ]; # ++ lib.optionals zfsEnabled [ "ZFSARC" "ZFSCARC" ];
+        column_meter_modes_0 =
+          [ 1 1 1 1 ]; # ++ lib.optionals zfsEnabled [ 2 2 ];
+        column_meters_1 =
+          [ "RightCPUs2" "Tasks" "LoadAverage" "Uptime" "DiskIO" "NetworkIO" ];
         column_meter_modes_1 = [ 1 2 2 2 2 2 ];
         # TODO: Write custom config generator
         # screen_tabs = 1;

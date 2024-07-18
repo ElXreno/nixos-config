@@ -1,8 +1,7 @@
 { inputs, pkgs, ... }:
 
 let rtl8723b-firmware = pkgs.callPackage ./rtl8723b-firmware.nix { };
-in
-{
+in {
   imports = [
     "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-plasma5-new-kernel.nix"
     inputs.self.nixosRoles.iso

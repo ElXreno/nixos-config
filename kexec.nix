@@ -1,4 +1,5 @@
-{ config, pkgs, ... }: # https://gist.github.com/misuzu/89fb064a2cc09c6a75dc9833bb3995bf
+{ config, pkgs, ...
+}: # https://gist.github.com/misuzu/89fb064a2cc09c6a75dc9833bb3995bf
 {
   imports = [
     # this will work only under qemu, uncomment next line for full image
@@ -9,35 +10,37 @@
 
   # stripped down version of https://github.com/cleverca22/nix-tests/tree/master/kexec
   system.build = rec {
-    image = pkgs.runCommand "image" { buildInputs = [ pkgs.nukeReferences ]; } ''
-      mkdir $out
-      cp ${config.system.build.kernel}/${config.system.boot.loader.kernelFile} $out/kernel
-      cp ${config.system.build.netbootRamdisk}/initrd $out/initrd
-      nuke-refs $out/kernel
-    '';
+    image =
+      pkgs.runCommand "image" { buildInputs = [ pkgs.nukeReferences ]; } ''
+        mkdir $out
+        cp ${config.system.build.kernel}/${config.system.boot.loader.kernelFile} $out/kernel
+        cp ${config.system.build.netbootRamdisk}/initrd $out/initrd
+        nuke-refs $out/kernel
+      '';
     kexec_script = pkgs.writeTextFile {
       executable = true;
       name = "kexec-nixos";
       text = ''
         #!${pkgs.stdenv.shell}
         set -e
-        ${pkgs.kexectools}/bin/kexec -l ${image}/kernel --initrd=${image}/initrd --append="init=${builtins.unsafeDiscardStringContext config.system.build.toplevel}/init ${toString config.boot.kernelParams}"
+        ${pkgs.kexectools}/bin/kexec -l ${image}/kernel --initrd=${image}/initrd --append="init=${
+          builtins.unsafeDiscardStringContext config.system.build.toplevel
+        }/init ${toString config.boot.kernelParams}"
         sync
         echo "executing kernel, filesystems will be improperly umounted"
         ${pkgs.kexectools}/bin/kexec -e
       '';
     };
-    kexec_tarball = pkgs.callPackage <nixpkgs/nixos/lib/make-system-tarball.nix> {
-      storeContents = [
-        {
+    kexec_tarball =
+      pkgs.callPackage <nixpkgs/nixos/lib/make-system-tarball.nix> {
+        storeContents = [{
           object = config.system.build.kexec_script;
           symlink = "/kexec_nixos";
-        }
-      ];
-      contents = [ ];
-      compressCommand = "cat";
-      compressionExtension = "";
-    };
+        }];
+        contents = [ ];
+        compressCommand = "cat";
+        compressionExtension = "";
+      };
     kexec_tarball_self_extract_script = pkgs.writeTextFile {
       executable = true;
       name = "kexec-nixos";
@@ -62,7 +65,8 @@
 
   boot.initrd.availableKernelModules = [ "ata_piix" "uhci_hcd" ];
   boot.kernelParams = [
-    "panic=30" "boot.panic_on_fail" # reboot the machine upon fatal boot issues
+    "panic=30"
+    "boot.panic_on_fail" # reboot the machine upon fatal boot issues
     "console=ttyS0" # enable serial console
     "console=tty1"
   ];

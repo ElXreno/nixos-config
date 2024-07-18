@@ -1,8 +1,6 @@
-{ ... }: 
-let 
-  defaultMountOptions = [ "compress-force=zstd" ];
-in
-{
+{ ... }:
+let defaultMountOptions = [ "compress-force=zstd" ];
+in {
   disko.devices = {
     disk = {
       nvme = {
@@ -32,9 +30,7 @@ in
                 type = "luks";
                 name = "crypted";
                 extraOpenArgs = [ "--allow-discards" ];
-                settings = {
-                  allowDiscards = true;
-                };
+                settings = { allowDiscards = true; };
                 content = {
                   type = "btrfs";
                   extraArgs = [ "-f" ];
@@ -51,7 +47,7 @@ in
                       mountpoint = "/nix";
                       mountOptions = defaultMountOptions ++ [ "noatime" ];
                     };
-                    "/var" = { 
+                    "/var" = {
                       mountpoint = "/var";
                       mountOptions = defaultMountOptions;
                     };
@@ -66,7 +62,8 @@ in
   };
 
   fileSystems = {
-    "/var".neededForBoot = true; # Ensure that /var will be mounted with the sops key
+    "/var".neededForBoot =
+      true; # Ensure that /var will be mounted with the sops key
   };
 }
 

@@ -22,9 +22,7 @@
     # inputs.self.nixosProfiles.sway
   ];
 
-  swapDevices = [{
-    device = "/swapfile";
-  }];
+  swapDevices = [{ device = "/swapfile"; }];
   zramSwap.enable = false;
   boot.kernelParams = [
     "zswap.enabled=1"

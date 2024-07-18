@@ -1,5 +1,4 @@
-{ config, inputs, pkgs, ... }:
-{
+{ config, inputs, pkgs, ... }: {
   imports = [
     ./hardware-configuration.nix
     inputs.self.nixosRoles.desktop
@@ -16,7 +15,8 @@
   i18n.defaultLocale = "ru_RU.UTF-8";
 
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
+  hardware.nvidia.package =
+    config.boot.kernelPackages.nvidiaPackages.legacy_470;
 
   home-manager.users.alena = {
     home = {

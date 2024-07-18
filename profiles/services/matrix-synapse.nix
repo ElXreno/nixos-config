@@ -10,8 +10,7 @@ let
     add_header Access-Control-Allow-Origin *;
     return 200 '${builtins.toJSON data}';
   '';
-in
-{
+in {
   sops.secrets = {
     "matrix/db_init_script" = {
       owner = "postgres";
@@ -45,20 +44,17 @@ in
       allow_guest_access = false;
       listeners = [{
         port = 13748;
-        resources = [
-          {
-            names = [ "client" "federation" ];
-            compress = true;
-          }
-        ];
+        resources = [{
+          names = [ "client" "federation" ];
+          compress = true;
+        }];
         type = "http";
         tls = false;
         x_forwarded = true;
       }];
       public_baseurl = baseUrl;
       server_name = baseDomain;
-      turn_uris =
-        [ "turn:${fqdn}?transport=udp" "turn:${fqdn}?transport=tcp" ];
+      turn_uris = [ "turn:${fqdn}?transport=udp" "turn:${fqdn}?transport=tcp" ];
     };
     extraConfigFiles = [
       config.sops.secrets."matrix/psql_config".path
@@ -107,9 +103,7 @@ in
     '';
   };
 
-  users.groups.nginx = {
-    members = [ "turnserver" ];
-  };
+  users.groups.nginx = { members = [ "turnserver" ]; };
 
   security.acme = {
     acceptTerms = true;
@@ -132,8 +126,10 @@ in
         locations."/".extraConfig = ''
           return 404;
         '';
-        locations."= /.well-known/matrix/server".extraConfig = mkWellKnown serverConfig;
-        locations."= /.well-known/matrix/client".extraConfig = mkWellKnown clientConfig;
+        locations."= /.well-known/matrix/server".extraConfig =
+          mkWellKnown serverConfig;
+        locations."= /.well-known/matrix/client".extraConfig =
+          mkWellKnown clientConfig;
       };
       ${fqdn} = {
         enableACME = true;

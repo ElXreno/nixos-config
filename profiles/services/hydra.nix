@@ -17,15 +17,10 @@ let
       StrictHostKeyChecking accept-new
       User elxreno
   '';
-in
-{
-  sops.secrets."ssh/distributed-builds" = {
-    owner = "hydra-queue-runner";
-  };
+in {
+  sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
 
-  sops.secrets."ssh/nixbuild" = {
-    owner = "hydra-queue-runner";
-  };
+  sops.secrets."ssh/nixbuild" = { owner = "hydra-queue-runner"; };
 
   services.hydra = {
     enable = true;
@@ -66,10 +61,7 @@ in
     ];
 
     settings = {
-      allowed-uris = [
-        "https://github.com/"
-        "https://git.sr.ht/"
-      ];
+      allowed-uris = [ "https://github.com/" "https://git.sr.ht/" ];
     };
   };
 }

@@ -1,17 +1,16 @@
 { inputs, pkgs, lib, ... }:
 
 {
-  imports =
-    [
-      ./hardware-configuration.nix
-      inputs.nixos-hardware.nixosModules.common-cpu-intel-sandy-bridge
-      inputs.nixos-hardware.nixosModules.common-gpu-nvidia-disable
-      inputs.nixos-hardware.nixosModules.common-pc-laptop
-      inputs.nixos-hardware.nixosModules.common-pc-laptop-acpi_call
-      inputs.self.nixosRoles.laptop
-      inputs.self.nixosProfiles.kde
-      inputs.impermanence.nixosModules.impermanence
-    ];
+  imports = [
+    ./hardware-configuration.nix
+    inputs.nixos-hardware.nixosModules.common-cpu-intel-sandy-bridge
+    inputs.nixos-hardware.nixosModules.common-gpu-nvidia-disable
+    inputs.nixos-hardware.nixosModules.common-pc-laptop
+    inputs.nixos-hardware.nixosModules.common-pc-laptop-acpi_call
+    inputs.self.nixosRoles.laptop
+    inputs.self.nixosProfiles.kde
+    inputs.impermanence.nixosModules.impermanence
+  ];
 
   deviceSpecific.devInfo.legacy = true;
 
