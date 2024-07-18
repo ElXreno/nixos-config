@@ -47,7 +47,7 @@ in {
             deadnix
             nix-prefetch-github
             nix-tree
-            nixpkgs-fmt
+            nixfmt
             nixpkgs-review
             statix
           ]
