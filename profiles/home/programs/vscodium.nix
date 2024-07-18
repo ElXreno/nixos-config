@@ -31,8 +31,8 @@
       "git.useCommitInputAsStashMessage" = true;
       "github.copilot.enable" = { "*" = true; };
       "nix.enableLanguageServer" = true;
-      "nix.formatterPath" = "${pkgs.nixpkgs-fmt}/bin/nixpkgs-fmt";
-      "nix.serverPath" = "${pkgs.nil}/bin/nil";
+      "nix.formatterPath" = "${pkgs.nixfmt-classic}/bin/nixfmt";
+      "nix.serverPath" = "${pkgs.nixd}/bin/nixd";
       "security.workspace.trust.untrustedFiles" = "open";
       "telemetry.telemetryLevel" = "off";
       "update.mode" = "manual";
