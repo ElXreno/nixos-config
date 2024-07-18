@@ -14,6 +14,7 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  services.qemuGuest.enable = true;
   services.tailscale.enable = true;
 
   system.stateVersion = "23.11";
