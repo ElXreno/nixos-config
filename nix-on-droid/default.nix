@@ -29,6 +29,7 @@
     which
     glibc
     (inputs.deploy-rs.defaultPackage.${builtins.currentSystem})
+    nix-output-monitor
   ];
 
   environment.etcBackupExtension = ".bak";
