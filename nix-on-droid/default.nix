@@ -54,14 +54,37 @@
 
         helix = {
           enable = true;
+          # TODO: Move to programs profile and include here
+          settings = {
+            editor = { completion-replace = true; };
+            keys = let defaultKeys = { "C-s" = ":w"; };
+            in {
+              normal = defaultKeys;
+              insert = defaultKeys;
+            };
+          };
           languages = {
-            language = [{
-              name = "nix";
-              formatter.command = "nixfmt";
-              language-servers = [ "nixd" ];
-              auto-format = true;
-            }];
-            language-server = { nixd.command = "nixd"; };
+            language = [
+              {
+                name = "nix";
+                formatter.command = "nixfmt";
+                language-servers = [ "nixd" ];
+                auto-format = true;
+              }
+              {
+                name = "rust";
+                auto-format = true;
+              }
+            ];
+            language-server = {
+              nixd.command = "nixd";
+              rust-analyzer = {
+                config = {
+                  diagnostics.experimental.enable = true;
+                  check.features = "all";
+                };
+              };
+            };
           };
         };
 
