@@ -2,6 +2,7 @@
   imports = [
     ./hardware-configuration.nix
     inputs.self.nixosRoles.desktop
+    inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
   ];
@@ -39,7 +40,6 @@
     allowedUDPPorts = [ 21028 ]; # Syncthing discovery broadcasts
   };
 
-  services.tailscale.enable = true;
   services.bpftune.enable = true;
 
   system.stateVersion = "22.05";

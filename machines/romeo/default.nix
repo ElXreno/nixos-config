@@ -7,6 +7,7 @@
     inputs.disko.nixosModules.disko
     inputs.self.diskoConfigurations.timeweb
     inputs.self.nixosRoles.server
+    inputs.self.nixosProfiles.tailscale
     ./wireguard.nix
   ];
 
@@ -16,7 +17,6 @@
   security.sudo.wheelNeedsPassword = false;
 
   services.qemuGuest.enable = true;
-  services.tailscale.enable = true;
 
   system.stateVersion = "23.11";
 

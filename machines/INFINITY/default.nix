@@ -13,6 +13,7 @@
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.infinity
     inputs.self.nixosRoles.laptop
+    inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.gamemode
     #inputs.self.nixosProfiles.zfs
@@ -57,7 +58,6 @@
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
   programs.noisetorch.enable = true;
-  services.tailscale.enable = true;
   services.bpftune.enable = true;
 
   services.postgresql = {
