@@ -7,6 +7,7 @@
     inputs.disko.nixosModules.disko
     inputs.self.diskoConfigurations.timeweb
     inputs.self.nixosRoles.server
+    ./wireguard.nix
   ];
 
   deviceSpecific.devInfo.legacy = true;
