@@ -57,7 +57,6 @@
           enable = true;
           # TODO: Move to programs profile and include here
           settings = {
-            editor = { completion-replace = true; };
             keys = let defaultKeys = { "C-s" = ":w"; };
             in {
               normal = defaultKeys;
