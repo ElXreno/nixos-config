@@ -30,6 +30,13 @@
     glibc
     (inputs.deploy-rs.defaultPackage.${builtins.currentSystem})
     nix-output-monitor
+
+    qemu_full
+    (writeShellScriptBin "qemu-system-aarch64-uefi" ''
+      qemu-system-aarch64 \
+        -bios ${OVMF.fd}/FV/QEMU_EFI.fd \
+        "$@"
+    '')
   ];
 
   environment.etcBackupExtension = ".bak";
