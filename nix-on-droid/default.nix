@@ -90,6 +90,17 @@
 
         fish.enable = true;
         starship.enable = true;
+
+        ssh = {
+          enable = true;
+          extraConfig = ''
+            Host eu.nixbuild.net
+              PubkeyAcceptedKeyTypes ssh-ed25519
+              ServerAliveInterval 60
+              IPQoS throughput
+              IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ed25519
+          '';
+        };
       };
     };
   };
