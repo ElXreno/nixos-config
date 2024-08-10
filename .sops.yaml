@@ -1,6 +1,6 @@
 keys:
   - &elxreno age1frn6df3pw3ks05vzc6q5fmfxzwcen44sq4c7xj86hwymfsg3qadq7mxf0d
-  - &timeweb age16yqw7uj20hyrefxjdxlkcrf95tllx7f8qk70j69x0s74jnkcfqzsv7j56t
+  - &timeweb age1r88audjcxj2g68q4v4jc4w0r7p0k3dwzls005luv77pr7zmyxf9sda5dj8
 creation_rules:
   - path_regex: secrets/common.yaml$
     key_groups:
