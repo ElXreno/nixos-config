@@ -1,6 +1,4 @@
-{ ... }:
-let defaultMountOptions = [ "compress-force=zstd:1" ];
-in {
+{ ... }: {
   disko.devices = {
     disk = {
       x = {
@@ -9,29 +7,31 @@ in {
         content = {
           type = "gpt";
           partitions = {
-            boot = {
+            bios = {
               size = "1M";
               type = "EF02";
+            };
+            boot = {
+              size = "512M";
+              type = "EF00";
+              content = {
+                format = "vfat";
+                mountOptions = [ "defaults" "umask=0077" ];
+                mountpoint = "/boot";
+                type = "filesystem";
+              };
             };
             root = {
               size = "100%";
               content = {
-                type = "btrfs";
-                extraArgs = [ "-f" ];
-                subvolumes = {
-                  "/rootfs" = {
-                    mountpoint = "/";
-                    mountOptions = defaultMountOptions;
-                  };
-                  "/home" = {
-                    mountpoint = "/home";
-                    mountOptions = defaultMountOptions;
-                  };
-                  "/nix" = {
-                    mountpoint = "/nix";
-                    mountOptions = defaultMountOptions ++ [ "noatime" ];
-                  };
-                };
+                type = "filesystem";
+                format = "bcachefs";
+                extraArgs = [
+                  "-f"
+                  "--compression=lz4"
+                  "--background_compression=zstd:12"
+                ];
+                mountpoint = "/";
               };
             };
           };

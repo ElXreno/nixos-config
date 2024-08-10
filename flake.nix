@@ -135,7 +135,7 @@
             fastConnection = true;
           };
           romeo = {
-            hostname = "100.69.61.18";
+            hostname = "100.90.64.52";
             profiles.system = {
               path = deploy-rs.lib.x86_64-linux.activate.nixos
                 self.nixosConfigurations.romeo;
