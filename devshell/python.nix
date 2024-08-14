@@ -1,9 +1,7 @@
 { pkgs, ... }:
 let python = pkgs.python311;
 in pkgs.mkShell {
-  nativeBuildInputs = with pkgs;
-    [ pkg-config clang gnumake python ]
-    ++ (with jetbrains; [ pycharm-professional ]);
+  nativeBuildInputs = with pkgs; [ pkg-config clang gnumake python ];
 
   buildInputs = with pkgs;
     with python.pkgs;
