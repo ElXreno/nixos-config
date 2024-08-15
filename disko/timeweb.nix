@@ -29,7 +29,7 @@
                 extraArgs = [
                   "-f"
                   "--compression=lz4"
-                  "--background_compression=zstd:12"
+                  "--background_compression=zstd:6"
                 ];
                 mountpoint = "/";
               };
