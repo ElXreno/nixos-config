@@ -30,6 +30,8 @@
     glibc
     (inputs.deploy-rs.defaultPackage.${builtins.currentSystem})
     nix-output-monitor
+
+    hcloud
   ];
 
   environment.etcBackupExtension = ".bak";
