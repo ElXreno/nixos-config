@@ -8,7 +8,11 @@
     inputs.self.diskoConfigurations.hcloud
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.hydra
+    inputs.self.nixosProfiles.builder
   ];
+
+  boot.binfmt.emulatedSystems = [ "x86_64-linux" ];
 
   security.sudo.wheelNeedsPassword = false;
 

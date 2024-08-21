@@ -2,11 +2,6 @@
 
 let
   sshConfig = pkgs.writeText "ssh-config" ''
-    Host builder1-x86_64
-      HostName eu.nixbuild.net
-      IdentityFile ${config.sops.secrets."ssh/nixbuild".path}
-      Port 22
-
     Host *
       Compression yes
       ControlMaster auto
@@ -15,12 +10,11 @@ let
       ForwardAgent no
       IdentitiesOnly yes
       StrictHostKeyChecking accept-new
-      User elxreno
+      User builder
+      IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
   '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
-
-  sops.secrets."ssh/nixbuild" = { owner = "hydra-queue-runner"; };
 
   services.hydra = {
     enable = true;
@@ -28,11 +22,23 @@ in {
     notificationSender = "hydra@localhost";
     useSubstitutes = true;
     extraConfig = ''
+      evaluator_workers = 8
+      evaluator_max_memory_size = 4096
+      max_concurrent_evals = 1
+
       <git-input>
         timeout = 3600
       </git-input>
     '';
   };
+
+  systemd.services.hydra-evaluator =
+    lib.mkIf (config.services.hydra.enable && config.device == "flamingo") {
+      # https://github.com/NixOS/hydra/issues/1186
+      environment.GC_DONT_GC = "1";
+      serviceConfig.CPUSchedulingPolicy = "idle";
+      serviceConfig.IOSchedulingClass = "idle";
+    };
 
   system.activationScripts.setupHydraSshConfig = lib.stringAfter [ "var" ] ''
     mkdir -p ${config.users.users.hydra-queue-runner.home}/.ssh/
@@ -41,27 +47,25 @@ in {
   '';
 
   nix = {
-    buildMachines = [
-      {
-        hostName = "localhost";
-        systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 2;
-        speedFactor = 2;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
-        mandatoryFeatures = [ ];
-      }
-      {
-        hostName = "builder1-x86_64";
-        systems = [ "x86_64-linux" "i686-linux" ];
-        maxJobs = 32;
-        speedFactor = 8;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
-        mandatoryFeatures = [ ];
-      }
-    ];
+    distributedBuilds = true;
+
+    buildMachines = [{
+      hostName = "100.81.15.62";
+      systems = [ "aarch64-linux" "x86_64-linux" ];
+      maxJobs = 8;
+      speedFactor = 1;
+      supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+      mandatoryFeatures = [ ];
+    }];
 
     settings = {
-      allowed-uris = [ "https://github.com/" "https://git.sr.ht/" ];
+      allowed-uris = [
+        "https://github.com/"
+        "https://git.sr.ht/"
+        "github:"
+        "git+https://github.com"
+        "git+ssh://github.com"
+      ];
     };
   };
 }
