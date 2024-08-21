@@ -142,6 +142,14 @@
             };
             remoteBuild = true;
           };
+          flamingo = {
+            hostname = "100.81.15.62";
+            profiles.system = {
+              path = deploy-rs.lib.aarch64-linux.activate.nixos
+                self.nixosConfigurations.flamingo;
+            };
+            remoteBuild = true;
+          };
         };
       };
 
