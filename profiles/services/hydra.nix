@@ -52,7 +52,7 @@ in {
     buildMachines = [
       {
         hostName = "100.81.15.62";
-        systems = [ "aarch64-linux" "x86_64-linux" ];
+        systems = [ "aarch64-linux" ];
         maxJobs = 8;
         speedFactor = 1;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
@@ -62,7 +62,7 @@ in {
         hostName = "100.90.64.52";
         systems = [ "x86_64-linux" ];
         maxJobs = 2;
-        speedFactor = 2;
+        speedFactor = 1;
         supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
         mandatoryFeatures = [ ];
       }
