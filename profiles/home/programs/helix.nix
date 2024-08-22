@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ pkgs, lib, ... }:
 let
   helix-with-stuff = pkgs.symlinkJoin {
     name = "helix-with-stuff";
@@ -11,11 +11,8 @@ let
             with nodePackages; [
               # LSP Servers
               bash-language-server
-              clang-tools
-              cmake-language-server
               nixd
               nixfmt-classic
-              rust-analyzer
               yaml-language-server
             ])
         }
@@ -24,15 +21,36 @@ let
 in {
   home-manager.users.elxreno.programs.helix = {
     enable = true;
-    package = lib.mkIf (config.device == "INFINITY") helix-with-stuff;
+    package = helix-with-stuff;
+    settings = {
+      keys = let defaultKeys = { "C-s" = ":w"; };
+      in {
+        normal = defaultKeys;
+        insert = defaultKeys;
+      };
+    };
     languages = {
-      language = [{
-        name = "nix";
-        formatter.command = "nixfmt";
-        language-servers = [ "nixd" ];
-        auto-format = true;
-      }];
-      language-server = { nixd.command = "nixd"; };
+      language = [
+        {
+          name = "nix";
+          formatter.command = "nixfmt";
+          language-servers = [ "nixd" ];
+          auto-format = true;
+        }
+        {
+          name = "rust";
+          auto-format = true;
+        }
+      ];
+      language-server = {
+        nixd.command = "nixd";
+        rust-analyzer = {
+          config = {
+            diagnostics.experimental.enable = true;
+            check.features = "all";
+          };
+        };
+      };
     };
   };
 }
