@@ -8,6 +8,7 @@
     inputs.self.diskoConfigurations.timeweb
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.builder
     ./wireguard.nix
   ];
 

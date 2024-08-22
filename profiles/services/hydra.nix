@@ -49,14 +49,24 @@ in {
   nix = {
     distributedBuilds = true;
 
-    buildMachines = [{
-      hostName = "100.81.15.62";
-      systems = [ "aarch64-linux" "x86_64-linux" ];
-      maxJobs = 8;
-      speedFactor = 1;
-      supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
-      mandatoryFeatures = [ ];
-    }];
+    buildMachines = [
+      {
+        hostName = "100.81.15.62";
+        systems = [ "aarch64-linux" "x86_64-linux" ];
+        maxJobs = 8;
+        speedFactor = 1;
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        mandatoryFeatures = [ ];
+      }
+      {
+        hostName = "100.90.64.52";
+        systems = [ "x86_64-linux" ];
+        maxJobs = 2;
+        speedFactor = 2;
+        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        mandatoryFeatures = [ ];
+      }
+    ];
 
     settings = {
       allowed-uris = [
