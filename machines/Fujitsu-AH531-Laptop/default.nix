@@ -3,7 +3,7 @@
 {
   imports = [
     ./hardware-configuration.nix
-    inputs.nixos-hardware.nixosModules.common-cpu-intel-sandy-bridge
+    inputs.nixos-hardware.nixosModules.common-gpu-intel-sandy-bridge
     inputs.nixos-hardware.nixosModules.common-gpu-nvidia-disable
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-acpi_call
