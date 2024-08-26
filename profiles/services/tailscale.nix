@@ -4,6 +4,6 @@
     openFirewall = true;
     useRoutingFeatures = lib.mkIf config.deviceSpecific.isServer "server";
     extraSetFlags =
-      lib.mkIf (config.device == "romeo") [ "--advertise-exit-node" ];
+      lib.mkIf config.deviceSpecific.isServer [ "--advertise-exit-node" ];
   };
 }
