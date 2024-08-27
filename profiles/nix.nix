@@ -19,7 +19,7 @@
         #        "infinity.tail1f457.ts.net:tRoBCI6Slhk8+6DmvhoOQbj2yukhN+5TjchhEFEbWcI="
       ];
 
-      # auto-optimise-store = config.deviceSpecific.isLaptop;
+      auto-optimise-store = config.deviceSpecific.isServer;
     };
 
     daemonCPUSchedPolicy = "batch";
