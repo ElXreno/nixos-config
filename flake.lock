@@ -1089,13 +1089,13 @@
       "locked": {
         "lastModified": 1721670745,
         "narHash": "sha256-rjTQ14dqQ90EaHQy4g/mGylrJ1aZJYc3wCXc4A3GHJg=",
-        "owner": "t184256",
+        "owner": "nix-community",
         "repo": "nix-on-droid",
         "rev": "248cc0806120fac9214f503dee0eaf0f47740dd0",
         "type": "github"
       },
       "original": {
-        "owner": "t184256",
+        "owner": "nix-community",
         "repo": "nix-on-droid",
         "type": "github"
       }
