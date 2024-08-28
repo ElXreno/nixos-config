@@ -90,8 +90,6 @@
 
             overlays = [ nix-on-droid.overlays.default ];
           };
-
-          home-manager-path = inputs.home-manager.outPath;
         };
 
       nixosConfigurations = with nixpkgs.lib;
