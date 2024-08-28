@@ -108,6 +108,8 @@
   };
 
   nix = {
+    # Structural settings still not available
+    # https://github.com/nix-community/nix-on-droid/pull/270
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -115,6 +117,8 @@
     registry.nixpkgs.flake = inputs.nixpkgs;
 
     nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
+
+    package = pkgs.nixVersions.latest;
   };
 
   time.timeZone = "Europe/Minsk";
