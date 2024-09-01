@@ -1,6 +1,13 @@
 { lib, pkgs, inputs, ... }:
+let
+  currentSystem = pkgs.system;
+  currentArch = lib.elemAt (lib.splitString "-" currentSystem) 0;
+  prootTermux =
+    inputs.nix-on-droid.packages.${currentSystem}."prootTermux-${currentArch}";
+in {
+  # Uses nix-on-droid fork without read-only attr
+  environment.files.prootStatic = lib.mkForce prootTermux;
 
-{
   environment.packages = with pkgs; [
     nixd
     nixfmt-classic
@@ -28,7 +35,7 @@
     gawk
     which
     glibc
-    (inputs.deploy-rs.defaultPackage.${builtins.currentSystem})
+    (inputs.deploy-rs.defaultPackage.${currentSystem})
     nix-output-monitor
 
     hcloud

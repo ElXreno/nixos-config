@@ -1087,15 +1087,16 @@
         "nmd": "nmd"
       },
       "locked": {
-        "lastModified": 1721670745,
-        "narHash": "sha256-rjTQ14dqQ90EaHQy4g/mGylrJ1aZJYc3wCXc4A3GHJg=",
-        "owner": "nix-community",
+        "lastModified": 1725226919,
+        "narHash": "sha256-KbFIGANbQS3k1Q0yS0vJ6pLSa5EMkU2/i6MXf9fv/G0=",
+        "owner": "ElXreno",
         "repo": "nix-on-droid",
-        "rev": "248cc0806120fac9214f503dee0eaf0f47740dd0",
+        "rev": "fc03501180c950a94523546d263ae44bd57fb02e",
         "type": "github"
       },
       "original": {
-        "owner": "nix-community",
+        "owner": "ElXreno",
+        "ref": "no-read-only",
         "repo": "nix-on-droid",
         "type": "github"
       }

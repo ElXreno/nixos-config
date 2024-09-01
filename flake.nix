@@ -11,7 +11,7 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-on-droid = {
-      url = "github:nix-community/nix-on-droid";
+      url = "github:ElXreno/nix-on-droid/no-read-only";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
