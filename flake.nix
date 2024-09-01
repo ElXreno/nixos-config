@@ -153,6 +153,8 @@
 
       hydraJobs = with nixpkgs.lib;
         (mapAttrs (_: val: val.config.system.build.toplevel)
-          self.nixosConfigurations);
+          self.nixosConfigurations) // (concatMapAttrs
+            (name: val: { "nix-on-droid-${name}" = val.activationPackage; })
+            self.nixOnDroidConfigurations);
     };
 }
