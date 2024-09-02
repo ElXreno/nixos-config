@@ -9,6 +9,7 @@
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.hydra
+    inputs.self.nixosProfiles.attic
     inputs.self.nixosProfiles.builder
   ];
 

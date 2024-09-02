@@ -57,6 +57,9 @@
 
     elfshaker.url = "github:elfshaker/elfshaker";
     elfshaker.inputs.nixpkgs.follows = "nixpkgs";
+
+    attic.url = "github:zhaofengli/attic";
+    attic.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:
