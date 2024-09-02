@@ -119,6 +119,8 @@ in {
     # https://github.com/nix-community/nix-on-droid/pull/270
     extraOptions = ''
       experimental-features = nix-command flakes
+      extra-substituters http://100.81.15.62:8080/elxreno
+      extra-trusted-public-keys elxreno:tZ38Gs0Wmc5fpulInZeahMwgFyFzFBRMTxFlx4LwRVE=
     '';
 
     registry.nixpkgs.flake = inputs.nixpkgs;
