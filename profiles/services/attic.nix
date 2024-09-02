@@ -5,7 +5,7 @@
 
   services.atticd = {
     enable = true;
-    credentialsFile = config.sops.secrets.attic.path;
+    credentialsFile = config.sops.secrets."attic/token".path;
 
     settings = {
       listen = "[::]:8080";
@@ -19,5 +19,11 @@
     };
   };
 
-  sops.secrets.attic = { };
+  sops.secrets."attic/token" = { };
+  sops.secrets."attic/hydra_config" = {
+    owner = "hydra-queue-runner";
+    key = "attic/hydra_config";
+    path =
+      "${config.users.users.hydra-queue-runner.home}/.config/attic/config.toml";
+  };
 }

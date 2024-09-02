@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 let
   sshConfig = pkgs.writeText "ssh-config" ''
@@ -13,6 +13,8 @@ let
       User builder
       IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
   '';
+
+  attic = inputs.attic.packages.${pkgs.system}.attic;
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
 
@@ -25,6 +27,11 @@ in {
       evaluator_workers = 8
       evaluator_max_memory_size = 4096
       max_concurrent_evals = 1
+
+      <runcommand>
+        job = *:*:*
+        command = cat $HYDRA_JSON | ${pkgs.jq}/bin/jq -r '.outputs[].path' | ${pkgs.findutils}/bin/xargs ${attic}/bin/attic push elxreno
+      </runcommand>
 
       <git-input>
         timeout = 3600
