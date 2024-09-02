@@ -2,8 +2,8 @@
   description = "A big collection of crappy hacks";
 
   inputs = {
-    nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
