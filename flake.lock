@@ -1267,11 +1267,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1725222477,
-        "narHash": "sha256-27K9dCGj01T5g5C4xxYVfRtVZyHwb87ncrnnR8UaCbA=",
+        "lastModified": 1725278114,
+        "narHash": "sha256-XUrjRmdTLRGsQlPL1XXPfIxTr2fhLPR8JfciJ+JEv6E=",
         "owner": "ElXreno",
         "repo": "nixpkgs",
-        "rev": "b05ececa154a93ea36ac3eeda5e4396370c9ffec",
+        "rev": "fc5a63c30ecd0f2ec61e9cb1a8fe4116193d62eb",
         "type": "github"
       },
       "original": {
