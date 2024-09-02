@@ -26,6 +26,18 @@ let
   '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
+  sops.secrets."hydra/github_bearer" = {
+    restartUnits = [ "hydra-server.service" ];
+  };
+  sops.templates."hydra-extra-config" = {
+    group = "hydra";
+    mode = "440";
+    content = ''
+      <github_authorization>
+        ElXreno = Bearer ${config.sops.placeholder."hydra/github_bearer"}
+      </github_authorization>
+    '';
+  };
 
   services.hydra = {
     enable = true;
@@ -45,6 +57,13 @@ in {
       <git-input>
         timeout = 3600
       </git-input>
+
+      <githubstatus>
+        jobs = .*
+        useShortContext = 1
+      </githubstatus>
+
+      Include "${config.sops.templates."hydra-extra-config".path}"
     '';
   };
 

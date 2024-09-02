@@ -51,6 +51,11 @@
           ];
         });
 
+        hydra = super.hydra.overrideAttrs (old: {
+          patches = (old.patches or [ ])
+            ++ [ ../patches/hydra-github-status.patch ];
+        });
+
         tlp = super.tlp.override {
           inherit (config.boot.kernelPackages) x86_energy_perf_policy;
         };
