@@ -15,6 +15,15 @@ let
   '';
 
   attic = inputs.attic.packages.${pkgs.system}.attic;
+
+  upload-cache = pkgs.writeScript "upload-cache-to-attic" ''
+    #!${pkgs.stdenv.shell}
+    set -exu
+    hydra_outputs=`cat $HYDRA_JSON | ${pkgs.jq}/bin/jq -r '.outputs[].path'`
+    outputs=`${pkgs.nix}/bin/nix-store -qR --include-outputs $(${pkgs.nix}/bin/nix-store -qd $hydra_outputs) | ${pkgs.gnugrep}/bin/grep -v '\.drv$'`
+
+    ${attic}/bin/attic push elxreno --ignore-upstream-cache-filter $outputs
+  '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
 
@@ -30,7 +39,7 @@ in {
 
       <runcommand>
         job = *:*:*
-        command = cat $HYDRA_JSON | ${pkgs.jq}/bin/jq -r '.outputs[].path' | ${pkgs.findutils}/bin/xargs ${attic}/bin/attic push elxreno
+        command = ${upload-cache}
       </runcommand>
 
       <git-input>
