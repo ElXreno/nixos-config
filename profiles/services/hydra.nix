@@ -41,7 +41,7 @@ in {
 
   services.hydra = {
     enable = true;
-    hydraURL = "http://localhost:3000";
+    hydraURL = "https://${config.device}.angora-ide.ts.net";
     notificationSender = "hydra@localhost";
     useSubstitutes = true;
     extraConfig = ''
@@ -65,6 +65,18 @@ in {
 
       Include "${config.sops.templates."hydra-extra-config".path}"
     '';
+  };
+
+  services.caddy = {
+    enable = true;
+    virtualHosts."${config.device}.angora-ide.ts.net" = {
+      extraConfig = ''
+        encode zstd gzip
+        handle {
+          reverse_proxy :${toString config.services.hydra.port}
+        }
+      '';
+    };
   };
 
   systemd.services.hydra-evaluator =

@@ -13,7 +13,7 @@
 
   services.caddy = lib.mkIf (config.device == "INFINITY") {
     enable = true;
-    virtualHosts."infinity.tail1f457.ts.net:10443" = {
+    virtualHosts."infinity.angora-ide.ts.net:10443" = {
       extraConfig = ''
         handle {
           reverse_proxy http://127.0.0.1:5000
