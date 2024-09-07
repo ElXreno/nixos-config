@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, lib, pkgs, ... }:
 
 {
   imports = [
@@ -11,7 +11,11 @@
     inputs.self.nixosProfiles.hydra
     inputs.self.nixosProfiles.attic
     inputs.self.nixosProfiles.builder
+    inputs.chaotic.nixosModules.default
   ];
+
+  chaotic.nyx.cache.enable = false; # It's not useful anyway
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-server;
 
   security.sudo.wheelNeedsPassword = false;
 
