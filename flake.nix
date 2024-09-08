@@ -52,9 +52,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
-    chaotic.inputs.nixpkgs.follows = "nixpkgs";
-
     teledump.url = "github:ElXreno/teledump";
     simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
 
