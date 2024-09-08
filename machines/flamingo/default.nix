@@ -15,8 +15,6 @@
   ];
 
   chaotic.nyx.cache.enable = false; # It's not useful anyway
-
-  nixpkgs.config.allowUnsupportedSystem = true;
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_cachyos-server;
 
   security.sudo.wheelNeedsPassword = false;
