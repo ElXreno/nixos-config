@@ -22,7 +22,7 @@ let
     hydra_outputs=`cat $HYDRA_JSON | ${pkgs.jq}/bin/jq -r '.outputs[].path'`
     outputs=`${pkgs.nix}/bin/nix-store -qR --include-outputs $(${pkgs.nix}/bin/nix-store -qd $hydra_outputs) | ${pkgs.gnugrep}/bin/grep -v '\.drv$'`
 
-    ${attic}/bin/attic push elxreno --ignore-upstream-cache-filter $outputs
+    ${attic}/bin/attic push elxreno $outputs
   '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
