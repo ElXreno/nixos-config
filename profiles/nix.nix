@@ -15,13 +15,16 @@
       trusted-users = [ "elxreno" ]
         ++ lib.optional config.services.hydra.enable "hydra";
 
-      substituters =
-        lib.mkForce [ "https://cache.nixos.org" "https://elxreno.cachix.org" ];
+      substituters = [ "https://elxreno.cachix.org" ];
       trusted-public-keys =
         [ "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ=" ];
     } // lib.optionalAttrs config.deviceSpecific.isServer {
       min-free = 2 * 1024 * 1024 * 1024; # 2GB
       max-free = 5 * 1024 * 1024 * 1024; # 5GB
+    } // lib.optionalAttrs (config.device != "flamingo") {
+      substituters = [ "https://flamingo.angora-ide.ts.net/cache/elxreno" ];
+      trusted-public-keys =
+        [ "elxreno:tZ38Gs0Wmc5fpulInZeahMwgFyFzFBRMTxFlx4LwRVE=" ];
     };
 
     daemonCPUSchedPolicy = "batch";
