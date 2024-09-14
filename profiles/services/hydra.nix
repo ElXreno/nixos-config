@@ -26,6 +26,12 @@ let
   '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
+  sops.secrets."attic/hydra_config" = {
+    owner = "hydra-queue-runner";
+    key = "attic/hydra_config";
+    path =
+      "${config.users.users.hydra-queue-runner.home}/.config/attic/config.toml";
+  };
   sops.secrets."hydra/github_bearer" = {
     restartUnits = [ "hydra-server.service" ];
   };
