@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: xc2/free-disk-space@d318b6bfb68decb63d13758b37ef0ead3055f9c8 # perf-3 branch
         with:
           tool-cache: true
           android: true
