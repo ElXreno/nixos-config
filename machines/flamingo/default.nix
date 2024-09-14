@@ -10,6 +10,7 @@
     inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.hydra
     inputs.self.nixosProfiles.attic
+    inputs.self.nixosProfiles.attic-watch-store
     inputs.self.nixosProfiles.builder
   ];
 

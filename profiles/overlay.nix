@@ -40,6 +40,7 @@
 
     overlays = with inputs; [
       rust-overlay.overlays.default
+      attic.overlays.default
       (_self: super: {
         bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
           patches = (old.patches or [ ]) == [

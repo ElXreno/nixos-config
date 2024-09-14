@@ -13,25 +13,8 @@ let
       User builder
       IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
   '';
-
-  attic = inputs.attic.packages.${pkgs.system}.attic;
-
-  upload-cache = pkgs.writeScript "upload-cache-to-attic" ''
-    #!${pkgs.stdenv.shell}
-    set -exu
-    hydra_outputs=`cat $HYDRA_JSON | ${pkgs.jq}/bin/jq -r '.outputs[].path'`
-    outputs=`${pkgs.nix}/bin/nix-store -qR --include-outputs $(${pkgs.nix}/bin/nix-store -qd $hydra_outputs) | ${pkgs.gnugrep}/bin/grep -v '\.drv$'`
-
-    ${attic}/bin/attic push elxreno $outputs
-  '';
 in {
   sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
-  sops.secrets."attic/hydra_config" = {
-    owner = "hydra-queue-runner";
-    key = "attic/hydra_config";
-    path =
-      "${config.users.users.hydra-queue-runner.home}/.config/attic/config.toml";
-  };
   sops.secrets."hydra/github_bearer" = {
     restartUnits = [ "hydra-server.service" ];
   };
@@ -54,11 +37,6 @@ in {
       evaluator_workers = 8
       evaluator_max_memory_size = 4096
       max_concurrent_evals = 1
-
-      <runcommand>
-        job = *:*:*
-        command = ${upload-cache}
-      </runcommand>
 
       <git-input>
         timeout = 3600
