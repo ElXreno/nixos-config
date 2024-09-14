@@ -15,26 +15,29 @@
     doc.enable = false;
   };
 
-  home-manager.users.elxreno = {
-    systemd.user.startServices = "sd-switch";
-    xdg.mimeApps.enable = true;
-    home = {
-      inherit (config.system) stateVersion;
-      sessionPath = [ "${config.users.users.elxreno.home}/bin" ];
-      sessionVariables = lib.mkMerge [
-        {
-          EDITOR = "hx";
-          _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
-          DOTNET_CLI_TELEMETRY_OPTOUT = 1;
-        }
-        (lib.mkIf config.deviceSpecific.isLaptop {
-          NIXPKGS =
-            "${config.users.users.elxreno.home}/projects/repos/github.com/NixOS/nixpkgs";
-          # go brrr
-          GOROOT = "${pkgs.go}/share/go";
-          GOPATH = "${config.users.users.elxreno.home}/.go";
-        })
-      ];
+  home-manager = {
+    backupFileExtension = ".bak";
+    users.elxreno = {
+      systemd.user.startServices = "sd-switch";
+      xdg.mimeApps.enable = true;
+      home = {
+        inherit (config.system) stateVersion;
+        sessionPath = [ "${config.users.users.elxreno.home}/bin" ];
+        sessionVariables = lib.mkMerge [
+          {
+            EDITOR = "hx";
+            _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
+            DOTNET_CLI_TELEMETRY_OPTOUT = 1;
+          }
+          (lib.mkIf config.deviceSpecific.isLaptop {
+            NIXPKGS =
+              "${config.users.users.elxreno.home}/projects/repos/github.com/NixOS/nixpkgs";
+            # go brrr
+            GOROOT = "${pkgs.go}/share/go";
+            GOPATH = "${config.users.users.elxreno.home}/.go";
+          })
+        ];
+      };
     };
   };
 
