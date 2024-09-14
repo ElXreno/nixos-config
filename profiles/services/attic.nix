@@ -30,6 +30,17 @@
     initialScript = config.sops.secrets."attic/db_init_script".path;
   };
 
+  services.caddy = {
+    enable = true;
+    virtualHosts."${config.device}.angora-ide.ts.net" = {
+      extraConfig = ''
+        encode zstd gzip 
+        handle_path /cache/* {
+          reverse_proxy :8080
+        }
+      '';
+    };
+  };
   sops.secrets."attic/env" = { };
   sops.secrets."attic/db_init_script" = {
     owner = "postgres";
