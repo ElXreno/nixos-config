@@ -19,6 +19,13 @@
 
   services.qemuGuest.enable = true;
 
+  system.autoUpgrade = {
+    enable = true;
+    flake = "github:ElXreno/nixos-config";
+    flags = [ "-L" ];
+    dates = "06:00";
+    randomizedDelaySec = "45min";
+  };
   system.stateVersion = "23.11";
 
   systemd.services = {
