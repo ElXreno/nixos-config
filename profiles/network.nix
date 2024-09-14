@@ -5,6 +5,6 @@
       enable = lib.mkIf (!config.deviceSpecific.isServer) true;
       wifi = { powersave = false; };
     };
-    useDHCP = lib.mkIf (!config.deviceSpecific.isServer) false;
+    useDHCP = lib.mkIf (!config.deviceSpecific.isServer) (lib.mkDefault false);
   };
 }

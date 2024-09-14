@@ -18,5 +18,19 @@
 
   security.sudo.wheelNeedsPassword = false;
 
+  networking.useDHCP = false;
+  networking.useNetworkd = true;
+  systemd.network = {
+    enable = true;
+    networks = {
+      "enp1s0" = {
+        matchConfig.Name = "enp1s0";
+        networkConfig.DHCP = "ipv4";
+        address = [ "2a01:4f8:c2c:eaea::1/64" ];
+        gateway = [ "fe80::1" ];
+      };
+    };
+  };
+
   system.stateVersion = "24.11";
 }
