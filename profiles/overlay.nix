@@ -14,6 +14,7 @@
           "discord"
           "steam-original"
           "steam-run"
+          "steam-unwrapped"
           "steam"
           "svp"
           "unrar"
