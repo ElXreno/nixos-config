@@ -55,9 +55,6 @@
     teledump.url = "github:ElXreno/teledump";
     simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
 
-    elfshaker.url = "github:elfshaker/elfshaker";
-    elfshaker.inputs.nixpkgs.follows = "nixpkgs";
-
     attic.url = "github:zhaofengli/attic";
     attic.inputs.nixpkgs.follows = "nixpkgs";
   };

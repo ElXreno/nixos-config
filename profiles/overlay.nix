@@ -71,9 +71,7 @@
           jdks = with super; [ jdk17 graalvm-ce ];
         };
 
-        av1an = super.callPackage ../modules/av1an.nix { };
         cassowary = super.callPackage ../modules/cassowary.nix { };
-        elfshaker = inputs.elfshaker.packages.${super.system}.default;
         ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
       })
     ];

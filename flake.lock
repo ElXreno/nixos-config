@@ -410,50 +410,6 @@
         "type": "github"
       }
     },
-    "elfshaker": {
-      "inputs": {
-        "fenix": "fenix",
-        "naersk": "naersk",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1726240911,
-        "narHash": "sha256-k9GjsVn88NM3bbCkfHlIB9Okv+IiAWco1lOyLFFT3Sc=",
-        "owner": "elfshaker",
-        "repo": "elfshaker",
-        "rev": "244b4cf57cd6fbfb8b615cc53df53d9d3dddfc9f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "elfshaker",
-        "repo": "elfshaker",
-        "type": "github"
-      }
-    },
-    "fenix": {
-      "inputs": {
-        "nixpkgs": [
-          "elfshaker",
-          "nixpkgs"
-        ],
-        "rust-analyzer-src": "rust-analyzer-src"
-      },
-      "locked": {
-        "lastModified": 1726116637,
-        "narHash": "sha256-tU2GhwU887mPg6C4c2k+CEBAnKY6R0tSeQYtoqjZmLM=",
-        "owner": "nix-community",
-        "repo": "fenix",
-        "rev": "96a04a213838c5001619ad57400c5a176fa040b1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "fenix",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -1059,27 +1015,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "lanzaboote",
-        "type": "github"
-      }
-    },
-    "naersk": {
-      "inputs": {
-        "nixpkgs": [
-          "elfshaker",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1721727458,
-        "narHash": "sha256-r/xppY958gmZ4oTfLiHN0ZGuQ+RSTijDblVgVLFi1mw=",
-        "owner": "nix-community",
-        "repo": "naersk",
-        "rev": "3fb418eaf352498f6b6c30592e3beb63df42ef11",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "naersk",
         "type": "github"
       }
     },
@@ -1813,7 +1748,6 @@
         "attic": "attic",
         "deploy-rs": "deploy-rs",
         "disko": "disko",
-        "elfshaker": "elfshaker",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lanzaboote": "lanzaboote",
@@ -1827,23 +1761,6 @@
         "simple-reply-bot": "simple-reply-bot",
         "sops-nix": "sops-nix",
         "teledump": "teledump"
-      }
-    },
-    "rust-analyzer-src": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1725985110,
-        "narHash": "sha256-0HKj+JI6rtxaE6Kzcd6HyFNbEFJRsLy5DoNgVF1pyRM=",
-        "owner": "rust-lang",
-        "repo": "rust-analyzer",
-        "rev": "bcc708992104c2059f310fbc3ac00bfc377f9ea8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "rust-lang",
-        "ref": "nightly",
-        "repo": "rust-analyzer",
-        "type": "github"
       }
     },
     "rust-overlay": {

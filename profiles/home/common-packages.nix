@@ -63,7 +63,6 @@ in {
           (lib.mkIf (config.deviceSpecific.isLaptop) [
             # CLI Stuff
             deploy-rs
-            elfshaker
             wgcf
             ffmpeg-full
             gitRepo
@@ -119,7 +118,6 @@ in {
             lens
 
             ## etc
-            av1an
             remmina
           ])
         ];
