@@ -51,6 +51,12 @@
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
 
+  hardware.amdgpu = {
+    amdvlk.enable = true;
+    initrd.enable = true;
+    opencl.enable = true;
+  };
+
   # P2P Networking
   networking.firewall.allowedTCPPorts = [ 36645 ];
   networking.firewall.allowedUDPPorts = [ 36645 ];
