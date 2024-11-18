@@ -23,15 +23,6 @@
     # inputs.self.nixosProfiles.sway
   ];
 
-  swapDevices = [{ device = "/swapfile"; }];
-  zramSwap.enable = false;
-  boot.kernelParams = [
-    "zswap.enabled=1"
-    "zswap.compressor=zstd"
-    "zswap.zpool=z3fold"
-    "zswap.max_pool_percent=5"
-  ];
-
   # SecureBoot
   boot = {
     bootspec.enable = true;
