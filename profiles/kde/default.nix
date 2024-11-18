@@ -2,13 +2,15 @@
   imports = with inputs.self.nixosProfiles; [ xserver kdeconnect ];
   services.xserver = {
     displayManager = {
-      sddm.enable = true;
-      defaultSession = lib.mkIf (config.device == "INFINITY") "plasmawayland";
+      sddm = {
+        enable = true;
+        wayland.enable = true;
+      };
     };
-    desktopManager.plasma5 = { enable = true; };
+    desktopManager.plasma6 = { enable = true; };
   };
 
-  environment.plasma5.excludePackages = with pkgs; [ elisa ];
+  environment.plasma6.excludePackages = with pkgs; [ elisa ];
 
   services.colord.enable = config.device == "INFINITY";
 
