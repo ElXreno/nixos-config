@@ -7,25 +7,21 @@ in {
         type = "disk";
         device = "/dev/disk/by-id/nvme-eui.002538d722a0adfe";
         content = {
-          type = "table";
-          format = "gpt";
-          partitions = [
-            {
-              name = "ESP";
-              start = "0";
-              end = "512MiB";
-              fs-type = "fat32";
-              bootable = true;
+          type = "gpt";
+          partitions = {
+            ESP = {
+              size = "512MiB";
+              type = "EF00";
+              priority = 1;
               content = {
                 type = "filesystem";
                 format = "vfat";
                 mountpoint = "/boot";
+                mountOptions = [ "umask=0077" ];
               };
-            }
-            {
-              name = "luks";
-              start = "512MiB";
-              end = "75%";
+            };
+            luks = {
+              size = "100%";
               content = {
                 type = "luks";
                 name = "crypted";
@@ -54,8 +50,8 @@ in {
                   };
                 };
               };
-            }
-          ];
+            };
+          };
         };
       };
     };
