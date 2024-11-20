@@ -27,6 +27,7 @@
           "idea-ultimate"
           "lens"
           "phpstorm"
+          "postman"
           "pycharm-professional"
           "rider"
 
