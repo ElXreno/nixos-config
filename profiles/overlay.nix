@@ -30,6 +30,7 @@
           "postman"
           "pycharm-professional"
           "rider"
+          "rust-rover"
 
           "vscode-extension-github-copilot"
         ];

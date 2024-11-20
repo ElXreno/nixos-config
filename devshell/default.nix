@@ -7,7 +7,7 @@ pkgs.mkShell {
       clang
       gnumake
       rustup
-    ] ++ (with jetbrains; [ clion ]);
+    ] ++ (with jetbrains; [ rust-rover ]);
 
   buildInputs = with pkgs; [
     # Rust
