@@ -34,7 +34,8 @@ in {
     ] ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
       ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
       ++ lib.optionals (config.device == "INFINITY") [
-        "amdgpu.gttsize=1536"
+        # Disabled due 4k external monitor
+        # "amdgpu.gttsize=1536"
         # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
         "tsc=unstable"
       ];
