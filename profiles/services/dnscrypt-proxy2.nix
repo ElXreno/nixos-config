@@ -5,7 +5,7 @@
     enable = true;
     settings = {
       http3 = true;
-      server_names = [ "cloudflare" ];
+      server_names = [ "google" "cloudflare" ];
       sources = {
         public-resolvers = {
           urls = [
