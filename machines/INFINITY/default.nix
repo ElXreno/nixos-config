@@ -4,6 +4,7 @@
   imports = [
     ./hardware-configuration.nix
     ./wireguard.nix
+    "${inputs.styx}/module"
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
@@ -15,7 +16,7 @@
     inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.gamemode
-    #inputs.self.nixosProfiles.zfs
+    # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.virtualisation
     # inputs.self.nixosProfiles.system76-scheduler
@@ -55,13 +56,17 @@
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
   programs.noisetorch.enable = true;
-  services.bpftune.enable = true;
+  # services.bpftune.enable = true;
 
   services.postgresql = {
     enable = true;
     ensureDatabases = [ "l0_test" ];
     package = pkgs.postgresql_15;
   };
+
+  # services.styx.enable = true;
+  # nix.settings.styx-include = [ "libreoffice*" "hunspellDicts*" "jdk*"  "jre*" "java*" "jetbrains*"];
+  # nix.settings.styx-materialize = [ ".*" ];
 
   system.stateVersion = "23.05";
 }

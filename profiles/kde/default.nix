@@ -30,13 +30,14 @@
       kleopatra
       okular
       okteta
+      kdiskmark
 
       # Ark dependency
       unrar
 
       # Icons
       papirus-icon-theme
-    ] ++ lib.optional config.services.colord.enable gnome.gnome-color-manager;
+    ] ++ lib.optional config.services.colord.enable gnome-color-manager;
 
   programs.dconf.enable = true;
 

@@ -20,6 +20,7 @@
           "unrar"
           "vscode"
           "lens-desktop"
+          "packer"
 
           # IDE
           "android-studio-canary"
@@ -70,7 +71,6 @@
           inputs.simple-reply-bot.packages.${super.system}.default;
 
         prismlauncher = super.prismlauncher.override {
-          jdk17 = super.jdk17;
           jdks = with super; [ jdk17 graalvm-ce ];
         };
 

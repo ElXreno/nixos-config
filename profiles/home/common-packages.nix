@@ -5,8 +5,8 @@ let
     package = pkgs.megasync;
   };
 in {
-  environment.systemPackages =
-    lib.mkIf (!config.deviceSpecific.isServer) (with pkgs; [ gparted ]);
+  environment.systemPackages = lib.mkIf (!config.deviceSpecific.isServer)
+    (with pkgs; [ gparted e2fsprogs ]);
 
   home-manager.users.elxreno = {
     home = {
@@ -74,14 +74,14 @@ in {
             slack
 
             # GraalVM
-            graalvm-ce
+            # graalvm-ce
 
             # Games
             bottles
             ddnet
             gamemode
             mangohud
-            prismlauncher
+            # prismlauncher
             xclicker
 
             # MEGA

@@ -3,6 +3,7 @@ pkgs.mkShell {
   nativeBuildInputs = with pkgs;
     [
       # Rust
+      gcc
       pkg-config
       clang
       gnumake
