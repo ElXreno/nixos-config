@@ -6,7 +6,7 @@ let
     inputs.nix-on-droid.packages.${currentSystem}."prootTermux-${currentArch}";
 in {
   # Uses nix-on-droid fork without read-only attr
-  environment.files.prootStatic = lib.mkForce prootTermux;
+  #  environment.files.prootStatic = lib.mkForce prootTermux;
 
   environment.packages = with pkgs; [
     nixd
@@ -108,6 +108,8 @@ in {
               ServerAliveInterval 60
               IPQoS throughput
               IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ed25519
+            Host github.com
+              IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ecdsa-git
           '';
         };
       };
