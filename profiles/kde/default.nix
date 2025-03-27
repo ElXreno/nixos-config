@@ -10,7 +10,7 @@
     desktopManager.plasma6 = { enable = true; };
   };
 
-  environment.plasma6.excludePackages = with pkgs; [ elisa ];
+  environment.plasma6.excludePackages = with pkgs; [ kdePackages.elisa ];
 
   services.colord.enable = config.device == "INFINITY";
 
