@@ -17,6 +17,7 @@
   fonts.packages = with pkgs; [ jetbrains-mono ];
 
   environment.systemPackages = with pkgs;
+    with kdePackages;
     [
       # Utilities for Info Center
       clinfo
