@@ -16,7 +16,7 @@ in {
       efi.canTouchEfiVariables = true;
       systemd-boot = {
         enable = true;
-        configurationLimit = 3;
+        configurationLimit = 7;
       };
     });
     kernelPackages = lib.mkMerge [

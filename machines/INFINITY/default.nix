@@ -14,10 +14,11 @@
     inputs.self.diskoConfigurations.infinity
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.tailscale
-    inputs.self.nixosProfiles.kde
-    inputs.self.nixosProfiles.gamemode
+    # inputs.self.nixosProfiles.kde
+    inputs.self.nixosProfiles.hyprland
+    # inputs.self.nixosProfiles.gamemode
     # inputs.self.nixosProfiles.zfs
-    inputs.self.nixosProfiles.harmonia
+    # inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.virtualisation
     # inputs.self.nixosProfiles.system76-scheduler
     # Lazy to configure everything from zero
