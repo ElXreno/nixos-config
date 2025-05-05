@@ -21,6 +21,8 @@
           "vscode"
           "lens-desktop"
           "packer"
+          "obsidian"
+          "drawio"
 
           # IDE
           "android-studio-canary"

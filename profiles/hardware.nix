@@ -33,6 +33,11 @@
       enable32Bit = true;
     };
 
+    amdgpu.amdvlk = lib.mkIf (config.device == "INFINITY") {
+        enable = true;
+        support32Bit.enable = true;
+    };
+
     bluetooth = {
       # TODO: Fix state after persist
       enable = lib.mkIf config.deviceSpecific.isLaptop true;

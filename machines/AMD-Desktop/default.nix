@@ -36,8 +36,8 @@
   };
 
   networking.firewall = {
-    allowedTCPPorts = [ 34381 ]; # TCP based sync protocol traffic
-    allowedUDPPorts = [ 21028 ]; # Syncthing discovery broadcasts
+    allowedTCPPorts = [ 22000 34381 ]; # TCP based sync protocol traffic
+    allowedUDPPorts = [ 22000 21027 21028 ]; # Syncthing discovery broadcasts
   };
 
   services.bpftune.enable = true;

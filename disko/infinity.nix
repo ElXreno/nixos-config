@@ -20,6 +20,14 @@ in {
                 mountOptions = [ "umask=0077" ];
               };
             };
+            root = {
+              size = "200G";
+              content = {
+                type = "filesystem";
+                format = "xfs";
+                mountpoint = "/";
+              };
+            };
             luks = {
               size = "100%";
               content = {
@@ -31,20 +39,8 @@ in {
                   type = "btrfs";
                   extraArgs = [ "-f" ];
                   subvolumes = {
-                    "/root" = {
-                      mountpoint = "/";
-                      mountOptions = defaultMountOptions;
-                    };
                     "/home" = {
                       mountpoint = "/home";
-                      mountOptions = defaultMountOptions;
-                    };
-                    "/nix" = {
-                      mountpoint = "/nix";
-                      mountOptions = defaultMountOptions ++ [ "noatime" ];
-                    };
-                    "/var" = {
-                      mountpoint = "/var";
                       mountOptions = defaultMountOptions;
                     };
                   };
@@ -55,11 +51,6 @@ in {
         };
       };
     };
-  };
-
-  fileSystems = {
-    "/var".neededForBoot =
-      true; # Ensure that /var will be mounted with the sops key
   };
 }
 

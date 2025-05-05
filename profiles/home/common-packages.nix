@@ -81,7 +81,7 @@ in {
             ddnet
             gamemode
             mangohud
-            # prismlauncher
+            prismlauncher
             xclicker
 
             # MEGA
@@ -118,8 +118,14 @@ in {
             # openlens lacks some features like `shell in the pod`
             lens
 
+            # Self-organization
+            obsidian
+
             ## etc
             remmina
+            sony-headphones-client
+            drawio
+            chromium
           ])
         ];
     };

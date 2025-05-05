@@ -21,7 +21,7 @@ in {
     });
     kernelPackages = lib.mkMerge [
       # (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
-      (lib.mkIf isLaptop pkgs.linuxPackages_6_12)
+      (lib.mkIf isLaptop pkgs.linuxPackages_6_14)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
       # Servers
       (lib.mkIf isServer pkgs.linuxPackages_latest)
@@ -84,7 +84,7 @@ in {
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
 
     tmp = {
-      useTmpfs = true;
+      # useTmpfs = true;
       tmpfsSize = lib.mkIf config.zramSwap.enable "180%";
     };
 
