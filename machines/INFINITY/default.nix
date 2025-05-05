@@ -69,5 +69,5 @@
   # nix.settings.styx-include = [ "libreoffice*" "hunspellDicts*" "jdk*"  "jre*" "java*" "jetbrains*"];
   # nix.settings.styx-materialize = [ ".*" ];
 
-  system.stateVersion = "23.05";
+  system.stateVersion = "25.05";
 }
