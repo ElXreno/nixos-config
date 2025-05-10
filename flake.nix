@@ -60,6 +60,9 @@
 
     styx.url = "github:dnr/styx";
     styx.flake = false;
+
+    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:

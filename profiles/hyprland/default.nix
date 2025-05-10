@@ -1,31 +1,86 @@
-{ pkgs, ... }: {
-  imports = [ ./waybar.nix ];
+{ pkgs, inputs, ... }:
+let
+  update-mic-state = pkgs.writeScript "update-mic-state" ''
+    #!${pkgs.bash}/bin/bash
+    IS_MUTED=0
+    if ${pkgs.wireplumber}/bin/wpctl get-volume @DEFAULT_AUDIO_SOURCE@ | ${pkgs.gnugrep}/bin/grep -q "MUTED"; then
+      IS_MUTED=1
+    fi
+
+    echo $IS_MUTED > /sys/class/leds/platform::micmute/brightness
+  '';
+  hypr_prefix = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system};
+  hyprland = hypr_prefix.hyprland;
+  xdg-desktop-portal-hyprland = hypr_prefix.xdg-desktop-portal-hyprland;
+in {
+  imports = [ ./hypridle.nix ./hyprlock.nix ./waybar.nix ];
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
 
   services.power-profiles-daemon.enable = true;
 
-  programs.hyprland.enable = true; # enable Hyprland
+  programs.hyprland = {
+    enable = true;
+
+    package = hyprland;
+    portalPackage = xdg-desktop-portal-hyprland;
+  };
 
   # Optional, hint Electron apps to use Wayland:
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
 
+  services.udev.extraRules = ''
+    SUBSYSTEM=="leds", KERNEL=="platform::micmute", RUN="${pkgs.coreutils}/bin/chmod a+rw /sys/class/leds/platform::micmute/brightness"
+  '';
+
   home-manager.users.elxreno = {
+    services.hyprpolkitagent.enable = true;
+
     xdg.portal.extraPortals = with pkgs; [
       xdg-desktop-portal-gtk
       kdePackages.xdg-desktop-portal-kde
     ];
 
-    home.packages = with pkgs; [ waybar pavucontrol ];
+    home.packages = with pkgs; [
+      xfce.thunar
+      xfce.tumbler
+      qimgv
+      waybar
+      pavucontrol
+      networkmanagerapplet
+      dunst
+      blueman
+      wl-clipboard
+      cliphist
+      wofi
+      brightnessctl
+      hyprcursor
+    ];
+
+    home.pointerCursor = {
+      name = "Breeze_Hacked";
+      size = 24;
+      package = pkgs.breeze-hacked-cursor-theme;
+
+      enable = true;
+
+      x11.enable = true;
+      gtk.enable = true;
+      hyprcursor = { enable = true; };
+    };
     programs.kitty.enable = true; # required for the default Hyprland config
     wayland.windowManager.hyprland = {
       enable = true;
 
+      package = null;
+      portalPackage = null;
+
       settings = {
         "$mod" = "SUPER";
         "$terminal" = "${pkgs.kitty}/bin/kitty";
-        "$menu" = "${pkgs.wofi}/bin/wofi --show drun";
+        "$menu" = "wofi -S drun";
+        "$fileManager" = "thunar";
 
         input = {
           kb_layout = "us,ru";
@@ -48,7 +103,10 @@
           workspace_swipe_forever = true;
         };
 
-        monitor = [ "eDP-1, preffered, auto, 1" ];
+        monitor = [
+          "eDP-1, preffered, auto, 1"
+          "HDMI-A-1, preffered, -1920x0, 1.5, vrr, 1"
+        ];
 
         decoration = {
           rounding = 10;
@@ -60,10 +118,14 @@
         };
 
         bind = [
-          ", Print, exec, ${pkgs.grimblast}/bin/grimblast copy area"
-          "$mod, F, exec, firefox"
+          ", Print, exec, ${pkgs.hyprshot}/bin/hyprshot -m region --clipboard-only"
+          "$mod, B, exec, firefox"
           "$mod, Return, exec, $terminal" # Are you fucking crazy? Why return?
           "$mod, R, exec, $menu"
+          "$mod, E, exec, $fileManager"
+          "$mod, H, exec, cliphist list | wofi -d | cliphist decode | wl-copy"
+          "$mod, L, exec, hyprlock"
+
           "$mod, M, exit,"
           "$mod, C, killactive,"
           "$mod, J, togglesplit,"
@@ -92,7 +154,32 @@
               "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
             ]) 9));
 
-        exec-once = [ "waybar" ];
+        bindle = [
+          ", XF86MonBrightnessUp,   exec, brightnessctl -d amdgpu_bl1 set +5%"
+          ", XF86MonBrightnessDown, exec, brightnessctl -d amdgpu_bl1 set 5%-"
+
+          ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
+          ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+        ];
+
+        bindl = [
+          ", XF86AudioMute,    exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+          ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle && ${update-mic-state}"
+
+          # " , switch:Lid Switch, exec, hyprlock" # Remove it if I will use suspend mode
+          " , switch:on:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, disable'"
+          " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
+        ];
+
+        exec-once = [
+          "waybar"
+          "nm-applet --indicator"
+          "dunst"
+          "blueman-applet"
+          "wl-paste --type text --watch cliphist store"
+          "wl-paste --type image --watch cliphist store"
+          "sleep 3 && ${update-mic-state}"
+        ];
       };
     };
 
@@ -105,8 +192,8 @@
       };
 
       iconTheme = {
-        package = pkgs.adwaita-icon-theme;
-        name = "Adwaita";
+        package = pkgs.papirus-icon-theme;
+        name = "Papirus-Dark";
       };
 
       font = {

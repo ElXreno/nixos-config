@@ -40,6 +40,7 @@
     blacklist sp5100_tco
 
     options iwlwifi amsdu_size=3
+    options iwlmvm power_scheme=1
   '';
 
   boot.binfmt.emulatedSystems = [ "aarch64-linux" ];

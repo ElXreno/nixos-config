@@ -16,7 +16,7 @@ in {
       efi.canTouchEfiVariables = true;
       systemd-boot = {
         enable = true;
-        configurationLimit = 7;
+        configurationLimit = 3;
       };
     });
     kernelPackages = lib.mkMerge [
@@ -38,7 +38,13 @@ in {
         # Disabled due 4k external monitor
         # "amdgpu.gttsize=1536"
         # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-        "tsc=unstable"
+        # "tsc=unstable"
+        "clocksource=tsc" # https://www.reddit.com/r/linuxquestions/comments/ts1hgw/comment/i2p1i90/
+        "tsc=reliable"
+
+        # https://discourse.ubuntu.com/t/fine-tuning-the-ubuntu-24-04-kernel-for-low-latency-throughput-and-power-efficiency/44834
+        "nohz_full=all"
+        "rcutree.enable_rcu_lazy=0"
       ];
 
     kernel.sysctl = lib.mkMerge [
@@ -64,16 +70,18 @@ in {
         "vm.oom_kill_allocating_task" = 1;
         "vm.swappiness" = 80;
         "vm.page-cluster" = 0;
+
+        "kernel.split_lock_mitigate" = 0;
       }
       (lib.mkIf (!isServer) { "kernel.sysrq" = 1; })
       (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
       (lib.mkIf isLaptop {
         # Network
-        "net.ipv4.ip_default_ttl" = 65;
-        "net.ipv6.conf.all.hop_limit" = 65;
-        "net.ipv6.conf.default.hop_limit" = 65;
-        "net.ipv6.conf.lo.hop_limit" = 65;
-        "net.ipv6.conf.wlp1s0.hop_limit" = 65;
+        # "net.ipv4.ip_default_ttl" = 65;
+        # "net.ipv6.conf.all.hop_limit" = 65;
+        # "net.ipv6.conf.default.hop_limit" = 65;
+        # "net.ipv6.conf.lo.hop_limit" = 65;
+        # "net.ipv6.conf.wlp1s0.hop_limit" = 65;
 
         # Memory
         "vm.min_free_kbytes" = 262144;
@@ -97,16 +105,16 @@ in {
     plymouth.enable = !isServer;
   };
 
-  systemd.services.ttl-fixup = lib.mkIf isLaptop {
-    description = "Force fix up TTL";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" "tailscale.service" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart =
-        "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
-    };
-  };
+  # systemd.services.ttl-fixup = lib.mkIf isLaptop {
+  #   description = "Force fix up TTL";
+  #   wantedBy = [ "multi-user.target" ];
+  #   after = [ "network.target" "tailscale.service" ];
+  #   serviceConfig = {
+  #     Type = "simple";
+  #     ExecStart =
+  #       "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
+  #   };
+  # };
 
   services.udev.extraRules = ''
     ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", RUN+="${pkgs.smartmontools}/bin/smartctl -s apm,off /dev/%k"

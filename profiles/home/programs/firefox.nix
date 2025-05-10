@@ -1,7 +1,7 @@
 { pkgs, ... }: {
   home-manager.users.elxreno.programs.firefox = {
     enable = true;
-    package = pkgs.firefox-bin;
+    package = pkgs.firefox;
   };
 
   home-manager.users.elxreno.xdg.mimeApps.defaultApplications = {

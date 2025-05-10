@@ -8,6 +8,7 @@
       enable = true;
       settings = {
         mainBar = {
+          output = [ "eDP-1" "HDMI-A-1" ];
           layer = "top";
           position = "top";
           modules-left = [ "hyprland/workspaces" ];
@@ -34,8 +35,7 @@
           "clock" = {
             format = "{:%H:%M}";
             format-alt = "{:%Y-%m-%d}";
-            tooltip-format =
-              "<big>{:%Y %B}</big><tt><small>{calendar}</small></tt>";
+            tooltip-format = "<tt><small>{calendar}</small></tt>";
             calendar = {
               mode = "year";
               mode-mon-col = 3;
@@ -72,7 +72,10 @@
             format-icons = [ "" ];
           };
 
-          "memory" = { format = "  {percentage}%"; };
+          "memory" = {
+            format = "  {percentage}%";
+            interval = 2;
+          };
 
           "power-profiles-daemon" = {
             format = "{icon} {profile}";
@@ -85,12 +88,12 @@
           };
 
           "network" = {
-            format-wifi = "  {essid} ({signalStrength}%)";
-            format-ethernet = "󰈀 {ipaddr}";
+            format-wifi = "  {bandwidthDownBytes}   {bandwidthUpBytes}";
+            format-ethernet = "  {bandwidthDownBytes}   {bandwidthUpBytes}";
+            format-linked = " (No IP)";
+            format-disconnected = "";
             tooltip-format = "{ifname} via {gwaddr}";
-            format-linked = "{ifname} (No IP)";
-            format-disconnected = "⚠ Disconnected";
-            format-alt = "{ifname}: {ipaddr}/{cidr}";
+            interval = 2;
           };
 
           "wireplumber" = {

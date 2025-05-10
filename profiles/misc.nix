@@ -41,7 +41,7 @@
     };
   };
 
-  services.irqbalance.enable = true;
+  # services.irqbalance.enable = true;
 
   virtualisation = {
     podman = {
