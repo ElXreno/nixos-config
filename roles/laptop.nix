@@ -5,6 +5,7 @@
 
       # Profiles
       adb
+      ananicy
       hardware
       firefox
       # ipfs

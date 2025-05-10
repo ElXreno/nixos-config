@@ -5,6 +5,7 @@
 
       # Profiles
       adb
+      ananicy
       flatpak
       firefox
       hardware
