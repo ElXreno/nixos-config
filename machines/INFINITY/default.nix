@@ -14,8 +14,8 @@
     inputs.self.diskoConfigurations.infinity
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.tailscale
-    # inputs.self.nixosProfiles.kde
-    inputs.self.nixosProfiles.hyprland
+    inputs.self.nixosProfiles.kde
+    # inputs.self.nixosProfiles.hyprland
     # inputs.self.nixosProfiles.gamemode
     # inputs.self.nixosProfiles.zfs
     # inputs.self.nixosProfiles.harmonia

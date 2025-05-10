@@ -9,9 +9,6 @@ let
 
     echo $IS_MUTED > /sys/class/leds/platform::micmute/brightness
   '';
-  hypr_prefix = inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system};
-  hyprland = hypr_prefix.hyprland;
-  xdg-desktop-portal-hyprland = hypr_prefix.xdg-desktop-portal-hyprland;
 in {
   imports = [ ./hypridle.nix ./hyprlock.nix ./waybar.nix ];
 
@@ -20,12 +17,7 @@ in {
 
   services.power-profiles-daemon.enable = true;
 
-  programs.hyprland = {
-    enable = true;
-
-    package = hyprland;
-    portalPackage = xdg-desktop-portal-hyprland;
-  };
+  programs.hyprland.enable = true;
 
   # Optional, hint Electron apps to use Wayland:
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
