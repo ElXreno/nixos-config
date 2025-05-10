@@ -3,6 +3,6 @@
     enable = true;
     enableSshSupport = true;
     defaultCacheTtl = 300;
-    pinentryPackage = pkgs.pinentry-qt;
+    pinentry.package = pkgs.pinentry-qt;
   };
 }

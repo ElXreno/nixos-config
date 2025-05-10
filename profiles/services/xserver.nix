@@ -1,8 +1,13 @@
 { lib, config, ... }: {
-  services.xserver = {
-    enable = true;
-    layout = "us,ru";
-    xkbOptions = "grp:alt_shift_toggle";
+  services = {
+    xserver = {
+      enable = true;
+      xkb = {
+        layout = "us,ru";
+        options = "grp:alt_shift_toggle";
+      };
+    };
+
     libinput = lib.mkIf config.deviceSpecific.isLaptop {
       enable = true;
       mouse.accelSpeed = "-0.4";

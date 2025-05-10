@@ -1,6 +1,6 @@
 { config, inputs, pkgs, lib, ... }: {
   imports = with inputs.self.nixosProfiles; [ xserver kdeconnect ];
-  services.xserver = {
+  services = {
     displayManager = {
       sddm = {
         enable = true;
