@@ -68,20 +68,19 @@ in {
 
         # Memory
         "vm.oom_kill_allocating_task" = 1;
-        "vm.swappiness" = 80;
         "vm.page-cluster" = 0;
+        "vm.swappiness" = 80;
 
         "kernel.split_lock_mitigate" = 0;
       }
-      (lib.mkIf (!isServer) { "kernel.sysrq" = 1; })
+      (lib.mkIf (!isServer) {
+        "kernel.sysrq" = 1;
+        "vm.compaction_proactiveness" = 0;
+      })
       (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
       (lib.mkIf isLaptop {
         # Network
         # "net.ipv4.ip_default_ttl" = 65;
-        # "net.ipv6.conf.all.hop_limit" = 65;
-        # "net.ipv6.conf.default.hop_limit" = 65;
-        # "net.ipv6.conf.lo.hop_limit" = 65;
-        # "net.ipv6.conf.wlp1s0.hop_limit" = 65;
 
         # Memory
         "vm.min_free_kbytes" = 262144;
@@ -105,16 +104,12 @@ in {
     plymouth.enable = !isServer;
   };
 
-  # systemd.services.ttl-fixup = lib.mkIf isLaptop {
-  #   description = "Force fix up TTL";
-  #   wantedBy = [ "multi-user.target" ];
-  #   after = [ "network.target" "tailscale.service" ];
-  #   serviceConfig = {
-  #     Type = "simple";
-  #     ExecStart =
-  #       "${pkgs.iptables}/bin/iptables -t mangle -A POSTROUTING -j TTL --ttl-set 65";
-  #   };
-  # };
+  systemd = {
+    tmpfiles.rules = [ "w /sys/kernel/mm/lru_gen/min_ttl_ms - - - - 1500" ];
+    extraConfig = ''
+      DefaultOOMPolicy=continue
+    '';
+  };
 
   services.udev.extraRules = ''
     ACTION=="add|change", SUBSYSTEM=="block", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", RUN+="${pkgs.smartmontools}/bin/smartctl -s apm,off /dev/%k"
