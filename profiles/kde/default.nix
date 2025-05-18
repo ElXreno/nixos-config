@@ -43,7 +43,9 @@
   programs.dconf.enable = true;
 
   home-manager.users.elxreno = {
-    home.sessionVariables.NIXOS_OZONE_WL = lib.mkIf (config.device == "INFINITY") 1;
+    home.sessionVariables = lib.mkIf (config.device == "INFINITY") {
+      NIXOS_OZONE_WL = 1;
+    };
     imports = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
     programs.plasma = {
       enable = true;

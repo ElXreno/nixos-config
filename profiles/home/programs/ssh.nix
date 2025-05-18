@@ -25,7 +25,7 @@
 
       "git" = {
         host =
-          "github.com gitlab.com gerrit.aospa.co aur.archlinux.org code.elxreno.ninja";
+          "github.com gitlab.com gerrit.aospa.co aur.archlinux.org gitlab-ssh.angora-ide.ts.net";
         identityFile = "~/.ssh/id_ecdsa-git";
       };
     };

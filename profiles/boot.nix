@@ -21,7 +21,8 @@ in {
     });
     kernelPackages = lib.mkMerge [
       # (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
-      (lib.mkIf isLaptop pkgs.linuxPackages_6_14)
+      (lib.mkIf isLaptop pkgs.linuxPackages_cachyos)
+      # (lib.mkIf isLaptop pkgs.pkgsx86_64_v3.linuxPackages_cachyos-lto)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
       # Servers
       (lib.mkIf isServer pkgs.linuxPackages_latest)
@@ -86,6 +87,10 @@ in {
         "vm.min_free_kbytes" = 262144;
         "vm.extfrag_threshold" = 300;
         "vm.vfs_cache_pressure" = 3000;
+      })
+      (lib.mkIf (with config.services.dnscrypt-proxy2; enable && settings.http3) {
+        "net.core.rmem_max" = 7500000;
+        "net.core.wmem_max" = 7500000;
       })
     ];
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];

@@ -17,12 +17,13 @@
     inputs.self.nixosProfiles.kde
     # inputs.self.nixosProfiles.hyprland
     # inputs.self.nixosProfiles.gamemode
-    # inputs.self.nixosProfiles.zfs
+    inputs.self.nixosProfiles.zfs
     # inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.virtualisation
     # inputs.self.nixosProfiles.system76-scheduler
     # Lazy to configure everything from zero
     # inputs.self.nixosProfiles.sway
+    inputs.chaotic.nixosModules.default
   ];
 
   # SecureBoot
@@ -69,6 +70,10 @@
   # services.styx.enable = true;
   # nix.settings.styx-include = [ "libreoffice*" "hunspellDicts*" "jdk*"  "jre*" "java*" "jetbrains*"];
   # nix.settings.styx-materialize = [ ".*" ];
+
+  # services.timesyncd.enable = false;
+
+  chaotic.mesa-git.enable = true;
 
   system.stateVersion = "25.05";
 }

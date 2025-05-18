@@ -60,6 +60,8 @@
 
     styx.url = "github:dnr/styx";
     styx.flake = false;
+
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:

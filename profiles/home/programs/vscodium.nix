@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }: {
   home-manager.users.elxreno.programs.vscode = {
     enable = true;
     # package = pkgs.vscodium;
@@ -30,6 +30,12 @@
             publisher = "RaidXu";
             version = "0.0.1";
             sha256 = "sha256-sgiRl6iHPVu0S877qVjTcHVxkmckYm5kj6s0h8ikB4E=";
+          }
+          {
+            name = "select-part-of-word";
+            publisher = "mlewand";
+            version = "1.0.1";
+            sha256 = "sha256-2SBkvvrEZiJ47GQkd4bF6fVijSYGXDoIP8R+1/dVCWc=";
           }
         ];
       userSettings = {

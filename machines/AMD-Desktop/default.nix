@@ -23,7 +23,7 @@
     home = {
       inherit (config.system) stateVersion;
       packages = with pkgs; [
-        firefox-bin
+        firefox
 
         tdesktop
 
