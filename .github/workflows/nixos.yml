@@ -56,4 +56,4 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Build ${{ matrix.job.name }} job
-        run: nix build -L --no-link .#nixosConfigurations.${{ matrix.job.name }}.config.system.build.toplevel
+        run: nix build -L --no-link .#hydraJobs.${{ matrix.job.name }}
