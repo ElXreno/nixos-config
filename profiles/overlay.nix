@@ -1,6 +1,4 @@
 { config, inputs, pkgs, lib, ... }: {
-  imports = [ inputs.nur-xddxdd.nixosModules.setupOverlay ];
-
   nixpkgs = {
     config = {
       allowUnfreePredicate = pkg:
@@ -45,7 +43,6 @@
     };
 
     overlays = with inputs; [
-      rust-overlay.overlays.default
       attic.overlays.default
       (_self: super: {
         bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
@@ -68,9 +65,6 @@
         };
 
         deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
-        teledump = inputs.teledump.packages.${super.system}.default;
-        simple-reply-bot =
-          inputs.simple-reply-bot.packages.${super.system}.default;
 
         prismlauncher = super.prismlauncher.override {
           jdks = with super; [ jdk17 graalvm-ce ];

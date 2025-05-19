@@ -4,7 +4,6 @@
   imports = [
     ./hardware-configuration.nix
     ./wireguard.nix
-    "${inputs.styx}/module"
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
@@ -23,7 +22,6 @@
     # inputs.self.nixosProfiles.system76-scheduler
     # Lazy to configure everything from zero
     # inputs.self.nixosProfiles.sway
-    inputs.chaotic.nixosModules.default
   ];
 
   # SecureBoot
@@ -59,21 +57,10 @@
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
   programs.noisetorch.enable = true;
-  # services.bpftune.enable = true;
+  services.bpftune.enable = true;
 
-  services.postgresql = {
-    enable = true;
-    ensureDatabases = [ "l0_test" ];
-    package = pkgs.postgresql_15;
-  };
-
-  # services.styx.enable = true;
-  # nix.settings.styx-include = [ "libreoffice*" "hunspellDicts*" "jdk*"  "jre*" "java*" "jetbrains*"];
-  # nix.settings.styx-materialize = [ ".*" ];
-
+  # Required sometimes
   # services.timesyncd.enable = false;
-
-  chaotic.mesa-git.enable = true;
 
   system.stateVersion = "25.05";
 }

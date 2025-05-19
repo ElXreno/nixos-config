@@ -3,7 +3,6 @@
 
   inputs = {
     nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
@@ -44,24 +43,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
-
-    nur-xddxdd = {
-      url = "github:xddxdd/nur-packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    teledump.url = "github:ElXreno/teledump";
-    simple-reply-bot.url = "github:ElXreno/simple-reply-bot";
-
     attic.url = "github:zhaofengli/attic";
     attic.inputs.nixpkgs.follows = "nixpkgs";
-
-    styx.url = "github:dnr/styx";
-    styx.flake = false;
-
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
   };
 
   outputs = { self, nixpkgs, disko, deploy-rs, nix-on-droid, ... }@inputs:

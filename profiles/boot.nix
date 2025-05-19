@@ -20,9 +20,7 @@ in {
       };
     });
     kernelPackages = lib.mkMerge [
-      # (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
-      (lib.mkIf isLaptop pkgs.linuxPackages_cachyos)
-      # (lib.mkIf isLaptop pkgs.pkgsx86_64_v3.linuxPackages_cachyos-lto)
+      (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
       # Servers
       (lib.mkIf isServer pkgs.linuxPackages_latest)

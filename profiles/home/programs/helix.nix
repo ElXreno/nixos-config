@@ -12,7 +12,6 @@ let
               # LSP Servers
               bash-language-server
               nixd
-              nixfmt-classic
               yaml-language-server
             ])
         }
