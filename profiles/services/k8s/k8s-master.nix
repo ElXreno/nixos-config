@@ -1,5 +1,12 @@
-{ pkgs, lib, kubeMasterIP, kubeMasterHostname, kubeMasterAPIServerPort ? 6443
-, ... }: {
+{
+  pkgs,
+  lib,
+  kubeMasterIP,
+  kubeMasterHostname,
+  kubeMasterAPIServerPort ? 6443,
+  ...
+}:
+{
   # Ensure that we will use overlayfs by default
   # ref: https://github.com/containerd/containerd/issues/4217
   virtualisation.containerd.settings.plugins."io.containerd.grpc.v1.cri".containerd.snapshotter =
@@ -30,7 +37,8 @@
             btrfs subvolume delete $subvolumes
         fi
         rm -rf /var/lib/kubernetes/ /var/lib/etcd/ /var/lib/cfssl/ /var/lib/kubelet/ /etc/kube-flannel/ /etc/kubernetes/ /run/containerd /var/lib/containerd
-      '')
+      ''
+    )
   ];
 
   networking.firewall.allowedTCPPorts = [
@@ -40,10 +48,12 @@
   ];
 
   services.kubernetes = {
-    roles = [ "master" "node" ];
+    roles = [
+      "master"
+      "node"
+    ];
     masterAddress = kubeMasterHostname;
-    apiserverAddress =
-      "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
     apiserver = {
       allowPrivileged = true;

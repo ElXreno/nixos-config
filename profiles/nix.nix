@@ -1,28 +1,37 @@
-{ config, inputs, lib, ... }: {
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
+{
   nix = {
-    settings = {
-      auto-optimise-store = config.deviceSpecific.isServer;
+    settings =
+      {
+        auto-optimise-store = config.deviceSpecific.isServer;
 
-      builders-use-substitutes = true;
+        builders-use-substitutes = true;
 
-      experimental-features = [ "nix-command" "flakes" ];
+        experimental-features = [
+          "nix-command"
+          "flakes"
+        ];
 
-      extra-sandbox-paths = [
-        (lib.mkIf config.programs.ccache.enable
-          "${config.programs.ccache.cacheDir}")
-      ];
+        extra-sandbox-paths = [
+          (lib.mkIf config.programs.ccache.enable "${config.programs.ccache.cacheDir}")
+        ];
 
-      trusted-users = [ "elxreno" ]
-        ++ lib.optional config.services.hydra.enable "hydra";
+        trusted-users = [ "elxreno" ] ++ lib.optional config.services.hydra.enable "hydra";
 
-      # substituters =
-      #   lib.mkForce [ "https://cache.nixos.org" "https://elxreno.cachix.org" ];
-      # trusted-public-keys =
-      #   [ "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ=" ];
-    } // lib.optionalAttrs config.deviceSpecific.isServer {
-      min-free = 2 * 1024 * 1024 * 1024; # 2GB
-      max-free = 5 * 1024 * 1024 * 1024; # 5GB
-    };
+        # substituters =
+        #   lib.mkForce [ "https://cache.nixos.org" "https://elxreno.cachix.org" ];
+        # trusted-public-keys =
+        #   [ "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ=" ];
+      }
+      // lib.optionalAttrs config.deviceSpecific.isServer {
+        min-free = 2 * 1024 * 1024 * 1024; # 2GB
+        max-free = 5 * 1024 * 1024 * 1024; # 5GB
+      };
 
     daemonCPUSchedPolicy = "idle";
     daemonIOSchedClass = "idle";

@@ -7,26 +7,35 @@ let
     postBuild = ''
       wrapProgram $out/bin/hx \
         --suffix PATH : ${
-          lib.makeBinPath (with pkgs;
-            with nodePackages; [
+          lib.makeBinPath (
+            with pkgs;
+            with nodePackages;
+            [
               # LSP Servers
               bash-language-server
               nixd
               yaml-language-server
-            ])
+            ]
+          )
         }
     '';
   };
-in {
+in
+{
   home-manager.users.elxreno.programs.helix = {
     enable = true;
     package = helix-with-stuff;
     settings = {
-      keys = let defaultKeys = { "C-s" = ":w"; };
-      in {
-        normal = defaultKeys;
-        insert = defaultKeys;
-      };
+      keys =
+        let
+          defaultKeys = {
+            "C-s" = ":w";
+          };
+        in
+        {
+          normal = defaultKeys;
+          insert = defaultKeys;
+        };
     };
     languages = {
       language = [

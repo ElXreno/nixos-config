@@ -1,14 +1,18 @@
-{ pkgs, ... }: {
-  fonts.packages = with pkgs;
-    builtins.filter lib.attrsets.isDerivation
-    (builtins.attrValues nerd-fonts); # TODO: Strip to only useful fonts
+{ pkgs, ... }:
+{
+  fonts.packages =
+    with pkgs;
+    builtins.filter lib.attrsets.isDerivation (builtins.attrValues nerd-fonts); # TODO: Strip to only useful fonts
 
   home-manager.users.elxreno = {
     programs.waybar = {
       enable = true;
       settings = {
         mainBar = {
-          output = [ "eDP-1" "HDMI-A-1" ];
+          output = [
+            "eDP-1"
+            "HDMI-A-1"
+          ];
           layer = "top";
           position = "top";
           modules-left = [ "hyprland/workspaces" ];
@@ -64,8 +68,7 @@
           };
 
           "temperature" = {
-            hwmon-path =
-              "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input";
+            hwmon-path = "/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input";
             critical-threshold = 80;
             interval = 2;
             format = "{icon} {temperatureC}C°";
@@ -100,12 +103,26 @@
             format = "{icon} {volume}%";
             format-muted = " Off";
             on-click = "pavucontrol";
-            format-icons = [ "" "" "" ];
+            format-icons = [
+              ""
+              ""
+              ""
+            ];
           };
 
           "backlight" = {
             format = "{icon} {percent}%";
-            format-icons = [ "" "" "" "" "" "" "" "" "" ];
+            format-icons = [
+              ""
+              ""
+              ""
+              ""
+              ""
+              ""
+              ""
+              ""
+              ""
+            ];
           };
 
           "battery" = {
@@ -120,7 +137,13 @@
             format-charging = " {capacity}% {power:2.1f}W";
             format-plugged = " {capacity}% {power:2.1f}W";
             format-alt = "{icon} {time}";
-            format-icons = [ " " " " " " " " " " ];
+            format-icons = [
+              " "
+              " "
+              " "
+              " "
+              " "
+            ];
           };
 
           tray = {

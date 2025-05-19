@@ -1,4 +1,10 @@
-{ config, inputs, pkgs, ... }: {
+{
+  config,
+  inputs,
+  pkgs,
+  ...
+}:
+{
   imports = [
     ./hardware-configuration.nix
     inputs.self.nixosRoles.desktop
@@ -16,8 +22,7 @@
   i18n.defaultLocale = "ru_RU.UTF-8";
 
   services.xserver.videoDrivers = [ "nvidia" ];
-  hardware.nvidia.package =
-    config.boot.kernelPackages.nvidiaPackages.legacy_470;
+  hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
 
   home-manager.users.alena = {
     home = {
@@ -36,8 +41,15 @@
   };
 
   networking.firewall = {
-    allowedTCPPorts = [ 22000 34381 ]; # TCP based sync protocol traffic
-    allowedUDPPorts = [ 22000 21027 21028 ]; # Syncthing discovery broadcasts
+    allowedTCPPorts = [
+      22000
+      34381
+    ]; # TCP based sync protocol traffic
+    allowedUDPPorts = [
+      22000
+      21027
+      21028
+    ]; # Syncthing discovery broadcasts
   };
 
   services.bpftune.enable = true;

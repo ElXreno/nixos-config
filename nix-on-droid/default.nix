@@ -1,10 +1,13 @@
-{ lib, pkgs, inputs, ... }:
+{
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 let
   currentSystem = pkgs.system;
-  currentArch = lib.elemAt (lib.splitString "-" currentSystem) 0;
-  prootTermux =
-    inputs.nix-on-droid.packages.${currentSystem}."prootTermux-${currentArch}";
-in {
+in
+{
   # Uses nix-on-droid fork without read-only attr
   #  environment.files.prootStatic = lib.mkForce prootTermux;
 
@@ -35,7 +38,7 @@ in {
     gawk
     which
     glibc
-    (inputs.deploy-rs.defaultPackage.${currentSystem})
+    inputs.deploy-rs.defaultPackage.${currentSystem}
     nix-output-monitor
 
     hcloud
@@ -50,70 +53,79 @@ in {
     backupFileExtension = "hm-bak";
     useGlobalPkgs = true;
 
-    config = { pkgs, ... }: {
-      home = {
-        stateVersion = "24.05";
-        sessionVariables = { EDITOR = "hx"; };
-      };
-
-      programs = {
-        direnv = {
-          enable = true;
-          nix-direnv.enable = true;
+    config =
+      _:
+      {
+        home = {
+          stateVersion = "24.05";
+          sessionVariables = {
+            EDITOR = "hx";
+          };
         };
 
-        helix = {
-          enable = true;
-          # TODO: Move to programs profile and include here
-          settings = {
-            keys = let defaultKeys = { "C-s" = ":w"; };
-            in {
-              normal = defaultKeys;
-              insert = defaultKeys;
-            };
+        programs = {
+          direnv = {
+            enable = true;
+            nix-direnv.enable = true;
           };
-          languages = {
-            language = [
-              {
-                name = "nix";
-                formatter.command = "nixfmt";
-                language-servers = [ "nixd" ];
-                auto-format = true;
-              }
-              {
-                name = "rust";
-                auto-format = true;
-              }
-            ];
-            language-server = {
-              nixd.command = "nixd";
-              rust-analyzer = {
-                config = {
-                  diagnostics.experimental.enable = true;
-                  check.features = "all";
+
+          helix = {
+            enable = true;
+            # TODO: Move to programs profile and include here
+            settings = {
+              keys =
+                let
+                  defaultKeys = {
+                    "C-s" = ":w";
+                  };
+                in
+                {
+                  normal = defaultKeys;
+                  insert = defaultKeys;
+                };
+            };
+            languages = {
+              language = [
+                {
+                  name = "nix";
+                  formatter.command = "nixfmt";
+                  language-servers = [ "nixd" ];
+                  auto-format = true;
+                }
+                {
+                  name = "rust";
+                  auto-format = true;
+                }
+              ];
+              language-server = {
+                nixd.command = "nixd";
+                rust-analyzer = {
+                  config = {
+                    diagnostics.experimental.enable = true;
+                    check.features = "all";
+                  };
                 };
               };
             };
           };
-        };
 
-        fish.enable = true;
-        starship.enable = true;
+          fish.enable = true;
+          starship.enable = true;
 
-        ssh = {
-          enable = true;
-          extraConfig = ''
-            Host eu.nixbuild.net
-              PubkeyAcceptedKeyTypes ssh-ed25519
-              ServerAliveInterval 60
-              IPQoS throughput
-              IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ed25519
-            Host github.com
-              IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ecdsa-git
-          '';
+          ssh = {
+            enable = true;
+            extraConfig = ''
+              Host eu.nixbuild.net
+                PubkeyAcceptedKeyTypes ssh-ed25519
+                ServerAliveInterval 60
+                IPQoS throughput
+                IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ed25519
+              Host github.com
+                IdentityFile /data/data/com.termux.nix/files/home/.ssh/id_ecdsa-git
+            '';
+          };
         };
       };
-    };
   };
 
   nix = {

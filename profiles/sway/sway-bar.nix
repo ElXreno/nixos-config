@@ -1,6 +1,8 @@
 { pkgs, ... }:
-let barPosition = "top";
-in {
+let
+  barPosition = "top";
+in
+{
   home.packages = with pkgs; [ lm_sensors ];
 
   programs.i3status-rust = {
@@ -29,10 +31,8 @@ in {
         }
         {
           block = "memory";
-          format =
-            " $icon $mem_used.eng(prefix:M)/$mem_total.eng(prefix:M)($mem_used_percents.eng(w:2)) ";
-          format_alt =
-            " $icon_swap $swap_used.eng(prefix:M)/$swap_total.eng(prefix:M)($swap_used_percents.eng(w:2)) ";
+          format = " $icon $mem_used.eng(prefix:M)/$mem_total.eng(prefix:M)($mem_used_percents.eng(w:2)) ";
+          format_alt = " $icon_swap $swap_used.eng(prefix:M)/$swap_total.eng(prefix:M)($swap_used_percents.eng(w:2)) ";
         }
         {
           block = "battery";
@@ -65,13 +65,14 @@ in {
     };
   };
 
-  wayland.windowManager.sway.config.bars = [{
-    position = barPosition;
-    statusCommand =
-      "${pkgs.i3status-rust}/bin/i3status-rs ~/.config/i3status-rust/config-${barPosition}.toml";
-    fonts = {
-      names = [ "FiraCode Nerd Font" ];
-      size = 9.0;
-    };
-  }];
+  wayland.windowManager.sway.config.bars = [
+    {
+      position = barPosition;
+      statusCommand = "${pkgs.i3status-rust}/bin/i3status-rs ~/.config/i3status-rust/config-${barPosition}.toml";
+      fonts = {
+        names = [ "FiraCode Nerd Font" ];
+        size = 9.0;
+      };
+    }
+  ];
 }

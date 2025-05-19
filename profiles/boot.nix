@@ -1,24 +1,38 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
-let inherit (config.deviceSpecific) isDesktop isLaptop isServer;
-in {
+let
+  inherit (config.deviceSpecific) isDesktop isLaptop isServer;
+in
+{
   boot = {
-    loader = {
-      timeout = if isServer then 0 else 3;
-    } // (if config.deviceSpecific.usesCustomBootloader then
-      { }
-    else if config.deviceSpecific.devInfo.legacy then {
-      grub = {
-        enable = true;
-        device = lib.mkDefault "/dev/sda";
-      };
-    } else {
-      efi.canTouchEfiVariables = true;
-      systemd-boot = {
-        enable = true;
-        configurationLimit = 3;
-      };
-    });
+    loader =
+      {
+        timeout = if isServer then 0 else 3;
+      }
+      // (
+        if config.deviceSpecific.usesCustomBootloader then
+          { }
+        else if config.deviceSpecific.devInfo.legacy then
+          {
+            grub = {
+              enable = true;
+              device = lib.mkDefault "/dev/sda";
+            };
+          }
+        else
+          {
+            efi.canTouchEfiVariables = true;
+            systemd-boot = {
+              enable = true;
+              configurationLimit = 3;
+            };
+          }
+      );
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
@@ -26,12 +40,15 @@ in {
       (lib.mkIf isServer pkgs.linuxPackages_latest)
     ];
 
-    kernelParams = [ "nohibernate" ] ++ lib.optionals (isDesktop || isLaptop) [
-      "i915.mitigations=off"
-      # slowdown for INFINITY is minimal
-      # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
-      "mitigations=off"
-    ] ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
+    kernelParams =
+      [ "nohibernate" ]
+      ++ lib.optionals (isDesktop || isLaptop) [
+        "i915.mitigations=off"
+        # slowdown for INFINITY is minimal
+        # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
+        "mitigations=off"
+      ]
+      ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
       ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
       ++ lib.optionals (config.device == "INFINITY") [
         # Disabled due 4k external monitor

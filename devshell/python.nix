@@ -1,9 +1,17 @@
 { pkgs, ... }:
-let python = pkgs.python311;
-in pkgs.mkShell {
-  nativeBuildInputs = with pkgs; [ pkg-config clang gnumake python ];
+let
+  python = pkgs.python311;
+in
+pkgs.mkShell {
+  nativeBuildInputs = with pkgs; [
+    pkg-config
+    clang
+    gnumake
+    python
+  ];
 
-  buildInputs = with pkgs;
+  buildInputs =
+    with pkgs;
     with python.pkgs;
     [
       # Python

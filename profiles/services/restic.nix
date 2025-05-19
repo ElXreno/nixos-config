@@ -6,8 +6,10 @@
       user = "elxreno";
       repository = "/home/elxreno/MEGA/Backups/restic-repo";
       passwordFile = config.sops.secrets."restic/mega_password".path;
-      paths =
-        [ "/home/elxreno" "/home/elxreno/Sync/Smartphones/Other/Databases" ];
+      paths = [
+        "/home/elxreno"
+        "/home/elxreno/Sync/Smartphones/Other/Databases"
+      ];
       pruneOpts = [
         "--keep-monthly 2"
         "--keep-weekly 2"

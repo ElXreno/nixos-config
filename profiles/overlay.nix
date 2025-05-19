@@ -1,7 +1,14 @@
-{ config, inputs, pkgs, lib, ... }: {
+{
+  config,
+  inputs,
+  lib,
+  ...
+}:
+{
   nixpkgs = {
     config = {
-      allowUnfreePredicate = pkg:
+      allowUnfreePredicate =
+        pkg:
         builtins.elem (lib.getName pkg) [
           "gitkraken"
           "megasync"
@@ -46,18 +53,17 @@
       attic.overlays.default
       (_self: super: {
         bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
-          patches = (old.patches or [ ]) == [
-            (super.fetchpatch {
-              url =
-                "https://patchwork.kernel.org/project/bluetooth/patch/20210514211304.17237-1-luiz.dentz@gmail.com/raw/";
-              sha256 = "sha256-SnERSCMo7KPgZV4yC1eYwDBg+iPxoB0Ve7l2VX97KrA=";
-            })
-          ];
+          patches =
+            (old.patches or [ ]) == [
+              (super.fetchpatch {
+                url = "https://patchwork.kernel.org/project/bluetooth/patch/20210514211304.17237-1-luiz.dentz@gmail.com/raw/";
+                sha256 = "sha256-SnERSCMo7KPgZV4yC1eYwDBg+iPxoB0Ve7l2VX97KrA=";
+              })
+            ];
         });
 
         hydra = super.hydra.overrideAttrs (old: {
-          patches = (old.patches or [ ])
-            ++ [ ../patches/hydra-github-status.patch ];
+          patches = (old.patches or [ ]) ++ [ ../patches/hydra-github-status.patch ];
         });
 
         tlp = super.tlp.override {
@@ -67,7 +73,10 @@
         deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
         prismlauncher = super.prismlauncher.override {
-          jdks = with super; [ jdk17 graalvm-ce ];
+          jdks = with super; [
+            jdk17
+            graalvm-ce
+          ];
         };
 
         cassowary = super.callPackage ../modules/cassowary.nix { };

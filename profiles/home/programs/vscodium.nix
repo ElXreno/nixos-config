@@ -1,17 +1,20 @@
-{ pkgs, lib, ... }: {
+{ pkgs, ... }:
+{
   home-manager.users.elxreno.programs.vscode = {
     enable = true;
     # package = pkgs.vscodium;
     package = pkgs.vscode;
     profiles.default = {
-      extensions = with pkgs.vscode-extensions;
+      extensions =
+        with pkgs.vscode-extensions;
         [
           jnoortheen.nix-ide
           github.copilot
           # hashicorp.terraform
           redhat.vscode-yaml
           # jebbs.plantuml
-        ] ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
+        ]
+        ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
             name = "opentofu";
             publisher = "gamunu";
@@ -46,12 +49,16 @@
         "editor.smoothScrolling" = true;
         "extensions.autoUpdate" = false;
         "extensions.ignoreRecommendations" = true;
-        "files.associations" = { "logcat" = "logcat"; };
+        "files.associations" = {
+          "logcat" = "logcat";
+        };
         "git.autoStash" = true;
         "git.confirmSync" = false;
         "git.enableSmartCommit" = true;
         "git.useCommitInputAsStashMessage" = true;
-        "github.copilot.enable" = { "*" = true; };
+        "github.copilot.enable" = {
+          "*" = true;
+        };
         "nix.enableLanguageServer" = true;
         "nix.formatterPath" = "nixfmt";
         "nix.serverPath" = "${pkgs.nixd}/bin/nixd";

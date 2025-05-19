@@ -1,9 +1,14 @@
-{ pkgs, config, lib, ... }: {
-  boot.extraModprobeConfig =
-    lib.mkIf (config.device == "Fujitsu-AH531-Laptop") ''
-      options iwlmvm power_scheme=1
-      options iwlwifi 11n_disable=8
-    '';
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+{
+  boot.extraModprobeConfig = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") ''
+    options iwlmvm power_scheme=1
+    options iwlwifi 11n_disable=8
+  '';
 
   # sound.enable = true;
   security.rtkit.enable = true;
@@ -21,11 +26,8 @@
 
   hardware = {
     cpu = {
-      amd.updateMicrocode =
-        lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY")
-        true;
-      intel.updateMicrocode =
-        lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
+      amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") true;
+      intel.updateMicrocode = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
     };
 
     graphics = {
@@ -34,8 +36,8 @@
     };
 
     amdgpu.amdvlk = lib.mkIf (config.device == "INFINITY") {
-        enable = true;
-        support32Bit.enable = true;
+      enable = true;
+      support32Bit.enable = true;
     };
 
     bluetooth = {
@@ -51,10 +53,8 @@
   # Speed up boot
   # https://www.freedesktop.org/software/systemd/man/systemd-udev-settle.service.html
   systemd.services.systemd-udev-settle.enable = false;
-  systemd.services.NetworkManager-wait-online.enable =
-    !config.deviceSpecific.isLaptop;
+  systemd.services.NetworkManager-wait-online.enable = !config.deviceSpecific.isLaptop;
 
   # Disable suspend on lid switch on laptop
-  services.logind.lidSwitch =
-    lib.mkIf (config.deviceSpecific.isLaptop) "ignore";
+  services.logind.lidSwitch = lib.mkIf config.deviceSpecific.isLaptop "ignore";
 }

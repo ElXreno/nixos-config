@@ -7,5 +7,5 @@
     padding = "10";
     font = "FiraCode Nerd Font 10";
   };
-  wayland.windowManager.sway.config.startup = [{ command = "mako"; }];
+  wayland.windowManager.sway.config.startup = [ { command = "mako"; } ];
 }

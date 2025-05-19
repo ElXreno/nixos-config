@@ -1,4 +1,5 @@
-{ ... }: {
+_:
+{
   networking.networkmanager.dns = "none";
 
   services.dnscrypt-proxy2 = {
@@ -13,7 +14,10 @@
       cache_neg_min_ttl = 60;
       cache_neg_max_ttl = 600;
 
-      server_names = [ "google" "cloudflare" ];
+      server_names = [
+        "google"
+        "cloudflare"
+      ];
       sources = {
         public-resolvers = {
           urls = [
@@ -23,8 +27,7 @@
             "https://download.dnscrypt.net/resolvers-list/v3/public-resolvers.md"
           ];
           cache_file = "/var/lib/dnscrypt-proxy/public-resolvers.md";
-          minisign_key =
-            "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
           refresh_delay = 72;
         };
 
@@ -36,8 +39,7 @@
             "https://download.dnscrypt.net/resolvers-list/v3/relays.md"
           ];
           cache_file = "/var/lib/dnscrypt-proxy/relays.md";
-          minisign_key =
-            "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
+          minisign_key = "RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3";
           refresh_delay = 72;
         };
       };

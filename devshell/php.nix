@@ -8,8 +8,12 @@ let
       xdebug.mode=debug
     '';
   };
-in pkgs.mkShell {
-  nativeBuildInputs = with pkgs; [ php jetbrains.phpstorm ];
+in
+pkgs.mkShell {
+  nativeBuildInputs = with pkgs; [
+    php
+    jetbrains.phpstorm
+  ];
 
   buildInputs = with pkgs; [ ];
 }

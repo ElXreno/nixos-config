@@ -1,7 +1,6 @@
 { config, lib, ... }:
 
-let zfsEnabled = builtins.elem "zfs" config.boot.supportedFilesystems;
-in {
+{
   home-manager.users.elxreno.programs.htop = {
     enable = true;
     settings = lib.mkMerge [
@@ -21,11 +20,28 @@ in {
           "Swap"
           "Zram"
         ]; # ++ lib.optionals zfsEnabled [ "ZFSARC" "ZFSCARC" ];
-        column_meter_modes_0 =
-          [ 1 1 1 1 ]; # ++ lib.optionals zfsEnabled [ 2 2 ];
-        column_meters_1 =
-          [ "RightCPUs2" "Tasks" "LoadAverage" "Uptime" "DiskIO" "NetworkIO" ];
-        column_meter_modes_1 = [ 1 2 2 2 2 2 ];
+        column_meter_modes_0 = [
+          1
+          1
+          1
+          1
+        ]; # ++ lib.optionals zfsEnabled [ 2 2 ];
+        column_meters_1 = [
+          "RightCPUs2"
+          "Tasks"
+          "LoadAverage"
+          "Uptime"
+          "DiskIO"
+          "NetworkIO"
+        ];
+        column_meter_modes_1 = [
+          1
+          2
+          2
+          2
+          2
+          2
+        ];
         # TODO: Write custom config generator
         # screen_tabs = 1;
         # "screen:I/O" = [ "PID" "USER" "IO_PRIORITY" "IO_RATE" "IO_READ_RATE" "IO_WRITE_RATE" "COMM" ];

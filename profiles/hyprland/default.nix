@@ -1,4 +1,4 @@
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 let
   update-mic-state = pkgs.writeScript "update-mic-state" ''
     #!${pkgs.bash}/bin/bash
@@ -9,8 +9,13 @@ let
 
     echo $IS_MUTED > /sys/class/leds/platform::micmute/brightness
   '';
-in {
-  imports = [ ./hypridle.nix ./hyprlock.nix ./waybar.nix ];
+in
+{
+  imports = [
+    ./hypridle.nix
+    ./hyprlock.nix
+    ./waybar.nix
+  ];
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
@@ -59,7 +64,9 @@ in {
 
       x11.enable = true;
       gtk.enable = true;
-      hyprcursor = { enable = true; };
+      hyprcursor = {
+        enable = true;
+      };
     };
     programs.kitty.enable = true; # required for the default Hyprland config
     wayland.windowManager.hyprland = {
@@ -102,49 +109,60 @@ in {
 
         decoration = {
           rounding = 10;
-          shadow = { enabled = true; };
+          shadow = {
+            enabled = true;
+          };
 
           active_opacity = 1.0;
           inactive_opacity = 0.93;
           fullscreen_opacity = 1.0;
         };
 
-        bind = [
-          ", Print, exec, ${pkgs.hyprshot}/bin/hyprshot -m region --clipboard-only"
-          "$mod, B, exec, firefox"
-          "$mod, Return, exec, $terminal" # Are you fucking crazy? Why return?
-          "$mod, R, exec, $menu"
-          "$mod, E, exec, $fileManager"
-          "$mod, H, exec, cliphist list | wofi -d | cliphist decode | wl-copy"
-          "$mod, L, exec, hyprlock"
+        bind =
+          [
+            ", Print, exec, ${pkgs.hyprshot}/bin/hyprshot -m region --clipboard-only"
+            "$mod, B, exec, firefox"
+            "$mod, Return, exec, $terminal" # Are you fucking crazy? Why return?
+            "$mod, R, exec, $menu"
+            "$mod, E, exec, $fileManager"
+            "$mod, H, exec, cliphist list | wofi -d | cliphist decode | wl-copy"
+            "$mod, L, exec, hyprlock"
 
-          "$mod, M, exit,"
-          "$mod, C, killactive,"
-          "$mod, J, togglesplit,"
+            "$mod, M, exit,"
+            "$mod, C, killactive,"
+            "$mod, J, togglesplit,"
 
-          "$mod, left, movefocus, l"
-          "$mod, right, movefocus, r"
-          "$mod, up, movefocus, u"
-          "$mod, down, movefocus, d"
+            "$mod, left, movefocus, l"
+            "$mod, right, movefocus, r"
+            "$mod, up, movefocus, u"
+            "$mod, down, movefocus, d"
 
-          "$mod SHIFT, left, movewindow, l"
-          "$mod SHIFT, right, movewindow, r"
-          "$mod SHIFT, up, movewindow, u"
-          "$mod SHIFT, down, movewindow, d"
+            "$mod SHIFT, left, movewindow, l"
+            "$mod SHIFT, right, movewindow, r"
+            "$mod SHIFT, up, movewindow, u"
+            "$mod SHIFT, down, movewindow, d"
 
-          "$mod ALT, left, resizeactive, -20 0"
-          "$mod ALT, right, resizeactive, 20 0"
-          "$mod ALT, up, resizeactive, 0 -20"
-          "$mod ALT, down, resizeactive, 0 20"
-        ] ++ (
-          # workspaces
-          # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
-          builtins.concatLists (builtins.genList (i:
-            let ws = i + 1;
-            in [
-              "$mod, code:1${toString i}, workspace, ${toString ws}"
-              "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
-            ]) 9));
+            "$mod ALT, left, resizeactive, -20 0"
+            "$mod ALT, right, resizeactive, 20 0"
+            "$mod ALT, up, resizeactive, 0 -20"
+            "$mod ALT, down, resizeactive, 0 20"
+          ]
+          ++ (
+            # workspaces
+            # binds $mod + [shift +] {1..9} to [move to] workspace {1..9}
+            builtins.concatLists (
+              builtins.genList (
+                i:
+                let
+                  ws = i + 1;
+                in
+                [
+                  "$mod, code:1${toString i}, workspace, ${toString ws}"
+                  "$mod SHIFT, code:1${toString i}, movetoworkspace, ${toString ws}"
+                ]
+              ) 9
+            )
+          );
 
         bindle = [
           ", XF86MonBrightnessUp,   exec, brightnessctl -d amdgpu_bl1 set +5%"

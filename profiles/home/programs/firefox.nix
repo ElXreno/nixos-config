@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, ... }:
+{
   home-manager.users.elxreno.programs.firefox = {
     enable = true;
     package = pkgs.firefox;

@@ -12,7 +12,8 @@ let
   resume = pkgs.writeScript "resume" ''
     ${pkgs.sway}/bin/swaymsg "output * dpms on"
   '';
-in {
+in
+{
   services.swayidle = {
     enable = true;
     events = [

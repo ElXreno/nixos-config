@@ -1,5 +1,15 @@
-{ config, inputs, pkgs, lib, ... }: {
-  imports = with inputs.self.nixosProfiles; [ xserver kdeconnect ];
+{
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  imports = with inputs.self.nixosProfiles; [
+    xserver
+    kdeconnect
+  ];
   services = {
     displayManager = {
       sddm = {
@@ -7,7 +17,9 @@
         wayland.enable = lib.mkIf (config.device == "INFINITY") true;
       };
     };
-    desktopManager.plasma6 = { enable = true; };
+    desktopManager.plasma6 = {
+      enable = true;
+    };
   };
 
   environment.plasma6.excludePackages = with pkgs; [ kdePackages.elisa ];
@@ -16,7 +28,8 @@
 
   fonts.packages = with pkgs; [ jetbrains-mono ];
 
-  environment.systemPackages = with pkgs;
+  environment.systemPackages =
+    with pkgs;
     with kdePackages;
     [
       # Utilities for Info Center
@@ -38,7 +51,8 @@
 
       # Icons
       papirus-icon-theme
-    ] ++ lib.optional config.services.colord.enable gnome-color-manager;
+    ]
+    ++ lib.optional config.services.colord.enable gnome-color-manager;
 
   programs.dconf.enable = true;
 
@@ -77,11 +91,12 @@
         };
 
         kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" =
-          lib.mkIf (config.device == "INFINITY") {
-            NaturalScroll = true;
-            ScrollFactor = 0.5;
-            TapToClick = true;
-          };
+          lib.mkIf (config.device == "INFINITY")
+            {
+              NaturalScroll = true;
+              ScrollFactor = 0.5;
+              TapToClick = true;
+            };
 
         ksmserverrc.General.loginMode = "restoreSavedSession";
 
@@ -103,7 +118,9 @@
             TerminalColumns = 120;
             TerminalRows = 30;
           };
-          Scrolling = { HistorySize = 50000; };
+          Scrolling = {
+            HistorySize = 50000;
+          };
         };
 
         kwinrc = {
@@ -125,8 +142,7 @@
           };
           "Battery.DPMSControl".idleTime = 600; # 10 min
           "Battery.DimDisplay".idleTime = 300000; # 5 min
-          "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent =
-            false;
+          "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent = false;
           "Battery.SuspendSession" = {
             idleTime = null;
             suspendThenHibernate = null;
@@ -137,8 +153,7 @@
 
         # Applets
         "plasma-org.kde.plasma.desktop-appletsrc" = {
-          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat =
-            2; # TODO: Maybe I should change regional settings instead?
+          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat = 2; # TODO: Maybe I should change regional settings instead?
         };
       };
     };

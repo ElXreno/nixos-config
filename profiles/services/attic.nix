@@ -1,6 +1,15 @@
-{ config, inputs, pkgs, lib, ... }: {
-  imports =
-    [ inputs.attic.nixosModules.atticd inputs.self.nixosProfiles.postgresql ];
+{
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
+{
+  imports = [
+    inputs.attic.nixosModules.atticd
+    inputs.self.nixosProfiles.postgresql
+  ];
 
   environment.systemPackages = [ inputs.attic.packages.${pkgs.system}.attic ];
 
@@ -11,8 +20,7 @@
     settings = {
       listen = "[::]:8080";
 
-      database = lib.mkForce
-        { }; # db url set via env variable (ATTIC_SERVER_DATABASE_URL)
+      database = lib.mkForce { }; # db url set via env variable (ATTIC_SERVER_DATABASE_URL)
 
       chunking = {
         nar-size-threshold = 64 * 1024; # 64 KiB
@@ -21,7 +29,9 @@
         max-size = 256 * 1024; # 256 KiB
       };
 
-      garbage-collection = { default-retention-period = "3 months"; };
+      garbage-collection = {
+        default-retention-period = "3 months";
+      };
     };
   };
 

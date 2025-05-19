@@ -1,4 +1,5 @@
-{ ... }: {
+_:
+{
   disko.devices = {
     disk = {
       x = {
@@ -7,15 +8,17 @@
         content = {
           type = "table";
           format = "gpt";
-          partitions = [{
-            name = "zfs";
-            start = "1MiB";
-            end = "100%";
-            content = {
-              type = "zfs";
-              pool = "externalhdd";
-            };
-          }];
+          partitions = [
+            {
+              name = "zfs";
+              start = "1MiB";
+              end = "100%";
+              content = {
+                type = "zfs";
+                pool = "externalhdd";
+              };
+            }
+          ];
         };
       };
     };
@@ -67,4 +70,3 @@
     };
   };
 }
-

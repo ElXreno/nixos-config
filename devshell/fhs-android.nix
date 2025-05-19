@@ -2,7 +2,8 @@
 
 (pkgs.buildFHSUserEnv {
   name = "fhs-android";
-  targetPkgs = pkgs:
+  targetPkgs =
+    pkgs:
     (with pkgs; [
       bison
       curl
@@ -28,7 +29,13 @@
       zip
       pkgconfig
     ]);
-  multiPkgs = pkgs: (with pkgs; [ ncurses5 zlib glibc.dev ]);
+  multiPkgs =
+    pkgs:
+    (with pkgs; [
+      ncurses5
+      zlib
+      glibc.dev
+    ]);
   runScript = "bash";
   profile = ''
     export ALLOW_NINJA_ENV=true

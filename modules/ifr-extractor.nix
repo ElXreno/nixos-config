@@ -1,4 +1,9 @@
-{ fetchFromGitHub, lib, stdenv, cmake }:
+{
+  fetchFromGitHub,
+  lib,
+  stdenv,
+  cmake,
+}:
 
 stdenv.mkDerivation rec {
   pname = "ifr-extractor";
@@ -18,15 +23,13 @@ stdenv.mkDerivation rec {
   '';
 
   meta = with lib; {
-    description =
-      "Utility that can extract the internal forms represenation from both EFI and UEFI modules";
+    description = "Utility that can extract the internal forms represenation from both EFI and UEFI modules";
     longDescription = ''
       Utility to extract the internal forms representation from both EFI
       and UEFI drivers/applications into human readable text file.
     '';
     license = licenses.gpl3Only;
-    maintainers = with maintainers;
-      [ ]; # TODO: add myself to the maintainers list
+    maintainers = with maintainers; [ ]; # TODO: add myself to the maintainers list
     platforms = platforms.all;
   };
 }

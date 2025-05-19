@@ -1,4 +1,5 @@
-{ lib, ... }: {
+{ lib, ... }:
+{
   services.minidlna = {
     enable = true;
     openFirewall = true;

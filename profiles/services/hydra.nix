@@ -1,4 +1,9 @@
-{ config, pkgs, inputs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 let
   sshConfig = pkgs.writeText "ssh-config" ''
@@ -13,8 +18,11 @@ let
       User builder
       IdentityFile ${config.sops.secrets."ssh/distributed-builds".path}
   '';
-in {
-  sops.secrets."ssh/distributed-builds" = { owner = "hydra-queue-runner"; };
+in
+{
+  sops.secrets."ssh/distributed-builds" = {
+    owner = "hydra-queue-runner";
+  };
   sops.secrets."hydra/github_bearer" = {
     restartUnits = [ "hydra-server.service" ];
   };
@@ -64,12 +72,13 @@ in {
   };
 
   systemd.services.hydra-evaluator =
-    lib.mkIf (config.services.hydra.enable && config.device == "flamingo") {
-      # https://github.com/NixOS/hydra/issues/1186
-      environment.GC_DONT_GC = "1";
-      serviceConfig.CPUSchedulingPolicy = "idle";
-      serviceConfig.IOSchedulingClass = "idle";
-    };
+    lib.mkIf (config.services.hydra.enable && config.device == "flamingo")
+      {
+        # https://github.com/NixOS/hydra/issues/1186
+        environment.GC_DONT_GC = "1";
+        serviceConfig.CPUSchedulingPolicy = "idle";
+        serviceConfig.IOSchedulingClass = "idle";
+      };
 
   system.activationScripts.setupHydraSshConfig = lib.stringAfter [ "var" ] ''
     mkdir -p ${config.users.users.hydra-queue-runner.home}/.ssh/
@@ -86,7 +95,12 @@ in {
         systems = [ "aarch64-linux" ];
         maxJobs = 8;
         speedFactor = 1;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        supportedFeatures = [
+          "nixos-test"
+          "benchmark"
+          "big-parallel"
+          "kvm"
+        ];
         mandatoryFeatures = [ ];
       }
       {
@@ -94,7 +108,12 @@ in {
         systems = [ "x86_64-linux" ];
         maxJobs = 2;
         speedFactor = 1;
-        supportedFeatures = [ "nixos-test" "benchmark" "big-parallel" "kvm" ];
+        supportedFeatures = [
+          "nixos-test"
+          "benchmark"
+          "big-parallel"
+          "kvm"
+        ];
         mandatoryFeatures = [ ];
       }
     ];

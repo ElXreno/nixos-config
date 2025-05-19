@@ -1,6 +1,8 @@
-{ ... }:
-let defaultMountOptions = [ "compress-force=zstd" ];
-in {
+_:
+let
+  defaultMountOptions = [ "compress-force=zstd" ];
+in
+{
   disko.devices = {
     disk = {
       nvme = {
@@ -34,7 +36,9 @@ in {
                 type = "luks";
                 name = "crypted";
                 extraOpenArgs = [ "--allow-discards" ];
-                settings = { allowDiscards = true; };
+                settings = {
+                  allowDiscards = true;
+                };
                 content = {
                   type = "btrfs";
                   extraArgs = [ "-f" ];
@@ -53,4 +57,3 @@ in {
     };
   };
 }
-

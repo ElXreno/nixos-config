@@ -1,4 +1,10 @@
-{ config, pkgs, lib, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
   time.timeZone = lib.mkDefault "Europe/Minsk";
 
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
@@ -30,8 +36,7 @@
             DOTNET_CLI_TELEMETRY_OPTOUT = 1;
           }
           (lib.mkIf config.deviceSpecific.isLaptop {
-            NIXPKGS =
-              "${config.users.users.elxreno.home}/projects/repos/github.com/NixOS/nixpkgs";
+            NIXPKGS = "${config.users.users.elxreno.home}/projects/repos/github.com/NixOS/nixpkgs";
             # go brrr
             GOROOT = "${pkgs.go}/share/go";
             GOPATH = "${config.users.users.elxreno.home}/.go";

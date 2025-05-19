@@ -1,4 +1,9 @@
-{ fetchFromGitHub, lib, stdenv, python3Packages }:
+{
+  fetchFromGitHub,
+  lib,
+  stdenv,
+  python3Packages,
+}:
 
 # FIX PACKAGE
 
@@ -13,9 +18,15 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-bU2dWHl6CiyQAwhBF3ESLcdyzzn8q7VtFvgglj/GmGg=";
   };
 
-  nativeBuildInputs = with python3Packages; [ python build ];
+  nativeBuildInputs = with python3Packages; [
+    python
+    build
+  ];
 
-  propagatedBuildInputs = with python3Packages; [ setuptools wheel ];
+  propagatedBuildInputs = with python3Packages; [
+    setuptools
+    wheel
+  ];
 
   patchPhase = ''
     patchShebangs app-linux/build.sh

@@ -1,6 +1,7 @@
 { pkgs, ... }:
 pkgs.mkShell {
-  nativeBuildInputs = with pkgs;
+  nativeBuildInputs =
+    with pkgs;
     [
       # Rust
       gcc
@@ -8,7 +9,8 @@ pkgs.mkShell {
       clang
       gnumake
       rustup
-    ] ++ (with jetbrains; [ rust-rover ]);
+    ]
+    ++ (with jetbrains; [ rust-rover ]);
 
   buildInputs = with pkgs; [
     # Rust

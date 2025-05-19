@@ -6,8 +6,13 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.initrd.availableKernelModules =
-    [ "ehci_pci" "ahci" "ums_realtek" "sd_mod" "sr_mod" ];
+  boot.initrd.availableKernelModules = [
+    "ehci_pci"
+    "ahci"
+    "ums_realtek"
+    "sd_mod"
+    "sr_mod"
+  ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
@@ -20,7 +25,11 @@
 
   fileSystems."/" = {
     device = "none";
-    options = [ "defaults" "size=4G" "mode=755" ];
+    options = [
+      "defaults"
+      "size=4G"
+      "mode=755"
+    ];
     fsType = "tmpfs";
   };
 
@@ -32,8 +41,12 @@
   fileSystems."/btrfs-root" = {
     device = "/dev/disk/by-uuid/39d0c00d-05e6-4e0b-9bd9-9ee9f45afd90";
     fsType = "btrfs";
-    options =
-      [ "subvolid=0" "compress-force=zstd:1" "discard=async" "space_cache=v2" ];
+    options = [
+      "subvolid=0"
+      "compress-force=zstd:1"
+      "discard=async"
+      "space_cache=v2"
+    ];
   };
 
   fileSystems."/home" = {
@@ -62,8 +75,12 @@
   fileSystems."/nix" = {
     device = "/dev/disk/by-uuid/39d0c00d-05e6-4e0b-9bd9-9ee9f45afd90";
     fsType = "btrfs";
-    options =
-      [ "subvol=nix" "compress-force=zstd:1" "discard=async" "space_cache=v2" ];
+    options = [
+      "subvol=nix"
+      "compress-force=zstd:1"
+      "discard=async"
+      "space_cache=v2"
+    ];
   };
 
   swapDevices = [ ];

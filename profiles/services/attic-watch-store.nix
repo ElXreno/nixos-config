@@ -1,7 +1,9 @@
 { config, pkgs, ... }:
 
-let user = "attic-watch-store";
-in {
+let
+  user = "attic-watch-store";
+in
+{
   sops.secrets."attic/watch-store" = { };
   sops.templates."${user}-config" = {
     group = user;

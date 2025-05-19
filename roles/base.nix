@@ -1,6 +1,9 @@
-{ inputs, ... }: {
-  imports = with inputs.self.nixosModules;
-    with inputs.self.nixosProfiles; [
+{ inputs, ... }:
+{
+  imports =
+    with inputs.self.nixosModules;
+    with inputs.self.nixosProfiles;
+    [
       inputs.home-manager.nixosModules.home-manager
 
       # Modules
