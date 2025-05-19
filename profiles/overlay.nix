@@ -21,13 +21,10 @@
           "steam-run"
           "steam-unwrapped"
           "steam"
-          "svp"
           "unrar"
           "vscode"
           "lens-desktop"
-          "packer"
           "obsidian"
-          "drawio"
 
           # IDE
           "android-studio-canary"
@@ -39,18 +36,11 @@
           "pycharm-professional"
           "rider"
           "rust-rover"
-
-          "vscode-extension-github-copilot"
         ];
       nvidia.acceptLicense = true;
-
-      permittedInsecurePackages = [
-        "freeimage-unstable-2021-11-01" # for megasync
-      ];
     };
 
     overlays = with inputs; [
-      attic.overlays.default
       (_self: super: {
         bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
           patches =
@@ -78,9 +68,6 @@
             graalvm-ce
           ];
         };
-
-        cassowary = super.callPackage ../modules/cassowary.nix { };
-        ifr-extractor = super.callPackage ../modules/ifr-extractor.nix { };
       })
     ];
   };

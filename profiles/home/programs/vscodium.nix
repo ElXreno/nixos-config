@@ -9,10 +9,8 @@
         with pkgs.vscode-extensions;
         [
           jnoortheen.nix-ide
-          github.copilot
-          # hashicorp.terraform
           redhat.vscode-yaml
-          # jebbs.plantuml
+          jebbs.plantuml
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
@@ -20,7 +18,7 @@
             publisher = "gamunu";
             version = "0.2.1";
             sha256 = "sha256-cZVKsdy92zlge3PJqVd7apzUKRaLPX10QUjQgv7V50M=";
-            # hack due arm64 package by default
+            # hack 'cause arm64 package set by default
             arch = "linux-x64";
 
             postInstall = ''
@@ -56,9 +54,6 @@
         "git.confirmSync" = false;
         "git.enableSmartCommit" = true;
         "git.useCommitInputAsStashMessage" = true;
-        "github.copilot.enable" = {
-          "*" = true;
-        };
         "nix.enableLanguageServer" = true;
         "nix.formatterPath" = "nixfmt";
         "nix.serverPath" = "${pkgs.nixd}/bin/nixd";

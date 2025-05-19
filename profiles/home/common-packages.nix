@@ -31,7 +31,6 @@ in
             binutils
             binwalk
             bmon
-            brotli
             cachix
             compsize
             config.boot.kernelPackages.cpupower
@@ -65,7 +64,7 @@ in
           ]
           (lib.mkIf (!config.deviceSpecific.isServer) [
             # Messengers
-            tdesktop
+            telegram-desktop
 
             # Etc
             keepassxc
@@ -84,9 +83,6 @@ in
             discord
             element-desktop
             slack
-
-            # GraalVM
-            # graalvm-ce
 
             # Games
             bottles
@@ -136,7 +132,6 @@ in
             ## etc
             remmina
             sony-headphones-client
-            drawio
             chromium
           ])
         ];

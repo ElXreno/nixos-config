@@ -8,9 +8,6 @@ let
   currentSystem = pkgs.system;
 in
 {
-  # Uses nix-on-droid fork without read-only attr
-  #  environment.files.prootStatic = lib.mkForce prootTermux;
-
   environment.packages = with pkgs; [
     nixd
     nixfmt-rfc-style

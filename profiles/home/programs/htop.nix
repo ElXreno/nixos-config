@@ -1,5 +1,8 @@
 { config, lib, ... }:
-
+let
+  supportedFilesystems = builtins.attrNames config.boot.supportedFilesystems;
+  zfsEnabled = builtins.elem "zfs" supportedFilesystems;
+in
 {
   home-manager.users.elxreno.programs.htop = {
     enable = true;
@@ -14,18 +17,28 @@
         show_cpu_usage = true;
         show_program_path = true;
         header_layout = "two_50_50";
-        column_meters_0 = [
-          "LeftCPUs2"
-          "Memory"
-          "Swap"
-          "Zram"
-        ]; # ++ lib.optionals zfsEnabled [ "ZFSARC" "ZFSCARC" ];
-        column_meter_modes_0 = [
-          1
-          1
-          1
-          1
-        ]; # ++ lib.optionals zfsEnabled [ 2 2 ];
+        column_meters_0 =
+          [
+            "LeftCPUs2"
+            "Memory"
+            "Swap"
+            "Zram"
+          ]
+          ++ lib.optionals zfsEnabled [
+            "ZFSARC"
+            "ZFSCARC"
+          ];
+        column_meter_modes_0 =
+          [
+            1
+            1
+            1
+            1
+          ]
+          ++ lib.optionals zfsEnabled [
+            2
+            2
+          ];
         column_meters_1 = [
           "RightCPUs2"
           "Tasks"

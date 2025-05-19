@@ -10,7 +10,7 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-on-droid = {
-      url = "github:ElXreno/nix-on-droid/no-read-only";
+      url = "github:nix-community/nix-on-droid";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
@@ -42,9 +42,6 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    attic.url = "github:zhaofengli/attic";
-    attic.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -144,13 +141,6 @@
               path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.AMD-Desktop;
             };
             fastConnection = true;
-          };
-          romeo = {
-            hostname = "100.90.64.52";
-            profiles.system = {
-              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.romeo;
-            };
-            remoteBuild = true;
           };
           flamingo = {
             hostname = "100.81.15.62";

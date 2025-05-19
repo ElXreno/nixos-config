@@ -7,15 +7,14 @@
 }:
 {
   imports = [
-    inputs.attic.nixosModules.atticd
     inputs.self.nixosProfiles.postgresql
   ];
 
-  environment.systemPackages = [ inputs.attic.packages.${pkgs.system}.attic ];
+  environment.systemPackages = with pkgs; [ attic-client ];
 
   services.atticd = {
     enable = true;
-    credentialsFile = config.sops.secrets."attic/env".path;
+    environmentFile = config.sops.secrets."attic/env".path;
 
     settings = {
       listen = "[::]:8080";

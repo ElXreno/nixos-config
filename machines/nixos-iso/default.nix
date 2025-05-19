@@ -1,8 +1,6 @@
 {
-  config,
   inputs,
   pkgs,
-  lib,
   ...
 }:
 
@@ -14,8 +12,6 @@ in
     "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
     inputs.self.nixosRoles.iso
   ];
-
-  boot.kernelPackages = lib.mkForce config.boot.zfs.package.latestCompatibleLinuxPackages;
 
   # isoImage.storeContents = [ inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
