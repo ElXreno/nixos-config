@@ -47,7 +47,9 @@ jobs:
 
       - uses: cachix/install-nix-action@v31
         with:
-          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            trusted-public-keys = nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+            substituters = https://nix-on-droid.cachix.org https://cache.nixos.org/
 
       - name: Install Cachix
         uses: cachix/cachix-action@v16
@@ -56,4 +58,4 @@ jobs:
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
       - name: Build ${{ matrix.job.name }} job
-        run: nix build -L --no-link .#hydraJobs.${{ matrix.job.name }}
+        run: nix build -L --no-link .#hydraJobs.${{ matrix.job.name }} ${{ matrix.job.additionalBuildArgs }}

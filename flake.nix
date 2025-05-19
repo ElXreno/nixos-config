@@ -164,6 +164,7 @@
         mapAttrsToList (name: value: {
           inherit name;
           arch = strings.removeSuffix "-linux" value.system;
+          additionalBuildArgs = if (name == "nix-on-droid-default") then "--impure" else "";
         }) self.hydraJobs;
     };
 }
