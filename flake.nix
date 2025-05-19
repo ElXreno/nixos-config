@@ -158,5 +158,12 @@
         // (concatMapAttrs (name: val: {
           "nix-on-droid-${name}" = val.activationPackage;
         }) self.nixOnDroidConfigurations);
+
+      ci =
+        with nixpkgs.lib;
+        mapAttrsToList (name: value: {
+          inherit name;
+          arch = strings.removeSuffix "-linux" value.system;
+        }) self.hydraJobs;
     };
 }

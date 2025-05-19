@@ -16,21 +16,21 @@ jobs:
 
       - uses: cachix/install-nix-action@v31
 
-      - name: Generate Hydra Jobs
+      - name: Generate Jobs
         id: generate-jobs
         run: |
-          hydraJobs=$(nix eval .#hydraJobs --apply builtins.attrNames --json)
-          echo "Collected jobs: $hydraJobs"
-          echo "matrix=$hydraJobs" >> $GITHUB_OUTPUT
+          ci=$(nix eval .#ci --json)
+          echo "Collected jobs: $ci"
+          echo "matrix=$ci" >> $GITHUB_OUTPUT
 
   build:
     needs: discover_jobs
-    runs-on: ubuntu-latest
     if: ${{ needs.discover_jobs.outputs.matrix != '[]' }}
     strategy:
       fail-fast: false
       matrix:
         job: ${{ fromJson(needs.discover_jobs.outputs.matrix) }}
+    runs-on: ubuntu-24.04${{ matrix.job.arch == 'aarch64' && '-arm' || '' }}
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: xc2/free-disk-space@d318b6bfb68decb63d13758b37ef0ead3055f9c8 # perf-3 branch
@@ -55,5 +55,5 @@ jobs:
           name: elxreno
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
 
-      - name: Build NixOS for ${{ matrix.job }}
-        run: nix build -L --no-link .#nixosConfigurations.${{ matrix.job }}.config.system.build.toplevel
+      - name: Build ${{ matrix.job.name }} job
+        run: nix build -L --no-link .#nixosConfigurations.${{ matrix.job.name }}.config.system.build.toplevel
