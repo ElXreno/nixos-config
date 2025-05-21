@@ -14,8 +14,10 @@
     displayManager = {
       sddm = {
         enable = true;
-        wayland.enable = lib.mkIf (config.device == "INFINITY") true;
+        wayland.enable = config.device != "AMD-Desktop";
       };
+
+      defaultSession = lib.mkIf (config.device == "AMD-Desktop") "plasmax11";
     };
     desktopManager.plasma6 = {
       enable = true;
