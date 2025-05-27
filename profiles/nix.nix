@@ -2,6 +2,7 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -23,6 +24,8 @@
 
         trusted-users = [ "elxreno" ] ++ lib.optional config.services.hydra.enable "hydra";
 
+        lazy-trees = true;
+
         # substituters =
         #   lib.mkForce [ "https://cache.nixos.org" "https://elxreno.cachix.org" ];
         # trusted-public-keys =
@@ -40,6 +43,8 @@
     registry.nixpkgs.flake = inputs.nixpkgs;
 
     nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
+
+    package = pkgs.nix-lazy-tree-v2;
 
     gc = lib.mkIf config.deviceSpecific.isServer {
       automatic = true;

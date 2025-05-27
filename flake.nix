@@ -6,6 +6,9 @@
 
     nixos-hardware.url = "github:nixos/nixos-hardware";
 
+    nix.url = "github:NixOS/nix/6fdb170fb3635e2af613a36fa0662d4cfcadff5d"; # for lazy-trees feature
+    nix.inputs.nixpkgs.follows = "nixpkgs";
+
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -42,6 +45,11 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    infuse = {
+      url = "git+https://codeberg.org/amjoseph/infuse.nix.git";
+      flake = false;
+    };
   };
 
   outputs =
@@ -53,6 +61,8 @@
       ...
     }@inputs:
     let
+      infuse = (import "${inputs.infuse.outPath}/default.nix" { inherit (inputs.nixpkgs) lib; }).v1.infuse;
+
       findModules =
         dir:
         builtins.concatLists (
@@ -109,7 +119,7 @@
                 (import (./machines + "/${name}"))
                 { device = name; }
               ];
-              specialArgs = { inherit inputs; };
+              specialArgs = { inherit inputs; inherit infuse; };
             };
         in
         genAttrs hosts mkHost;
