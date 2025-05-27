@@ -125,6 +125,7 @@ in
             kubectl
             # openlens lacks some features like `shell in the pod`
             lens
+            headlamp
 
             # Self-organization
             obsidian

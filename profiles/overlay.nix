@@ -68,6 +68,8 @@
             graalvm-ce
           ];
         };
+
+        headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
       })
     ];
   };
