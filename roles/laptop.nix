@@ -17,6 +17,7 @@
       network
       printing
       restic
+      activitywatch
       syncthing
       vscodium
       direnv
