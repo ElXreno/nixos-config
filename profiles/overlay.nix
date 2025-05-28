@@ -2,7 +2,6 @@
   config,
   inputs,
   lib,
-  infuse,
   ...
 }:
 {
@@ -56,18 +55,6 @@
         hydra = super.hydra.overrideAttrs (old: {
           patches = (old.patches or [ ]) ++ [ ../patches/hydra-github-status.patch ];
         });
-
-        nix-lazy-tree-v2 =
-          infuse
-            (inputs.nix.packages.${super.system}.default.appendPatches [
-              (super.fetchpatch {
-                url = "https://github.com/moni-dz/nix-config/raw/aa10dd1fa85a69230bfcec010e3e61d5c7658711/packages/patches/lazy-trees-v2.patch";
-                sha256 = "sha256-I3uZ87YBdFYCINwJRJROlnsNCTHGeT60N3WV17SEWYg=";
-              })
-            ])
-            {
-              __output.doCheck.__assign = false;
-            };
 
         tlp = super.tlp.override {
           inherit (config.boot.kernelPackages) x86_energy_perf_policy;
