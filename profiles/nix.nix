@@ -6,6 +6,8 @@
   ...
 }:
 {
+  imports = [inputs.determinate.nixosModules.default];
+
   nix = {
     settings =
       {
@@ -44,7 +46,7 @@
 
     nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
 
-    package = pkgs.nix-lazy-tree-v2;
+    # package = pkgs.nix-lazy-tree-v2;
 
     gc = lib.mkIf config.deviceSpecific.isServer {
       automatic = true;
