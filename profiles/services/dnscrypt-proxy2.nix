@@ -6,7 +6,6 @@ _:
     enable = true;
     settings = {
       http3 = true;
-      block_ipv6 = true;
 
       cache_size = 4096;
       cache_min_ttl = 2400;
