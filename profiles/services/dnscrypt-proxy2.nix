@@ -43,6 +43,12 @@ _:
           refresh_delay = 72;
         };
       };
+
+      monitoring_ui = {
+        enabled = true;
+        listen_address = "127.0.0.1:8079";
+        privacy_level = 0;
+      };
     };
   };
 }
