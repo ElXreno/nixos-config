@@ -1,11 +1,11 @@
-_:
-{
+_: {
   networking.networkmanager.dns = "none";
 
   services.dnscrypt-proxy2 = {
     enable = true;
     settings = {
       http3 = true;
+      http3_probe = true;
 
       cache_size = 4096;
       cache_min_ttl = 2400;
