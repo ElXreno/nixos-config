@@ -13,7 +13,7 @@ in
     inputs.self.nixosRoles.iso
   ];
 
-  # isoImage.storeContents = [ inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel ];
+  isoImage.storeContents = [ inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
 
   environment.systemPackages = with pkgs; [
