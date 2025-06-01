@@ -7,7 +7,7 @@ in
     disk = {
       nvme = {
         type = "disk";
-        device = "/dev/disk/by-id/nvme-eui.002538d722a0adfe";
+        device = "/dev/disk/by-id/nvme-eui.e8238fa6bf530001001b448b448521c6";
         content = {
           type = "gpt";
           partitions = {
@@ -23,30 +23,22 @@ in
               };
             };
             root = {
-              size = "200G";
+              size = "150G";
               content = {
                 type = "filesystem";
                 format = "xfs";
                 mountpoint = "/";
               };
             };
-            luks = {
+            home = {
               size = "100%";
               content = {
-                type = "luks";
-                name = "crypted";
-                extraOpenArgs = [ "--allow-discards" ];
-                settings = {
-                  allowDiscards = true;
-                };
-                content = {
-                  type = "btrfs";
-                  extraArgs = [ "-f" ];
-                  subvolumes = {
-                    "/home" = {
-                      mountpoint = "/home";
-                      mountOptions = defaultMountOptions;
-                    };
+                type = "btrfs";
+                extraArgs = [ "-f" ];
+                subvolumes = {
+                  "/home" = {
+                    mountpoint = "/home";
+                    mountOptions = defaultMountOptions;
                   };
                 };
               };
