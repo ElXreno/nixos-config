@@ -14,7 +14,7 @@
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.lanzaboote.nixosModules.lanzaboote
-    inputs.self.diskoConfigurations.infinity
+    inputs.self.diskoConfigurations.kurwa
     inputs.self.nixosRoles.laptop
     # inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde
