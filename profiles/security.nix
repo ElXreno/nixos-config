@@ -51,7 +51,7 @@
         uid = 1000;
       };
 
-      alena = lib.mkIf (config.device == "AMD-Desktop") {
+      alena = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") {
         description = "Alena";
         extraGroups = [
           "wheel"

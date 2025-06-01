@@ -1,11 +1,20 @@
 {
+  config,
   inputs,
   pkgs,
   ...
 }:
-
 let
-  rtl8723b-firmware = pkgs.callPackage ./rtl8723b-firmware.nix { };
+  asus_common = {
+    services = {
+      asusd = {
+        enable = true;
+        enableUserService = true;
+      };
+    };
+
+    services.xserver.videoDrivers = [ "nvidia" ];
+  };
 in
 {
   imports = [
@@ -13,15 +22,43 @@ in
     inputs.self.nixosRoles.iso
   ];
 
-  isoImage.storeContents = [ inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel ];
+  isoImage.storeContents = [
+    inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel
+    inputs.self.nixosConfigurations.KURWA.config.system.build.toplevel
+  ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
+  isoImage.edition = "graphical";
+
+  specialisation = {
+    Prestigio-Visconte-2.configuration = {
+      isoImage.showConfiguration = true;
+      isoImage.configurationName = "Prestigio Visconte 2 edition";
+
+      environment.systemPackages = [
+        pkgs.maliit-keyboard # Virtual Keyboard
+      ];
+
+      hardware.firmware = [ (pkgs.callPackage ./rtl8723b-firmware.nix { }) ];
+    };
+
+    asus-nvidia-open.configuration = {
+      isoImage.showConfiguration = true;
+      isoImage.configurationName = "ASUS with open-source NVidia ${config.hardware.nvidia.package.version} driver";
+
+      hardware.nvidia.open = true;
+    } // asus_common;
+
+    asus-nvidia-proprietary.configuration = {
+      isoImage.showConfiguration = true;
+      isoImage.configurationName = "ASUS with proprietary NVidia ${config.hardware.nvidia.package.version} driver";
+
+      hardware.nvidia.open = false;
+    } // asus_common;
+  };
 
   environment.systemPackages = with pkgs; [
-    maliit-keyboard # Virtual keyboard
     sbctl
   ];
-
-  hardware.firmware = [ rtl8723b-firmware ];
 
   hardware.bluetooth = {
     enable = true;

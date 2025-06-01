@@ -30,6 +30,8 @@ in
       "2d73528c"
     else if (device == "INFINITY") then
       "20a7d5d8"
+    else if (device == "KURWA") then
+      "e7e00058"
     else
       null;
 
