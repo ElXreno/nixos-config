@@ -32,18 +32,9 @@ jobs:
         job: ${{ fromJson(needs.discover_jobs.outputs.matrix) }}
     runs-on: ubuntu-24.04${{ matrix.job.arch == 'aarch64' && '-arm' || '' }}
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: xc2/free-disk-space@d318b6bfb68decb63d13758b37ef0ead3055f9c8 # perf-3 branch
-        with:
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true
-          swap-storage: false
-
       - uses: actions/checkout@v4
+
+      - uses: wimpysworld/nothing-but-nix@v6
 
       - uses: cachix/install-nix-action@v31
         with:
