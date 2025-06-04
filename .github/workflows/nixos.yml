@@ -34,7 +34,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: wimpysworld/nothing-but-nix@v6
+      - uses: wimpysworld/nothing-but-nix@v6c
+        with:
+          nix-permission-edict: true
 
       - uses: cachix/install-nix-action@v31
         with:
