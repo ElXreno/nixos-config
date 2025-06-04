@@ -13,8 +13,6 @@
           "gitkraken"
           "megasync"
           "ngrok"
-          "nvidia-settings"
-          "nvidia-x11"
           "slack"
           "discord"
           "steam-original"
@@ -25,6 +23,16 @@
           "vscode"
           "lens-desktop"
           "obsidian"
+
+          # NVidia with CUDA
+          "nvidia-settings"
+          "nvidia-x11"
+          "cuda_cudart"
+          "cuda_cccl"
+          "libnpp"
+          "libcublas"
+          "libcufft"
+          "cuda_nvcc"
 
           # IDE
           "android-studio-canary"
@@ -38,6 +46,7 @@
           "rust-rover"
         ];
       nvidia.acceptLicense = true;
+      cudaSupport = config.device == "KURWA";
     };
 
     overlays = with inputs; [

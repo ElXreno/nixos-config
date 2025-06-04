@@ -1,6 +1,8 @@
 {
+  config,
   inputs,
   lib,
+  pkgs,
   ...
 }:
 
@@ -16,7 +18,7 @@
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
     inputs.self.nixosRoles.laptop
-    # inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
     # inputs.self.nixosProfiles.harmonia
@@ -40,20 +42,36 @@
     "amdgpu"
     "nvidia"
   ];
-  hardware.nvidia.open = true;
 
-  hardware.nvidia.prime = {
-    amdgpuBusId = "PCI:65:0:0";
-    nvidiaBusId = "PCI:1:0:0";
+  boot.kernelParams = [
+    "nvidia.NVreg_EnableS0ixPowerManagement=1"
+    "nvidia.NVreg_RegistryDwords=PowerMizerEnable=0x1;PerfLevelSrc=0x2222;PowerMizerLevel=0x3;PowerMizerDefault=0x3;PowerMizerDefaultAC=0x3"
+  ];
+  boot.kernelPatches =
+    let
+      asus-armoury = pkgs.fetchurl {
+        url = "https://github.com/CachyOS/kernel-patches/raw/20175136fee6e725efc5940b141d45b4f8cd19d2/6.14/0003-asus.patch";
+        hash = "sha256-pc/DCcC5TxZsy5jluK0PYpWmdNtVJ7jadhwhMybdqiI=";
+      };
+    in
+    [
+      {
+        name = "asus-armoury";
+        patch = asus-armoury;
+        extraStructuredConfig.ASUS_ARMOURY = lib.kernel.module;
+      }
+    ];
+  hardware.nvidia = {
+    package = config.boot.kernelPackages.nvidiaPackages.latest;
+    open = true;
+    prime = {
+      amdgpuBusId = "PCI:66:0:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+    powerManagement.enable = true;
+    powerManagement.finegrained = true;
+    primeBatterySaverSpecialisation = true;
   };
-
-  hardware.nvidia.primeBatterySaverSpecialisation = true;
-
-  # Crashes GPU sometimes, will investigate later
-  # hardware.nvidia.powerManagement.enable = true;
-  hardware.nvidia.powerManagement.finegrained = true;
-
-  hardware.nvidia.dynamicBoost.enable = true;
 
   programs.nix-ld.enable = true;
   programs.steam.enable = true;
