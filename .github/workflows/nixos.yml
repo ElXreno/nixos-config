@@ -37,6 +37,8 @@ jobs:
       - uses: wimpysworld/nothing-but-nix@main
         with:
           nix-permission-edict: true
+          hatchet-protocol: 'rampage'
+          witness-carnage: true
 
       - uses: cachix/install-nix-action@v31
         with:
