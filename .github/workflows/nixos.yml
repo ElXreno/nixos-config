@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: wimpysworld/nothing-but-nix@v6c
+      - uses: wimpysworld/nothing-but-nix@v6
         with:
           nix-permission-edict: true
 
