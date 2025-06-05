@@ -64,6 +64,7 @@
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.latest;
     open = true;
+    dynamicBoost.enable = true;
     prime = {
       amdgpuBusId = "PCI:66:0:0";
       nvidiaBusId = "PCI:1:0:0";
