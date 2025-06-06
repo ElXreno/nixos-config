@@ -45,22 +45,7 @@
 
   boot.kernelParams = [
     "nvidia.NVreg_EnableS0ixPowerManagement=1"
-    "nvidia.NVreg_RegistryDwords=PowerMizerEnable=0x1;PerfLevelSrc=0x2222;PowerMizerLevel=0x3;PowerMizerDefault=0x3;PowerMizerDefaultAC=0x3"
   ];
-  boot.kernelPatches =
-    let
-      asus-armoury = pkgs.fetchurl {
-        url = "https://github.com/CachyOS/kernel-patches/raw/20175136fee6e725efc5940b141d45b4f8cd19d2/6.14/0003-asus.patch";
-        hash = "sha256-pc/DCcC5TxZsy5jluK0PYpWmdNtVJ7jadhwhMybdqiI=";
-      };
-    in
-    [
-      {
-        name = "asus-armoury";
-        patch = asus-armoury;
-        extraStructuredConfig.ASUS_ARMOURY = lib.kernel.module;
-      }
-    ];
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.latest;
     open = true;
