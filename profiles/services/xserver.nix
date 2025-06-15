@@ -9,7 +9,7 @@
       };
     };
 
-    libinput = lib.mkIf config.deviceSpecific.isLaptop {
+    libinput = lib.mkIf config.device.isLaptop {
       enable = true;
       mouse.accelSpeed = "-0.4";
       touchpad = {

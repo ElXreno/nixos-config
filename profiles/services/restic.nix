@@ -1,7 +1,7 @@
-{ config, lib, ... }:
+{ config, ... }:
 
 {
-  services.restic.backups = lib.mkIf (!config.deviceSpecific.isVM) {
+  services.restic.backups = {
     localbackup = {
       user = "elxreno";
       repository = "/home/elxreno/MEGA/Backups/restic-repo";

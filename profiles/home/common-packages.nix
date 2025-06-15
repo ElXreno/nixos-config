@@ -11,7 +11,7 @@ let
   };
 in
 {
-  environment.systemPackages = lib.mkIf (!config.deviceSpecific.isServer) (
+  environment.systemPackages = lib.mkIf (!config.device.isServer) (
     with pkgs;
     [
       gparted
@@ -62,7 +62,7 @@ in
             nixpkgs-review
             statix
           ]
-          (lib.mkIf (!config.deviceSpecific.isServer) [
+          (lib.mkIf (!config.device.isServer) [
             # Messengers
             telegram-desktop
 
@@ -71,7 +71,7 @@ in
             qbittorrent
             thunderbird
           ])
-          (lib.mkIf config.deviceSpecific.isLaptop [
+          (lib.mkIf config.device.isLaptop [
             # CLI Stuff
             deploy-rs
             wgcf
@@ -140,15 +140,15 @@ in
 
     xdg.mimeApps = {
       defaultApplications = {
-        "x-scheme-handler/element" = lib.mkIf (!config.deviceSpecific.isServer) "element-desktop.desktop";
-        "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
-        "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens-desktop.desktop";
-        "x-scheme-handler/slack" = lib.mkIf config.deviceSpecific.isLaptop "slack.desktop";
-        "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
-        "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
+        "x-scheme-handler/element" = lib.mkIf (!config.device.isServer) "element-desktop.desktop";
+        "x-scheme-handler/gitkraken" = lib.mkIf config.device.isLaptop "gitkraken.desktop";
+        "x-scheme-handler/lens" = lib.mkIf config.device.isLaptop "lens-desktop.desktop";
+        "x-scheme-handler/slack" = lib.mkIf config.device.isLaptop "slack.desktop";
+        "video/x-matroska" = lib.mkIf config.device.isLaptop "mpv.desktop";
+        "video/mpeg" = lib.mkIf config.device.isLaptop "mpv.desktop";
       };
 
-      associations.removed = lib.mkIf config.deviceSpecific.isLaptop {
+      associations.removed = lib.mkIf config.device.isLaptop {
         "application/zip" = "org.prismlauncher.PrismLauncher.desktop";
         "application/x-modrinth-modpack+zip" = "org.prismlauncher.PrismLauncher.desktop";
       };

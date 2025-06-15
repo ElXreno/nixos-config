@@ -72,7 +72,7 @@ in
           "rust-rover"
         ];
       nvidia.acceptLicense = true;
-      cudaSupport = config.device == "KURWA";
+      cudaSupport = config.device.hostname == "KURWA";
     };
 
     overlays = with inputs; [

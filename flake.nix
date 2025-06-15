@@ -107,7 +107,7 @@
               system = builtins.readFile (./machines + "/${name}/system");
               modules = [
                 (import (./machines + "/${name}"))
-                { device = name; }
+                { device.hostname = name; }
               ];
               specialArgs = { inherit inputs; };
             };

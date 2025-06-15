@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (config.deviceSpecific) isDesktop isLaptop isServer;
+  inherit (config.device) isDesktop isLaptop isServer;
 in
 {
   boot = {
@@ -15,9 +15,7 @@ in
         timeout = if isServer then 0 else 3;
       }
       // (
-        if config.deviceSpecific.usesCustomBootloader then
-          { }
-        else if config.deviceSpecific.devInfo.legacy then
+        if config.device.isLegacy then
           {
             grub = {
               enable = true;
@@ -50,7 +48,7 @@ in
       ]
       ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
       ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
-      ++ lib.optionals (config.device == "INFINITY") [
+      ++ lib.optionals (config.device.hostname == "INFINITY") [
         # Disabled due 4k external monitor
         # "amdgpu.gttsize=1536"
         # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
@@ -116,7 +114,7 @@ in
     };
 
     # Decrypt LUKS via TPM2 on INFINITY
-    initrd = lib.mkIf (config.device == "INFINITY") {
+    initrd = lib.mkIf (config.device.hostname == "INFINITY") {
       systemd.enable = true;
       availableKernelModules = [ "tpm_crb" ];
     };

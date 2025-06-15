@@ -19,5 +19,5 @@
       syncthing
     ];
 
-  deviceSpecific.isDesktop = true;
+  device.isDesktop = true;
 }

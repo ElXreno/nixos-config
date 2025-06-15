@@ -24,5 +24,5 @@
       mangohud
     ];
 
-  deviceSpecific.isLaptop = true;
+  device.isLaptop = true;
 }

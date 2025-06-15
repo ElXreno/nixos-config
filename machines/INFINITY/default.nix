@@ -23,6 +23,24 @@
     inputs.self.nixosProfiles.virtualisation
   ];
 
+  device = {
+    isLaptop = true;
+
+    laptop = {
+      manufacturer.Honor = true;
+      model = "MagicBook 15 2021";
+    };
+
+    cpu.amd = true;
+
+    gpu.amd = true;
+
+    network.hasWirelessCard = true;
+    network.wirelessCard = "AX200";
+
+    users.alena = true;
+  };
+
   # SecureBoot
   # boot = {
   #   bootspec.enable = true;

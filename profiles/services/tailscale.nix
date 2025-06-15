@@ -7,7 +7,7 @@ in
     enable = true;
     openFirewall = true;
     useRoutingFeatures = "both";
-    extraSetFlags = lib.optionals config.deviceSpecific.isServer [ "--advertise-exit-node" ];
+    extraSetFlags = lib.optionals config.device.isServer [ "--advertise-exit-node" ];
     extraUpFlags = [ "--accept-dns=false" ]; # TODO: Use authKeyFile to get this working evverywhere
     permitCertUid = lib.mkIf config.services.caddy.enable config.services.caddy.user;
   };

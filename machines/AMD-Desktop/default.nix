@@ -13,7 +13,19 @@
     inputs.self.nixosProfiles.zfs
   ];
 
-  deviceSpecific.devInfo.legacy = true;
+  device = {
+    isLegacy = true;
+    isDesktop = true;
+
+    cpu.amd = true;
+
+    gpu = {
+      nvidia = true;
+      nvidiaLegacy = true;
+    };
+
+    users.alena = true;
+  };
 
   services.udev.extraRules = ''
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTRS{queue/rotational}=="1", RUN+="${pkgs.coreutils}/bin/echo 0 > /sys/block/%k/queue/wbt_lat_usec"

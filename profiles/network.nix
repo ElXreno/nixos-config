@@ -1,13 +1,13 @@
 { config, lib, ... }:
 {
   networking = {
-    hostName = config.device;
+    hostName = config.device.hostname;
     networkmanager = {
-      enable = lib.mkIf (!config.deviceSpecific.isServer) true;
+      enable = lib.mkIf (!config.device.isServer) true;
       wifi = {
         powersave = false;
       };
     };
-    useDHCP = lib.mkIf (!config.deviceSpecific.isServer) (lib.mkDefault false);
+    useDHCP = lib.mkIf (!config.device.isServer) (lib.mkDefault false);
   };
 }

@@ -17,7 +17,7 @@
     inputs.impermanence.nixosModules.impermanence
   ];
 
-  deviceSpecific.devInfo.legacy = true;
+  device.isLegacy = true;
 
   boot.kernelPackages = lib.mkForce pkgs.linuxPackages_xanmod;
 

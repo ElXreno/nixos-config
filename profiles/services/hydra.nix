@@ -38,7 +38,7 @@ in
 
   services.hydra = {
     enable = true;
-    hydraURL = "https://${config.device}.angora-ide.ts.net";
+    hydraURL = "https://${config.device.hostname}.angora-ide.ts.net";
     notificationSender = "hydra@localhost";
     useSubstitutes = true;
     extraConfig = ''
@@ -61,7 +61,7 @@ in
 
   services.caddy = {
     enable = true;
-    virtualHosts."${config.device}.angora-ide.ts.net" = {
+    virtualHosts."${config.device.hostname}.angora-ide.ts.net" = {
       extraConfig = ''
         encode zstd gzip
         handle {
@@ -72,7 +72,7 @@ in
   };
 
   systemd.services.hydra-evaluator =
-    lib.mkIf (config.services.hydra.enable && config.device == "flamingo")
+    lib.mkIf (config.services.hydra.enable && config.device.hostname == "flamingo")
       {
         # https://github.com/NixOS/hydra/issues/1186
         environment.GC_DONT_GC = "1";

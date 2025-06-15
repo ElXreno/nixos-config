@@ -8,7 +8,7 @@
   nix = {
     settings =
       {
-        auto-optimise-store = config.deviceSpecific.isServer;
+        auto-optimise-store = config.device.isServer;
 
         builders-use-substitutes = true;
 
@@ -33,7 +33,7 @@
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         ];
       }
-      // lib.optionalAttrs config.deviceSpecific.isServer {
+      // lib.optionalAttrs config.device.isServer {
         min-free = 2 * 1024 * 1024 * 1024; # 2GB
         max-free = 5 * 1024 * 1024 * 1024; # 5GB
       };
@@ -46,7 +46,7 @@
 
     nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
 
-    gc = lib.mkIf config.deviceSpecific.isServer {
+    gc = lib.mkIf config.device.isServer {
       automatic = true;
       dates = "daily";
       options = "-d --delete-older-than 3d";

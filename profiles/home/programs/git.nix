@@ -8,7 +8,7 @@
     };
     signing = {
       key = "C573235A0F2B0FE2";
-      signByDefault = !config.deviceSpecific.isServer;
+      signByDefault = !config.device.isServer;
     };
     userEmail = "elxreno@gmail.com";
     userName = "ElXreno";
@@ -18,7 +18,7 @@
       };
       init = {
         defaultBranch = "main";
-        # templateDir = lib.mkIf (!config.deviceSpecific.isServer) "~/.git-templates";
+        # templateDir = lib.mkIf (!config.device.isServer) "~/.git-templates";
       };
       fetch = {
         prune = true;

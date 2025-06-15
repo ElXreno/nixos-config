@@ -41,7 +41,7 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."${config.device}.angora-ide.ts.net" = {
+    virtualHosts."${config.device.hostname}.angora-ide.ts.net" = {
       extraConfig = ''
         encode zstd gzip 
         handle_path /cache/* {

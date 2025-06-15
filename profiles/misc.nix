@@ -13,7 +13,7 @@
     keyMap = lib.mkDefault "us";
   };
 
-  documentation = lib.mkIf config.deviceSpecific.isServer {
+  documentation = lib.mkIf config.device.isServer {
     enable = false;
     nixos.enable = false;
     man.enable = false;
@@ -35,7 +35,7 @@
             _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
             DOTNET_CLI_TELEMETRY_OPTOUT = 1;
           }
-          (lib.mkIf config.deviceSpecific.isLaptop {
+          (lib.mkIf config.device.isLaptop {
             NIXPKGS = "${config.users.users.elxreno.home}/projects/repos/github.com/NixOS/nixpkgs";
             # go brrr
             GOROOT = "${pkgs.go}/share/go";
