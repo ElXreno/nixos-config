@@ -25,6 +25,10 @@
     inputs.self.nixosProfiles.virtualisation
   ];
 
+  boot.extraModprobeConfig = ''
+    options rtw89_core disable_ps_mode=Y
+  '';
+
   hardware.amdgpu = {
     amdvlk.enable = true;
     initrd.enable = true;
