@@ -80,5 +80,7 @@
   # Required sometimes
   # services.timesyncd.enable = false;
 
+  nix.settings.system-features = [ "gccarch-znver4" ];
+
   system.stateVersion = "25.05";
 }

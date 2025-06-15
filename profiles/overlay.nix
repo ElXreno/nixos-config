@@ -4,6 +4,15 @@
   lib,
   ...
 }:
+let
+  optimizedPkgsZnver4 = import inputs.nixpkgs {
+    localSystem = {
+      inherit (config.nixpkgs) system;
+      gcc.arch = "znver4";
+      gcc.tune = "znver4";
+    };
+  };
+in
 {
   nixpkgs = {
     config = {
@@ -72,9 +81,19 @@
         deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
 
         prismlauncher = super.prismlauncher.override {
-          jdks = with super; [
+          jdks =
+            with super;
+            let
+              myjre8 =
+                if (lib.elem "gccarch-znver4" config.nix.settings.system-features) then
+                  optimizedPkgsZnver4.jre8
+                else
+                  jre8;
+            in
+            [
             jdk17
             graalvm-ce
+              myjre8
           ];
         };
 
