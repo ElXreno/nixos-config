@@ -88,7 +88,6 @@ in
             bottles
             ddnet
             gamemode
-            mangohud
             prismlauncher
             xclicker
 

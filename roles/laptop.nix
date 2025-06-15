@@ -21,6 +21,7 @@
       syncthing
       vscodium
       direnv
+      mangohud
     ];
 
   deviceSpecific.isLaptop = true;
