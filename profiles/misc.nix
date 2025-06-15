@@ -59,6 +59,6 @@
   zramSwap = {
     enable = lib.mkDefault true;
     algorithm = "zstd";
-    memoryPercent = 200;
+    memoryPercent = 300;
   };
 }
