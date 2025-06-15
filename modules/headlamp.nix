@@ -1,12 +1,12 @@
 { pkgs, ... }:
 pkgs.appimageTools.wrapType2 rec {
   pname = "headlamp";
-  version = "0.30.0";
+  version = "0.31.1";
 
   src = builtins.fetchurl {
     url = "https://github.com/kubernetes-sigs/headlamp/releases/download/v${version}/Headlamp-${version}-linux-x64.AppImage";
     name = "${pname}-${version}.AppImage";
-    sha256 = "sha256-S6e0/fUjdJ2Oepv3q+rCT8VnyiwZOm60wOu28a07xHA=";
+    sha256 = "sha256-Ze6c5IImWbPyBivwavy7IRrVD40HLr8UAJb69uMKu/A=";
   };
 
   extraInstallCommands =
