@@ -76,7 +76,6 @@ in
             deploy-rs
             wgcf
             ffmpeg-full
-            gitRepo
             yt-dlp
 
             # Messengers
