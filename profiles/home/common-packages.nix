@@ -133,6 +133,7 @@ in
             remmina
             sony-headphones-client
             chromium
+            hashcat
           ])
         ];
     };
