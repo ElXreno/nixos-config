@@ -118,8 +118,6 @@
 
       legacyPackages.x86_64-linux = (builtins.head (builtins.attrValues self.nixosConfigurations)).pkgs;
 
-      inherit (deploy-rs) defaultApp;
-
       devShells.x86_64-linux =
         with nixpkgs.lib;
         let

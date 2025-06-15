@@ -94,7 +94,7 @@ in
           inherit (config.boot.kernelPackages) x86_energy_perf_policy;
         };
 
-        deploy-rs = inputs.deploy-rs.defaultPackage.${super.system};
+        deploy-rs = inputs.deploy-rs.packages.${super.system}.default;
 
         prismlauncher = super.prismlauncher.override {
           jdks =
