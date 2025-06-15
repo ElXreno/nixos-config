@@ -32,6 +32,7 @@ in
           "vscode"
           "lens-desktop"
           "obsidian"
+          "cursor"
 
           # NVidia with CUDA
           "nvidia-settings"
@@ -107,10 +108,10 @@ in
                   jre8;
             in
             [
-            jdk17
-            graalvm-ce
+              jdk17
+              graalvm-ce
               myjre8
-          ];
+            ];
         };
 
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
