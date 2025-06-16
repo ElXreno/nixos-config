@@ -11,5 +11,5 @@
       direnv
     ];
 
-  device.isServer = true;
+  deviceSpecific.isServer = true;
 }

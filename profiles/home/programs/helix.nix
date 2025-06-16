@@ -22,7 +22,7 @@ let
   };
 in
 {
-  programs.helix = {
+  home-manager.users.elxreno.programs.helix = {
     enable = true;
     package = helix-with-stuff;
     settings = {

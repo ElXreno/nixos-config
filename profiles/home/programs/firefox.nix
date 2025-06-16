@@ -1,11 +1,11 @@
 { pkgs, ... }:
 {
-  programs.firefox = {
+  home-manager.users.elxreno.programs.firefox = {
     enable = true;
     package = pkgs.firefox;
   };
 
-  xdg.mimeApps.defaultApplications = {
+  home-manager.users.elxreno.xdg.mimeApps.defaultApplications = {
     # Don't abuse me by using Thunderbird by default
     "text/html" = "firefox.desktop";
     "x-scheme-handler/http" = "firefox.desktop";

@@ -13,13 +13,21 @@
       boot
       common-packages
       dnscrypt-proxy2
-      command-not-found
+      fish
+      git
+      gpg
+      gpg-agent
+      helix
+      htop
       misc
       network
       nix
+      nix-index
       openssh
       overlay
       security
       sops
+      ssh
+      starship
     ];
 }

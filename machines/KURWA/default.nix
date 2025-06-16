@@ -2,6 +2,7 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }:
 
@@ -23,25 +24,6 @@
     # inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.virtualisation
   ];
-
-  device = {
-    isPrimary = true;
-    isLaptop = true;
-    laptop = {
-      manufacturer.Asus = true;
-      model = "TUF Gaming A15 FA507UV";
-    };
-
-    cpu.amd = true;
-
-    gpu = {
-      nvidia = true;
-      amd = true;
-    };
-
-    network.hasWirelessCard = true;
-    network.wirelessCard = "RTL8852BE";
-  };
 
   boot.extraModprobeConfig = ''
     options rtw89_core disable_ps_mode=Y

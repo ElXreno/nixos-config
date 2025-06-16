@@ -10,11 +10,14 @@
       adb
       ananicy
       flatpak
+      firefox
       hardware
       minidlna
+      mpv
       network
       printing
+      syncthing
     ];
 
-  device.isDesktop = true;
+  deviceSpecific.isDesktop = true;
 }

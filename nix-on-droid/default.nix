@@ -35,7 +35,7 @@ in
     gawk
     which
     glibc
-    inputs.deploy-rs.packages.${currentSystem}.default
+    inputs.deploy-rs.defaultPackage.${currentSystem}
     nix-output-monitor
 
     hcloud

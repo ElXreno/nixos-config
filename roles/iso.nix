@@ -15,7 +15,7 @@
       git
       gpg
       gpg-agent
-      # htop
+      htop
       misc
       network
       nix

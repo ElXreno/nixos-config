@@ -8,15 +8,16 @@
 {
   imports = with inputs.self.nixosProfiles; [
     xserver
+    kdeconnect
   ];
   services = {
     displayManager = {
       sddm = {
         enable = true;
-        wayland.enable = !config.device.gpu.nvidiaLegacy;
+        wayland.enable = config.device != "AMD-Desktop";
       };
 
-      defaultSession = lib.mkIf config.device.gpu.nvidiaLegacy "plasmax11";
+      defaultSession = lib.mkIf (config.device == "AMD-Desktop") "plasmax11";
     };
     desktopManager.plasma6 = {
       enable = true;
@@ -25,7 +26,7 @@
 
   environment.plasma6.excludePackages = with pkgs; [ kdePackages.elisa ];
 
-  services.colord.enable = config.device.hostname == "INFINITY";
+  services.colord.enable = config.device == "INFINITY";
 
   fonts.packages = with pkgs; [ jetbrains-mono ];
 
@@ -58,13 +59,10 @@
   programs.dconf.enable = true;
 
   home-manager.users.elxreno = {
-    home.sessionVariables = lib.mkIf (config.device.hostname == "INFINITY") {
+    home.sessionVariables = lib.mkIf (config.device == "INFINITY") {
       NIXOS_OZONE_WL = 1;
     };
-    imports = [
-      # inputs.self.nixosProfiles.kdeconnect
-      inputs.plasma-manager.homeManagerModules.plasma-manager
-    ];
+    imports = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
     programs.plasma = {
       enable = true;
       configFile = {
@@ -95,7 +93,7 @@
         };
 
         kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" =
-          lib.mkIf (config.device.hostname == "INFINITY")
+          lib.mkIf (config.device == "INFINITY")
             {
               NaturalScroll = true;
               ScrollFactor = 0.5;

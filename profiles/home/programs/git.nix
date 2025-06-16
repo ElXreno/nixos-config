@@ -1,6 +1,6 @@
-{ systemConfig, ... }:
+{ config, ... }:
 {
-  programs.git = {
+  home-manager.users.elxreno.programs.git = {
     enable = true;
     lfs.enable = true;
     aliases = {
@@ -8,7 +8,7 @@
     };
     signing = {
       key = "C573235A0F2B0FE2";
-      signByDefault = !systemConfig.device.isServer;
+      signByDefault = !config.deviceSpecific.isServer;
     };
     userEmail = "elxreno@gmail.com";
     userName = "ElXreno";
@@ -18,7 +18,7 @@
       };
       init = {
         defaultBranch = "main";
-        # templateDir = lib.mkIf (!systemConfig.device.isServer) "~/.git-templates";
+        # templateDir = lib.mkIf (!config.deviceSpecific.isServer) "~/.git-templates";
       };
       fetch = {
         prune = true;

@@ -11,7 +11,7 @@
 
   services.tailscale.permitCertUid = config.services.caddy.user;
 
-  services.caddy = lib.mkIf (config.device.hostname == "INFINITY") {
+  services.caddy = lib.mkIf (config.device == "INFINITY") {
     enable = true;
     virtualHosts."infinity.angora-ide.ts.net:10443" = {
       extraConfig = ''

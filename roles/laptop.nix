@@ -10,12 +10,19 @@
       adb
       ananicy
       hardware
+      firefox
       # ipfs
       # minidlna
+      mpv
       network
       printing
       restic
+      activitywatch
+      syncthing
+      vscodium
+      direnv
+      mangohud
     ];
 
-  device.isLaptop = true;
+  deviceSpecific.isLaptop = true;
 }

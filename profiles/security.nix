@@ -7,7 +7,7 @@
 {
   sops.secrets =
     let
-      prefix = if config.device.isServer then "_server" else "";
+      prefix = if config.deviceSpecific.isServer then "_server" else "";
       mkPasswords = lib.mkMerge (
         lib.lists.forEach
           (builtins.filter (
@@ -30,7 +30,7 @@
   users = {
     mutableUsers = false;
     users = {
-      elxreno = lib.mkIf config.device.users.elxreno.enable {
+      elxreno = {
         description = "ElXreno";
         extraGroups = [
           "wheel"
@@ -51,7 +51,7 @@
         uid = 1000;
       };
 
-      alena = lib.mkIf config.device.users.alena.enable {
+      alena = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") {
         description = "Alena";
         extraGroups = [
           "wheel"

@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  programs.vscode = {
+  home-manager.users.elxreno.programs.vscode = {
     enable = true;
     # package = pkgs.vscodium;
     package = pkgs.vscode;
@@ -71,8 +71,9 @@
     };
     mutableExtensionsDir = false;
   };
+  services.gnome.gnome-keyring.enable = true;
 
-  xdg.mimeApps.defaultApplications = {
+  home-manager.users.elxreno.xdg.mimeApps.defaultApplications = {
     # Don't abuse me by using LibreOffice or Thunderbird by default
     "text/plain" = "code.desktop";
     "text/xml" = "code.desktop";
