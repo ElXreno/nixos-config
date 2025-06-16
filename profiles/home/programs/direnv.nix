@@ -6,8 +6,5 @@
         enable = true;
       };
     };
-    bash = {
-      enable = true;
-    };
   };
 }
