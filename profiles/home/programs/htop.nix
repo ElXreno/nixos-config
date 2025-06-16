@@ -1,10 +1,10 @@
-{ config, lib, ... }:
+{ systemConfig, lib, ... }:
 let
-  supportedFilesystems = builtins.attrNames config.boot.supportedFilesystems;
+  supportedFilesystems = builtins.attrNames systemConfig.boot.supportedFilesystems;
   zfsEnabled = builtins.elem "zfs" supportedFilesystems;
 in
 {
-  home-manager.users.elxreno.programs.htop = {
+  programs.htop = {
     enable = true;
     settings = lib.mkMerge [
       {
@@ -59,7 +59,7 @@ in
         # screen_tabs = 1;
         # "screen:I/O" = [ "PID" "USER" "IO_PRIORITY" "IO_RATE" "IO_READ_RATE" "IO_WRITE_RATE" "COMM" ];
       }
-      (lib.mkIf (!config.device.isServer) {
+      (lib.mkIf (!systemConfig.device.isServer) {
         show_cpu_frequency = true;
         show_cpu_temperature = true;
       })

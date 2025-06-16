@@ -1,5 +1,6 @@
+{ ... }:
 {
-  home-manager.users.elxreno.programs.starship = {
+  programs.starship = {
     enable = true;
   };
 }

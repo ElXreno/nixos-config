@@ -24,7 +24,7 @@
       nvidiaLegacy = true;
     };
 
-    users.alena = true;
+    users.alena.enable = true;
   };
 
   services.udev.extraRules = ''

@@ -1,11 +1,13 @@
 {
-  home-manager.users.elxreno.programs = {
+  programs = {
     direnv = {
       enable = true;
       nix-direnv = {
         enable = true;
       };
     };
-    bash.enable = true;
+    bash = {
+      enable = true;
+    };
   };
 }

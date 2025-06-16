@@ -21,6 +21,8 @@
     doc.enable = false;
   };
 
+  programs.fish.enable = true;
+
   home-manager = {
     backupFileExtension = ".bak";
     users.elxreno = {

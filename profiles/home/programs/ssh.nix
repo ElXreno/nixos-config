@@ -1,7 +1,8 @@
+{ ... }:
 {
-  home-manager.users.elxreno.programs.ssh = {
+  programs.ssh = {
     enable = true;
-    # compression = true;
+    compression = true;
     serverAliveInterval = 10;
     matchBlocks = {
       "desktop" = {

@@ -1,5 +1,5 @@
 {
-  home-manager.users.elxreno.programs.mpv = {
+  programs.mpv = {
     enable = true;
     config = {
       ytdl-format = "bestvideo[height<=1080]+(bestaudio[acodec=opus]/bestaudio)/best[height<=1080]";

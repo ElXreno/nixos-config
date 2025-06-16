@@ -1,7 +1,5 @@
-_:
 {
-  programs.fish.enable = true;
-  home-manager.users.elxreno.programs.fish = {
+  programs.fish = {
     enable = true;
     shellAliases = {
       nrs = "nixos-rebuild switch -v --use-remote-sudo";

@@ -30,7 +30,7 @@
   users = {
     mutableUsers = false;
     users = {
-      elxreno = lib.mkIf config.device.users.elxreno {
+      elxreno = lib.mkIf config.device.users.elxreno.enable {
         description = "ElXreno";
         extraGroups = [
           "wheel"
@@ -51,7 +51,7 @@
         uid = 1000;
       };
 
-      alena = lib.mkIf config.device.users.alena {
+      alena = lib.mkIf config.device.users.alena.enable {
         description = "Alena";
         extraGroups = [
           "wheel"

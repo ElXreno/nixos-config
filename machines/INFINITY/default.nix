@@ -38,7 +38,7 @@
     network.hasWirelessCard = true;
     network.wirelessCard = "AX200";
 
-    users.alena = true;
+    users.alena.enable = true;
   };
 
   # SecureBoot

@@ -8,7 +8,6 @@
 {
   imports = with inputs.self.nixosProfiles; [
     xserver
-    kdeconnect
   ];
   services = {
     displayManager = {
@@ -62,7 +61,10 @@
     home.sessionVariables = lib.mkIf (config.device.hostname == "INFINITY") {
       NIXOS_OZONE_WL = 1;
     };
-    imports = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
+    imports = [
+      # inputs.self.nixosProfiles.kdeconnect
+      inputs.plasma-manager.homeManagerModules.plasma-manager
+    ];
     programs.plasma = {
       enable = true;
       configFile = {
