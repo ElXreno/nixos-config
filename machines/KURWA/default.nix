@@ -9,6 +9,7 @@
 {
   imports = [
     ./hardware-configuration.nix
+    ./wireguard.nix
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
