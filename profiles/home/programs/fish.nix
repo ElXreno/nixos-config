@@ -4,9 +4,9 @@ _:
   home-manager.users.elxreno.programs.fish = {
     enable = true;
     shellAliases = {
-      nrs = "nixos-rebuild switch -v --use-remote-sudo";
-      nrb = "nixos-rebuild boot -v --use-remote-sudo";
-      nrt = "nixos-rebuild test -v --use-remote-sudo";
+      nrs = "nixos-rebuild switch -v --sudo";
+      nrb = "nixos-rebuild boot -v --sudo";
+      nrt = "nixos-rebuild test -v --sudo";
       ssr = "sudo systemctl restart";
       sss = "sudo systemctl status";
       sst = "sudo systemctl stop";
