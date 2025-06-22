@@ -104,6 +104,7 @@ in
             postman # just for websockets
             #jetbrains.pycharm-professional
             #jetbrains.clion
+            jetbrains.rust-rover
 
             # Office and language packs
             libreoffice
