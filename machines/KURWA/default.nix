@@ -52,7 +52,7 @@
     "nvidia.NVreg_EnableS0ixPowerManagement=1"
   ];
   hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.latest;
+    package = config.boot.kernelPackages.nvidiaPackages.production;
     open = true;
     dynamicBoost.enable = lib.mkDefault true;
     prime = {
