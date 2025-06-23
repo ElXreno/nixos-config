@@ -26,10 +26,12 @@
         substituters = lib.mkForce [
           "https://cache.nixos.org"
           "https://elxreno.cachix.org"
+          "https://elxreno-rust.cachix.org"
           "https://nix-community.cachix.org"
         ];
         trusted-public-keys = [
           "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ="
+          "elxreno-rust.cachix.org-1:cfUElkBCai6A6hqku/tOCrYt9qF+vQtAV8+8MF16gf8="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         ];
       }
