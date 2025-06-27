@@ -50,6 +50,7 @@
 
   boot.kernelParams = [
     "nvidia.NVreg_EnableS0ixPowerManagement=1"
+    "nvidia.NVreg_DynamicPowerManagement=0x01"
   ];
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.production;
@@ -60,7 +61,6 @@
       nvidiaBusId = "PCI:1:0:0";
     };
     powerManagement.enable = true;
-    powerManagement.finegrained = true;
     primeBatterySaverSpecialisation = true;
   };
 
