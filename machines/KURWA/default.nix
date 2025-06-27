@@ -13,7 +13,8 @@
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
-    inputs.nixos-hardware.nixosModules.common-gpu-nvidia
+    inputs.nixos-hardware.nixosModules.common-gpu-nvidia-ada-lovelace
+    inputs.nixos-hardware.nixosModules.common-gpu-nvidia-prime
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.lanzaboote.nixosModules.lanzaboote
@@ -54,7 +55,6 @@
   ];
   hardware.nvidia = {
     package = config.boot.kernelPackages.nvidiaPackages.production;
-    open = true;
     dynamicBoost.enable = lib.mkDefault true;
     prime = {
       amdgpuBusId = "PCI:66:0:0";
