@@ -17,6 +17,7 @@
     inputs.nixos-hardware.nixosModules.common-gpu-nvidia-prime
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
+    inputs.nixos-hardware.nixosModules.asus-battery
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
     inputs.self.nixosRoles.laptop
@@ -53,19 +54,26 @@
     "nvidia.NVreg_EnableS0ixPowerManagement=1"
     "nvidia.NVreg_DynamicPowerManagement=0x01"
   ];
-  hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.production;
-    dynamicBoost.enable = lib.mkDefault true;
-    prime = {
-      amdgpuBusId = "PCI:66:0:0";
-      nvidiaBusId = "PCI:1:0:0";
+  hardware = {
+    asus.battery.chargeUpto = lib.mkDefault 70;
+
+    nvidia = {
+      package = config.boot.kernelPackages.nvidiaPackages.production;
+      dynamicBoost.enable = lib.mkDefault true;
+      prime = {
+        amdgpuBusId = "PCI:66:0:0";
+        nvidiaBusId = "PCI:1:0:0";
+      };
+      powerManagement.enable = true;
+      primeBatterySaverSpecialisation = true;
     };
-    powerManagement.enable = true;
-    primeBatterySaverSpecialisation = true;
   };
 
   specialisation.battery-saver.configuration = {
-    hardware.nvidia.dynamicBoost.enable = false;
+    hardware = {
+      asus.battery.chargeUpto = 95;
+      nvidia.dynamicBoost.enable = false;
+    };
   };
 
   programs.nix-ld.enable = true;
