@@ -27,6 +27,7 @@ _: {
                 mountOptions = [
                   "defaults"
                   "pquota"
+                  "discard"
                 ];
               };
             };
