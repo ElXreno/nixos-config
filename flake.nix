@@ -125,7 +125,13 @@
             pkgs
             config
             ;
-          mkShells = mapAttrs (_name: value: import value { inherit pkgs config; });
+          mkShells = mapAttrs (
+            _name: value:
+            import value {
+              inherit inputs pkgs config;
+              system = "x86_64-linux";
+            }
+          );
         in
         mkShells (builtins.listToAttrs (findModules ./devshell));
 

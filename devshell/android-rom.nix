@@ -15,14 +15,24 @@
 #   https://nixos.wiki/wiki/Android#Building_Android_on_NixOS
 
 {
+  inputs,
   pkgs,
+  system,
   ...
 }:
 let
+  optimizedPkgsZnver4 = import inputs.nixpkgs {
+    localSystem = {
+      inherit system;
+      gcc.arch = "znver4";
+      gcc.tune = "znver4";
+    };
+  };
+
   fhs = pkgs.buildFHSEnv {
     name = "android-env";
     targetPkgs =
-      pkgs: with pkgs; [
+      pkgs: with optimizedPkgsZnver4; [
         android-tools
         libxcrypt-legacy # libcrypt.so.1
         freetype # libfreetype.so.6
@@ -44,7 +54,7 @@ let
         gnupg
         gperf
         imagemagick
-        jdk11
+        jdk
         elfutils
         libxml2
         libxslt
@@ -91,6 +101,7 @@ let
       # Building involves a phase of unzipping large files into a temporary directory
       export TMPDIR=/tmp
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.ncurses5}/lib
+      export _JAVA_OPTIONS="-XX:UseAVX=3 -XX:+UseG1GC -XX:+TieredCompilation -XX:CICompilerCount=16 -XX:+UseStringDeduplication"
 
       cd /mnt/android
     '';

@@ -61,6 +61,7 @@ in
             nixfmt-rfc-style
             nixpkgs-review
             statix
+            nix-output-monitor
           ]
           (lib.mkIf (!config.deviceSpecific.isServer) [
             # Messengers
@@ -136,6 +137,7 @@ in
             chromium
             hashcat
             esp2elf
+            nvidia_oc
           ])
         ];
     };

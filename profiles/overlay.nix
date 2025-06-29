@@ -38,6 +38,7 @@ in
           # NVidia with CUDA
           "nvidia-settings"
           "nvidia-x11"
+          "nvidia-persistenced"
           "cuda_cudart"
           "cuda_cccl"
           "libnpp"

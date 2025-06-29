@@ -30,11 +30,10 @@
 
   boot.extraModprobeConfig = ''
     options rtw89_core disable_ps_mode=Y
+    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01
   '';
 
   hardware.amdgpu = {
-    amdvlk.enable = true;
-    initrd.enable = true;
     opencl.enable = true;
   };
 
@@ -45,15 +44,8 @@
     };
   };
 
-  services.xserver.videoDrivers = [
-    "amdgpu"
-    "nvidia"
-  ];
+  services.xserver.videoDrivers = [ "nvidia" ];
 
-  boot.kernelParams = [
-    "nvidia.NVreg_EnableS0ixPowerManagement=1"
-    "nvidia.NVreg_DynamicPowerManagement=0x01"
-  ];
   hardware = {
     asus.battery.chargeUpto = lib.mkDefault 70;
 
@@ -65,7 +57,26 @@
         nvidiaBusId = "PCI:1:0:0";
       };
       powerManagement.enable = true;
+      nvidiaPersistenced = true;
       primeBatterySaverSpecialisation = true;
+    };
+  };
+
+  systemd.services = {
+    # nvidia_oc = lib.mkIf (config.specialisation != { }) {
+    #   description = "NVIDIA Overclocking Service";
+    #   after = [ "graphical.target" ];
+    #   wantedBy = [ "graphical.target" ];
+
+    #   serviceConfig = {
+    #     ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 120 --min-clock 210 --max-clock 2655 --mem-offset 1150";
+    #     User = "root";
+    #     Restart = "on-failure";
+    #   };
+    # };
+
+    nvidia-powerd.serviceConfig = {
+      Restart = "always";
     };
   };
 
