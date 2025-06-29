@@ -33,6 +33,7 @@ in
           "lens-desktop"
           "obsidian"
           "cursor"
+          "esp2elf"
 
           # NVidia with CUDA
           "nvidia-settings"
@@ -115,6 +116,8 @@ in
         };
 
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
+
+        esp2elf = super.callPackage ../modules/esp2elf.nix { };
       })
     ];
   };

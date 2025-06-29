@@ -135,6 +135,7 @@ in
             sony-headphones-client
             chromium
             hashcat
+            esp2elf
           ])
         ];
     };
