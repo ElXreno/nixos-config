@@ -20,6 +20,7 @@
     inputs.nixos-hardware.nixosModules.asus-battery
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
+    inputs.self.diskoConfigurations.kurwa-trashbin
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.tailscale
     inputs.self.nixosProfiles.kde

@@ -1,4 +1,8 @@
-_: {
+_:
+let
+  defaultMountOptions = [ "compress-force=zstd" ];
+in
+{
   disko.devices = {
     disk = {
       nvme = {
@@ -21,38 +25,20 @@ _: {
             root = {
               size = "100%";
               content = {
-                type = "filesystem";
-                format = "xfs";
-                mountpoint = "/";
-                mountOptions = [
-                  "defaults"
-                  "pquota"
-                  "discard"
-                ];
-              };
-            };
-          };
-        };
-      };
-      nvme_trashbin = {
-        type = "disk";
-        device = "/dev/disk/by-id/nvme-eui.0025384641baab15";
-        content = {
-          type = "gpt";
-          partitions = {
-            nvme-trashbin = {
-              size = "100%";
-              content = {
                 type = "btrfs";
                 extraArgs = [ "-f" ];
                 subvolumes = {
-                  "/trashbin" = {
-                    mountpoint = "/mnt/trashbin";
-                    mountOptions = [ "compress-force=zstd" ];
+                  "/root" = {
+                    mountpoint = "/";
+                    mountOptions = defaultMountOptions;
                   };
-                  "/android" = {
-                    mountpoint = "/mnt/android";
-                    mountOptions = [ "compress-force=zstd" ];
+                  "/nix" = {
+                    mountpoint = "/nix";
+                    mountOptions = defaultMountOptions;
+                  };
+                  "/home" = {
+                    mountpoint = "/home";
+                    mountOptions = defaultMountOptions;
                   };
                 };
               };
