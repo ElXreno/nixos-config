@@ -51,7 +51,7 @@
     asus.battery.chargeUpto = lib.mkDefault 70;
 
     nvidia = {
-      package = config.boot.kernelPackages.nvidiaPackages.production;
+      package = config.boot.kernelPackages.nvidiaPackages.latest;
       dynamicBoost.enable = lib.mkDefault true;
       prime = {
         amdgpuBusId = "PCI:66:0:0";
@@ -64,17 +64,17 @@
   };
 
   systemd.services = {
-    # nvidia_oc = lib.mkIf (config.specialisation != { }) {
-    #   description = "NVIDIA Overclocking Service";
-    #   after = [ "graphical.target" ];
-    #   wantedBy = [ "graphical.target" ];
+    nvidia_oc = lib.mkIf (config.specialisation != { }) {
+      description = "NVIDIA Overclocking Service";
+      after = [ "graphical.target" ];
+      wantedBy = [ "graphical.target" ];
 
-    #   serviceConfig = {
-    #     ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 120 --min-clock 210 --max-clock 2655 --mem-offset 1150";
-    #     User = "root";
-    #     Restart = "on-failure";
-    #   };
-    # };
+      serviceConfig = {
+        ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 120 --min-clock 210 --max-clock 2655 --mem-offset 1150";
+        User = "root";
+        Restart = "on-failure";
+      };
+    };
 
     nvidia-powerd.serviceConfig = {
       Restart = "always";
