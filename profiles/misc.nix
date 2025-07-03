@@ -46,15 +46,9 @@
     };
   };
 
-  # services.irqbalance.enable = true;
+  services.irqbalance.enable = true;
 
-  virtualisation = {
-    podman = {
-      enable = true;
-      # dockerCompat = true;
-    };
-    # docker.enable = true;
-  };
+  virtualisation.podman.enable = true;
 
   zramSwap = {
     enable = lib.mkDefault true;

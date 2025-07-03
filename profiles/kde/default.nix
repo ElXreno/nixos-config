@@ -129,34 +129,6 @@
           NightColor.Active = true;
           Xwayland.Scale = 1;
         };
-
-        powermanagementprofilesrc = {
-          "AC.DPMSControl".idleTime = 780; # 13 min
-          "AC.DimDisplay".idleTime = 480000; # 8 min
-          "AC.HandleButtonEvents" = {
-            lidAction = 32;
-            triggerLidActionWhenExternalMonitorPresent = false;
-          };
-          "AC.SuspendSession" = {
-            idleTime = null;
-            suspendThenHibernate = null;
-            suspendType = null;
-          };
-          "Battery.DPMSControl".idleTime = 600; # 10 min
-          "Battery.DimDisplay".idleTime = 300000; # 5 min
-          "Battery.HandleButtonEvents".triggerLidActionWhenExternalMonitorPresent = false;
-          "Battery.SuspendSession" = {
-            idleTime = null;
-            suspendThenHibernate = null;
-            suspendType = null;
-          };
-          "LowBattery.SuspendSession".suspendThenHibernate = false;
-        };
-
-        # Applets
-        "plasma-org.kde.plasma.desktop-appletsrc" = {
-          "Containments.2.Applets.18.Configuration.Appearance".use24hFormat = 2; # TODO: Maybe I should change regional settings instead?
-        };
       };
     };
   };

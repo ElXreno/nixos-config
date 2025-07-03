@@ -11,8 +11,6 @@
       ananicy
       hardware
       firefox
-      # ipfs
-      # minidlna
       mpv
       network
       printing

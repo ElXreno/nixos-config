@@ -31,9 +31,6 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    # impermanence
-    impermanence.url = "github:nix-community/impermanence";
-
     # deploy-rs stuff
     deploy-rs.url = "github:serokell/deploy-rs";
     deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
@@ -145,13 +142,6 @@
               path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.AMD-Desktop;
             };
             fastConnection = true;
-          };
-          flamingo = {
-            hostname = "100.81.15.62";
-            profiles.system = {
-              path = deploy-rs.lib.aarch64-linux.activate.nixos self.nixosConfigurations.flamingo;
-            };
-            remoteBuild = true;
           };
         };
       };

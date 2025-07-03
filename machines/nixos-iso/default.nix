@@ -22,10 +22,10 @@ in
     inputs.self.nixosRoles.iso
   ];
 
-  isoImage.storeContents = [
-    inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel
-    inputs.self.nixosConfigurations.KURWA.config.system.build.toplevel
-  ];
+  # isoImage.storeContents = [
+  #   inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel
+  #   inputs.self.nixosConfigurations.KURWA.config.system.build.toplevel
+  # ];
   isoImage.squashfsCompression = "zstd -Xcompression-level 4";
   isoImage.edition = "graphical";
 

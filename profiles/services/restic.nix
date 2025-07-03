@@ -31,7 +31,6 @@
         "--exclude=/home/elxreno/.compose-cache"
         "--exclude=/home/elxreno/.config/**/*Cache*"
         "--exclude=/home/elxreno/.config/syncthing/index*"
-        "--exclude=/home/elxreno/.flatpak-builder"
         "--exclude=/home/elxreno/.gitkraken"
         "--exclude=/home/elxreno/.go"
         "--exclude=/home/elxreno/.gradle"

@@ -99,10 +99,10 @@ in
             # pgmodeler
 
             # Dev
-            code-cursor
+            # code-cursor
             gitkraken
             # bruno # fuck postman: https://github.com/postmanlabs/postman-app-support/issues/12383
-            postman # just for websockets
+            # postman # just for websockets
             #jetbrains.pycharm-professional
             #jetbrains.clion
             jetbrains.rust-rover

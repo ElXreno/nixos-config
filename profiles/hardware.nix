@@ -5,12 +5,6 @@
   ...
 }:
 {
-  boot.extraModprobeConfig = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") ''
-    options iwlmvm power_scheme=1
-    options iwlwifi 11n_disable=8
-  '';
-
-  # sound.enable = true;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -26,8 +20,9 @@
 
   hardware = {
     cpu = {
-      amd.updateMicrocode = lib.mkIf (config.device == "AMD-Desktop" || config.device == "INFINITY") true;
-      intel.updateMicrocode = lib.mkIf (config.device == "Fujitsu-AH531-Laptop") true;
+      amd.updateMicrocode = lib.mkIf (
+        config.device == "AMD-Desktop" || config.device == "INFINITY" || config.device == "KURWA"
+      ) true;
     };
 
     graphics = {
@@ -50,11 +45,6 @@
     };
   };
 
-  # Speed up boot
-  # https://www.freedesktop.org/software/systemd/man/systemd-udev-settle.service.html
-  systemd.services.systemd-udev-settle.enable = false;
-  systemd.services.NetworkManager-wait-online.enable = !config.deviceSpecific.isLaptop;
-
-  # Disable suspend on lid switch on laptop
-  services.logind.lidSwitch = lib.mkIf config.deviceSpecific.isLaptop "ignore";
+  # Disable suspend on lid switch
+  services.logind.lidSwitch = "ignore";
 }

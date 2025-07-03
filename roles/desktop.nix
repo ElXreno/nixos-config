@@ -9,10 +9,8 @@
       # Profiles
       adb
       ananicy
-      flatpak
       firefox
       hardware
-      minidlna
       mpv
       network
       printing
