@@ -16,79 +16,13 @@ in
 {
   nixpkgs = {
     config = {
-      allowUnfreePredicate =
-        pkg:
-        builtins.elem (lib.getName pkg) [
-          "gitkraken"
-          "megasync"
-          "ngrok"
-          "slack"
-          "discord"
-          "steam-original"
-          "steam-run"
-          "steam-unwrapped"
-          "steam"
-          "unrar"
-          "vscode"
-          "lens-desktop"
-          "obsidian"
-          "cursor"
-          "esp2elf"
-
-          # NVidia with CUDA
-          "nvidia-settings"
-          "nvidia-x11"
-          "nvidia-persistenced"
-          "cuda_cudart"
-          "cuda_cccl"
-          "libnpp"
-          "libcublas"
-          "libcufft"
-          "cuda_nvcc"
-          "cuda-merged"
-          "cuda_cuobjdump"
-          "cuda_gdb"
-          "cuda_nvdisasm"
-          "cuda_nvprune"
-          "cuda_cupti"
-          "cuda_cuxxfilt"
-          "cuda_nvml_dev"
-          "cuda_nvrtc"
-          "cuda_nvtx"
-          "cuda_profiler_api"
-          "cuda_sanitizer_api"
-          "libcurand"
-          "libcusolver"
-          "libnvjitlink"
-          "libcusparse"
-
-          # IDE
-          "android-studio-canary"
-          "clion"
-          "idea-ultimate"
-          "lens"
-          "phpstorm"
-          "postman"
-          "pycharm-professional"
-          "rider"
-          "rust-rover"
-        ];
+      allowUnfree = true;
       nvidia.acceptLicense = true;
       cudaSupport = config.device == "KURWA";
     };
 
     overlays = with inputs; [
       (_self: super: {
-        bluez5-experimental = super.bluez5-experimental.overrideAttrs (old: {
-          patches =
-            (old.patches or [ ]) == [
-              (super.fetchpatch {
-                url = "https://patchwork.kernel.org/project/bluetooth/patch/20210514211304.17237-1-luiz.dentz@gmail.com/raw/";
-                sha256 = "sha256-SnERSCMo7KPgZV4yC1eYwDBg+iPxoB0Ve7l2VX97KrA=";
-              })
-            ];
-        });
-
         deploy-rs = inputs.deploy-rs.packages.${super.system}.default;
 
         prismlauncher = super.prismlauncher.override {

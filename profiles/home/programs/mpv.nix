@@ -4,6 +4,7 @@
     config = {
       ytdl-format = "bestvideo[height<=1080]+(bestaudio[acodec=opus]/bestaudio)/best[height<=1080]";
       hwdec = "auto";
+      hwdec-codecs = "all";
       vo = "gpu";
       save-position-on-quit = "yes";
       hr-seek = "yes";

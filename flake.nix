@@ -50,33 +50,8 @@
       ...
     }@inputs:
     let
-      lib' = import ./lib { inherit (nixpkgs) lib; };
-
-      findModules =
-        dir:
-        builtins.concatLists (
-          builtins.attrValues (
-            builtins.mapAttrs (
-              name: type:
-              if type == "regular" then
-                [
-                  {
-                    name = builtins.elemAt (builtins.match "(.*)\\.nix" name) 0;
-                    value = dir + "/${name}";
-                  }
-                ]
-              else if (builtins.readDir (dir + "/${name}")) ? "default.nix" then
-                [
-                  {
-                    inherit name;
-                    value = dir + "/${name}";
-                  }
-                ]
-              else
-                findModules (dir + "/${name}")
-            ) (builtins.readDir dir)
-          )
-        );
+      lib = nixpkgs.lib;
+      lib' = import ./lib { inherit lib; };
     in
     {
       nixosModules = lib'.rakeLeaves ./modules;
@@ -97,7 +72,7 @@
       };
 
       nixosConfigurations =
-        with nixpkgs.lib;
+        with lib;
         let
           hosts = builtins.attrNames (builtins.readDir ./machines);
           mkHost =
@@ -113,10 +88,10 @@
         in
         genAttrs hosts mkHost;
 
-      diskoConfigurations = builtins.listToAttrs (findModules ./disko);
+      diskoConfigurations = lib'.rakeLeaves ./disko;
 
       devShells.x86_64-linux =
-        with nixpkgs.lib;
+        with lib;
         let
           pkgs = import nixpkgs {
             system = "x86_64-linux";
@@ -129,7 +104,7 @@
             }
           );
         in
-        mkShells (builtins.listToAttrs (findModules ./devshell));
+        mkShells (lib'.rakeLeaves ./devshell);
 
       deploy = {
         user = "root";
@@ -146,14 +121,14 @@
       };
 
       hydraJobs =
-        with nixpkgs.lib;
+        with lib;
         (mapAttrs (_: val: val.config.system.build.toplevel) self.nixosConfigurations)
         // (concatMapAttrs (name: val: {
           "nix-on-droid-${name}" = val.activationPackage;
         }) self.nixOnDroidConfigurations);
 
       ci =
-        with nixpkgs.lib;
+        with lib;
         mapAttrsToList (name: value: {
           inherit name;
           arch = strings.removeSuffix "-linux" value.system;

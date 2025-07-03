@@ -63,7 +63,7 @@ in
   hardware.bluetooth = {
     enable = true;
     # For battery provider, bluezFull is just an alias for bluez
-    package = pkgs.bluez5-experimental;
+    package = pkgs.bluez-experimental;
     settings.General.Experimental = true;
   };
 }

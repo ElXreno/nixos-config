@@ -13,8 +13,7 @@
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
-    inputs.nixos-hardware.nixosModules.common-gpu-nvidia-ada-lovelace
-    inputs.nixos-hardware.nixosModules.common-gpu-nvidia-prime
+    inputs.nixos-hardware.nixosModules.common-gpu-nvidia
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.nixos-hardware.nixosModules.asus-battery
@@ -45,12 +44,13 @@
     };
   };
 
-  services.xserver.videoDrivers = [ "nvidia" ];
+  services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
 
   hardware = {
     asus.battery.chargeUpto = lib.mkDefault 70;
 
     nvidia = {
+      open = true;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
       dynamicBoost.enable = lib.mkDefault true;
       prime = {

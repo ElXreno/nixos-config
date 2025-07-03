@@ -18,7 +18,6 @@
       };
       init = {
         defaultBranch = "main";
-        # templateDir = lib.mkIf (!config.deviceSpecific.isServer) "~/.git-templates";
       };
       fetch = {
         prune = true;
