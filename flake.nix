@@ -115,19 +115,16 @@
 
       diskoConfigurations = builtins.listToAttrs (findModules ./disko);
 
-      legacyPackages.x86_64-linux = (builtins.head (builtins.attrValues self.nixosConfigurations)).pkgs;
-
       devShells.x86_64-linux =
         with nixpkgs.lib;
         let
-          inherit ((builtins.head (builtins.attrValues self.nixosConfigurations)))
-            pkgs
-            config
-            ;
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+          };
           mkShells = mapAttrs (
             _name: value:
             import value {
-              inherit inputs pkgs config;
+              inherit inputs pkgs;
               system = "x86_64-linux";
             }
           );
