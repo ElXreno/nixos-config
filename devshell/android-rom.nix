@@ -32,7 +32,7 @@ let
   fhs = pkgs.buildFHSEnv {
     name = "android-env";
     targetPkgs =
-      pkgs: with optimizedPkgsZnver4; [
+      _pkgs: with optimizedPkgsZnver4; [
         android-tools
         libxcrypt-legacy # libcrypt.so.1
         freetype # libfreetype.so.6
