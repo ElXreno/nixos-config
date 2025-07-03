@@ -11,23 +11,25 @@
 
       # Profiles
       boot
-      common-packages
-      dnscrypt-proxy2
-      fish
-      git
-      gpg
-      gpg-agent
-      helix
-      htop
       misc
       network
       nix
-      nix-index
-      openssh
       overlay
       security
       sops
-      ssh
-      starship
+
+      home.common-packages
+      home.programs.fish
+      home.programs.git
+      home.programs.gpg
+      home.programs.helix
+      home.programs.htop
+      home.programs.nix-index
+      home.programs.ssh
+      home.programs.starship
+      home.services.gpg-agent
+
+      services.dnscrypt-proxy2
+      services.openssh
     ];
 }

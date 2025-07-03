@@ -10,20 +10,22 @@
       devices
 
       # Profiles
-      dnscrypt-proxy2
-      fish
-      git
-      gpg
-      gpg-agent
-      htop
       misc
       network
       nix
-      openssh
       overlay
       security
       sops
-      ssh
-      starship
+
+      home.programs.fish
+      home.programs.git
+      home.programs.gpg
+      home.programs.htop
+      home.programs.ssh
+      home.programs.starship
+      home.services.gpg-agent
+
+      services.dnscrypt-proxy2
+      services.openssh
     ];
 }

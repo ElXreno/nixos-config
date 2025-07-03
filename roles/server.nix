@@ -8,7 +8,7 @@
 
       # Profiles
       # fail2ban
-      direnv
+      home.programs.direnv
     ];
 
   deviceSpecific.isServer = true;

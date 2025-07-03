@@ -7,8 +7,8 @@
 }:
 {
   imports = with inputs.self.nixosProfiles; [
-    xserver
-    kdeconnect
+    services.xserver
+    home.services.kdeconnect
   ];
   services = {
     displayManager = {

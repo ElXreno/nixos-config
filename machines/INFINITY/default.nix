@@ -17,7 +17,7 @@
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.infinity
     inputs.self.nixosRoles.laptop
-    inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.virtualisation

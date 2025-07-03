@@ -8,7 +8,7 @@
   imports = [
     ./hardware-configuration.nix
     inputs.self.nixosRoles.desktop
-    inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
   ];

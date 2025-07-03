@@ -7,19 +7,22 @@
       ./base.nix
 
       # Profiles
-      adb
-      ananicy
       hardware
-      firefox
-      mpv
       network
-      printing
-      restic
-      activitywatch
-      syncthing
-      vscodium
-      direnv
-      mangohud
+
+      home.programs.direnv
+      home.programs.firefox
+      home.programs.mangohud
+      home.programs.mpv
+      home.programs.vscodium
+      home.services.activitywatch
+      home.services.syncthing
+
+      programs.adb
+
+      services.ananicy
+      services.printing
+      services.restic
     ];
 
   deviceSpecific.isLaptop = true;

@@ -22,7 +22,7 @@
     inputs.self.diskoConfigurations.kurwa
     inputs.self.diskoConfigurations.kurwa-trashbin
     inputs.self.nixosRoles.laptop
-    inputs.self.nixosProfiles.tailscale
+    inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
     # inputs.self.nixosProfiles.harmonia

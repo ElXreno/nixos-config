@@ -50,6 +50,8 @@
       ...
     }@inputs:
     let
+      lib' = import ./lib { inherit (nixpkgs) lib; };
+
       findModules =
         dir:
         builtins.concatLists (
@@ -77,9 +79,9 @@
         );
     in
     {
-      nixosModules = builtins.listToAttrs (findModules ./modules);
+      nixosModules = lib'.rakeLeaves ./modules;
 
-      nixosProfiles = builtins.listToAttrs (findModules ./profiles);
+      nixosProfiles = lib'.rakeLeaves ./profiles;
 
       nixosRoles = import ./roles;
 
@@ -106,7 +108,7 @@
                 (import (./machines + "/${name}"))
                 { device = name; }
               ];
-              specialArgs = { inherit inputs; };
+              specialArgs = { inherit inputs lib'; };
             };
         in
         genAttrs hosts mkHost;

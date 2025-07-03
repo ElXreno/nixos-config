@@ -7,14 +7,17 @@
       ./base.nix
 
       # Profiles
-      adb
-      ananicy
-      firefox
       hardware
-      mpv
       network
-      printing
-      syncthing
+
+      home.programs.firefox
+      home.programs.mpv
+      home.services.syncthing
+
+      programs.adb
+
+      services.ananicy
+      services.printing
     ];
 
   deviceSpecific.isDesktop = true;
