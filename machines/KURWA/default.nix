@@ -41,15 +41,35 @@
 
   services = {
     asusd = {
-      enable = lib.mkDefault true;
-      enableUserService = lib.mkDefault true;
+      enable = true;
+      enableUserService = true;
+    };
+    xserver.videoDrivers = [
+      "amdgpu"
+      "nvidia"
+    ];
+
+    beesd.filesystems = lib.mkIf (config.specialisation != { }) {
+      "root" = {
+        spec = "PARTLABEL=disk-nvme-root";
+        hashTableSizeMB = 4096;
+      };
+      "trashbin" = {
+        spec = "PARTLABEL=disk-nvme_trashbin-nvme-trashbin";
+        hashTableSizeMB = 2048;
+      };
+    };
+
+    ollama = lib.mkIf (config.specialisation != { }) {
+      enable = true;
+      acceleration = "cuda";
+    };
+
+    open-webui = lib.mkIf config.services.ollama.enable {
+      enable = true;
+      port = 8081;
     };
   };
-
-  services.xserver.videoDrivers = [
-    "amdgpu"
-    "nvidia"
-  ];
 
   hardware = {
     asus.battery.chargeUpto = lib.mkDefault 70;
