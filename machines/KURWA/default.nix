@@ -8,8 +8,11 @@
 
 {
   imports = [
-    ./hardware-configuration.nix
     ./wireguard.nix
+
+    inputs.nixos-facter-modules.nixosModules.facter
+    { config.facter.reportPath = ./facter.json; }
+
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-amd
@@ -24,7 +27,6 @@
     inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
-    # inputs.self.nixosProfiles.harmonia
     inputs.self.nixosProfiles.virtualisation
   ];
 
@@ -44,7 +46,10 @@
     };
   };
 
-  services.xserver.videoDrivers = [ "amdgpu" "nvidia" ];
+  services.xserver.videoDrivers = [
+    "amdgpu"
+    "nvidia"
+  ];
 
   hardware = {
     asus.battery.chargeUpto = lib.mkDefault 70;
