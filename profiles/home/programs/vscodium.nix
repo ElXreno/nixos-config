@@ -14,12 +14,10 @@
         ]
         ++ pkgs.vscode-utils.extensionsFromVscodeMarketplace [
           {
-            name = "opentofu";
-            publisher = "gamunu";
-            version = "0.2.1";
-            sha256 = "sha256-cZVKsdy92zlge3PJqVd7apzUKRaLPX10QUjQgv7V50M=";
-            # hack 'cause arm64 package set by default
-            arch = "linux-x64";
+            name = "vscode-opentofu";
+            publisher = "OpenTofu";
+            version = "0.3.3";
+            sha256 = "sha256-4142LtuWpWhAZqklHjMyZuFoTrGwRIqXxGjC+xBn5sc=";
 
             postInstall = ''
               cd "$out/$installPrefix"
