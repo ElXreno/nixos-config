@@ -14,6 +14,8 @@ in
   services.victoriametrics = {
     enable = true;
 
+    retentionPeriod = "14d";
+
     prometheusConfig = {
       global.scrape_interval = "10s";
       scrape_configs = [
