@@ -14,11 +14,11 @@ in
     enable = true;
 
     prometheusConfig = {
+      global.scrape_interval = "10s";
       scrape_configs = [
         {
           job_name = "victoriametrics";
 
-          scrape_interval = "10s";
           static_configs = [
             {
               targets = [ "http://127.0.0.1:8428/metrics" ];
@@ -27,7 +27,7 @@ in
         }
         (lib.mkIf nodeExporter.enable {
           job_name = "node";
-          scrape_interval = "10s";
+
           static_configs = [
             {
               targets = [ "127.0.0.1:${toString nodeExporter.port}" ];
@@ -38,7 +38,6 @@ in
         (lib.mkIf zfsExporter.enable {
           job_name = "zfs";
 
-          scrape_interval = "10s";
           static_configs = [
             {
               targets = [ "http://127.0.0.1:${toString zfsExporter.port}/metrics" ];
@@ -58,7 +57,6 @@ in
         (lib.mkIf nvidiaExporter.enable {
           job_name = "nvidia-gpu";
 
-          scrape_interval = "10s";
           static_configs = [
             {
               targets = [ "http://127.0.0.1:${toString nvidiaExporter.port}/metrics" ];
@@ -68,7 +66,6 @@ in
         (lib.mkIf dnscrypt.enable {
           job_name = "dnscrypt-proxy2";
 
-          scrape_interval = "10s";
           static_configs = [
             {
               targets = [ "http://${dnscrypt.settings.monitoring_ui.listen_address}/metrics" ];
