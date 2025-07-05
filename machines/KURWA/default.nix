@@ -25,6 +25,7 @@
     inputs.self.diskoConfigurations.kurwa-trashbin
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.services.tailscale
+    inputs.self.nixosProfiles.services.monitoring
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.virtualisation

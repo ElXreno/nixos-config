@@ -45,11 +45,6 @@ in
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
 
         esp2elf = super.callPackage ../modules/esp2elf.nix { };
-
-        chromadb = super.chromadb.overrideAttrs (finalAttrs: previousAttrs: {
-          disabledTests = previousAttrs.disabledTests ++ ["test_multimodal"];
-          disabledTestPaths = previousAttrs.disabledTestPaths ++ ["chromadb/test/ef/test_multimodal_ef.py"];
-        });
       })
     ];
   };

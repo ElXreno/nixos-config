@@ -47,6 +47,8 @@
         "--exclude=/home/elxreno/.npm"
         "--exclude=/home/elxreno/.nuget"
         "--exclude=/home/elxreno/.nuget"
+        "--exclude=/home/elxreno/.nv/ComputeCache"
+        "--exclude=/home/elxreno/.ollama"
         "--exclude=/home/elxreno/.rustup"
         "--exclude=/home/elxreno/.steam"
         "--exclude=/home/elxreno/.stellarium"

@@ -1,4 +1,5 @@
-_: {
+{ config, ... }:
+{
   networking.networkmanager.dns = "none";
 
   services.dnscrypt-proxy2 = {
@@ -43,8 +44,11 @@ _: {
 
       monitoring_ui = {
         enabled = true;
+        username = ""; # I don't care
+        password = ""; # I don't care
         listen_address = "127.0.0.1:8079";
         privacy_level = 0;
+        prometheus_enabled = config.services.victoriametrics.enable;
       };
     };
   };
