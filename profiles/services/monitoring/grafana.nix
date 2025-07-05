@@ -60,6 +60,8 @@ in
     };
 
     declarativePlugins = with pkgs.grafanaPlugins; [
+      grafana-metricsdrilldown-app
+
       victoriametrics-metrics-datasource
       victoriametrics-logs-datasource
     ];
