@@ -18,6 +18,10 @@
       http3 = true;
       http3_probe = true;
 
+      # Enforce good old default
+      lb_strategy = "p2";
+      lb_estimator = true;
+
       cache_size = 4096;
       cache_min_ttl = 2400;
       cache_max_ttl = 86400;
