@@ -7,6 +7,7 @@ let
   smartctlExporter = prometheusExporters.smartctl;
   nvidiaExporter = prometheusExporters.nvidia-gpu;
 
+  victoriaLogs = config.services.victorialogs;
   dnscrypt = config.services.dnscrypt-proxy2;
 in
 {
@@ -25,6 +26,15 @@ in
             }
           ];
         }
+        (lib.mkIf victoriaLogs.enable {
+          job_name = "victorialogs";
+
+          static_configs = [
+            {
+              targets = [ "${victoriaLogs.listenAddress}" ];
+            }
+          ];
+        })
         (lib.mkIf nodeExporter.enable {
           job_name = "node";
 
