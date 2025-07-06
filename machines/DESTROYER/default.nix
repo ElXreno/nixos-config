@@ -12,6 +12,8 @@
     inputs.self.diskoConfigurations.destroyer
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.services.tailscale
+
+    ./wireguard.nix
   ];
 
   deviceSpecific.usesCustomBootloader = true;
