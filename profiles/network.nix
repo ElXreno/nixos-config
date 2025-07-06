@@ -9,6 +9,6 @@
       };
     };
     useDHCP = lib.mkIf (!config.deviceSpecific.isServer) (lib.mkDefault false);
-    useNetworkd = lib.mkDefault false;
+    useNetworkd = lib.mkOverride 10 false;
   };
 }
