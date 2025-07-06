@@ -7,7 +7,6 @@
 {
   sops.secrets =
     let
-      prefix = if config.deviceSpecific.isServer then "_server" else "";
       mkPasswords = lib.mkMerge (
         lib.lists.forEach
           (builtins.filter (
@@ -20,7 +19,7 @@
           (user: {
             "user_passwords/${user}" = {
               neededForUsers = true;
-              key = "user_passwords/${user}${prefix}";
+              key = "user_passwords/${user}";
             };
           })
       );
