@@ -31,6 +31,10 @@
     inputs.self.nixosProfiles.virtualisation
   ];
 
+  # I'll manage it manually
+  # Nvidia kernel module too big for `/boot` partition
+  facter.detected.graphics.enable = false;
+
   # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
   boot.kernelParams = [
     "amdgpu.dcdebugmask=0x10"
