@@ -1,8 +1,7 @@
 keys:
   - &elxreno age1frn6df3pw3ks05vzc6q5fmfxzwcen44sq4c7xj86hwymfsg3qadq7mxf0d
   - &infinity age12ynl5qz5wf7g5805ptwh04ttzh507w3hmqrgx6de9wes696xgdjqhun3ad
-  - &timeweb age1r88audjcxj2g68q4v4jc4w0r7p0k3dwzls005luv77pr7zmyxf9sda5dj8
-  - &hcloud age1nteja7s64p37q9a5t053f03vphkv4dwevnuqmmakxsw6ac98w9ksjjxtcc
+  - &destroyer age1x2ekqe0r6f9fys9fvcgmwq3dlr240gkhadq7syr4hyw4tg5z2scqun8cgl
 creation_rules:
   - path_regex: secrets/common.yaml$
     key_groups:
@@ -13,5 +12,4 @@ creation_rules:
     key_groups:
     - age:
       - *elxreno
-      - *timeweb
-      - *hcloud
+      - *destroyer

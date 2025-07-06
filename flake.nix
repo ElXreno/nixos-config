@@ -118,6 +118,14 @@
             };
             fastConnection = true;
           };
+          DESTROYER = {
+            hostname = "destroyer";
+            profiles.system = {
+              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.DESTROYER;
+            };
+            fastConnection = false;
+            remoteBuild = true;
+          };
         };
       };
 
