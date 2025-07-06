@@ -116,9 +116,12 @@ in
     };
 
     # Decrypt LUKS via TPM2 on INFINITY
-    initrd = lib.mkIf (config.device == "INFINITY") {
-      systemd.enable = true;
-      availableKernelModules = [ "tpm_crb" ];
+    initrd = {
+      compressor = "zstd";
+      compressorArgs = [
+        "-19"
+        "-T0"
+      ];
     };
 
     plymouth.enable = !isServer;
