@@ -12,6 +12,7 @@
     inputs.self.diskoConfigurations.destroyer
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.services.tailscale
+    inputs.self.nixosProfiles.services.atticd
 
     ./wireguard.nix
   ];
