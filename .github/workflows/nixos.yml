@@ -60,4 +60,4 @@ jobs:
           token: ${{ secrets.ATTIC_TOKEN }}
 
       - name: Build ${{ matrix.job.name }} job
-        run: nix build -L --no-link .#hydraJobs.${{ matrix.job.name }} ${{ matrix.job.additionalBuildArgs }}
+        run: nix build -L --no-link --keep-going .#hydraJobs.${{ matrix.job.name }} ${{ matrix.job.additionalBuildArgs }}
