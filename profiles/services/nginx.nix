@@ -39,13 +39,7 @@
     commonHttpConfig =
       let
         realIpsFromList = lib.strings.concatMapStringsSep "\n" (x: "set_real_ip_from ${x};");
-        fileToList = x: lib.strings.splitString "\n" (builtins.readFile x);
-        cfipv4 = fileToList (
-          pkgs.fetchurl {
-            url = "https://www.cloudflare.com/ips-v4";
-            hash = "sha256-8Cxtg7wBqwroV3Fg4DbXAMdFU1m84FTfiE5dfZ5Onns=";
-          }
-        );
+        cfipv4 = pkgs.cfipv4;
       in
       ''
         ${realIpsFromList cfipv4}

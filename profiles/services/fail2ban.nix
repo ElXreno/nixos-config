@@ -1,19 +1,21 @@
+{ pkgs, ... }:
 {
   services.fail2ban = {
     enable = true;
 
-    jails.DEFAULT = ''
-      bantime  = 3600
-    '';
+    bantime = "3h";
+    bantime-increment = {
+      enable = true;
+      rndtime = "15m";
+    };
 
-    jails.sshd = ''
-      filter = sshd
-      maxretry = 4
-      action   = iptables[name=ssh, port=ssh, protocol=tcp]
-      enabled  = true
-    '';
+    jails = {
+      nginx-botsearch.settings.enabled = true;
+      nginx-bad-request.settings.enabled = true;
+      nginx-forbidden.settings.enabled = true;
+    };
+
+    # Possibly useless as nginx stores real IP instead of proxied IP.
+    ignoreIP = pkgs.cfipv4;
   };
-
-  # Limit stack size to reduce memory usage
-  systemd.services.fail2ban.serviceConfig.LimitSTACK = 256 * 1024;
 }

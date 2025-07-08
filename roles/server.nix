@@ -7,7 +7,7 @@
       ./base.nix
 
       # Profiles
-      # fail2ban
+      services.fail2ban
       home.programs.direnv
     ];
 
