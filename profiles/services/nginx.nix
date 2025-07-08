@@ -37,7 +37,8 @@ in
 
     virtualHosts = {
       "elxreno.com" = nginx-common-config // {
-        locations."/" = {
+        serverAliases = [ "www.elxreno.com" ];
+        locations."= /" = {
           return = "200 '<html><body>Hello there!</body></html>'";
           extraConfig = ''
             default_type text/html;
