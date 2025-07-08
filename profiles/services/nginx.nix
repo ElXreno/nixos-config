@@ -21,6 +21,8 @@
 
     recommendedOptimisation = true;
 
+    clientMaxBodySize = "4g";
+
     virtualHosts = {
       # www subdomain redirection handled by cloudflare rule
       "elxreno.com" = {
