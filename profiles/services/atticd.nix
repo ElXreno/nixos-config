@@ -2,14 +2,12 @@
   config,
   inputs,
   pkgs,
-  lib,
   ...
 }:
 let
   baseDomain = "elxreno.com";
 
   cacheEndpoint = "cache.${baseDomain}";
-  cacheNoProxyEndpoint = "cache-noproxy.${baseDomain}";
 
   nginx-common-config = import inputs.self.nixosProfiles.services.nginx-common-config;
 in
@@ -28,10 +26,6 @@ in
     settings = {
       listen = "[::]:18080";
 
-      # https://github.com/zhaofengli/attic/issues/48#issuecomment-1636248282
-      api-endpoint = "https://${cacheNoProxyEndpoint}/";
-      substituter-endpoint = "https://${cacheEndpoint}/";
-
       database.url = "postgresql://atticd?host=/run/postgresql";
 
       chunking = {
@@ -47,15 +41,13 @@ in
     };
   };
 
-  services.nginx.virtualHosts =
-    let
-      mkAtticHost = _: nginx-common-config // {
-        locations."/" = {
-          proxyPass = "http://localhost:18080";
-        };
+  services.nginx.virtualHosts = {
+    "${cacheEndpoint}" = nginx-common-config // {
+      locations."/" = {
+        proxyPass = "http://localhost:18080";
       };
-    in
-    lib.genAttrs [ cacheEndpoint cacheNoProxyEndpoint ] mkAtticHost;
+    };
+  };
 
   services.postgresql = {
     ensureDatabases = [ "atticd" ];
