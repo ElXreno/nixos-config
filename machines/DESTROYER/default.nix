@@ -26,6 +26,7 @@
 
   networking.useDHCP = false;
   networking.useNetworkd = true;
+  networking.enableIPv6 = false;
   systemd.network = {
     enable = true;
     networks = {
