@@ -1,4 +1,12 @@
-{ pkgs, lib, ... }:
+{
+  inputs,
+  pkgs,
+  lib,
+  ...
+}:
+let
+  nginx-common-config = import inputs.self.nixosProfiles.services.nginx-common-config;
+in
 {
   networking.firewall = {
     allowedTCPPorts = [
@@ -10,6 +18,11 @@
 
   services.nginx = {
     enable = true;
+
+    enableReload = true;
+    enableQuicBPF = true;
+
+    package = pkgs.nginxQuic;
 
     recommendedTlsSettings = true;
 
@@ -25,10 +38,7 @@
 
     virtualHosts = {
       # www subdomain redirection handled by cloudflare rule
-      "elxreno.com" = {
-        enableACME = true;
-        forceSSL = true;
-
+      "elxreno.com" = nginx-common-config // {
         locations."/" = {
           return = "200 '<html><body>Hello there!</body></html>'";
           extraConfig = ''
@@ -48,6 +58,7 @@
         real_ip_header CF-Connecting-IP;
         real_ip_recursive on;
       '';
+
   };
 
   security.acme = {

@@ -10,6 +10,8 @@ let
 
   cacheEndpoint = "cache.${baseDomain}";
   cacheNoProxyEndpoint = "cache-noproxy.${baseDomain}";
+
+  nginx-common-config = import inputs.self.nixosProfiles.services.nginx-common-config;
 in
 {
   imports = [
@@ -47,9 +49,7 @@ in
 
   services.nginx.virtualHosts =
     let
-      mkAtticHost = _: {
-        forceSSL = true;
-        enableACME = true;
+      mkAtticHost = _: nginx-common-config // {
         locations."/" = {
           proxyPass = "http://localhost:18080";
         };
