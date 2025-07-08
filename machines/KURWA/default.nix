@@ -74,11 +74,6 @@
       enable = true;
       acceleration = "cuda";
     };
-
-    open-webui = lib.mkIf config.services.ollama.enable {
-      enable = true;
-      port = 8081;
-    };
   };
 
   hardware = {
