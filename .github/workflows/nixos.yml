@@ -37,7 +37,6 @@ jobs:
         with:
           nix-permission-edict: true
           hatchet-protocol: 'rampage'
-          witness-carnage: true
           root-safe-haven: '4096' # for runner logs
 
       - uses: cachix/install-nix-action@v31
