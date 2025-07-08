@@ -52,7 +52,6 @@
 
   security.acme = {
     acceptTerms = true;
-    defaults.server = "https://acme-staging-v02.api.letsencrypt.org/directory";
     defaults.email = "elxreno@gmail.com";
   };
 }
