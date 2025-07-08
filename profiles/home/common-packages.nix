@@ -28,6 +28,7 @@ in
             # CLI Stuff
             age
             aria2
+            attic-client
             binutils
             binwalk
             bmon
