@@ -7,6 +7,7 @@
 {
   imports = [
     inputs.self.nixosProfiles.services.postgresql
+    inputs.self.nixosProfiles.services.nginx
   ];
 
   environment.systemPackages = with pkgs; [ attic-client ];
@@ -29,6 +30,16 @@
 
       garbage-collection = {
         default-retention-period = "3 months";
+      };
+    };
+  };
+
+  services.nginx.virtualHosts = {
+    "cache.elxreno.com" = {
+      forceSSL = true;
+      enableACME = true;
+      locations."/" = {
+        proxyPass = "http://localhost:18080";
       };
     };
   };
