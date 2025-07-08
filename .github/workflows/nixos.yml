@@ -51,6 +51,13 @@ jobs:
         with:
           name: elxreno
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      
+      - name: Setup Attic cache
+        uses: ryanccn/attic-action@v0
+        with:
+          endpoint: "https://cache.elxreno.com"
+          cache: "common"
+          token: ${{ secrets.ATTIC_TOKEN }}
 
       - name: Build ${{ matrix.job.name }} job
         run: nix build -L --no-link .#hydraJobs.${{ matrix.job.name }} ${{ matrix.job.additionalBuildArgs }}
