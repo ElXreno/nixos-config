@@ -126,7 +126,6 @@
     localNetworkGameTransfers.openFirewall = true;
   };
   programs.noisetorch.enable = true;
-  services.bpftune.enable = true;
 
   # Required sometimes
   # services.timesyncd.enable = false;
