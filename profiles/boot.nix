@@ -66,11 +66,8 @@ in
     kernel.sysctl = lib.mkMerge [
       {
         # Network
-        "net.core.default_qdisc" = "cake";
+        "net.core.default_qdisc" = "fq";
         "net.ipv4.tcp_congestion_control" = "bbr";
-
-        "net.core.netdev_max_backlog" = "16384";
-        "net.ipv4.tcp_notsent_lowat" = "16384";
 
         "net.ipv4.tcp_fastopen" = 3;
 
@@ -96,7 +93,13 @@ in
       (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
       (lib.mkIf isLaptop {
         # Network
-        # "net.ipv4.ip_default_ttl" = 65;
+        "net.core.netdev_max_backlog" = "2000";
+        "net.ipv4.tcp_notsent_lowat" = "32768";
+
+        "net.ipv4.tcp_rmem" = "4096 65536 2097152";
+        "net.ipv4.tcp_wmem" = "4096 16384 262144";
+        "net.ipv4.tcp_adv_win_scale" = -2;
+        "net.ipv4.tcp_collapse_max_bytes" = 1048576;
 
         # Memory
         "vm.min_free_kbytes" = 262144;
@@ -126,6 +129,26 @@ in
 
     plymouth.enable = !isServer;
   };
+
+  environment.etc."NetworkManager/dispatcher.d/99-fq" =
+    lib.mkIf config.networking.networkmanager.enable
+      {
+        source =
+          let
+            fqDispatcher = pkgs.writeShellScript "fq-dispatcher.sh" ''
+              interface="$1"
+              action="$2"
+
+              if [ "$action" = "up" ] && [ "$interface" != "lo" ] && [ "$interface" != "tailscale0" ]; then
+                ${pkgs.iproute2}/bin/tc qdisc replace dev "$interface" root fq
+
+                echo "FQ applied to $interface"
+              fi
+            '';
+          in
+          fqDispatcher;
+        mode = "0755";
+      };
 
   systemd = {
     tmpfiles.rules = [ "w /sys/kernel/mm/lru_gen/min_ttl_ms - - - - 1500" ];
