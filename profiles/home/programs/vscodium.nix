@@ -22,7 +22,8 @@
 
             postInstall = ''
               cd "$out/$installPrefix"
-              ${pkgs.jq}/bin/jq '.contributes.configuration[2].properties."opentofu.languageServer.opentofu.path".default = "${pkgs.opentofu}/bin/tofu"' package.json | ${pkgs.moreutils}/bin/sponge package.json
+              ${pkgs.jq}/bin/jq '.contributes.configuration[1].properties."opentofu.languageServer.path".default = "${pkgs.tofu-ls}/bin/tofu-ls"' package.json | ${pkgs.moreutils}/bin/sponge package.json
+              ${pkgs.jq}/bin/jq '.contributes.configuration[2].properties."opentofu.languageServer.tofu.path".default = "${pkgs.opentofu}/bin/tofu"' package.json | ${pkgs.moreutils}/bin/sponge package.json
             '';
           }
           {
@@ -55,6 +56,7 @@
         "files.associations" = {
           "logcat" = "logcat";
         };
+        "git.autofetch" = true;
         "git.autoStash" = true;
         "git.confirmSync" = false;
         "git.enableSmartCommit" = true;
