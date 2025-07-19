@@ -113,7 +113,7 @@ in
             hunspellDicts.ru-ru
 
             # Photos
-            darktable
+            # darktable
             rawtherapee
             # upscaler
 
@@ -121,7 +121,7 @@ in
             virt-manager
 
             # Music
-            strawberry
+            # strawberry
 
             # K8s
             kubectl
