@@ -25,7 +25,6 @@ in
 
     recommendedTlsSettings = true;
 
-    recommendedZstdSettings = true;
     recommendedGzipSettings = true;
     recommendedBrotliSettings = true;
 
