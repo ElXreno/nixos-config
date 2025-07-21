@@ -45,6 +45,12 @@ in
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
 
         esp2elf = super.callPackage ../modules/esp2elf.nix { };
+
+        supergfxctl = super.supergfxctl.overrideAttrs (finalAttrs: previousAttrs: {
+          postPatch = (previousAttrs.postPatch or "") + ''
+            sed -i "s|/usr/bin/lsof|${super.lsof}/bin/lsof|" src/lib.rs
+          '';
+        });
       })
     ];
   };

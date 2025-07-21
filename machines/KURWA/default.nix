@@ -19,11 +19,12 @@
     inputs.nixos-hardware.nixosModules.common-gpu-nvidia
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
-    inputs.nixos-hardware.nixosModules.asus-battery
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
     inputs.self.diskoConfigurations.kurwa-trashbin
     inputs.self.nixosRoles.laptop
+    inputs.self.nixosProfiles.services.asusd
+    inputs.self.nixosProfiles.services.supergfxd
     inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.services.monitoring
     inputs.self.nixosProfiles.kde
@@ -50,10 +51,6 @@
   };
 
   services = {
-    asusd = {
-      enable = true;
-      enableUserService = true;
-    };
     xserver.videoDrivers = [
       "amdgpu"
       "nvidia"
@@ -77,8 +74,6 @@
   };
 
   hardware = {
-    asus.battery.chargeUpto = lib.mkDefault 70;
-
     nvidia = {
       open = true;
       package = config.boot.kernelPackages.nvidiaPackages.latest;
@@ -112,10 +107,7 @@
   };
 
   specialisation.battery-saver.configuration = {
-    hardware = {
-      asus.battery.chargeUpto = 95;
-      nvidia.dynamicBoost.enable = false;
-    };
+    hardware.nvidia.dynamicBoost.enable = false;
   };
 
   programs.nix-ld.enable = true;
