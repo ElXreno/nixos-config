@@ -45,7 +45,6 @@
   };
 
   programs.nix-ld.enable = true;
-  services.bpftune.enable = true;
 
   home-manager.users.alena = {
     home = {

@@ -52,7 +52,5 @@
     ]; # Syncthing discovery broadcasts
   };
 
-  services.bpftune.enable = true;
-
   system.stateVersion = "22.05";
 }
