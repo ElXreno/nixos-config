@@ -122,6 +122,7 @@ in
 
             # Music
             # strawberry
+            spotify
 
             # K8s
             kubectl
