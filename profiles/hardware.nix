@@ -4,6 +4,9 @@
   lib,
   ...
 }:
+let
+  hasBluetooth = config.deviceSpecific.isLaptop;
+in
 {
   security.rtkit.enable = true;
   services.pipewire = {
@@ -11,6 +14,32 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+
+    wireplumber.extraConfig = lib.mkMerge [
+      (lib.mkIf hasBluetooth {
+        "10-bluez" = {
+          "monitor.bluez.rules" = [
+            {
+              matches = [ { "device.name" = "~bluez_card.*"; } ];
+              actions = {
+                update-props = {
+                  "bluez5.roles" = [
+                    "hsp_hs"
+                    "hsp_ag"
+                    "hfp_hf"
+                    "hfp_ag"
+                  ];
+                  "bluez5.enable-msbc" = true;
+                  "bluez5.enable-sbc-xq" = true;
+                  "bluez5.enable-hw-volume" = true;
+                  "bluez5.a2dp.ldac.quality" = "hq";
+                };
+              };
+            }
+          ];
+        };
+      })
+    ];
   };
 
   services.udev.extraHwdb = lib.mkIf (config.device == "INFINITY") ''
@@ -37,7 +66,7 @@
 
     bluetooth = {
       # TODO: Fix state after persist
-      enable = lib.mkIf config.deviceSpecific.isLaptop true;
+      enable = hasBluetooth;
       # For battery provider, bluezFull is just an alias for bluez
       package = pkgs.bluez5-experimental;
       settings.General.Experimental = true;
