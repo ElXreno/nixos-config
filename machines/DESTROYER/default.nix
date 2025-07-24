@@ -13,6 +13,7 @@
     inputs.self.nixosRoles.server
     inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.services.atticd
+    inputs.self.nixosProfiles.services.xray-server
 
     ./wireguard.nix
   ];
