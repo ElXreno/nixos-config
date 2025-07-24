@@ -47,6 +47,7 @@ let
         curl
         flex
         gcc
+        gcc.cc
         git
         git-repo
         git-lfs
@@ -91,6 +92,7 @@ let
         libgcc # crtbeginS.o
         iconv # ??? - i put this here and by the time i went back to remove unecessary packages i forgot why
         iconv.dev # sys/types.h
+        glibc.dev
       ];
     runScript = "bash";
     profile = ''
