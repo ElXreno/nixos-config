@@ -44,7 +44,7 @@
         {
           type = "vless";
           tag = "proxy";
-          server = "elxreno.com";
+          server = "74.119.195.240";
           server_port = 443;
           uuid._secret = config.sops.secrets."xray/uuid".path;
           flow = "xtls-rprx-vision";
