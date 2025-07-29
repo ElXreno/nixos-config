@@ -43,6 +43,13 @@
   };
 
   services.bpftune.enable = true;
+  boot.kernelParams = [
+    "virtio_net.napi_weight=64"
+
+    "processor.max_cstate=1"
+    "idle=nomwait"
+    "preempt=voluntary"
+  ];
 
   system.stateVersion = "25.05";
 }
