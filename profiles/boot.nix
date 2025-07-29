@@ -10,29 +10,28 @@ let
 in
 {
   boot = {
-    loader =
-      {
-        timeout = if isServer then 0 else 3;
-      }
-      // (
-        if config.deviceSpecific.usesCustomBootloader then
-          { }
-        else if config.deviceSpecific.devInfo.legacy then
-          {
-            grub = {
-              enable = true;
-              device = lib.mkDefault "/dev/sda";
-            };
-          }
-        else
-          {
-            efi.canTouchEfiVariables = true;
-            systemd-boot = {
-              enable = true;
-              configurationLimit = 3;
-            };
-          }
-      );
+    loader = {
+      timeout = if isServer then 0 else 3;
+    }
+    // (
+      if config.deviceSpecific.usesCustomBootloader then
+        { }
+      else if config.deviceSpecific.devInfo.legacy then
+        {
+          grub = {
+            enable = true;
+            device = lib.mkDefault "/dev/sda";
+          };
+        }
+      else
+        {
+          efi.canTouchEfiVariables = true;
+          systemd-boot = {
+            enable = true;
+            configurationLimit = 3;
+          };
+        }
+    );
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
@@ -40,28 +39,25 @@ in
       (lib.mkIf isServer pkgs.linuxPackages_latest)
     ];
 
-    kernelParams =
-      [ "nohibernate" ]
-      ++ lib.optionals (isDesktop || isLaptop) [
-        "i915.mitigations=off"
-        # slowdown for INFINITY is minimal
-        # https://browser.geekbench.com/v6/cpu/compare/1757356?baseline=1757440
-        "mitigations=off"
-      ]
-      ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
-      ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
-      ++ lib.optionals (config.device == "INFINITY") [
-        # Disabled due 4k external monitor
-        # "amdgpu.gttsize=1536"
-        # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-        # "tsc=unstable"
-        "clocksource=tsc" # https://www.reddit.com/r/linuxquestions/comments/ts1hgw/comment/i2p1i90/
-        "tsc=reliable"
-
-        # https://discourse.ubuntu.com/t/fine-tuning-the-ubuntu-24-04-kernel-for-low-latency-throughput-and-power-efficiency/44834
-        "nohz_full=all"
-        "rcutree.enable_rcu_lazy=0"
-      ];
+    kernelParams = [
+      "nohibernate"
+      "mitigations=off"
+    ]
+    ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
+    ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
+    ++ lib.optionals (config.device == "INFINITY") [
+      # Disabled due 4k external monitor
+      # "amdgpu.gttsize=1536"
+      # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+      # "tsc=unstable"
+      "clocksource=tsc" # https://www.reddit.com/r/linuxquestions/comments/ts1hgw/comment/i2p1i90/
+      "tsc=reliable"
+    ]
+    ++ lib.optionals isLaptop [
+      # https://discourse.ubuntu.com/t/fine-tuning-the-ubuntu-24-04-kernel-for-low-latency-throughput-and-power-efficiency/44834
+      "nohz_full=all"
+      "rcutree.enable_rcu_lazy=0"
+    ];
 
     kernel.sysctl = lib.mkMerge [
       {
