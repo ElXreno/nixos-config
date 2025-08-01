@@ -148,9 +148,9 @@ in
 
   systemd = {
     tmpfiles.rules = [ "w /sys/kernel/mm/lru_gen/min_ttl_ms - - - - 1500" ];
-    extraConfig = ''
-      DefaultOOMPolicy=continue
-    '';
+    settings.Manager = {
+      DefaultOOMPolicy = "continue";
+    };
   };
 
   services.udev.extraRules = ''
