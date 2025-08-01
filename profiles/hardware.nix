@@ -47,6 +47,10 @@ in
       KEYBOARD_KEY_287=f20
   '';
 
+  boot.extraModprobeConfig = lib.mkIf hasBluetooth ''
+    options bluetooth disable_ertm=Y
+  '';
+
   hardware = {
     cpu = {
       amd.updateMicrocode = lib.mkIf (
@@ -69,8 +73,16 @@ in
       enable = hasBluetooth;
       # For battery provider, bluezFull is just an alias for bluez
       package = pkgs.bluez5-experimental;
-      settings.General.Experimental = true;
-      # powerOnBoot = false;
+
+      settings.General = {
+        Experimental = true;
+        # https://www.reddit.com/r/NixOS/comments/1ch5d2p/comment/lkbabax/
+        # for pairing bluetooth controller
+        Privacy = "device";
+        JustWorksRepairing = "always";
+        Class = "0x000100";
+        FastConnectable = true;
+      };
     };
   };
 

@@ -119,6 +119,7 @@
     localNetworkGameTransfers.openFirewall = true;
   };
   programs.noisetorch.enable = true;
+  hardware.xpadneo.enable = true; # Xbox controller
 
   # Required sometimes
   # services.timesyncd.enable = false;
