@@ -132,6 +132,7 @@
               path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.INFINITY;
             };
             fastConnection = true;
+            interactiveSudo = true;
           };
         };
       };
