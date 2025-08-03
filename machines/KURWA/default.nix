@@ -21,7 +21,6 @@
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
     inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
-    inputs.self.diskoConfigurations.kurwa-trashbin
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.services.asusd
     inputs.self.nixosProfiles.services.supergfxd
@@ -61,10 +60,6 @@
       "root" = {
         spec = "PARTLABEL=disk-nvme-root";
         hashTableSizeMB = 4096;
-      };
-      "trashbin" = {
-        spec = "PARTLABEL=disk-nvme_trashbin-nvme-trashbin";
-        hashTableSizeMB = 2048;
       };
     };
 
