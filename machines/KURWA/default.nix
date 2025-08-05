@@ -58,6 +58,17 @@
         hashTableSizeMB = 4096;
       };
     };
+
+    ollama = lib.mkIf (config.specialisation != { }) {
+      enable = true;
+      acceleration = "cuda";
+      host = "[::]";
+    };
+  };
+
+  networking.firewall = lib.mkIf config.services.ollama.enable {
+    allowedTCPPorts = [ 11434 ];
+    allowedUDPPorts = [ 11434 ];
   };
 
   systemd.services."beesd@root" = {
