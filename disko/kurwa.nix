@@ -7,7 +7,7 @@ in
     disk = {
       nvme = {
         type = "disk";
-        device = "/dev/disk/by-id/nvme-eui.002538d722a0adfe";
+        device = "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K";
         content = {
           type = "gpt";
           partitions = {
