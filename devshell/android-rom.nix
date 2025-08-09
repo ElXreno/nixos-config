@@ -105,7 +105,7 @@ let
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.ncurses5}/lib
       export _JAVA_OPTIONS="-XX:UseAVX=3 -XX:+UseG1GC -XX:+TieredCompilation -XX:CICompilerCount=16 -XX:+UseStringDeduplication"
 
-      cd /mnt/android
+      cd $HOME/Android/sources
     '';
   };
 in
