@@ -25,7 +25,6 @@
     inputs.self.nixosProfiles.services.asusd
     inputs.self.nixosProfiles.services.supergfxd
     inputs.self.nixosProfiles.services.tailscale
-    inputs.self.nixosProfiles.services.monitoring
     inputs.self.nixosProfiles.services.sing-box-client
     inputs.self.nixosProfiles.kde
     inputs.self.nixosProfiles.zfs
