@@ -35,28 +35,23 @@ in
     kernelPackages = lib.mkMerge [
       (lib.mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
       (lib.mkIf isDesktop pkgs.linuxPackages_5_15)
-      # Servers
       (lib.mkIf isServer pkgs.linuxPackages_latest)
     ];
 
     kernelParams = [
       "nohibernate"
+    ]
+    ++ lib.optionals (isDesktop || isLaptop) [
+      "preempt=full"
+      "nohz_full=all"
+    ]
+    ++ lib.optionals isDesktop [
+      "systemd.gpt_auto=0"
       "mitigations=off"
     ]
-    ++ lib.optionals (isDesktop || isLaptop) [ "preempt=full" ]
-    ++ lib.optionals isDesktop [ "systemd.gpt_auto=0" ]
-    ++ lib.optionals (config.device == "INFINITY") [
-      # Disabled due 4k external monitor
-      # "amdgpu.gttsize=1536"
-      # TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
-      # "tsc=unstable"
-      "clocksource=tsc" # https://www.reddit.com/r/linuxquestions/comments/ts1hgw/comment/i2p1i90/
-      "tsc=reliable"
-    ]
     ++ lib.optionals isLaptop [
-      # https://discourse.ubuntu.com/t/fine-tuning-the-ubuntu-24-04-kernel-for-low-latency-throughput-and-power-efficiency/44834
-      "nohz_full=all"
-      "rcutree.enable_rcu_lazy=0"
+      "amdgpu.securedisplay=0"
+      "threadirqs"
     ];
 
     kernel.sysctl = lib.mkMerge [

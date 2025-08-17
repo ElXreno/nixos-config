@@ -27,7 +27,7 @@
     inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.services.sing-box-client
     inputs.self.nixosProfiles.kde
-    inputs.self.nixosProfiles.zfs
+    # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.virtualisation
   ];
 
@@ -65,9 +65,15 @@
     };
   };
 
-  networking.firewall = lib.mkIf config.services.ollama.enable {
-    allowedTCPPorts = [ 11434 ];
-    allowedUDPPorts = [ 11434 ];
+  networking.firewall = {
+    allowedTCPPorts = [
+      11434 # Ollama
+      25565 # Minecraft
+      57621 # Spotify
+    ];
+    allowedUDPPorts = [
+      25565 # Minecraft
+    ];
   };
 
   systemd.services."beesd@root" = {
@@ -121,8 +127,6 @@
 
   # Required sometimes
   # services.timesyncd.enable = false;
-
-  nix.settings.system-features = [ "gccarch-znver4" ];
 
   system.stateVersion = "25.05";
 }
