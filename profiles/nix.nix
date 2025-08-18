@@ -2,10 +2,13 @@
   config,
   inputs,
   lib,
+  pkgs,
   ...
 }:
 {
   nix = {
+    package = pkgs.nixVersions.latest;
+
     settings =
       {
         auto-optimise-store = config.deviceSpecific.isServer;
