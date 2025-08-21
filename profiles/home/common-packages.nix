@@ -4,12 +4,6 @@
   pkgs,
   ...
 }:
-let
-  megasync_autostart = pkgs.makeAutostartItem {
-    name = "megasync";
-    package = pkgs.megasync;
-  };
-in
 {
   environment.systemPackages = lib.mkIf (!config.deviceSpecific.isServer) (
     with pkgs;
@@ -94,7 +88,6 @@ in
 
             # MEGA
             megasync
-            megasync_autostart
 
             # DB
             # pgmodeler
