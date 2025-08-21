@@ -91,12 +91,11 @@
       };
       powerManagement.enable = true;
       nvidiaPersistenced = true;
-      primeBatterySaverSpecialisation = true;
     };
   };
 
   systemd.services = {
-    nvidia_oc = lib.mkIf (config.specialisation != { }) {
+    nvidia_oc = {
       description = "NVIDIA Overclocking Service";
       after = [ "graphical.target" ];
       wantedBy = [ "graphical.target" ];
@@ -109,10 +108,6 @@
     };
 
     nvidia-powerd.serviceConfig.Restart = "always";
-  };
-
-  specialisation.battery-saver.configuration = {
-    hardware.nvidia.dynamicBoost.enable = false;
   };
 
   programs.nix-ld.enable = true;
