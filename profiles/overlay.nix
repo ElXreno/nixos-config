@@ -35,6 +35,10 @@
             '';
           }
         );
+
+        hyprland = inputs.hyprland.packages.${super.system}.hyprland;
+        xdg-desktop-portal-hyprland = inputs.hyprland.packages.${super.system}.xdg-desktop-portal-hyprland;
+        split-monitor-workspaces = inputs.split-monitor-workspaces.packages.${super.system}.split-monitor-workspaces;
       })
     ];
   };

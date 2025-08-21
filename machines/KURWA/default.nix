@@ -26,7 +26,8 @@
     inputs.self.nixosProfiles.services.supergfxd
     inputs.self.nixosProfiles.services.tailscale
     inputs.self.nixosProfiles.services.sing-box-client
-    inputs.self.nixosProfiles.kde
+    # inputs.self.nixosProfiles.kde
+    inputs.self.nixosProfiles.hyprland
     # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.virtualisation
   ];
