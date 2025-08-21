@@ -3,6 +3,17 @@
   home-manager.users.elxreno.programs.firefox = {
     enable = true;
     package = pkgs.firefox;
+
+    languagePacks = [
+      "ru"
+      "en"
+    ];
+
+    profiles.default = {
+      settings = {
+        "widget.use-xdg-desktop-portal.file-picker" = 1;
+      };
+    };
   };
 
   home-manager.users.elxreno.xdg.mimeApps.defaultApplications = {
