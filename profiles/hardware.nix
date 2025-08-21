@@ -88,4 +88,6 @@ in
 
   # Disable suspend on lid switch
   services.logind.lidSwitch = "ignore";
+
+  systemd.services.NetworkManager-wait-online.enable = false;
 }
