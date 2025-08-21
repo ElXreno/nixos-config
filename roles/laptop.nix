@@ -15,7 +15,6 @@
       home.programs.mangohud
       home.programs.mpv
       home.programs.vscodium
-      home.services.activitywatch
       home.services.syncthing
 
       programs.adb

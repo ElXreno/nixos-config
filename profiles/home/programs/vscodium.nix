@@ -38,12 +38,6 @@
             version = "1.0.1";
             sha256 = "sha256-2SBkvvrEZiJ47GQkd4bF6fVijSYGXDoIP8R+1/dVCWc=";
           }
-          {
-            name = "aw-watcher-vscode";
-            publisher = "activitywatch";
-            version = "0.5.0";
-            sha256 = "sha256-OrdIhgNXpEbLXYVJAx/jpt2c6Qa5jf8FNxqrbu5FfFs=";
-          }
         ];
       userSettings = {
         "editor.cursorSmoothCaretAnimation" = "on";
