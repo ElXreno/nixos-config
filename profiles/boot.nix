@@ -87,8 +87,8 @@ in
         "net.core.netdev_max_backlog" = "2000";
         "net.ipv4.tcp_notsent_lowat" = "32768";
 
-        "net.ipv4.tcp_rmem" = "4096 65536 2097152";
-        "net.ipv4.tcp_wmem" = "4096 16384 262144";
+        "net.ipv4.tcp_rmem" = "4096 262144 8388608";
+        "net.ipv4.tcp_wmem" = "4096 262144 8388608";
         "net.ipv4.tcp_adv_win_scale" = -2;
         "net.ipv4.tcp_collapse_max_bytes" = 1048576;
 
