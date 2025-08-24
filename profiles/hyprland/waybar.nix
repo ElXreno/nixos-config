@@ -114,7 +114,6 @@ in
           modules-left = [ "tray" ];
           modules-center = [ "clock" ];
           modules-right = [
-            # "network"
             "custom/bandwidth-rx"
             "custom/bandwidth-tx"
             "cpu"
@@ -125,6 +124,7 @@ in
             "backlight"
             "wireplumber"
             "hyprland/language"
+            "idle_inhibitor"
           ];
 
           "custom/bandwidth-rx" = {
@@ -254,6 +254,14 @@ in
             format = " {}";
             format-en = "EN";
             format-ru = "RU";
+          };
+
+          "idle_inhibitor" = {
+            format = "{icon}  ";
+            format-icons = {
+              activated = "";
+              deactivated = "";
+            };
           };
         };
       };
