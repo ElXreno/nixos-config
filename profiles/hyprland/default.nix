@@ -310,6 +310,11 @@ in
           "noanim, class:^(xwaylandvideobridge)$"
           "nofocus, class:^(xwaylandvideobridge)$"
           "noinitialfocus, class:^(xwaylandvideobridge)$"
+
+          "workspace 1, class:^(firefox)$"
+          "workspace 5, class:^(org.telegram.desktop)$"
+          "workspace 9, class:^(spotify)$"
+          "workspace 10, class:^(org.keepassxc.KeePassXC)$"
         ];
 
         misc = {
