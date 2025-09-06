@@ -40,6 +40,24 @@ in
         };
       })
     ];
+
+    extraConfig = {
+      client."99-resample"."stream.properties"."resample.quality" = 14;
+      pipewire-pulse."99-resample"."stream.properties"."resample.quality" = 14;
+      pipewire = {
+        "92-low-latency"."context.properties" = {
+          "default.clock.quantum" = 256;
+          "default.clock.min-quantum" = 256;
+          "default.clock.max-quantum" = 256;
+        };
+        "99-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
+          44100
+          48000
+          96000
+          192000
+        ];
+      };
+    };
   };
 
   services.udev.extraHwdb = lib.mkIf (config.device == "INFINITY") ''
