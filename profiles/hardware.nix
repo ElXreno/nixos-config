@@ -105,7 +105,7 @@ in
   };
 
   # Disable suspend on lid switch
-  services.logind.lidSwitch = "ignore";
+  services.logind.settings.Login.HandleLidSwitch = "ignore";
 
   systemd.services.NetworkManager-wait-online.enable = false;
 }
