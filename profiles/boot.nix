@@ -43,7 +43,6 @@ in
     ]
     ++ lib.optionals (isDesktop || isLaptop) [
       "preempt=full"
-      "nohz_full=all"
     ]
     ++ lib.optionals isDesktop [
       "systemd.gpt_auto=0"
