@@ -23,7 +23,7 @@
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
 
     # home-manager stuff
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:ElXreno/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     plasma-manager = {
