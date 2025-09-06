@@ -180,13 +180,13 @@ in
         };
 
         gestures = {
-          workspace_swipe = true;
-          workspace_swipe_fingers = 3;
           workspace_swipe_distance = 300;
           workspace_swipe_invert = true;
           workspace_swipe_min_speed_to_force = 30;
           workspace_swipe_forever = true;
         };
+
+        gesture = [ "3, horizontal, workspace" ];
 
         monitor = [
           "eDP-1, 1920x1080@144, 0x0, 1"
