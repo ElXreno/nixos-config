@@ -57,10 +57,6 @@ let
     '';
 in
 {
-  fonts.packages =
-    with pkgs;
-    builtins.filter lib.attrsets.isDerivation (builtins.attrValues nerd-fonts); # TODO: Strip to only useful fonts
-
   home-manager.users.elxreno = {
     programs.waybar = {
       enable = true;
