@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 {
   sops = {
     secrets = {
@@ -18,7 +18,7 @@
         servers = [
           {
             tag = "local-dns";
-            address = "127.0.0.1";
+            type = "local";
             detour = "direct";
           }
         ];
@@ -36,7 +36,6 @@
           stack = "gvisor";
           auto_route = true;
           strict_route = true;
-          sniff = true;
         }
       ];
 
@@ -66,15 +65,6 @@
           type = "direct";
           tag = "direct";
         }
-        {
-          type = "block";
-          tag = "block";
-        }
-        {
-          type = "dns";
-          tag = "dns-out";
-        }
-
       ];
 
       route = {
@@ -82,12 +72,15 @@
 
         rules = [
           {
+            action = "sniff";
+          }
+          {
             protocol = "dns";
-            outbound = "dns-out";
+            action = "hijack-dns";
           }
           {
             protocol = "bittorrent";
-            outbound = "block";
+            action = "reject";
           }
           {
             domain_suffix = [
@@ -125,5 +118,7 @@
       experimental.cache_file.enabled = true;
     };
   };
+
+  systemd.services.sing-box.wantedBy = lib.mkForce [ ];
 
 }
