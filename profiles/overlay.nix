@@ -18,7 +18,8 @@
         prismlauncher = super.prismlauncher.override {
           jdks = with super; [
             jdk17
-            graalvm-ce
+            graalvmPackages.graalvm-oracle
+            jdk24
             jre8
             zulu
           ];
@@ -38,7 +39,8 @@
 
         hyprland = inputs.hyprland.packages.${super.system}.hyprland;
         xdg-desktop-portal-hyprland = inputs.hyprland.packages.${super.system}.xdg-desktop-portal-hyprland;
-        split-monitor-workspaces = inputs.split-monitor-workspaces.packages.${super.system}.split-monitor-workspaces;
+        split-monitor-workspaces =
+          inputs.split-monitor-workspaces.packages.${super.system}.split-monitor-workspaces;
       })
     ];
   };
