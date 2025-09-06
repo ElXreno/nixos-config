@@ -290,10 +290,10 @@ in
           ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle${
             lib.optionalString (config.device == "INFINITY") " && ${update-mic-state}"
           }"
-          ", XF86AudioPlay, exec, playerctl play"
-          ", XF86AudioPause, exec, playerctl pause"
-          ", XF86AudioPrev, exec, playerctl previous"
-          ", XF86AudioNext, exec, playerctl next"
+          ", XF86AudioPlay, exec, playerctl play --player=spotify"
+          ", XF86AudioPause, exec, playerctl pause --player=spotify"
+          ", XF86AudioPrev, exec, playerctl previous --player=spotify"
+          ", XF86AudioNext, exec, playerctl next --player=spotify"
 
           # " , switch:Lid Switch, exec, hyprlock" # Remove it if I will use suspend mode
           " , switch:on:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, disable'"

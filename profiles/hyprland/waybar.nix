@@ -91,11 +91,11 @@ in
             exec =
               let
                 playerctlMetadata = pkgs.writeShellScript "player-metadata" ''
-                  ${lib.getExe pkgs.playerctl} metadata --format='{{ title }} - {{ artist }}'
+                  ${lib.getExe pkgs.playerctl} metadata --player=spotify --format='{{ title }} - {{ artist }}'
                 '';
               in
               toString playerctlMetadata;
-            on-click = "${lib.getExe pkgs.playerctl} play-pause";
+            on-click = "${lib.getExe pkgs.playerctl} play-pause --player=spotify";
           };
         };
         statusBar = {

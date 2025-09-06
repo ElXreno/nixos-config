@@ -26,8 +26,8 @@ in
             playerctlMetadata = pkgs.writeShellScript "player-metadata" ''
               status=$(${lib.getExe pkgs.playerctl} status)
               if [ "$status" = "Playing" ]; then
-                title=$(${lib.getExe pkgs.playerctl} metadata title 2>/dev/null)
-                artist=$(${lib.getExe pkgs.playerctl} metadata artist 2>/dev/null)
+                title=$(${lib.getExe pkgs.playerctl} metadata --player=spotify title 2>/dev/null)
+                artist=$(${lib.getExe pkgs.playerctl} metadata --player=spotify artist 2>/dev/null)
                 echo -e "<span font_size='32000' weight='bold'>$title</span>\\n<span font_size='25000' alpha='85%'>$artist</span>"
               fi
             '';
