@@ -57,6 +57,7 @@
             nixpkgs-review
             statix
             nix-output-monitor
+            nurl
           ]
           (lib.mkIf (!config.deviceSpecific.isServer) [
             # Messengers
