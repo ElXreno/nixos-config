@@ -15,6 +15,7 @@
 
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
+    inputs.nixos-hardware.nixosModules.common-cpu-amd-zenpower
     inputs.nixos-hardware.nixosModules.common-gpu-amd
     inputs.nixos-hardware.nixosModules.common-gpu-nvidia
     inputs.nixos-hardware.nixosModules.common-pc-laptop
@@ -71,6 +72,7 @@
       11434 # Ollama
       25565 # Minecraft
       57621 # Spotify
+      8100
     ];
     allowedUDPPorts = [
       25565 # Minecraft
@@ -91,7 +93,7 @@
         nvidiaBusId = "PCI:1:0:0";
       };
       powerManagement.enable = true;
-      nvidiaPersistenced = true;
+      # nvidiaPersistenced = true;
     };
   };
 
