@@ -34,7 +34,7 @@ in
           in
           [
             {
-              monitor = "eDP-1";
+              monitor = "";
               text = "cmd[update:10000] echo -e \"<span font_size='90000' weight='bold' line_height='0.8'>$(date +'%H:%M')</span>\\n<span font_size='25000' alpha='85%'>$(date +'%A, %d %B %Y')</span>\"";
               color = "rgba(226, 183, 20, 1)";
               font_size = 1;
@@ -45,7 +45,7 @@ in
               valign = "top";
             }
             {
-              monitor = "eDP-1";
+              monitor = "";
               text = "cmd[update:2000] ${playerctlMetadata}";
               color = "rgba(226, 183, 20, 1)";
               font_size = 1;
@@ -59,7 +59,7 @@ in
 
         input-field = [
           {
-            monitor = "eDP-1";
+            monitor = "";
             position = "30, 30";
             size = "400, 60";
             outline_thickness = 2;
