@@ -46,7 +46,48 @@
     };
   };
 
-  services.irqbalance.enable = true;
+  services.irqbalance.enable = config.device != "KURWA";
+  systemd.services.irqbalance.serviceConfig.ProtectKernelTunables = "no";
+
+  systemd.services."irq-pin" = lib.mkIf (config.device == "KURWA") {
+    description = "Pin selected IRQs to specific CPU masks";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      CapabilityBoundingSet = [ "CAP_SETPCAP" ];
+      ExecStart =
+        let
+          pin-irq = pkgs.writeShellScript "pin-irq" ''
+            set -eu
+
+            hex_ui="0003"
+            hex_noise="FF00"
+
+            ${lib.getExe pkgs.gawk} -v ui="$hex_ui" -v noise="$hex_noise" '
+              /^[[:space:]]*[0-9]+:/ {
+                irq = $1
+                sub(":", "", irq)
+
+                is_ui = (index($0, "amdgpu") > 0 || index($0, "nvidia") > 0)
+                mask  = is_ui ? ui : noise
+                label = is_ui ? "UI" : "noise"
+
+                system("echo irq " irq " - " label)
+
+                f = "/proc/irq/" irq "/smp_affinity"
+                if (system("[ -w " f " ]") == 0) {
+                  system("echo " mask " > " f)
+                }
+              }
+            ' /proc/interrupts
+          '';
+        in
+        [
+          pin-irq
+        ];
+    };
+  };
 
   virtualisation.podman.enable = true;
 
