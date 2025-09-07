@@ -13,8 +13,6 @@
     inputs.nixos-facter-modules.nixosModules.facter
     { config.facter.reportPath = ./facter.json; }
 
-    inputs.chaotic.nixosModules.default
-
     inputs.disko.nixosModules.disko
     inputs.nixos-hardware.nixosModules.common-cpu-amd
     inputs.nixos-hardware.nixosModules.common-cpu-amd-zenpower
@@ -47,15 +45,9 @@
   '';
 
   hardware.amdgpu.opencl.enable = true;
-  chaotic.mesa-git = {
-    enable = true;
-    fallbackSpecialisation = false;
-  };
-
   services.scx = {
     enable = true;
     scheduler = "scx_lavd";
-    package = pkgs.scx_git.full;
     extraArgs = [ "--autopower" ];
   };
 
