@@ -46,6 +46,11 @@
   '';
 
   hardware.amdgpu.opencl.enable = true;
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+    extraArgs = [ "--autopower" ];
+  };
 
   services = {
     xserver.videoDrivers = [

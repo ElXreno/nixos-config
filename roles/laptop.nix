@@ -19,7 +19,7 @@
 
       programs.adb
 
-      services.ananicy
+      # services.ananicy
       services.printing
       services.restic
     ];
