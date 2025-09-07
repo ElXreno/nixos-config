@@ -20,7 +20,6 @@
     inputs.nixos-hardware.nixosModules.common-gpu-nvidia
     inputs.nixos-hardware.nixosModules.common-pc-laptop
     inputs.nixos-hardware.nixosModules.common-pc-laptop-ssd
-    inputs.lanzaboote.nixosModules.lanzaboote
     inputs.self.diskoConfigurations.kurwa
     inputs.self.nixosRoles.laptop
     inputs.self.nixosProfiles.services.asusd
@@ -64,17 +63,10 @@
         hashTableSizeMB = 4096;
       };
     };
-
-    ollama = lib.mkIf (config.specialisation != { }) {
-      enable = true;
-      acceleration = "cuda";
-      host = "[::]";
-    };
   };
 
   networking.firewall = {
     allowedTCPPorts = [
-      11434 # Ollama
       25565 # Minecraft
       57621 # Spotify
       8100

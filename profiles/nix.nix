@@ -26,8 +26,7 @@
 
         trusted-users = [ "elxreno" ];
 
-        substituters = lib.mkForce [
-          "https://cache.nixos.org"
+        substituters = [
           "https://cache.elxreno.com/common"
           "https://nix-community.cachix.org"
         ];
