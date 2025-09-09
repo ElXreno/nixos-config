@@ -90,16 +90,20 @@ in
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
+      xdg-desktop-portal-hyprland
       xdg-desktop-portal-gtk
       kdePackages.xdg-desktop-portal-kde
     ];
 
+    xdgOpenUsePortal = true;
     config.common.default = "kde";
   };
 
-  # Optional, hint Electron apps to use Wayland:
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
+    GDK_BACKEND = "wayland,x11";
+    QT_QPA_PLATFORM = "wayland;xcb";
+    QT_WAYLAND_DISABLE_WINDOWDECORATION = 1;
   };
 
   services.udev.extraRules = ''
@@ -117,6 +121,7 @@ in
         };
       };
     };
+    services.playerctld.enable = true;
 
     home.packages = with pkgs; [
       xfce.thunar
@@ -151,6 +156,7 @@ in
     programs.kitty.enable = true; # required for the default Hyprland config
     wayland.windowManager.hyprland = {
       enable = true;
+      systemd.enable = false;
 
       package = null;
       portalPackage = null;
@@ -194,6 +200,10 @@ in
           "DP-2, preferred, -1920x0, 1.0"
           "HDMI-A-1, 1920x1080@60, -1920x0, 1.0"
         ];
+
+        cursor = {
+          default_monitor = "eDP-1";
+        };
 
         general = {
           gaps_out = 16;
@@ -325,12 +335,30 @@ in
           enable_anr_dialog = false;
         };
 
+        xwayland = {
+          force_zero_scaling = true;
+        };
+
         exec-once = [
           "nm-applet --indicator"
           "blueman-applet"
           "wl-paste --type text --watch cliphist store"
           "wl-paste --type image --watch cliphist store"
           (lib.mkIf (config.device == "INFINITY") "sleep 3 && ${update-mic-state}")
+          (
+            let
+              monitor-hotplug = pkgs.writeShellScript "monitor-hotplug.sh" ''
+                handle() {
+                  case $1 in
+                    monitoradded*|monitorremoved*) hyprctl dispatch focusmonitor eDP-1 ;;
+                  esac
+                }
+
+                ${lib.getExe pkgs.socat} -U - UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock | while read -r line; do handle "$line"; done
+              '';
+            in
+            monitor-hotplug
+          )
         ];
       };
     };

@@ -36,7 +36,7 @@ let
               f"{${type}_icon}{{${type}}}"
           )
 
-          iface = "wlp4s0"
+          iface = "wlan0"
           bytes = get_bytes(iface)
 
           while True:
@@ -74,7 +74,7 @@ in
           modules-left = [ "hyprland/workspaces" ];
           modules-center = [ "hyprland/window" ];
           modules-right = [
-            "custom/player-metadata"
+            "mpris"
           ];
 
           "hyprland/workspaces" = {
@@ -86,16 +86,12 @@ in
             separate-outputs = true;
           };
 
-          "custom/player-metadata" = {
-            interval = 2;
-            exec =
-              let
-                playerctlMetadata = pkgs.writeShellScript "player-metadata" ''
-                  ${lib.getExe pkgs.playerctl} metadata --player=spotify --format='{{ title }} - {{ artist }}'
-                '';
-              in
-              toString playerctlMetadata;
-            on-click = "${lib.getExe pkgs.playerctl} play-pause --player=spotify";
+          "mpris" = {
+            ignored-players = [ "firefox" ];
+            dynamic-order = [
+              "title"
+              "artist"
+            ];
           };
         };
         statusBar = {
@@ -306,7 +302,7 @@ in
           margin: 0 5px;
         }
 
-        #custom-player-metadata,
+        #mpris,
         #language {
           margin-right: 10px;
         }
