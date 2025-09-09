@@ -8,7 +8,7 @@
         powersave = false;
       };
     };
-    useDHCP = lib.mkIf (!config.deviceSpecific.isServer) (lib.mkDefault false);
+    useDHCP = false;
     useNetworkd = lib.mkOverride 10 false;
   };
 }
