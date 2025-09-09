@@ -35,12 +35,13 @@
   # I'll manage it manually
   # Nvidia kernel module too big for `/boot` partition
   facter.detected.graphics.enable = false;
+  # And dhcp too
+  facter.detected.dhcp.enable = false;
 
   # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
   boot.kernelParams = [ "amdgpu.dcdebugmask=0x10" ];
 
   boot.extraModprobeConfig = ''
-    options rtw89_core disable_ps_mode=Y
     options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01
   '';
 
