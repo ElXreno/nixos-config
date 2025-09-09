@@ -5,6 +5,7 @@
     networkmanager = {
       enable = lib.mkIf (!config.deviceSpecific.isServer) true;
       wifi = {
+        backend = lib.mkIf (config.device == "KURWA") "iwd";
         powersave = false;
       };
     };
