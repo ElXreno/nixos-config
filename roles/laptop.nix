@@ -15,6 +15,7 @@
       home.programs.mangohud
       home.programs.mpv
       home.programs.vscodium
+      home.programs.zed-editor
       home.services.syncthing
 
       programs.adb

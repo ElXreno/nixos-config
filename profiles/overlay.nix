@@ -25,9 +25,10 @@
           ];
         };
 
+        crates-lsp = super.callPackage inputs.self.nixosModules.crates-lsp { };
+        esp2elf = super.callPackage inputs.self.nixosModules.esp2elf { };
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
 
-        esp2elf = super.callPackage ../modules/esp2elf.nix { };
         bitmagnet = super.bitmagnet.overrideAttrs (
           final: prev: {
             version = "unstable-2025-08-01";
