@@ -649,7 +649,7 @@
   "refresh": "5s",
   "schemaVersion": 41,
   "tags": [
-    "dnscrypt-proxy2"
+    "dnscrypt-proxy"
   ],
   "templating": {
     "list": [
@@ -693,7 +693,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "DNSCrypt-Proxy2",
+  "title": "DNSCrypt-Proxy",
   "uid": "31a7d26e-2d6c-4d11-bd6b-d367b387eaf4",
   "version": 3
 }

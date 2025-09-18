@@ -25,7 +25,7 @@
       home.programs.starship
       home.services.gpg-agent
 
-      services.dnscrypt-proxy2
+      services.dnscrypt-proxy
       services.openssh
     ];
 }

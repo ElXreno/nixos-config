@@ -23,7 +23,7 @@
           }
         ];
 
-        final = "local-dns"; # Route to the dnscrypt-proxy2
+        final = "local-dns"; # Route to the dnscrypt-proxy
         disable_cache = false;
         disable_expire = false;
       };

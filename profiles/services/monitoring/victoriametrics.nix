@@ -8,7 +8,7 @@ let
   nvidiaExporter = prometheusExporters.nvidia-gpu;
 
   victoriaLogs = config.services.victorialogs;
-  dnscrypt = config.services.dnscrypt-proxy2;
+  dnscrypt = config.services.dnscrypt-proxy;
 in
 {
   services.victoriametrics = {
@@ -76,7 +76,7 @@ in
           ];
         })
         (lib.mkIf dnscrypt.enable {
-          job_name = "dnscrypt-proxy2";
+          job_name = "dnscrypt-proxy";
 
           static_configs = [
             {

@@ -96,7 +96,7 @@ in
         "vm.extfrag_threshold" = 300;
         "vm.vfs_cache_pressure" = 3000;
       })
-      (lib.mkIf (with config.services.dnscrypt-proxy2; enable && settings.http3) {
+      (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3) {
         "net.core.rmem_max" = 7500000;
         "net.core.wmem_max" = 7500000;
       })

@@ -78,9 +78,9 @@ in
       user = "grafana";
     };
 
-    dnscrypt-proxy2 = lib.mkIf config.services.dnscrypt-proxy2.enable {
-      source = ./dashboards/dnscrypt-proxy2.json;
-      target = "grafana-dashboards/dnscrypt-proxy2.json";
+    dnscrypt-proxy = lib.mkIf config.services.dnscrypt-proxy.enable {
+      source = ./dashboards/dnscrypt-proxy.json;
+      target = "grafana-dashboards/dnscrypt-proxy.json";
       group = "grafana";
       user = "grafana";
     };
