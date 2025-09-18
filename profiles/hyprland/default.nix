@@ -161,8 +161,8 @@ in
       package = null;
       portalPackage = null;
 
-      plugins = [
-        pkgs.split-monitor-workspaces
+      plugins = with pkgs; [
+        split-monitor-workspaces
       ];
 
       settings = {
@@ -315,7 +315,7 @@ in
           "noborder, class:^(MEGAsync)$"
 
           "float, class:^(steam)$, title:^(Friends List)$"
-          "float, title:^(Open File)$"
+          "float, class:^(org.freedesktop.impl.portal.desktop.kde)$"
 
           "opacity 0.0 override 0.0 override, class:^(xwaylandvideobridge)$"
           "noanim, class:^(xwaylandvideobridge)$"
