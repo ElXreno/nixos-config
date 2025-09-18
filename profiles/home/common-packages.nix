@@ -48,6 +48,7 @@
             usbutils
             wget
             wireguard-tools
+            clickhouse
 
             # Nix stuff
             deadnix
