@@ -89,7 +89,11 @@
     };
   };
 
-  virtualisation.podman.enable = true;
+  virtualisation.podman = {
+    enable = true;
+    dockerSocket.enable = true;
+  };
+  hardware.nvidia-container-toolkit.enable = config.hardware.nvidia.enabled;
 
   zramSwap = {
     enable = lib.mkDefault true;
