@@ -31,7 +31,7 @@
           "https://nix-community.cachix.org"
         ];
         trusted-public-keys = [
-          "common:d1flxCApyS+J1zmvXwPVvtOg89nXd1p4XJHQLePfMFY="
+          "common:m1kzZFDmZb76MaOKKGGBkJKZL/Rd8MrlQr+Sk+Q92c4="
           "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
         ];
       }
