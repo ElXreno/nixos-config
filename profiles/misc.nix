@@ -5,7 +5,7 @@
   ...
 }:
 {
-  time.timeZone = lib.mkDefault "Europe/Minsk";
+  time.timeZone = "Europe/Minsk";
 
   i18n.defaultLocale = lib.mkDefault "en_US.UTF-8";
   console = {
