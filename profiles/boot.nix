@@ -59,11 +59,9 @@ in
         "net.core.default_qdisc" = "fq";
         "net.ipv4.tcp_congestion_control" = "bbr";
 
-        "net.ipv4.tcp_fastopen" = 3;
-
-        "net.ipv4.tcp_keepalive_intvl" = 10;
-        "net.ipv4.tcp_keepalive_probes" = 6;
-        "net.ipv4.tcp_keepalive_time" = 30;
+        "net.ipv4.tcp_keepalive_intvl" = 20;
+        "net.ipv4.tcp_keepalive_probes" = 4;
+        "net.ipv4.tcp_keepalive_time" = 80;
 
         "net.ipv4.tcp_mtu_probing" = 1;
         "net.ipv4.tcp_slow_start_after_idle" = 0;
@@ -84,12 +82,12 @@ in
       (lib.mkIf isLaptop {
         # Network
         "net.core.netdev_max_backlog" = "2000";
-        "net.ipv4.tcp_notsent_lowat" = "32768";
+        "net.ipv4.tcp_notsent_lowat" = "16384";
 
-        "net.ipv4.tcp_rmem" = "4096 262144 8388608";
-        "net.ipv4.tcp_wmem" = "4096 262144 8388608";
+        "net.ipv4.tcp_rmem" = "8192 262144 33554432";
+        "net.ipv4.tcp_wmem" = "4096 16384 16777216";
         "net.ipv4.tcp_adv_win_scale" = -2;
-        "net.ipv4.tcp_collapse_max_bytes" = 1048576;
+        "net.ipv4.tcp_collapse_max_bytes" = 6291456;
 
         # Memory
         "vm.min_free_kbytes" = 262144;
@@ -97,8 +95,8 @@ in
         "vm.vfs_cache_pressure" = 3000;
       })
       (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3) {
-        "net.core.rmem_max" = 7500000;
-        "net.core.wmem_max" = 7500000;
+        "net.core.rmem_max" = 33554432;
+        "net.core.wmem_max" = 16777216;
       })
     ];
     supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
