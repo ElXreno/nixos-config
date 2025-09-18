@@ -18,7 +18,7 @@
         prismlauncher = super.prismlauncher.override {
           jdks = with super; [
             jdk17
-            graalvmPackages.graalvm-oracle
+            graalvmPackages.graalvm-oracle_25-ea
             jdk24
             jre8
             zulu
