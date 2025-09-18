@@ -30,6 +30,8 @@
     inputs.self.nixosProfiles.hyprland
     # inputs.self.nixosProfiles.zfs
     inputs.self.nixosProfiles.virtualisation
+    # inputs.self.nixosProfiles.services.monitoring
+    inputs.self.nixosProfiles.services.postgresql
   ];
 
   # I'll manage it manually
@@ -120,6 +122,20 @@
   };
   programs.noisetorch.enable = true;
   hardware.xpadneo.enable = true; # Xbox controller
+
+  services.bitmagnet = {
+    enable = true;
+    openFirewall = true;
+    settings = {
+      tmdb.enabled = false;
+      processor.concurrency = 16;
+      dht_crawler.scaling_factor = 50;
+      dht_crawler.save_files_threshold = 1000;
+    };
+  };
+  systemd.services.bitmagnet = {
+    wantedBy = lib.mkForce [ ];
+  };
 
   # Required sometimes
   # services.timesyncd.enable = false;

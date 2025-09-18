@@ -109,5 +109,12 @@ in
         user = "grafana";
       }
     );
+
+    bitmagnet = lib.mkIf config.services.bitmagnet.enable {
+      source = pkgs.bitmagnet.src + "/observability/grafana-dashboards/bitmagnet.json";
+      target = "grafana-dashboards/bitmagnet.json";
+      group = "grafana";
+      user = "grafana";
+    };
   };
 }

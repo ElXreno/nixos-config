@@ -9,6 +9,7 @@ let
 
   victoriaLogs = config.services.victorialogs;
   dnscrypt = config.services.dnscrypt-proxy;
+  bitmagnet = config.services.bitmagnet;
 in
 {
   services.victoriametrics = {
@@ -81,6 +82,16 @@ in
           static_configs = [
             {
               targets = [ "http://${dnscrypt.settings.monitoring_ui.listen_address}/metrics" ];
+            }
+          ];
+        })
+
+        (lib.mkIf bitmagnet.enable {
+          job_name = "bitmagnet";
+
+          static_configs = [
+            {
+              targets = [ "http://localhost${bitmagnet.settings.http_server.port}/metrics" ];
             }
           ];
         })
