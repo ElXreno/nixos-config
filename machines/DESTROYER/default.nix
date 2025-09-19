@@ -48,6 +48,9 @@
     "processor.max_cstate=1"
     "idle=nomwait"
     "preempt=voluntary"
+
+    "iommu.strict=0"
+    "iommu.passthrough=1"
   ];
 
   system.stateVersion = "25.05";
