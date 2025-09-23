@@ -4,7 +4,7 @@
   fetchFromGitHub,
   makeWrapper,
   unixtools,
-  libelf
+  libelf,
 }:
 
 stdenv.mkDerivation rec {

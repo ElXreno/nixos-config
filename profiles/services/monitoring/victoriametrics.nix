@@ -9,7 +9,7 @@ let
 
   victoriaLogs = config.services.victorialogs;
   dnscrypt = config.services.dnscrypt-proxy;
-  bitmagnet = config.services.bitmagnet;
+  inherit (config.services) bitmagnet;
 in
 {
   services.victoriametrics = {

@@ -34,7 +34,7 @@
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
 
         bitmagnet = super.bitmagnet.overrideAttrs (
-          final: prev: {
+          _final: prev: {
             version = "unstable-2025-08-01";
 
             src = super.fetchFromGitHub {
@@ -60,17 +60,16 @@
         );
 
         supergfxctl = super.supergfxctl.overrideAttrs (
-          finalAttrs: previousAttrs: {
+          _finalAttrs: previousAttrs: {
             postPatch = (previousAttrs.postPatch or "") + ''
               sed -i "s|/usr/bin/lsof|${super.lsof}/bin/lsof|" src/lib.rs
             '';
           }
         );
 
-        hyprland = inputs.hyprland.packages.${super.system}.hyprland;
-        xdg-desktop-portal-hyprland = inputs.hyprland.packages.${super.system}.xdg-desktop-portal-hyprland;
-        split-monitor-workspaces =
-          inputs.split-monitor-workspaces.packages.${super.system}.split-monitor-workspaces;
+        inherit (inputs.hyprland.packages.${super.system}) hyprland;
+        inherit (inputs.hyprland.packages.${super.system}) xdg-desktop-portal-hyprland;
+        inherit (inputs.split-monitor-workspaces.packages.${super.system}) split-monitor-workspaces;
       })
     ];
   };

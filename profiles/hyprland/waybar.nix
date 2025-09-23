@@ -1,4 +1,4 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 let
   # https://github.com/Alexays/Waybar/issues/2162#issuecomment-1537366689
   mkBandwidthModule =

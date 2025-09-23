@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   services.postgresql = {
     enable = true;
@@ -26,8 +31,8 @@
   environment.systemPackages = [
     (
       let
-        newPostgres = pkgs.postgresql_17.withPackages (pp: [
-          # pp.plv8
+        newPostgres = pkgs.postgresql_17.withPackages (_pp: [
+          # _pp.plv8
         ]);
         cfg = config.services.postgresql;
       in
