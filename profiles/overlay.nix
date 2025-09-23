@@ -18,11 +18,15 @@
         prismlauncher = super.prismlauncher.override {
           jdks = with super; [
             jdk17
-            graalvmPackages.graalvm-oracle_25-ea
+            graalvmPackages.graalvm-oracle
             jdk24
             jre8
             zulu
           ];
+        };
+
+        onnxruntime = super.onnxruntime.override {
+          cudaSupport = false; # I don't want to rebuild that
         };
 
         crates-lsp = super.callPackage inputs.self.nixosModules.crates-lsp { };
