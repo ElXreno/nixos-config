@@ -17,6 +17,10 @@
         "opentofu"
         "dockerfile"
         "helm"
+
+        "golangci-lint"
+        "gosum"
+        "go-snippets"
       ];
       extraPackages = with pkgs; [
         nixd
@@ -28,6 +32,10 @@
         tofu-ls
         helm-ls
         (tree-sitter.withPlugins (p: builtins.attrValues p))
+
+        gopls
+        golangci-lint-langserver
+        delve
       ];
 
       userSettings = {
