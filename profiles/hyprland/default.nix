@@ -210,6 +210,11 @@ in
           default_monitor = "eDP-1";
         };
 
+        render = {
+          direct_scanout = 2;
+          new_render_scheduling = true;
+        };
+
         general = {
           allow_tearing = true;
 
@@ -335,6 +340,7 @@ in
           "workspace 10, class:^(org.keepassxc.KeePassXC)$"
 
           "immediate, class:^(DDNet)$"
+          "immediate, title:^(Minecraft*)$"
         ];
 
         misc = {
