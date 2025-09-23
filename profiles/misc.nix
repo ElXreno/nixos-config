@@ -59,7 +59,4 @@
     algorithm = "zstd";
     memoryPercent = 300;
   };
-
-  # Not in use anyway
-  systemd.coredump.enable = false;
 }
