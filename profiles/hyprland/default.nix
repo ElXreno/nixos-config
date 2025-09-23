@@ -154,6 +154,11 @@ in
       };
     };
     programs.kitty.enable = true; # required for the default Hyprland config
+
+    xdg.mimeApps.defaultApplications = {
+      "inode/directory" = "thunar.desktop";
+    };
+
     wayland.windowManager.hyprland = {
       enable = true;
       systemd.enable = false;
