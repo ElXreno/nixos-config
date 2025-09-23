@@ -26,7 +26,6 @@
             binutils
             binwalk
             bmon
-            cachix
             compsize
             config.boot.kernelPackages.cpupower
             dua
@@ -47,15 +46,11 @@
             unzip
             usbutils
             wget
-            wireguard-tools
-            clickhouse
 
             # Nix stuff
             deadnix
-            nix-prefetch-github
             nix-tree
             nixfmt-rfc-style
-            nixpkgs-review
             statix
             nix-output-monitor
             nurl
@@ -78,11 +73,8 @@
 
             # Messengers
             discord
-            element-desktop
-            slack
 
             # Games
-            bottles
             ddnet
             gamemode
             prismlauncher
@@ -90,15 +82,6 @@
 
             # MEGA
             megasync
-
-            # DB
-            # pgmodeler
-
-            # Dev
-            # code-cursor
-            gitkraken
-            # bruno # fuck postman: https://github.com/postmanlabs/postman-app-support/issues/12383
-            # postman # just for websockets
 
             # Office and language packs
             libreoffice
@@ -113,12 +96,10 @@
             virt-manager
 
             # Music
-            # strawberry
             spotify
 
             # K8s
             kubectl
-            # openlens lacks some features like `shell in the pod`
             lens
             headlamp
 
@@ -126,22 +107,15 @@
             obsidian
 
             ## etc
-            remmina
             sony-headphones-client
             chromium
-            hashcat
-            esp2elf
-            nvidia_oc
           ])
         ];
     };
 
     xdg.mimeApps = {
       defaultApplications = {
-        "x-scheme-handler/element" = lib.mkIf (!config.deviceSpecific.isServer) "element-desktop.desktop";
-        "x-scheme-handler/gitkraken" = lib.mkIf config.deviceSpecific.isLaptop "gitkraken.desktop";
         "x-scheme-handler/lens" = lib.mkIf config.deviceSpecific.isLaptop "lens-desktop.desktop";
-        "x-scheme-handler/slack" = lib.mkIf config.deviceSpecific.isLaptop "slack.desktop";
         "video/x-matroska" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
         "video/mpeg" = lib.mkIf config.deviceSpecific.isLaptop "mpv.desktop";
       };

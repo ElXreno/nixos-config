@@ -1,16 +1,13 @@
 { pkgs, ... }:
 pkgs.mkShell {
-  nativeBuildInputs =
-    with pkgs;
-    [
-      # Rust
-      gcc
-      pkg-config
-      clang
-      gnumake
-      rustup
-    ]
-    ++ (with jetbrains; [ rust-rover ]);
+  nativeBuildInputs = with pkgs; [
+    # Rust
+    gcc
+    pkg-config
+    clang
+    gnumake
+    rustup
+  ];
 
   buildInputs = with pkgs; [
     # Rust

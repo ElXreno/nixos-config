@@ -10,13 +10,9 @@ pkgs.mkShell {
     python
   ];
 
-  buildInputs =
-    with pkgs;
-    with python.pkgs;
-    [
-      # Python
-      venvShellHook
-    ];
+  buildInputs = with pkgs.python.pkgs; [
+    venvShellHook
+  ];
 
   NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
 

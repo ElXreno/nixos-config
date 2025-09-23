@@ -8,7 +8,6 @@
 {
   imports = with inputs.self.nixosProfiles; [
     services.xserver
-    home.services.kdeconnect
   ];
   services = {
     displayManager = {

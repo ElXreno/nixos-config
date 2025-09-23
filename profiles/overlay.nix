@@ -30,7 +30,6 @@
         };
 
         crates-lsp = super.callPackage inputs.self.nixosModules.crates-lsp { };
-        esp2elf = super.callPackage inputs.self.nixosModules.esp2elf { };
         headlamp = super.callPackage inputs.self.nixosModules.headlamp { };
 
         bitmagnet = super.bitmagnet.overrideAttrs (

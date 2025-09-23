@@ -59,4 +59,6 @@
     algorithm = "zstd";
     memoryPercent = 300;
   };
+
+  services.speechd.enable = false; # I don't use that
 }

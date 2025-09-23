@@ -16,7 +16,6 @@
 
       programs.adb
 
-      services.ananicy
       services.printing
     ];
 

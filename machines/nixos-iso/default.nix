@@ -48,14 +48,6 @@ in
       hardware.nvidia.open = true;
     }
     // asus_common;
-
-    asus-nvidia-proprietary.configuration = {
-      isoImage.showConfiguration = true;
-      isoImage.configurationName = "ASUS with proprietary NVidia ${config.hardware.nvidia.package.version} driver";
-
-      hardware.nvidia.open = false;
-    }
-    // asus_common;
   };
 
   environment.systemPackages = with pkgs; [
