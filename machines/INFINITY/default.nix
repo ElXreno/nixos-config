@@ -60,7 +60,8 @@
         hunspellDicts.ru-ru
       ];
     };
-    services.syncthing.enable = true;
+    # Not configured
+    # services.syncthing.enable = true;
   };
 
   system.stateVersion = "25.05";
