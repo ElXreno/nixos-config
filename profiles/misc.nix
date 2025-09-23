@@ -60,5 +60,9 @@
     memoryPercent = 300;
   };
 
-  services.speechd.enable = false; # I don't use that
+  services = {
+    # I don't use that
+    speechd.enable = false;
+    orca.enable = false;
+  };
 }
