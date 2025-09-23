@@ -64,18 +64,6 @@
                 ];
               };
             };
-            settings =
-              let
-                base = "(builtins.getFlake (toString ./.))";
-                system = "${base}.nixosConfigurations.${config.device}";
-              in
-              {
-                nixpkgs.expr = "${system}.pkgs";
-                options = {
-                  nixos.expr = "${system}.options";
-                  home-manager.expr = "${system}.options.home-manager.users.type.getSubOptions []";
-                };
-              };
           };
         };
       };

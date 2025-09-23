@@ -1,0 +1,23 @@
+// Folder-specific settings
+//
+// For a full list of overridable settings, and general information on folder-specific settings,
+// see the documentation: https://zed.dev/docs/configuring-zed#settings-files
+{
+  "lsp": {
+    "nixd": {
+      "settings": {
+        "options": {
+          "home-manager": {
+            "expr": "(builtins.getFlake (toString ./.)).nixosConfigurations.KURWA.options.home-manager.users.type.getSubOptions []"
+          },
+          "nixos": {
+            "expr": "(builtins.getFlake (toString ./.)).nixosConfigurations.KURWA.options"
+          }
+        },
+        "nixpkgs": {
+          "expr": "(builtins.getFlake (toString ./.)).nixosConfigurations.KURWA.pkgs"
+        }
+      }
+    }
+  }
+}
