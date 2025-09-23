@@ -206,6 +206,8 @@ in
         };
 
         general = {
+          allow_tearing = true;
+
           gaps_out = 16;
 
           "col.active_border" = "rgb(F3CC26)";
@@ -326,6 +328,8 @@ in
           "workspace 5, class:^(org.telegram.desktop)$"
           "workspace 9, class:^(spotify)$"
           "workspace 10, class:^(org.keepassxc.KeePassXC)$"
+
+          "immediate, class:^(DDNet)$"
         ];
 
         misc = {
