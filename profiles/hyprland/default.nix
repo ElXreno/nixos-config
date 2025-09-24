@@ -175,6 +175,7 @@ in
         "$terminal" = "${pkgs.kitty}/bin/kitty";
         "$menu" = "wofi -S drun";
         "$fileManager" = "thunar";
+        "$editor" = "zeditor";
 
         input = {
           kb_layout = "us,ru";
@@ -269,6 +270,7 @@ in
           "$mod, Return, exec, $terminal"
           "$mod, R, exec, $menu"
           "$mod, E, exec, $fileManager"
+          "$mod, D, exec, $editor"
           "$mod, H, exec, cliphist list | wofi -d | cliphist decode | wl-copy"
           "$mod, L, exec, hyprlock"
 
