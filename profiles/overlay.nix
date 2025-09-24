@@ -15,6 +15,10 @@
       (_self: super: {
         deploy-rs = inputs.deploy-rs.packages.${super.system}.default;
 
+        ffmpeg-full = super.ffmpeg-full.override {
+          withUnfree = true;
+        };
+
         prismlauncher = super.prismlauncher.override {
           jdks = with super; [
             jdk17
