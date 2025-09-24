@@ -41,6 +41,15 @@
     };
   };
 
+  security.pam.loginLimits = [
+    {
+      domain = "*";
+      item = "nofile";
+      type = "-";
+      value = "32768";
+    }
+  ];
+
   services.bpftune.enable = true;
   boot.kernelParams = [
     "virtio_net.napi_weight=64"
