@@ -60,10 +60,33 @@ in
     };
   };
 
-  services.udev.extraHwdb = lib.mkIf (config.device == "INFINITY") ''
-    evdev:name:Huawei WMI hotkeys:*
-      KEYBOARD_KEY_287=f20
-  '';
+  services.udev = {
+    extraHwdb = lib.optionalString (config.device == "INFINITY") ''
+      evdev:name:Huawei WMI hotkeys:*
+        KEYBOARD_KEY_287=f20
+    '';
+
+    extraRules = lib.optionalString (config.device == "KURWA") ''
+      # LAMZU mouse
+      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", TAG+="uaccess"
+      SUBSYSTEM=="hidraw", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", TAG+="uaccess"
+      SUBSYSTEM=="usb", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", TAG+="uaccess"
+
+      # Disable debounce
+      ACTION=="add|change", KERNEL=="event[0-9]*", SUBSYSTEM=="input", ENV{ID_INPUT_MOUSE}=="1", ENV{LIBINPUT_ATTR_DEBOUNCE_DELAY}="0"
+    '';
+  };
+
+  environment.etc = lib.mkIf (config.device == "KURWA") {
+    "libinput/local-overrides.quirks" = {
+      text = ''
+        [Never Debounce]
+        MatchUdevType=mouse
+        ModelBouncingKeys=1
+      '';
+    };
+  };
 
   boot.extraModprobeConfig = lib.mkIf hasBluetooth ''
     options bluetooth disable_ertm=Y

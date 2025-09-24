@@ -197,6 +197,12 @@ in
           workspace_swipe_forever = true;
         };
 
+        device = {
+          name = "lamzu-lamzu-maya-x-8k-dongle-1";
+          middle_button_emulation = false;
+          sensitivity = 0;
+        };
+
         gesture = [ "3, horizontal, workspace" ];
 
         monitor = [
