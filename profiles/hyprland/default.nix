@@ -320,19 +320,20 @@ in
           ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle${
             lib.optionalString (config.device == "INFINITY") " && ${update-mic-state}"
           }"
-          ", XF86AudioPlay, exec, playerctl play --player=spotify"
+          ", XF86AudioPlay,  exec, playerctl play --player=spotify"
           ", XF86AudioPause, exec, playerctl pause --player=spotify"
-          ", XF86AudioPrev, exec, playerctl previous --player=spotify"
-          ", XF86AudioNext, exec, playerctl next --player=spotify"
+          ", XF86AudioPrev,  exec, playerctl previous --player=spotify"
+          ", XF86AudioNext,  exec, playerctl next --player=spotify"
 
-          # " , switch:Lid Switch, exec, hyprlock" # Remove it if I will use suspend mode
-          " , switch:on:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, disable'"
+          # " , switch:Lid Switch,     exec, hyprlock" # Remove it if I will use suspend mode
+          " , switch:on:Lid Switch,  exec, hyprctl keyword monitor 'eDP-1, disable'"
           " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
         ];
 
         windowrulev2 = [
-          "float, class:^(MEGAsync)$"
-          "noborder, class:^(MEGAsync)$"
+          "float, class:^(nz.co.mega.)$"
+          "noborder, class:^(nz.co.mega.)$"
+          "nofollowmouse, class:^(nz.co.mega.)$"
 
           "float, class:^(steam)$, title:^(Friends List)$"
           "float, class:^(org.freedesktop.impl.portal.desktop.kde)$"
