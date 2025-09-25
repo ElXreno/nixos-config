@@ -60,7 +60,7 @@
       "nvidia"
     ];
 
-    beesd.filesystems = lib.mkIf (config.specialisation != { }) {
+    beesd.filesystems = {
       "root" = {
         spec = "PARTLABEL=disk-nvme-root";
         hashTableSizeMB = 4096;
