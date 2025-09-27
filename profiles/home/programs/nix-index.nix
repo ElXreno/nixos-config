@@ -4,10 +4,13 @@
   home-manager.users.elxreno = {
     imports = [ inputs.nix-index-database.homeModules.nix-index ];
 
-    programs.nix-index = {
-      enable = true;
-      enableBashIntegration = true;
-      enableFishIntegration = true;
+    programs = {
+      nix-index = {
+        enable = true;
+        enableBashIntegration = true;
+        enableFishIntegration = true;
+      };
+      nix-index-database.comma.enable = true;
     };
   };
 }
