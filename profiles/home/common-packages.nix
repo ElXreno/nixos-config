@@ -75,7 +75,7 @@
             discord
 
             # Games
-            ddnet
+            taterclient-ddnet
             gamemode
             prismlauncher
             xclicker
