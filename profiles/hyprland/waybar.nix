@@ -36,7 +36,7 @@ let
               f"{${type}_icon}{{${type}}}"
           )
 
-          iface = "wlan0"
+          iface = "wlp4s0"
           bytes = get_bytes(iface)
 
           while True:
