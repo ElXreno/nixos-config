@@ -23,8 +23,8 @@
     },
     "bluetooth": [
       {
-        "index": 76,
-        "attached_to": 80,
+        "index": 75,
+        "attached_to": 78,
         "class_list": [
           "usb",
           "bluetooth"
@@ -44,14 +44,17 @@
           "value": 277
         },
         "vendor": {
-          "hex": "8087",
-          "value": 32903
+          "hex": "0489",
+          "name": "Foxconn / Hon Hai",
+          "value": 1161
         },
         "device": {
-          "hex": "0032",
-          "value": 50
+          "hex": "e123",
+          "name": "Bluetooth Radio",
+          "value": 57635
         },
-        "model": "Bluetooth Device",
+        "serial": "00e04c000001",
+        "model": "Foxconn / Hon Hai Bluetooth Radio",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-5/1-5:1.1",
         "sysfs_bus_id": "1-5:1.1",
         "resources": [
@@ -99,11 +102,11 @@
         "driver_modules": [
           "btusb"
         ],
-        "module_alias": "usb:v8087p0032d0000dcE0dsc01dp01icE0isc01ip01in01"
+        "module_alias": "usb:v0489pE123d0000dcE0dsc01dp01icE0isc01ip01in01"
       },
       {
         "index": 84,
-        "attached_to": 80,
+        "attached_to": 78,
         "class_list": [
           "usb",
           "bluetooth"
@@ -123,14 +126,17 @@
           "value": 277
         },
         "vendor": {
-          "hex": "8087",
-          "value": 32903
+          "hex": "0489",
+          "name": "Foxconn / Hon Hai",
+          "value": 1161
         },
         "device": {
-          "hex": "0032",
-          "value": 50
+          "hex": "e123",
+          "name": "Bluetooth Radio",
+          "value": 57635
         },
-        "model": "Bluetooth Device",
+        "serial": "00e04c000001",
+        "model": "Foxconn / Hon Hai Bluetooth Radio",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-5/1-5:1.0",
         "sysfs_bus_id": "1-5:1.0",
         "resources": [
@@ -178,7 +184,7 @@
         "driver_modules": [
           "btusb"
         ],
-        "module_alias": "usb:v8087p0032d0000dcE0dsc01dp01icE0isc01ip01in00"
+        "module_alias": "usb:v0489pE123d0000dcE0dsc01dp01icE0isc01ip01in00"
       }
     ],
     "bridge": [
@@ -1550,8 +1556,8 @@
     ],
     "camera": [
       {
-        "index": 72,
-        "attached_to": 80,
+        "index": 71,
+        "attached_to": 78,
         "class_list": [
           "camera",
           "usb"
@@ -1652,8 +1658,8 @@
         "module_alias": "usb:v3277p0029d0103dcEFdsc02dp01ic0Eisc02ip00in01"
       },
       {
-        "index": 81,
-        "attached_to": 80,
+        "index": 79,
+        "attached_to": 78,
         "class_list": [
           "camera",
           "usb"
@@ -1914,7 +1920,8 @@
           "srso",
           "ibpb_no_ret",
           "spectre_v2_user",
-          "tsa"
+          "tsa",
+          "vmscape"
         ],
         "power_management": [
           "ts",
@@ -1927,7 +1934,7 @@
           "[14]",
           "[15]"
         ],
-        "bogo": 7586,
+        "bogo": 7585,
         "cache": 1024,
         "units": 16,
         "page_size": 4096,
@@ -1950,7 +1957,7 @@
     "disk": [
       {
         "index": 67,
-        "attached_to": 30,
+        "attached_to": 52,
         "class_list": [
           "disk",
           "block_device",
@@ -1992,16 +1999,16 @@
           "hex": "a801",
           "value": 43009
         },
-        "serial": "S7ZRNJ0Y301506K",
+        "serial": "S7ZRNJ0Y301478E",
         "model": "Samsung SSD 9100 PRO with Heatsink 4TB",
         "sysfs_id": "/class/block/nvme0n1",
         "sysfs_bus_id": "nvme0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:01.2/0000:02:00.0/nvme/nvme0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:02.4/0000:05:00.0/nvme/nvme0",
         "unix_device_names": [
-          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K",
-          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K_1",
-          "/dev/disk/by-id/nvme-eui.002538a35141656c",
-          "/dev/disk/by-path/pci-0000:02:00.0-nvme-1",
+          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301478E",
+          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301478E_1",
+          "/dev/disk/by-id/nvme-eui.002538a351416550",
+          "/dev/disk/by-path/pci-0000:05:00.0-nvme-1",
           "/dev/nvme0n1"
         ],
         "resources": [
@@ -2031,7 +2038,7 @@
       },
       {
         "index": 68,
-        "attached_to": 52,
+        "attached_to": 30,
         "class_list": [
           "disk",
           "block_device",
@@ -2073,16 +2080,16 @@
           "hex": "a801",
           "value": 43009
         },
-        "serial": "S7ZRNJ0Y301478E",
+        "serial": "S7ZRNJ0Y301506K",
         "model": "Samsung SSD 9100 PRO with Heatsink 4TB",
         "sysfs_id": "/class/block/nvme1n1",
         "sysfs_bus_id": "nvme1",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:02.4/0000:05:00.0/nvme/nvme1",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:01.2/0000:02:00.0/nvme/nvme1",
         "unix_device_names": [
-          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301478E",
-          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301478E_1",
-          "/dev/disk/by-id/nvme-eui.002538a351416550",
-          "/dev/disk/by-path/pci-0000:05:00.0-nvme-1",
+          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K",
+          "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K_1",
+          "/dev/disk/by-id/nvme-eui.002538a35141656c",
+          "/dev/disk/by-path/pci-0000:02:00.0-nvme-1",
           "/dev/nvme1n1"
         ],
         "resources": [
@@ -2131,14 +2138,14 @@
         "sysfs_id": "/class/block/zram0",
         "unix_device_names": [
           "/dev/disk/by-label/zram0",
-          "/dev/disk/by-uuid/0428ccef-015c-4f85-a847-6df6ec74bf71",
+          "/dev/disk/by-uuid/cd072047-2178-4caa-a2b1-f0d46eb79045",
           "/dev/zram0"
         ],
         "resources": [
           {
             "type": "size",
             "unit": "sectors",
-            "value_1": 46124544,
+            "value_1": 48834048,
             "value_2": 4096
           }
         ]
@@ -2204,7 +2211,7 @@
         "resources": [
           {
             "type": "io",
-            "base": 53248,
+            "base": 49152,
             "range": 256,
             "enabled": true,
             "access": "read_write"
@@ -2334,7 +2341,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2348,7 +2355,7 @@
           "value": 0
         },
         "serial": "0000:68:00.3",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.3/0000:68:00.3/usb6/6-0:1.0",
         "sysfs_bus_id": "6-0:1.0",
         "detail": {
@@ -2389,7 +2396,7 @@
         "module_alias": "usb:v1D6Bp0003d0616dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 74,
+        "index": 72,
         "attached_to": 21,
         "class_list": [
           "usb",
@@ -2411,7 +2418,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2425,7 +2432,7 @@
           "value": 0
         },
         "serial": "0000:66:00.4",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.4/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -2476,7 +2483,7 @@
         "module_alias": "usb:v1D6Bp0002d0616dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 75,
+        "index": 73,
         "attached_to": 53,
         "class_list": [
           "usb",
@@ -2498,7 +2505,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2512,7 +2519,7 @@
           "value": 0
         },
         "serial": "0000:68:00.4",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.3/0000:68:00.4/usb7/7-0:1.0",
         "sysfs_bus_id": "7-0:1.0",
         "resources": [
@@ -2563,7 +2570,7 @@
         "module_alias": "usb:v1D6Bp0002d0616dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 77,
+        "index": 76,
         "attached_to": 21,
         "class_list": [
           "usb",
@@ -2585,7 +2592,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2599,7 +2606,7 @@
           "value": 0
         },
         "serial": "0000:66:00.4",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.4/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "detail": {
@@ -2640,7 +2647,7 @@
         "module_alias": "usb:v1D6Bp0003d0616dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 78,
+        "index": 77,
         "attached_to": 53,
         "class_list": [
           "usb",
@@ -2662,7 +2669,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2676,7 +2683,7 @@
           "value": 0
         },
         "serial": "0000:68:00.4",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.3/0000:68:00.4/usb8/8-0:1.0",
         "sysfs_bus_id": "8-0:1.0",
         "detail": {
@@ -2717,7 +2724,7 @@
         "module_alias": "usb:v1D6Bp0003d0616dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 80,
+        "index": 78,
         "attached_to": 46,
         "class_list": [
           "usb",
@@ -2739,7 +2746,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2753,7 +2760,7 @@
           "value": 0
         },
         "serial": "0000:66:00.3",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -2804,7 +2811,7 @@
         "module_alias": "usb:v1D6Bp0002d0616dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 82,
+        "index": 80,
         "attached_to": 33,
         "class_list": [
           "usb",
@@ -2826,7 +2833,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2840,7 +2847,7 @@
           "value": 0
         },
         "serial": "0000:68:00.3",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.3/0000:68:00.3/usb5/5-0:1.0",
         "sysfs_bus_id": "5-0:1.0",
         "resources": [
@@ -2913,7 +2920,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.16.4-xanmod1 xhci-hcd",
+          "name": "Linux 6.16.8-xanmod1 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2927,7 +2934,7 @@
           "value": 0
         },
         "serial": "0000:66:00.3",
-        "model": "Linux 6.16.4-xanmod1 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.16.8-xanmod1 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -2970,8 +2977,8 @@
     ],
     "keyboard": [
       {
-        "index": 73,
-        "attached_to": 80,
+        "index": 74,
+        "attached_to": 78,
         "class_list": [
           "keyboard",
           "usb"
@@ -2996,27 +3003,34 @@
           "value": 0
         },
         "vendor": {
-          "hex": "046d",
-          "name": "Logitech Inc.",
-          "value": 1133
+          "hex": "373e",
+          "name": "LAMZU",
+          "value": 14142
         },
         "device": {
-          "hex": "c53f",
-          "name": "USB Receiver",
-          "value": 50495
+          "hex": "001e",
+          "name": "LAMZU Maya X 8K Dongle",
+          "value": 30
         },
         "revision": {
           "hex": "0000",
-          "name": "55.01",
+          "name": "1.00",
           "value": 0
         },
-        "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-2/1-2:1.0",
-        "sysfs_bus_id": "1-2:1.0",
+        "serial": "FC71ABCD6528BCEA",
+        "model": "LAMZU Maya X 8K Dongle",
+        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-1/1-1:1.1",
+        "sysfs_bus_id": "1-1:1.1",
+        "unix_device_names": [
+          "/dev/input/by-id/usb-LAMZU_LAMZU_Maya_X_8K_Dongle_FC71ABCD6528BCEA-event-if01",
+          "/dev/input/by-path/pci-0000:66:00.3-usb-0:1:1.1-event",
+          "/dev/input/by-path/pci-0000:66:00.3-usbv2-0:1:1.1-event",
+          "/dev/input/event7"
+        ],
         "resources": [
           {
             "type": "baud",
-            "speed": 12000000,
+            "speed": 480000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -3046,7 +3060,7 @@
             "value": 1
           },
           "interface_protocol": 1,
-          "interface_number": 0,
+          "interface_number": 1,
           "interface_alternate_setting": 0
         },
         "hotplug": "usb",
@@ -3063,7 +3077,7 @@
           "xkb_rules": "xfree86",
           "xkb_model": "pc104"
         },
-        "module_alias": "usb:v046DpC53Fd5501dc00dsc00dp00ic03isc01ip01in00"
+        "module_alias": "usb:v373Ep001Ed0100dc00dsc00dp00ic03isc01ip01in01"
       }
     ],
     "memory": [
@@ -3087,7 +3101,7 @@
         "resources": [
           {
             "type": "phys_mem",
-            "range": 64424509440
+            "range": 68719476736
           }
         ]
       }
@@ -3332,8 +3346,8 @@
     ],
     "mouse": [
       {
-        "index": 79,
-        "attached_to": 80,
+        "index": 82,
+        "attached_to": 78,
         "class_list": [
           "mouse",
           "usb"
@@ -3358,29 +3372,34 @@
           "value": 3
         },
         "vendor": {
-          "hex": "046d",
-          "name": "Logitech Inc.",
-          "value": 1133
+          "hex": "373e",
+          "name": "LAMZU",
+          "value": 14142
         },
         "device": {
-          "hex": "c53f",
-          "name": "USB Receiver",
-          "value": 50495
+          "hex": "001e",
+          "name": "LAMZU Maya X 8K Dongle",
+          "value": 30
         },
         "revision": {
           "hex": "0000",
-          "name": "55.01",
+          "name": "1.00",
           "value": 0
         },
+        "serial": "FC71ABCD6528BCEA",
         "compat_vendor": "Unknown",
         "compat_device": "Generic USB Mouse",
-        "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-2/1-2:1.1",
-        "sysfs_bus_id": "1-2:1.1",
+        "model": "LAMZU Maya X 8K Dongle",
+        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-1/1-1:1.0",
+        "sysfs_bus_id": "1-1:1.0",
+        "unix_device_names": [
+          "/dev/input/mice"
+        ],
+        "unix_device_name2": "/dev/input/mouse0",
         "resources": [
           {
             "type": "baud",
-            "speed": 12000000,
+            "speed": 480000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -3410,7 +3429,7 @@
             "value": 1
           },
           "interface_protocol": 2,
-          "interface_number": 1,
+          "interface_number": 0,
           "interface_alternate_setting": 0
         },
         "hotplug": "usb",
@@ -3433,7 +3452,7 @@
           "buttons": -1,
           "wheels": -1
         },
-        "module_alias": "usb:v046DpC53Fd5501dc00dsc00dp00ic03isc01ip02in01"
+        "module_alias": "usb:v373Ep001Ed0100dc00dsc00dp00ic03isc01ip02in00"
       },
       {
         "index": 90,
@@ -3461,9 +3480,9 @@
           "hex": "0202",
           "value": 514
         },
-        "sysfs_id": "/devices/platform/AMDI0010:01/i2c-1/i2c-ASUF1204:00/0018:2808:0202.0004/input/input31",
+        "sysfs_id": "/devices/platform/AMDI0010:01/i2c-1/i2c-ASUF1204:00/0018:2808:0202.0004/input/input27",
         "unix_device_names": [
-          "/dev/input/event17",
+          "/dev/input/event23",
           "/dev/input/ + handler"
         ]
       }
@@ -3584,42 +3603,43 @@
           "value": 130
         },
         "vendor": {
-          "hex": "8086",
-          "name": "Intel Corporation",
-          "value": 32902
+          "hex": "10ec",
+          "value": 4332
         },
         "sub_vendor": {
-          "hex": "8086",
-          "name": "Intel Corporation",
-          "value": 32902
+          "hex": "105b",
+          "value": 4187
         },
         "device": {
-          "hex": "2725",
-          "value": 10021
+          "hex": "b852",
+          "value": 47186
         },
         "sub_device": {
-          "hex": "0024",
-          "value": 36
+          "hex": "e111",
+          "value": 57617
         },
-        "revision": {
-          "hex": "001a",
-          "value": 26
-        },
-        "model": "Intel WLAN controller",
+        "model": "WLAN controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:02.2/0000:04:00.0",
         "sysfs_bus_id": "0000:04:00.0",
         "sysfs_iommu_group_id": 19,
         "unix_device_names": [
-          "wlan0"
+          "wlp4s0"
         ],
         "resources": [
           {
             "type": "hwaddr",
-            "address": 50
+            "address": 99
+          },
+          {
+            "type": "io",
+            "base": 53248,
+            "range": 256,
+            "enabled": true,
+            "access": "read_write"
           },
           {
             "type": "phwaddr",
-            "address": 50
+            "address": 99
           },
           {
             "type": "wlan",
@@ -3707,88 +3727,25 @@
         ],
         "detail": {
           "function": 0,
-          "command": 1030,
+          "command": 1031,
           "header_type": 0,
           "secondary_bus": 0,
           "prog_if": 0
         },
-        "driver": "iwlwifi",
-        "driver_module": "iwlwifi",
+        "driver": "rtw89_8852be",
+        "driver_module": "rtw89_8852be",
         "drivers": [
-          "iwlwifi"
+          "rtw89_8852be"
         ],
         "driver_modules": [
-          "iwlwifi"
+          "rtw89_8852be"
         ],
-        "module_alias": "pci:v00008086d00002725sv00008086sd00000024bc02sc80i00"
+        "module_alias": "pci:v000010ECd0000B852sv0000105Bsd0000E111bc02sc80i00"
       }
     ],
     "network_interface": [
       {
         "index": 85,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 86,
-        "attached_to": 57,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "000a",
-          "name": "WLAN",
-          "value": 10
-        },
-        "model": "WLAN network interface",
-        "sysfs_id": "/class/net/wlan0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:02.2/0000:04:00.0",
-        "unix_device_names": [
-          "wlan0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 50
-          },
-          {
-            "type": "phwaddr",
-            "address": 50
-          }
-        ],
-        "driver": "iwlwifi",
-        "driver_module": "iwlwifi",
-        "drivers": [
-          "iwlwifi"
-        ],
-        "driver_modules": [
-          "iwlwifi"
-        ]
-      },
-      {
-        "index": 89,
         "attached_to": 20,
         "class_list": [
           "network_interface"
@@ -3826,6 +3783,69 @@
         ],
         "driver_modules": [
           "r8169"
+        ]
+      },
+      {
+        "index": 87,
+        "attached_to": 57,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/wlp4s0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:02.2/0000:04:00.0",
+        "unix_device_names": [
+          "wlp4s0"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 99
+          },
+          {
+            "type": "phwaddr",
+            "address": 99
+          }
+        ],
+        "driver": "rtw89_8852be",
+        "driver_module": "rtw89_8852be",
+        "drivers": [
+          "rtw89_8852be"
+        ],
+        "driver_modules": [
+          "rtw89_8852be"
+        ]
+      },
+      {
+        "index": 88,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_names": [
+          "lo"
         ]
       }
     ],
@@ -4590,8 +4610,8 @@
     },
     "usb": [
       {
-        "index": 71,
-        "attached_to": 80,
+        "index": 81,
+        "attached_to": 78,
         "class_list": [
           "usb",
           "unknown"
@@ -4616,27 +4636,28 @@
           "value": 0
         },
         "vendor": {
-          "hex": "046d",
-          "name": "Logitech Inc.",
-          "value": 1133
+          "hex": "373e",
+          "name": "LAMZU",
+          "value": 14142
         },
         "device": {
-          "hex": "c53f",
-          "name": "USB Receiver",
-          "value": 50495
+          "hex": "001e",
+          "name": "LAMZU Maya X 8K Dongle",
+          "value": 30
         },
         "revision": {
           "hex": "0000",
-          "name": "55.01",
+          "name": "1.00",
           "value": 0
         },
-        "model": "Logitech USB Receiver",
-        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-2/1-2:1.2",
-        "sysfs_bus_id": "1-2:1.2",
+        "serial": "FC71ABCD6528BCEA",
+        "model": "LAMZU Maya X 8K Dongle",
+        "sysfs_id": "/devices/pci0000:00/0000:00:08.1/0000:66:00.3/usb1/1-1/1-1:1.2",
+        "sysfs_bus_id": "1-1:1.2",
         "resources": [
           {
             "type": "baud",
-            "speed": 12000000,
+            "speed": 480000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -4678,7 +4699,7 @@
         "driver_modules": [
           "usbhid"
         ],
-        "module_alias": "usb:v046DpC53Fd5501dc00dsc00dp00ic03isc00ip00in02"
+        "module_alias": "usb:v373Ep001Ed0100dc00dsc00dp00ic03isc00ip00in02"
       }
     ],
     "usb_controller": [

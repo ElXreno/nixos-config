@@ -44,7 +44,12 @@
   boot.kernelParams = [ "amdgpu.dcdebugmask=0x10" ];
 
   boot.extraModprobeConfig = ''
+    # NVIDIA dGPU
     options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01
+
+    # Realtek RTL8852BE
+    options rtw89_core disable_ps_mode=Y
+    options rtw89_pci disable_aspm_l1=y
   '';
 
   hardware.amdgpu.opencl.enable = true;
