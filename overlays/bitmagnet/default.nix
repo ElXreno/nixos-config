@@ -17,7 +17,7 @@ _final: prev: {
       patches = (prevAttrs.patches or [ ]) ++ [
         (prev.fetchpatch {
           url = "https://github.com/bitmagnet-io/bitmagnet/pull/435/commits/8c8fdcde9a6b6f40a83870981aefee65f9521f31.patch";
-          hash = "sha256-jFAsiMWjsOY0axkv7xSTrzVR66wri9fEGRhRz+5LwTs=";
+          hash = "sha256-E63ooGpLPSsyvrRdd6k8J4U1hyWoJsMKihWlP3aUgek=";
         })
         (prev.fetchpatch {
           url = "https://github.com/bitmagnet-io/bitmagnet/pull/435/commits/61e92b7edc6549d0c12956a02828abb62438ca1f.patch";
