@@ -16,6 +16,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.services.psd.enable = true;
+
     programs.firefox = {
       enable = true;
       inherit (cfg) package;
