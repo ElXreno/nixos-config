@@ -43,6 +43,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    environment.variables = {
+      # Let's ensure that shaders cache are used & also cleanup cache clean up
+      __GL_SHADER_DISK_CACHE = "1";
+      __GL_SHADER_DISK_CACHE_PATH = "$HOME/.nv_shader_cache";
+      __GL_SHADER_DISK_CACHE_SKIP_CLEANUP = "1";
+    };
+
     services.xserver.videoDrivers = [
       "nvidia"
     ];
