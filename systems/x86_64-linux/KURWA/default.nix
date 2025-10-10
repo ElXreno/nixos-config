@@ -85,7 +85,7 @@
 
   boot.extraModprobeConfig = ''
     # NVIDIA dGPU
-    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01
+    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01 NVreg_UsePageAttributeTable=1 NVreg_InitializeSystemMemoryAllocations=0
 
     # Realtek RTL8852BE
     options rtw89_core disable_ps_mode=Y
