@@ -29,7 +29,7 @@ in
 
   config = mkIf cfg.enable {
     nix = {
-      package = cfg.package;
+      inherit (cfg) package;
 
       settings = mkMerge [
         {

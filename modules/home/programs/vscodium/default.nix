@@ -18,7 +18,7 @@ in
   config = mkIf cfg.enable {
     programs.vscode = {
       enable = true;
-      package = cfg.package;
+      inherit (cfg) package;
       profiles.default = {
         extensions =
           with pkgs.vscode-extensions;

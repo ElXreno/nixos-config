@@ -19,7 +19,7 @@ in
   config = mkIf cfg.enable {
     services.postgresql = {
       enable = true;
-      package = cfg.package;
+      inherit (cfg) package;
       authentication = lib.mkForce ''
         local all all trust
       '';

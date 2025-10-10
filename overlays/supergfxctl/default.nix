@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   supergfxctl = prev.supergfxctl.overrideAttrs (

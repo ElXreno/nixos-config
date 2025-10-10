@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   bitmagnet = prev.bitmagnet.overrideAttrs (

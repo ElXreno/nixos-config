@@ -77,7 +77,7 @@ in
         enableReload = true;
         enableQuicBPF = true;
 
-        package = cfg.package;
+        inherit (cfg) package;
 
         recommendedTlsSettings = true;
 
@@ -102,7 +102,7 @@ in
               };
             };
           }
-          (mapAttrs (virtualHost: virtualHostCfg: virtualHostCfg // commonVirtualHostCfg) cfg.virtualHosts)
+          (mapAttrs (_virtualHost: virtualHostCfg: virtualHostCfg // commonVirtualHostCfg) cfg.virtualHosts)
         ];
       };
 

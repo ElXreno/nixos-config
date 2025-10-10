@@ -9,7 +9,7 @@
 let
   inherit (lib) mkIf mkEnableOption mkMerge;
   cfg = config.${namespace}.system.boot;
-  roles = config.${namespace}.roles;
+  inherit (config.${namespace}) roles;
 
   isServer = roles.server.enable;
   isDesktop = roles.desktop.enable;
@@ -54,7 +54,7 @@ in
           };
         })
 
-        (mkIf (cfg.legacy.enable) {
+        (mkIf cfg.legacy.enable {
           grub = {
             enable = true;
             device = lib.mkIf cfg.legacy.setupDevice (lib.mkDefault "/dev/sda");

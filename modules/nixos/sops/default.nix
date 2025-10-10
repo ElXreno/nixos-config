@@ -22,7 +22,7 @@ in
     sops = {
       defaultSopsFile = mkIf (!virtual) (
         lib.snowfall.fs.get-file (
-          if (config.${namespace}.roles.server.enable) then "secrets/server.yaml" else "secrets/common.yaml"
+          if config.${namespace}.roles.server.enable then "secrets/server.yaml" else "secrets/common.yaml"
         )
       );
       age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];

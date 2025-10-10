@@ -50,7 +50,7 @@ in
     hardware = {
       nvidia = {
         open = cfg.package ? open && cfg.package ? firmware;
-        package = cfg.package;
+        inherit (cfg) package;
         dynamicBoost.enable = cfg.dynamicBoost.enable;
         powerManagement.enable = true;
         # nvidiaPersistenced = true;

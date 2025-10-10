@@ -2,7 +2,6 @@
   config,
   namespace,
   lib,
-  pkgs,
   ...
 }:
 
@@ -31,7 +30,7 @@ in
   config = mkIf cfg.enable {
     services.scx = {
       enable = true;
-      scheduler = cfg.scheduler;
+      inherit (cfg) scheduler;
       extraArgs = cfg.schedulerExtraArgs;
     };
   };

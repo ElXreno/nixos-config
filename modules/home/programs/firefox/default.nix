@@ -18,7 +18,7 @@ in
   config = mkIf cfg.enable {
     programs.firefox = {
       enable = true;
-      package = cfg.package;
+      inherit (cfg) package;
 
       languagePacks = [
         "ru"

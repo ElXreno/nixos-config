@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   prismlauncher = prev.prismlauncher.override {

@@ -19,7 +19,7 @@ in
 
   config = {
     documentation = {
-      enable = cfg.enable;
+      inherit (cfg) enable;
       nixos.enable = cfg.enable;
       man.enable = cfg.enable;
       info.enable = cfg.enable;

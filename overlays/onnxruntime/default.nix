@@ -1,4 +1,4 @@
-{ ... }:
+_:
 
 _final: prev: {
   onnxruntime = prev.onnxruntime.override {
