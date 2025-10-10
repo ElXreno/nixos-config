@@ -54,7 +54,8 @@
       supergfxd.enable = true;
 
       sing-box.client.enable = true;
-      scx.enable = true;
+      # Slow downs network I/O when CPU is busy
+      # scx.enable = true;
       postgresql.enable = true;
       bitmagnet.enable = true;
       restic.enable = !virtual;
