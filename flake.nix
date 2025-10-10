@@ -3,8 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
+    nixpkgs-cuda.follows = "nixpkgs";
 
-    nixos-hardware.url = "github:nixos/nixos-hardware";
+    # Upstream: https://github.com/snowfallorg/lib
+    snowfall-lib = {
+      url = "github:ElXreno/snowfallorg-lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
@@ -14,6 +20,11 @@
       url = "github:nix-community/nix-on-droid";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
+    };
+
+    nixos-generators = {
+      url = "github:nix-community/nixos-generators";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     disko.url = "github:nix-community/disko";
@@ -52,69 +63,73 @@
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      deploy-rs,
-      nix-on-droid,
-      ...
-    }@inputs:
-    let
-      inherit (nixpkgs) lib;
-      lib' = import ./lib { inherit lib; };
-    in
-    {
-      nixosModules = lib'.rakeLeaves ./modules;
+    inputs:
+    (inputs.snowfall-lib.mkFlake {
+      inherit inputs;
 
-      nixosProfiles = lib'.rakeLeaves ./profiles;
+      src = ./.;
 
-      nixosRoles = import ./roles;
-
-      nixOnDroidConfigurations.default = nix-on-droid.lib.nixOnDroidConfiguration {
-        modules = [ ./nix-on-droid ];
-        extraSpecialArgs = { inherit inputs; };
-
-        pkgs = import nixpkgs {
-          system = "aarch64-linux";
-
-          overlays = [ nix-on-droid.overlays.default ];
+      snowfall = rec {
+        namespace = "elxreno-nix";
+        meta = {
+          name = namespace;
+          title = "ElXreno's NixOS Configurations";
         };
       };
 
-      nixosConfigurations =
-        with lib;
-        let
-          hosts = builtins.attrNames (builtins.readDir ./machines);
-          mkHost =
-            name:
-            nixosSystem {
-              system = builtins.readFile (./machines + "/${name}/system");
-              modules = [
-                (import (./machines + "/${name}"))
-                { device = name; }
-              ];
-              specialArgs = { inherit inputs lib'; };
+      channels-config = {
+        allowUnfree = true;
+      };
+
+      channels.nixpkgs-cuda.config = {
+        allowUnfree = true;
+        cudaSupport = true;
+        nvidia.acceptLicense = true;
+      };
+
+      homes.modules = with inputs; [
+        nix-index-database.homeModules.nix-index
+        plasma-manager.homeModules.plasma-manager
+      ];
+
+      systems = {
+        modules = {
+          nixos = with inputs; [
+            home-manager.nixosModules.home-manager
+            disko.nixosModules.disko
+            sops-nix.nixosModules.sops
+          ];
+        };
+
+        hosts =
+          let
+            withNvidiaCfg = {
+              channelName = "nixpkgs-cuda";
+
+              specialArgs = {
+                withNvidia = true;
+              };
             };
-        in
-        genAttrs hosts mkHost;
-
-      diskoConfigurations = lib'.rakeLeaves ./disko;
-
-      devShells.x86_64-linux =
-        with lib;
-        let
-          pkgs = import nixpkgs {
-            system = "x86_64-linux";
+          in
+          {
+            KURWA = withNvidiaCfg;
+            AMD-Desktop = withNvidiaCfg;
           };
-          mkShells = mapAttrs (
-            _name: value:
-            import value {
-              inherit inputs pkgs;
-              system = "x86_64-linux";
-            }
-          );
-        in
-        mkShells (lib'.rakeLeaves ./devshell);
+      };
+
+      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
+    })
+    // {
+      nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
+        modules = [ ./nix-on-droid ];
+        extraSpecialArgs = { inherit inputs; };
+
+        pkgs = import inputs.nixpkgs {
+          system = "aarch64-linux";
+
+          overlays = [ inputs.nix-on-droid.overlays.default ];
+        };
+      };
 
       deploy = {
         user = "root";
@@ -123,22 +138,21 @@
           AMD-Desktop = {
             hostname = "desktop";
             profiles.system = {
-              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.AMD-Desktop;
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.AMD-Desktop;
             };
             fastConnection = true;
           };
           DESTROYER = {
             hostname = "destroyer";
             profiles.system = {
-              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.DESTROYER;
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.DESTROYER;
             };
-            fastConnection = false;
-            remoteBuild = true;
+            fastConnection = true;
           };
           INFINITY = {
             hostname = "infinity";
             profiles.system = {
-              path = deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations.INFINITY;
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.INFINITY;
             };
             fastConnection = true;
             interactiveSudo = true;
@@ -147,18 +161,18 @@
       };
 
       hydraJobs =
-        with lib;
-        (mapAttrs (_: val: val.config.system.build.toplevel) self.nixosConfigurations)
+        with inputs.nixpkgs.lib;
+        (mapAttrs (_: val: val.config.system.build.toplevel) inputs.self.nixosConfigurations)
         // (concatMapAttrs (name: val: {
           "nix-on-droid-${name}" = val.activationPackage;
-        }) self.nixOnDroidConfigurations);
+        }) inputs.self.nixOnDroidConfigurations);
 
       ci =
-        with lib;
+        with inputs.nixpkgs.lib;
         mapAttrsToList (name: value: {
           inherit name;
           arch = strings.removeSuffix "-linux" value.system;
           additionalBuildArgs = if (name == "nix-on-droid-default") then "--impure" else "";
-        }) self.hydraJobs;
+        }) inputs.self.hydraJobs;
     };
 }
