@@ -39,14 +39,18 @@
   security.sudo.wheelNeedsPassword = false;
 
   networking.useNetworkd = true;
-  networking.enableIPv6 = false;
+  networking.enableIPv6 = true;
   systemd.network = {
     enable = true;
     networks."10-ens3" = {
       matchConfig.Name = "ens3";
-      address = [ "74.119.195.240/24" ];
+      address = [
+        "74.119.195.240/24"
+        "2a09:7c44:0:3e::/64"
+      ];
       routes = [
         { Gateway = "74.119.195.1"; }
+        { Gateway = "2a09:7c44::1"; }
       ];
       linkConfig.RequiredForOnline = "routable";
     };
