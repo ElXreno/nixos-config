@@ -108,11 +108,11 @@ in
                 security = "reality";
 
                 realitySettings = {
-                  dest = "127.0.0.1:8443";
-                  xver = 1;
+                  dest = "www.apple.com:443";
+                  xver = 0;
                   serverNames = [
-                    "elxreno.com"
-                    "www.elxreno.com"
+                    "apple.com"
+                    "www.apple.com"
                   ];
                   privateKey = config.sops.placeholder."xray/private-key";
                   shortIds = [
