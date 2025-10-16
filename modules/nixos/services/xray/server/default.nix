@@ -21,22 +21,6 @@ in
       settingsFile = config.sops.templates."xray-config.json".path;
     };
 
-    services.nginx = {
-      defaultListen = [
-        {
-          addr = "0.0.0.0";
-          port = 8443;
-          proxyProtocol = true;
-          ssl = true;
-        }
-        {
-          addr = "0.0.0.0";
-          port = 80;
-          ssl = false;
-        }
-      ];
-    };
-
     sops = {
       secrets = {
         "xray/uuid" = { };
@@ -95,12 +79,6 @@ in
                   }
                 ];
                 decryption = "none";
-                fallbacks = [
-                  {
-                    dest = 8443;
-                    xver = 1;
-                  }
-                ];
               };
 
               streamSettings = {

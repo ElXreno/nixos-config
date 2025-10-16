@@ -90,6 +90,20 @@ in
 
         clientMaxBodySize = "4g";
 
+        defaultListen = [
+          {
+            addr = "0.0.0.0";
+            port = 8443;
+            proxyProtocol = true;
+            ssl = true;
+          }
+          {
+            addr = "0.0.0.0";
+            port = 80;
+            ssl = false;
+          }
+        ];
+
         virtualHosts = mkMerge [
           {
             "elxreno.com" = commonVirtualHostCfg // {

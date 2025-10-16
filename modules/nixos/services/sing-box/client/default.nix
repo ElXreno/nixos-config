@@ -65,7 +65,7 @@ in
             flow = "xtls-rprx-vision";
             tls = {
               enabled = true;
-              server_name = "elxreno.com";
+              server_name = "www.apple.com";
               reality = {
                 enabled = true;
                 public_key._secret = config.sops.secrets."xray/public-key".path;
