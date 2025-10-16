@@ -94,7 +94,6 @@ in
           {
             addr = "0.0.0.0";
             port = 8443;
-            proxyProtocol = true;
             ssl = true;
           }
           {
