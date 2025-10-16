@@ -66,9 +66,9 @@ in
       networking.firewall = {
         allowedTCPPorts = [
           80
-          443
+          8443
         ];
-        allowedUDPPorts = [ 443 ];
+        allowedUDPPorts = [ 8443 ];
       };
 
       services.nginx = {
