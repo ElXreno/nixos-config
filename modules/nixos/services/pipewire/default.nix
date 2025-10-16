@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -12,6 +13,7 @@ in
 {
   options.${namespace}.services.pipewire = {
     enable = mkEnableOption "Whether or not to manage pipewire.";
+    enableRNNoise = mkEnableOption "Whether to enable RNNoise.";
   };
 
   config = mkIf cfg.enable {
@@ -37,6 +39,47 @@ in
             96000
             192000
           ];
+          "99-rnnoise" = mkIf cfg.enableRNNoise {
+            "context.modules" = [
+              {
+                "name" = "libpipewire-module-filter-chain";
+                "args" = {
+                  "node.description" = "Noise Canceling source";
+                  "media.name" = "Noise Canceling source";
+                  "filter.graph" = {
+                    "nodes" = [
+                      {
+                        "type" = "ladspa";
+                        "name" = "rnnoise";
+                        "plugin" = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                        "label" = "noise_suppressor_mono";
+                        "control" = {
+                          "VAD Threshold (%)" = 90.0;
+                          "VAD Grace Period (ms)" = 350;
+                          "Retroactive VAD Grace (ms)" = 80;
+                        };
+                      }
+                    ];
+                  };
+                  "capture.props" = {
+                    "node.name" = "capture.rnnoise_source";
+                    "node.passive" = true;
+                    "audio.rate" = 48000;
+                    "audio.channels" = 1;
+                    "audio.position" = [ "MONO" ];
+                    "stream.dont-remix" = true;
+                  };
+                  "playback.props" = {
+                    "node.name" = "rnnoise_source";
+                    "media.class" = "Audio/Source";
+                    "audio.rate" = 48000;
+                    "audio.channels" = 1;
+                    "audio.position" = [ "MONO" ];
+                  };
+                };
+              }
+            ];
+          };
         };
       };
     };

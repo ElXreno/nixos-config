@@ -60,6 +60,8 @@
       bitmagnet.enable = true;
       restic.enable = !virtual;
       # monitoring.enable = true;
+
+      pipewire.enableRNNoise = true;
     };
 
     programs = {
