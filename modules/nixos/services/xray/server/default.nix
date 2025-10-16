@@ -60,7 +60,6 @@ in
                 ip = [
                   "geoip:by"
                   "geoip:ru"
-                  "::/0"
                 ];
                 outboundTag = "cloudflare";
               }
