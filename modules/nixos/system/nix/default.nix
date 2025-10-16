@@ -22,7 +22,7 @@ in
     enable = mkEnableOption "Whether or not to manage nix." // {
       default = true;
     };
-    package = mkPackageOption pkgs.nixVersions "latest" { };
+    package = mkPackageOption pkgs.nixVersions "nix_2_31" { };
     auto-optimise.enable = mkEnableOption "Whether to enable automatic store optimisation.";
     gc.enable = mkEnableOption "Whether to enable automatic garbage collection.";
   };
