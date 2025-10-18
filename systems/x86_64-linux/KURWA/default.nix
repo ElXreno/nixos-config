@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   namespace,
   virtual,
@@ -72,9 +73,19 @@
       };
       noisetorch.enable = true;
       obs-studio.enable = true;
+
+      yandex-browser-corporate = {
+        enable = true;
+        licenseFilePath = config.sops.secrets."yandex-license".path;
+      };
     };
 
     desktop-environments.hyprland.enable = true;
+  };
+
+  sops.secrets."yandex-license" = {
+    group = "users";
+    mode = "0440";
   };
 
   # I'll manage it manually
