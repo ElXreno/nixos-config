@@ -49,12 +49,6 @@ jobs:
       - name: Create build directory
         run: sudo mkdir -p /nix/_build && echo "TMPDIR=" >> $GITHUB_ENV
 
-      - name: Install Cachix
-        uses: cachix/cachix-action@v16
-        with:
-          name: elxreno
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-
       - name: Setup Attic cache
         uses: ryanccn/attic-action@v0
         with:
