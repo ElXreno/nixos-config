@@ -93,8 +93,6 @@ in
 
           # Memory
           "vm.oom_kill_allocating_task" = 1;
-
-          "kernel.split_lock_mitigate" = 0;
         }
         (lib.mkIf (!isServer) {
           "kernel.sysrq" = 1;

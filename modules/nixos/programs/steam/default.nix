@@ -23,6 +23,10 @@ in
       localNetworkGameTransfers.openFirewall = true;
     };
 
+    boot.kernel.sysctl = {
+      "kernel.split_lock_mitigate" = 0;
+    };
+
     ${namespace}.system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
     hardware.xpadneo.enable = cfg.xboxSupport;
   };
