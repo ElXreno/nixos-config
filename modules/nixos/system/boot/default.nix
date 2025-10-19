@@ -62,12 +62,6 @@ in
         })
       ]);
 
-      kernelPackages = lib.mkMerge [
-        (mkIf isLaptop pkgs.linuxPackages_xanmod_latest)
-        (mkIf isDesktop pkgs.linuxPackages_5_15)
-        (mkIf isServer pkgs.linuxPackages_latest)
-      ];
-
       kernelParams = [
         "nohibernate"
       ]

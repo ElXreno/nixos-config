@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -30,7 +31,10 @@ in
         adb.enable = true;
       };
 
-      system.hardware.bluetooth.enable = true;
+      system = {
+        boot.kernel.packages = pkgs.linuxPackages_xanmod_latest;
+        hardware.bluetooth.enable = true;
+      };
     };
 
     services.logind.settings.Login.HandleLidSwitch = "ignore";

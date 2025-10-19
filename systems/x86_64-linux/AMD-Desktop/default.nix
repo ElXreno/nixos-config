@@ -15,7 +15,10 @@
     };
 
     system = {
-      boot.legacy.enable = true;
+      boot = {
+        legacy.enable = true;
+        kernel.packages = pkgs.linuxPackages_5_15;
+      };
 
       hardware = {
         cpu.manufacturer = "amd";
