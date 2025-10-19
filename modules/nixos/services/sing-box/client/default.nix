@@ -35,13 +35,8 @@ in
             {
               tag = "local-dns";
               type = "local";
-              detour = "direct";
             }
           ];
-
-          final = "local-dns"; # Route to the dnscrypt-proxy
-          disable_cache = false;
-          disable_expire = false;
         };
 
         inbounds = [
