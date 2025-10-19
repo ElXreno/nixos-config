@@ -42,6 +42,8 @@ in
       settings = {
         listen = "[::]:18080";
 
+        api-endpoint = "https://cache.elxreno.com:8443/";
+
         database.url = "postgresql://atticd?host=/run/postgresql";
 
         chunking = {
