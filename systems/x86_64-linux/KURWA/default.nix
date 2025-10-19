@@ -22,6 +22,7 @@
       boot.uefi.enable = true;
 
       hardware = {
+        asus.fa507uv.enable = true;
         cpu.manufacturer = "amd";
         gpu.amd.enable = true;
         gpu.nvidia = {

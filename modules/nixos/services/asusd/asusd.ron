@@ -13,11 +13,15 @@
     profile_custom_epp: Performance,
     profile_performance_epp: BalancePerformance,
     ac_profile_tunings: {
-        Balanced: (
-            enabled: false,
-            group: {},
-        ),
         Performance: (
+            enabled: true,
+            group: {
+                PptPl2Sppt: 80,
+                PptPl1Spl: 80,
+                PptPl3Fppt: 80,
+            },
+        ),
+        Balanced: (
             enabled: false,
             group: {},
         ),
@@ -27,10 +31,6 @@
         ),
     },
     dc_profile_tunings: {
-        Balanced: (
-            enabled: false,
-            group: {},
-        ),
         Quiet: (
             enabled: false,
             group: {},
@@ -39,6 +39,14 @@
             enabled: false,
             group: {},
         ),
+        Balanced: (
+            enabled: false,
+            group: {},
+        ),
     },
-    armoury_settings: {},
+    armoury_settings: {
+        NvTempTarget: 87,
+        NvDynamicBoost: 25,
+        PanelOverdrive: 0,
+    },
 )
