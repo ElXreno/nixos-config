@@ -17,7 +17,7 @@
     system = {
       boot = {
         legacy.enable = true;
-        kernel.packages = pkgs.linuxPackages_5_15;
+        kernel.packages = pkgs.linuxPackages_6_12;
       };
 
       hardware = {
