@@ -35,7 +35,7 @@ let
       quic_retry on;
 
       # Advertise http3, not done by NixOS option http3=true yet
-      add_header Alt-Svc 'h3=":443"; ma=86400';
+      add_header Alt-Svc 'h3=":8443"; ma=86400';
 
       # Other stuff
       set_real_ip_from 127.0.0.1;
@@ -128,7 +128,7 @@ in
       services.fail2ban.jails = {
         nginx-general.settings = {
           enabled = true;
-          port = "http,https";
+          port = "80,8443";
           protocol = "tcp,udp";
           filter = "nginx-general";
           logpath = "%(nginx_access_log)s";
