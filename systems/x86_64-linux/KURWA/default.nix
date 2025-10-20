@@ -19,7 +19,13 @@
     roles.laptop.enable = true;
 
     system = {
-      boot.uefi.enable = true;
+      boot = {
+        uefi.enable = true;
+        kernel.optimizations = {
+          enable = true;
+          isa = 3;
+        };
+      };
 
       hardware = {
         asus.fa507uv.enable = true;
