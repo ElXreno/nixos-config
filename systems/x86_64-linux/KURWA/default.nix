@@ -1,5 +1,4 @@
 {
-  config,
   inputs,
   namespace,
   virtual,
@@ -85,11 +84,6 @@
       };
       noisetorch.enable = true;
       obs-studio.enable = true;
-
-      yandex-browser-corporate = {
-        enable = true;
-        licenseFilePath = config.sops.secrets."yandex-license".path;
-      };
     };
 
     desktop-environments.hyprland.enable = true;
