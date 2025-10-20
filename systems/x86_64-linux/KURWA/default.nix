@@ -83,7 +83,6 @@
         xboxSupport = true;
       };
       noisetorch.enable = true;
-      obs-studio.enable = true;
     };
 
     desktop-environments.hyprland.enable = true;
