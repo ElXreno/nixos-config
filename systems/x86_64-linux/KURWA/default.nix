@@ -70,6 +70,11 @@
       # monitoring.enable = true;
 
       pipewire.enableRNNoise = true;
+
+      ollama = {
+        # enable = true;
+        acceleration = "rocm"; # Just benchmarked iGPU
+      };
     };
 
     programs = {
