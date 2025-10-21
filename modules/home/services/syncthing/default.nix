@@ -6,12 +6,21 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    types
+    ;
   cfg = config.${namespace}.services.syncthing;
 in
 {
   options.${namespace}.services.syncthing = {
     enable = mkEnableOption "Whether or not to manage syncthing.";
+    settings = mkOption {
+      type = types.raw;
+      default = { };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -20,6 +29,8 @@ in
 
       overrideDevices = false;
       overrideFolders = false;
+
+      settings = cfg.settings;
     };
   };
 }
