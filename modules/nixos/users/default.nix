@@ -174,10 +174,6 @@ in
       useGlobalPkgs = true;
       useUserPackages = true;
       backupFileExtension = ".bak";
-
-      users = mapAttrs (name: user: {
-        xdg.configFile."mimeapps.list".force = true;
-      }) cfg.users;
     };
   };
 }

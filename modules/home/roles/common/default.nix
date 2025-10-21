@@ -29,6 +29,9 @@ in
 
     # Extra default home stuff
     systemd.user.startServices = "sd-switch";
-    xdg.mimeApps.enable = true;
+    xdg = {
+      mimeApps.enable = true;
+      configFile."mimeapps.list".force = true;
+    };
   };
 }
