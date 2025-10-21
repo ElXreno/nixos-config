@@ -18,29 +18,26 @@ in
     programs.git = {
       enable = true;
       lfs.enable = true;
-      aliases = {
-        cp = "cherry-pick";
+      settings = {
+        aliases = {
+          cp = "cherry-pick";
+        };
+
+        user = {
+          email = "elxreno@gmail.com";
+          name = "ElXreno";
+        };
+
+        pull.rebase = true;
+        init.defaultBranch = "main";
+        fetch.prune = true;
+        core.autocrlf = "input";
+        gc.auto = 0;
       };
+
       signing = {
         key = "C573235A0F2B0FE2";
         signByDefault = !isServer;
-      };
-      userEmail = "elxreno@gmail.com";
-      userName = "ElXreno";
-      extraConfig = {
-        pull = {
-          rebase = true;
-        };
-        init = {
-          defaultBranch = "main";
-        };
-        fetch = {
-          prune = true;
-        };
-        core = {
-          autocrlf = "input";
-        };
-        gc.auto = 0;
       };
     };
   };
