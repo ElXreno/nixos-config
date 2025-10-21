@@ -22,7 +22,7 @@ in
         passwordFile = config.sops.secrets."restic/mega_password".path;
         paths = [
           "/home/elxreno"
-          "/home/elxreno/Sync/Smartphones/Other/Databases"
+          "/home/elxreno/Sync/RandomStuff/Databases"
         ];
         pruneOpts = [
           "--keep-monthly 2"
@@ -92,7 +92,11 @@ in
           "--exclude=/home/elxreno/Pictures"
           "--exclude=/home/elxreno/projects"
           "--exclude=/home/elxreno/rpmbuild"
-          "--exclude=/home/elxreno/Sync/Smartphones"
+          "--exclude=/home/elxreno/Sync/Books"
+          "--exclude=/home/elxreno/Sync/Camera"
+          "--exclude=/home/elxreno/Sync/Music"
+          "--exclude=/home/elxreno/Sync/Pictures"
+          "--exclude=/home/elxreno/Sync/RandomStuff"
           "--exclude=/home/elxreno/tmp"
           "--exclude=/home/elxreno/Videos"
           "--exclude=/home/elxreno/VMs"
