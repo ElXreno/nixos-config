@@ -16,6 +16,7 @@
     };
 
     system = {
+      autoupgrade.enable = true;
       boot.uefi.enable = true;
       hardware = {
         cpu.manufacturer = "amd";
