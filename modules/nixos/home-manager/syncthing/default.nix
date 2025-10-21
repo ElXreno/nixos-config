@@ -26,7 +26,7 @@ let
       announcePort = 21027 + inc;
       listenPort = 22000 + inc;
     }
-  ) config.${namespace}.user.users;
+  ) config.${namespace}.user.users; # TODO: Filter here users which has syncthing
 
   tcpPorts = mapAttrsToList (_: ports: ports.listenPort) ports;
 
@@ -40,7 +40,7 @@ in
 {
   options.${namespace}.home-manager.syncthing = {
     enable = mkEnableOption "Whether or not to manage extra stuff for Syncthing." // {
-      default = true;
+      default = true; # TODO: Enable only if specified user has syncthing
     };
   };
 
