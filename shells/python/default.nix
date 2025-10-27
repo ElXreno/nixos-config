@@ -1,16 +1,16 @@
 { pkgs, ... }:
 let
-  python = pkgs.python311;
+  myPython = pkgs.python311;
 in
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     pkg-config
     clang
     gnumake
-    python
+    myPython
   ];
 
-  buildInputs = with pkgs.python.pkgs; [
+  buildInputs = with myPython.pkgs; [
     venvShellHook
   ];
 
@@ -26,6 +26,6 @@ pkgs.mkShell {
   postShellHook = ''
     # Allow the use of wheels.
     unset SOURCE_DATE_EPOCH
-    PYTHONPATH=$venvDir/${python.sitePackages}:$PYTHONPATH
+    PYTHONPATH=$venvDir/${myPython.sitePackages}:$PYTHONPATH
   '';
 }
