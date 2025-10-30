@@ -22,9 +22,6 @@ in
           compression = true;
           serverAliveInterval = 10;
           serverAliveCountMax = 3;
-          controlMaster = "auto";
-          controlPath = "~/.ssh/master-%r@%n:%p";
-          controlPersist = "yes";
         };
         "desktop" = {
           hostname = "100.107.189.129";
