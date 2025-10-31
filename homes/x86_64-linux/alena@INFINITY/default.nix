@@ -12,7 +12,7 @@
 
   home = {
     packages = with pkgs; [
-      tdesktop
+      telegram-desktop
 
       # Office and language packs
       libreoffice

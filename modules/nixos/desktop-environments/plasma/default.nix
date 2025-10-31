@@ -53,7 +53,7 @@ in
       [
         # Utilities for Info Center
         clinfo
-        glxinfo
+        mesa-demos
         vulkan-tools
 
         ark
