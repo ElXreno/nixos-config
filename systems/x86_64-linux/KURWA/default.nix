@@ -104,7 +104,8 @@
 
   boot.extraModprobeConfig = ''
     # NVIDIA dGPU
-    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01 NVreg_UsePageAttributeTable=1
+    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01 NVreg_UsePageAttributeTable=1 NVreg_RegistryDwords="PowerMizerEnable=0x1; PowerMizerDefaultAC=0x3; PerfLevelSrc=0x3322;"
+    options nvidia NVreg_EnableStreamMemOPs=1 NVreg_EnableResizableBar=1 NVreg_EnablePCIERelaxedOrderingMode=1
 
     # Realtek RTL8852BE
     options rtw89_core disable_ps_mode=Y
