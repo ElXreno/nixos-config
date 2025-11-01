@@ -74,6 +74,8 @@
         # enable = true;
         acceleration = "rocm"; # Just benchmarked iGPU
       };
+
+      flatpak.enable = true;
     };
 
     programs = {
