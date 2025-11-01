@@ -257,8 +257,8 @@ in
           "workspace 9, class:^(spotify)$"
           "workspace 10, class:^(org.keepassxc.KeePassXC)$"
 
-          "immediate, class:^(*DDNet)$"
-          "immediate, title:^(Minecraft*)$"
+          "immediate, class:^(.*DDNet)$"
+          "immediate, title:^(Minecraft.*)$"
         ];
 
         misc = {
