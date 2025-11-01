@@ -17,7 +17,7 @@ in
     diffutils
     findutils
     fd
-    utillinux
+    util-linux
     hostname
     man
     gnugrep
