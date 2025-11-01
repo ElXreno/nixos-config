@@ -80,7 +80,7 @@ in
         wantedBy = [ "graphical.target" ];
 
         serviceConfig = {
-          ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 120 --min-clock 210 --max-clock 2655 --mem-offset 1150";
+          ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 120 --min-clock 210 --max-clock 2670 --mem-offset 200";
           User = "root";
           Restart = "on-failure";
         };
