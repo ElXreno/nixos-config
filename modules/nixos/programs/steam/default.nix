@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -22,6 +23,10 @@ in
       dedicatedServer.openFirewall = true;
       localNetworkGameTransfers.openFirewall = true;
     };
+
+    environment.systemPackages = with pkgs; [
+      protonup-qt
+    ];
 
     boot.kernel.sysctl = {
       "kernel.split_lock_mitigate" = 0;
