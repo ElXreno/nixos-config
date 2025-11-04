@@ -87,7 +87,14 @@ in
       ];
 
       xdgOpenUsePortal = true;
-      config.common.default = "kde";
+      config = {
+        common.default = [ "kde" ];
+        hyprland.default = [
+          "hyprland"
+          "kde"
+          "gtk"
+        ];
+      };
     };
 
     environment.sessionVariables = {
