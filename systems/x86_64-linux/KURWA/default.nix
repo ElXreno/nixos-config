@@ -76,6 +76,7 @@
       };
 
       flatpak.enable = true;
+      modprobed-db.enable = true;
     };
 
     programs = {
