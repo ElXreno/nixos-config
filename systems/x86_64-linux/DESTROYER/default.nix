@@ -31,6 +31,7 @@
       atticd.enable = true;
       xray.server.enable = true;
       nginx.enable = true;
+      factorio.enable = true;
     };
   };
 
