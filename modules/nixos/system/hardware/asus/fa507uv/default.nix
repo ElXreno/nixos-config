@@ -6,11 +6,88 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    concatStringsSep
+    mkForce
+    genAttrs
+    ;
   cfg = config.${namespace}.system.hardware.asus.fa507uv;
 
-  version = config.boot.kernelPackages.kernel.version;
-  majorMinor = lib.versions.majorMinor version;
+  baseKernel = pkgs.linux_xanmod_latest;
+  majorMinor = lib.versions.majorMinor baseKernel.version;
+
+  extraKernelModules = [
+    # Some SATA/PATA stuff.
+    "ahci"
+    "sata_nv"
+    "sata_via"
+    "sata_sis"
+    "sata_uli"
+    "ata_piix"
+
+    # Standard SCSI stuff.
+    "sd_mod"
+    "sr_mod"
+
+    # SD cards and internal eMMC drives.
+    "mmc_block"
+  ];
+
+  initrdMissingModules = [
+    "pata_marvell"
+
+    "ehci_hcd"
+    "ehci_pci"
+    "ohci_hcd"
+    "ohci_pci"
+    "uhci_hcd"
+
+    "mmc_block"
+
+    "hid_apple"
+    "hid_cherry"
+    "hid_corsair"
+    "hid_lenovo"
+    "hid_logitech_dj"
+    "hid_logitech_hidpp"
+    "hid_microsoft"
+    "hid_roccat"
+
+    "pcips2"
+  ];
+
+  combinedModprobedDb = pkgs.runCommand "combined-modprobed-db" { } ''
+    echo "${concatStringsSep "\n" extraKernelModules}\n$(cat ${./modprobed.db})" | sort -u > $out
+  '';
+
+  minimizedConfig = pkgs.stdenv.mkDerivation {
+    inherit (baseKernel) src patches;
+    name = "${baseKernel.name}-minimized-config";
+
+    nativeBuildInputs = with baseKernel; nativeBuildInputs ++ buildInputs;
+
+    buildPhase = ''
+      cp "${baseKernel.configfile}" ".config"
+      make LSMOD="${combinedModprobedDb}" localmodconfig
+    '';
+
+    installPhase = ''
+      cp .config $out
+    '';
+  };
+
+  finalKernel =
+    (pkgs.linuxManualConfig {
+      inherit (baseKernel) version src modDirVersion;
+
+      configfile = minimizedConfig;
+      allowImportFromDerivation = true;
+    }).overrideAttrs
+      (prevAttrs: {
+        passthru = baseKernel.passthru;
+      });
 in
 {
   options.${namespace}.system.hardware.asus.fa507uv = {
@@ -18,6 +95,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.boot.kernel.packages = pkgs.linuxPackagesFor finalKernel;
+    boot.initrd.availableKernelModules =
+      let
+        mkForceDisable = modules: genAttrs modules (_: mkForce false);
+      in
+      mkForceDisable initrdMissingModules;
+
     boot.kernelPatches =
       let
         patchesSrc = pkgs.fetchFromGitHub {

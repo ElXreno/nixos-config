@@ -32,7 +32,6 @@ in
       };
 
       system = {
-        boot.kernel.packages = pkgs.linuxPackages_xanmod_latest;
         hardware.bluetooth.enable = true;
       };
     };
