@@ -59,7 +59,7 @@ let
   ];
 
   combinedModprobedDb = pkgs.runCommand "combined-modprobed-db" { } ''
-    echo "${concatStringsSep "\n" extraKernelModules}\n$(cat ${./modprobed.db})" | sort -u > $out
+    echo -e "${concatStringsSep "\n" extraKernelModules}\n$(cat ${./modprobed.db})" | sort -u > $out
   '';
 
   minimizedConfig = pkgs.stdenv.mkDerivation {
