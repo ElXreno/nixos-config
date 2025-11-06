@@ -140,13 +140,6 @@ in
         route = {
           rules = [
             {
-              action = "sniff";
-            }
-            {
-              protocol = "bittorrent";
-              action = "reject";
-            }
-            {
               domain_suffix = [
                 ".ru"
                 ".by"
@@ -156,6 +149,13 @@ in
                 "geoip-by"
               ];
               outbound = "cloudflare";
+            }
+            {
+              action = "sniff";
+            }
+            {
+              protocol = "bittorrent";
+              action = "reject";
             }
           ];
 
