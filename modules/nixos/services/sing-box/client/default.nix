@@ -18,7 +18,7 @@ in
   config = mkIf cfg.enable {
     sops = {
       secrets = {
-        "trojan/${namespace}-password" = {
+        "vless/${namespace}-uuid" = {
           owner = "sing-box";
           group = "sing-box";
         };
@@ -72,10 +72,10 @@ in
 
         outbounds = [
           {
-            tag = "trojan-out";
-            type = "trojan";
+            tag = "vless-out";
+            type = "vless";
 
-            server = "elxreno.com";
+            server = "datalake.elxreno.com";
             server_port = 443;
 
             domain_resolver = {
@@ -83,22 +83,23 @@ in
               domain_strategy = "prefer_ipv4";
             };
 
-            password._secret = config.sops.secrets."trojan/${namespace}-password".path;
+            uuid._secret = config.sops.secrets."vless/${namespace}-uuid".path;
 
             tls = {
               enabled = true;
+              server_name = "datalake.elxreno.com";
               utls = {
                 enabled = true;
-                fingerprint = "firefox";
+                fingerprint = "chrome";
               };
             };
 
-            multiplex.enabled = false;
-
             transport = {
-              type = "http";
-              path = "/configuration/shared/update_client";
-              method = "POST";
+              type = "ws";
+              path = "/api/v1/stream";
+              max_early_data = 2048;
+              early_data_header_name = "Sec-WebSocket-Protocol";
+              headers.Host = [ "datalake.elxreno.com" ];
             };
           }
           {
@@ -108,20 +109,7 @@ in
         ];
 
         route = {
-          auto_detect_interface = true;
-
           rules = [
-            {
-              action = "sniff";
-            }
-            {
-              protocol = "dns";
-              action = "hijack-dns";
-            }
-            {
-              protocol = "bittorrent";
-              action = "reject";
-            }
             {
               domain_suffix = [
                 ".ru"
@@ -133,6 +121,17 @@ in
               ];
               outbound = "direct";
             }
+            {
+              action = "sniff";
+            }
+            {
+              protocol = "dns";
+              action = "hijack-dns";
+            }
+            {
+              protocol = "bittorrent";
+              action = "reject";
+            }
           ];
 
           rule_set = [
@@ -141,18 +140,19 @@ in
               type = "remote";
               format = "binary";
               url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs";
-              download_detour = "trojan-out";
+              download_detour = "direct";
             }
             {
               tag = "geoip-by";
               type = "remote";
               format = "binary";
               url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-by.srs";
-              download_detour = "trojan-out";
+              download_detour = "direct";
             }
           ];
 
-          final = "trojan-out";
+          final = "vless-out";
+          auto_detect_interface = true;
         };
 
         experimental.cache_file.enabled = true;
