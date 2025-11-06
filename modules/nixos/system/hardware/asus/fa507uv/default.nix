@@ -15,7 +15,21 @@ let
     ;
   cfg = config.${namespace}.system.hardware.asus.fa507uv;
 
-  baseKernel = pkgs.linux_xanmod_latest;
+  patchesSrc = pkgs.fetchFromGitHub {
+    owner = "CachyOS";
+    repo = "kernel-patches";
+    rev = "bfcf34bd22aa1fa740c5d60a8f126919cfdacfdf";
+    hash = "sha256-YdhrS8JBGnM4BvdkG0MbO8I4dJLmF+RyP7VCRCf7LVQ=";
+  };
+
+  extraPatches = [
+    "${patchesSrc}/${majorMinor}/0001-asus.patch"
+    ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch
+  ];
+
+  baseKernel = pkgs.linux_xanmod_latest.overrideAttrs (prevAttrs: {
+    patches = (prevAttrs.patches or [ ]) ++ extraPatches;
+  });
   majorMinor = lib.versions.majorMinor baseKernel.version;
 
   extraKernelModules = [
@@ -62,6 +76,17 @@ let
     echo -e "${concatStringsSep "\n" extraKernelModules}\n$(cat ${./modprobed.db})" | sort -u > $out
   '';
 
+  pkgbuildCompact = [
+    "-d GENERIC_CPU"
+    "-e MZEN4"
+
+    "-e ASUS_ARMOURY"
+    "-e ASUS_LAPTOP"
+    "-e ASUS_WIRELESS"
+
+    "-m NTSYNC"
+  ];
+
   minimizedConfig = pkgs.stdenv.mkDerivation {
     inherit (baseKernel) src patches;
     name = "${baseKernel.name}-minimized-config";
@@ -71,6 +96,11 @@ let
     buildPhase = ''
       cp "${baseKernel.configfile}" ".config"
       make LSMOD="${combinedModprobedDb}" localmodconfig
+
+      make olddefconfig
+      patchShebangs scripts/config
+      scripts/config ${lib.concatStringsSep " " pkgbuildCompact}
+      make olddefconfig
     '';
 
     installPhase = ''
@@ -86,6 +116,7 @@ let
       allowImportFromDerivation = true;
     }).overrideAttrs
       (prevAttrs: {
+        patches = (prevAttrs.patches or [ ]) ++ extraPatches;
         passthru = baseKernel.passthru;
       });
 in
@@ -101,25 +132,5 @@ in
         mkForceDisable = modules: genAttrs modules (_: mkForce false);
       in
       mkForceDisable initrdMissingModules;
-
-    boot.kernelPatches =
-      let
-        patchesSrc = pkgs.fetchFromGitHub {
-          owner = "CachyOS";
-          repo = "kernel-patches";
-          rev = "bfcf34bd22aa1fa740c5d60a8f126919cfdacfdf";
-          hash = "sha256-YdhrS8JBGnM4BvdkG0MbO8I4dJLmF+RyP7VCRCf7LVQ=";
-        };
-      in
-      [
-        {
-          name = "asus-armoury";
-          patch = "${patchesSrc}/${majorMinor}/0001-asus.patch";
-        }
-        {
-          name = "fa507uv-support";
-          patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
-        }
-      ];
   };
 }
