@@ -62,6 +62,10 @@ in
       };
     };
 
+    networking.firewall = {
+      allowedUDPPorts = [ 8443 ];
+    };
+
     services.sing-box = {
       enable = true;
       settings = {
@@ -103,6 +107,29 @@ in
               max_early_data = 2048;
               early_data_header_name = "Sec-WebSocket-Protocol";
               headers.Host = [ "datalake.elxreno.com" ];
+            };
+          }
+          {
+            tag = "vless-quic-in";
+            type = "vless";
+
+            listen = "::";
+            listen_port = 8443;
+
+            users = map (name: {
+              inherit name;
+              uuid._secret = config.sops.secrets."vless/${name}-uuid".path;
+            }) cfg.clients;
+
+            tls = {
+              enabled = true;
+              server_name = "datalake.elxreno.com";
+              certificate_path = "${config.security.acme.certs."datalake.elxreno.com".directory}/cert.pem";
+              key_path = "${config.security.acme.certs."datalake.elxreno.com".directory}/key.pem";
+            };
+
+            transport = {
+              type = "quic";
             };
           }
         ];
