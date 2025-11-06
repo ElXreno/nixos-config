@@ -38,11 +38,13 @@ cdc_acm
 cdc_ether
 cec
 cfg80211
+chacha_x86_64
 cifs
 cmac
 configfs
 crc16
 crc32c_cryptoapi
+curve25519_x86_64
 dax
 dmi_sysfs
 dm_mod
@@ -83,6 +85,7 @@ input_leds
 intel_rapl_common
 intel_rapl_msr
 ip6t_rpfilter
+ip6_udp_tunnel
 ipt_REJECT
 ipt_rpfilter
 irqbypass
@@ -92,7 +95,11 @@ kvm
 kvm_amd
 led_class
 libarc4
+libchacha
+libchacha20poly1305
+libcurve25519_generic
 libphy
+libpoly1305
 libps2
 llc
 loop
@@ -126,6 +133,7 @@ nvme_core
 nvme_keyring
 of_mdio
 platform_profile
+poly1305_x86_64
 polyval_clmulni
 r8169
 raid6_pq
@@ -220,6 +228,7 @@ typec
 typec_displayport
 typec_ucsi
 ucsi_acpi
+udp_tunnel
 uhid
 uinput
 usbhid
@@ -236,13 +245,17 @@ videobuf2_vmalloc
 videodev
 vivaldi_fmap
 watchdog
+wireguard
 wmi
 wmi_bmof
 xhci_hcd
 xhci_pci
 xor
 x_tables
+xt_addrtype
 xt_CHECKSUM
+xt_comment
+xt_connmark
 xt_conntrack
 xt_LOG
 xt_mark
