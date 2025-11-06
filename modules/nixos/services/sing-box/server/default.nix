@@ -25,6 +25,8 @@ in
         namespace
         "mobile"
         "noncere"
+        "ierm"
+        "ierm-extra"
       ];
     };
   };
@@ -32,7 +34,7 @@ in
   config = mkIf cfg.enable {
     sops = {
       secrets = {
-        "hysteria2/obfs-salamander-password" = {
+        "sing-box/cf-private-key" = {
           owner = "sing-box";
           group = "sing-box";
         };
@@ -40,16 +42,7 @@ in
       // listToAttrs (
         map (
           client:
-          nameValuePair "trojan/${client}-password" {
-            owner = "sing-box";
-            group = "sing-box";
-          }
-        ) cfg.clients
-      )
-      // listToAttrs (
-        map (
-          client:
-          nameValuePair "hysteria2/${client}-password" {
+          nameValuePair "vless/${client}-uuid" {
             owner = "sing-box";
             group = "sing-box";
           }
@@ -57,15 +50,16 @@ in
       );
     };
 
-    networking.firewall = {
-      allowedTCPPorts = [
-        443
-        6443
-      ];
-      allowedUDPPorts = [
-        443
-        6443
-      ];
+    ${namespace}.services.nginx = {
+      enable = true;
+      virtualHosts = {
+        "datalake.elxreno.com" = {
+          locations."/api/v1/stream" = {
+            proxyPass = "http://localhost:10000";
+            proxyWebsockets = true;
+          };
+        };
+      };
     };
 
     services.sing-box = {
@@ -83,11 +77,6 @@ in
           strategy = "prefer_ipv6";
         };
 
-        route = {
-          final = "direct-out";
-          auto_detect_interface = true;
-        };
-
         outbounds = [
           {
             tag = "direct-out";
@@ -97,67 +86,97 @@ in
 
         inbounds = [
           {
-            tag = "trojan-in";
-            type = "trojan";
+            tag = "vless-in";
+            type = "vless";
 
             listen = "::";
-            listen_port = 443;
+            listen_port = 10000;
 
             users = map (name: {
               inherit name;
-              password._secret = config.sops.secrets."trojan/${name}-password".path;
+              uuid._secret = config.sops.secrets."vless/${name}-uuid".path;
             }) cfg.clients;
-
-            tls = {
-              enabled = true;
-              server_name = "elxreno.com";
-              certificate_path = "${config.security.acme.certs."elxreno.com".directory}/cert.pem";
-              key_path = "${config.security.acme.certs."elxreno.com".directory}/key.pem";
-            };
-
-            fallback = {
-              server = "127.0.0.1";
-              server_port = 80;
-            };
-
-            multiplex = {
-              enabled = true;
-              padding = true;
-            };
 
             transport = {
-              type = "http";
-              path = "/configuration/shared/update_client";
-              method = "POST";
+              type = "ws";
+              path = "/api/v1/stream";
+              max_early_data = 2048;
+              early_data_header_name = "Sec-WebSocket-Protocol";
+              headers.Host = [ "datalake.elxreno.com" ];
             };
-          }
-          {
-            tag = "hy2-in";
-            type = "hysteria2";
-
-            listen = "::";
-            listen_port = 6443;
-
-            obfs = {
-              type = "salamander";
-              password._secret = config.sops.secrets."hysteria2/obfs-salamander-password".path;
-            };
-
-            users = builtins.map (name: {
-              inherit name;
-              password._secret = config.sops.secrets."hysteria2/${name}-password".path;
-            }) cfg.clients;
-
-            ignore_client_bandwidth = true;
-            tls = {
-              enabled = true;
-              server_name = "elxreno.com";
-              certificate_path = "${config.security.acme.certs."elxreno.com".directory}/cert.pem";
-              key_path = "${config.security.acme.certs."elxreno.com".directory}/key.pem";
-            };
-            brutal_debug = true;
           }
         ];
+
+        endpoints = [
+          {
+            type = "wireguard";
+            tag = "cloudflare";
+
+            mtu = 1280;
+            address = [
+              "172.16.0.2/32"
+              "2606:4700:110:8949:fed8:2642:a640:c8e1/128"
+            ];
+            private_key._secret = config.sops.secrets."sing-box/cf-private-key".path;
+            peers = [
+              {
+                address = "engage.cloudflareclient.com";
+                port = 2408;
+                public_key = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=";
+                allowed_ips = [
+                  "0.0.0.0/0"
+                  "::/0"
+                ];
+                reserved = [
+                  243
+                  193
+                  236
+                ];
+              }
+            ];
+          }
+        ];
+
+        route = {
+          rules = [
+            {
+              action = "sniff";
+            }
+            {
+              protocol = "bittorrent";
+              action = "reject";
+            }
+            {
+              domain_suffix = [
+                ".ru"
+                ".by"
+              ];
+              rule_set = [
+                "geoip-ru"
+                "geoip-by"
+              ];
+              outbound = "cloudflare";
+            }
+          ];
+
+          rule_set = [
+            {
+              tag = "geoip-ru";
+              type = "remote";
+              format = "binary";
+              url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs";
+            }
+            {
+              tag = "geoip-by";
+              type = "remote";
+              format = "binary";
+              url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-by.srs";
+            }
+          ];
+
+          final = "direct-out";
+          auto_detect_interface = true;
+        };
       };
     };
 
