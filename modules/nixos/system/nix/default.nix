@@ -50,7 +50,7 @@ in
           ];
 
           substituters = [
-            "https://cache.elxreno.com:8443/common"
+            "https://cache.elxreno.com/common"
             "https://nix-community.cachix.org"
           ];
           trusted-public-keys = [

@@ -52,7 +52,7 @@ jobs:
       - name: Setup Attic cache
         uses: ryanccn/attic-action@v0
         with:
-          endpoint: "https://cache.elxreno.com:8443"
+          endpoint: "https://cache.elxreno.com"
           cache: "common"
           token: ${{ secrets.ATTIC_TOKEN }}
 

@@ -35,7 +35,7 @@ let
       quic_retry on;
 
       # Advertise http3, not done by NixOS option http3=true yet
-      add_header Alt-Svc 'h3=":8443"; ma=86400';
+      add_header Alt-Svc 'h3=":443"; ma=86400';
 
       # Other stuff
       set_real_ip_from 127.0.0.1;
@@ -64,11 +64,8 @@ in
   config = mkIf cfg.enable (mkMerge [
     {
       networking.firewall = {
-        allowedTCPPorts = [
-          80
-          8443
-        ];
-        allowedUDPPorts = [ 8443 ];
+        allowedTCPPorts = [ 443 ];
+        allowedUDPPorts = [ 443 ];
       };
 
       services.nginx = {
@@ -85,6 +82,7 @@ in
         recommendedBrotliSettings = true;
 
         recommendedProxySettings = true;
+        proxyTimeout = "86400s";
 
         recommendedOptimisation = true;
 
@@ -93,13 +91,8 @@ in
         defaultListen = [
           {
             addr = "0.0.0.0";
-            port = 8443;
+            port = 443;
             ssl = true;
-          }
-          {
-            addr = "0.0.0.0";
-            port = 80;
-            ssl = false;
           }
         ];
 
@@ -107,6 +100,7 @@ in
           {
             "elxreno.com" = commonVirtualHostCfg // {
               serverAliases = [ "www.elxreno.com" ];
+              default = true;
               locations."= /" = {
                 return = "200 '<html><body>Hello there!</body></html>'";
                 extraConfig = ''
@@ -128,7 +122,7 @@ in
       services.fail2ban.jails = {
         nginx-general.settings = {
           enabled = true;
-          port = "80,8443";
+          port = "80,443";
           protocol = "tcp,udp";
           filter = "nginx-general";
           logpath = "%(nginx_access_log)s";
