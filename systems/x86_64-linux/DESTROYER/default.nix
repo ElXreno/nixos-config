@@ -29,7 +29,8 @@
 
     services = {
       atticd.enable = true;
-      xray.server.enable = true;
+      # xray.server.enable = true;
+      sing-box.server.enable = true;
       nginx.enable = true;
       factorio.enable = true;
     };

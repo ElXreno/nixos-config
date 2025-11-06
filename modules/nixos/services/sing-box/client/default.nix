@@ -18,8 +18,10 @@ in
   config = mkIf cfg.enable {
     sops = {
       secrets = {
-        "xray/uuid" = { };
-        "xray/public-key" = { };
+        "trojan/${namespace}-password" = {
+          owner = "sing-box";
+          group = "sing-box";
+        };
       };
     };
 
@@ -47,29 +49,56 @@ in
             stack = "gvisor";
             auto_route = true;
             strict_route = true;
+
+            route_address = [
+              "0.0.0.0/0"
+              "::/0"
+            ];
+
+            route_exclude_address = [
+              "10.0.0.0/8"
+              "172.16.0.0/12"
+              "100.64.0.0/10"
+              "200::/7"
+              "fd00::/8"
+              "127.0.0.69/32"
+
+              # cloudflare & google dns
+              "1.1.1.1/32"
+              "8.8.8.8/32"
+            ];
           }
         ];
 
         outbounds = [
           {
-            type = "vless";
-            tag = "proxy";
-            server = "74.119.195.240";
+            tag = "trojan-out";
+            type = "trojan";
+
+            server = "elxreno.com";
             server_port = 443;
-            uuid._secret = config.sops.secrets."xray/uuid".path;
-            flow = "xtls-rprx-vision";
+
+            domain_resolver = {
+              server = "local-dns";
+              domain_strategy = "prefer_ipv4";
+            };
+
+            password._secret = config.sops.secrets."trojan/${namespace}-password".path;
+
             tls = {
               enabled = true;
-              server_name = "www.apple.com";
-              reality = {
-                enabled = true;
-                public_key._secret = config.sops.secrets."xray/public-key".path;
-                short_id = "881d49987e1f93e7";
-              };
               utls = {
                 enabled = true;
-                fingerprint = "chrome";
+                fingerprint = "firefox";
               };
+            };
+
+            multiplex.enabled = false;
+
+            transport = {
+              type = "http";
+              path = "/configuration/shared/update_client";
+              method = "POST";
             };
           }
           {
@@ -112,18 +141,18 @@ in
               type = "remote";
               format = "binary";
               url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs";
-              download_detour = "proxy";
+              download_detour = "trojan-out";
             }
             {
               tag = "geoip-by";
               type = "remote";
               format = "binary";
               url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-by.srs";
-              download_detour = "proxy";
+              download_detour = "trojan-out";
             }
           ];
 
-          final = "proxy";
+          final = "trojan-out";
         };
 
         experimental.cache_file.enabled = true;
