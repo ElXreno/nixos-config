@@ -11,8 +11,9 @@
 
     programs = {
       gpg.enable = true;
-      mangohud.enable = true;
       ssh.enable = true;
+      bottles.enable = true;
+      mangohud.enable = true;
     };
 
     services = {
