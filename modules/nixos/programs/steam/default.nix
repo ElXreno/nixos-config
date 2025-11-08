@@ -32,7 +32,21 @@ in
       "kernel.split_lock_mitigate" = 0;
     };
 
-    ${namespace}.system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
+    ${namespace} = {
+      programs.gamemode.enable = true;
+      system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
+    };
     hardware.xpadneo.enable = cfg.xboxSupport;
+
+    boot.kernelModules = [ "ntsync" ];
+    services.udev.extraRules = ''
+      KERNEL=="ntsync", MODE="0644", TAG+="uaccess"
+    '';
+    environment.sessionVariables = {
+      PROTON_ENABLE_WAYLAND = "1";
+      PROTON_NO_WM_DECORATION = "1";
+      PROTON_USE_NTSYNC = "1";
+      PROTON_USE_WOW64 = "1";
+    };
   };
 }
