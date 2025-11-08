@@ -34,6 +34,7 @@ in
 
     ${namespace} = {
       programs.gamemode.enable = true;
+      programs.gamescope.enable = true;
       system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
     };
     hardware.xpadneo.enable = cfg.xboxSupport;
