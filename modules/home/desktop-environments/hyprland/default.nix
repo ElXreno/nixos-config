@@ -242,7 +242,7 @@ in
         windowrulev2 = [
           "float, class:^(nz.co.mega.)$"
           "noborder, class:^(nz.co.mega.)$"
-          "nofollowmouse, class:^(nz.co.mega.)$"
+          "stayfocused, class:^(nz.co.mega.)$"
 
           "float, class:^(steam)$, title:^(Friends List)$"
           "float, class:^(org.freedesktop.impl.portal.desktop.kde)$"
@@ -259,7 +259,12 @@ in
 
           "immediate, class:^(.*DDNet)$"
           "immediate, title:^(Minecraft.*)$"
+          "immediate, title:^(STALCRAFT)$"
+
+          "workspace special silent, class:^(explorer.exe)$"
         ];
+
+        windowrule = [ "suppressevent fullscreen maximize, class:^(exbolauncher\.exe|steam_proton)$" ];
 
         misc = {
           disable_hyprland_logo = true;
