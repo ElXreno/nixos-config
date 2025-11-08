@@ -103,7 +103,11 @@
   facter.detected.dhcp.enable = false;
 
   # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
-  boot.kernelParams = [ "amdgpu.dcdebugmask=0x10" ];
+  boot.kernelParams = [
+    "amdgpu.dcdebugmask=0x10"
+    "nvme_core.default_ps_max_latency_us=0"
+    "pcie_aspm.policy=performance"
+  ];
 
   boot.extraModprobeConfig = ''
     # NVIDIA dGPU
