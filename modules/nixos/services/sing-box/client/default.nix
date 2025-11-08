@@ -44,11 +44,18 @@ in
         inbounds = [
           {
             type = "tun";
-            domain_strategy = "prefer_ipv4";
-            address = [ "172.16.0.1/30" ];
-            stack = "gvisor";
+
+            address = [
+              "172.18.0.1/30"
+              "fdfe:dcba:9876::1/126"
+            ];
+
+            mtu = 65535;
             auto_route = true;
+            auto_redirect = true;
             strict_route = true;
+
+            stack = "system";
 
             route_address = [
               "0.0.0.0/0"
@@ -61,11 +68,12 @@ in
               "100.64.0.0/10"
               "200::/7"
               "fd00::/8"
-              "127.0.0.69/32"
 
               # cloudflare & google dns
               "1.1.1.1/32"
+              "1.0.0.1/32"
               "8.8.8.8/32"
+              "8.8.4.4/32"
             ];
           }
         ];
