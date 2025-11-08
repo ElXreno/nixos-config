@@ -84,6 +84,7 @@ i8042
 input_leds
 intel_rapl_common
 intel_rapl_msr
+ip6t_REJECT
 ip6t_rpfilter
 ip6_udp_tunnel
 ipt_REJECT
@@ -120,9 +121,13 @@ nf_log_syslog
 nf_nat
 nfnetlink
 nf_reject_ipv4
+nf_reject_ipv6
 nf_tables
 nft_chain_nat
 nft_compat
+nft_ct
+nft_nat
+nft_redir
 nls_ascii
 nls_cp437
 nls_iso8859_1
@@ -214,6 +219,7 @@ sp5100_tco
 sparse_keymap
 spd5118
 stp
+tap
 tee
 thermal
 thunderbolt
@@ -237,6 +243,9 @@ usb_storage
 uvc
 uvcvideo
 vfat
+vhost
+vhost_iotlb
+vhost_net
 video
 videobuf2_common
 videobuf2_memops
