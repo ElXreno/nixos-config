@@ -92,10 +92,10 @@ in
   config = mkIf cfg.enable {
     assertions = optionals cfg.optimizations.enable [
       {
-        assertion = pkgs.system == "x86_64-linux";
+        assertion = pkgs.stdenv.hostPlatform.system == "x86_64-linux";
         message = ''
           Kernel optimizations which is enabled via ${namespace}.system.boot.kernel.optimizations.enable
-          supported only on x86_64-linux systems. Your system is ${pkgs.system}.
+          supported only on x86_64-linux systems. Your system is ${pkgs.stdenv.hostPlatform.system}.
         '';
       }
       {

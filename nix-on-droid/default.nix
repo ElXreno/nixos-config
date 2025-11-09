@@ -5,7 +5,7 @@
   ...
 }:
 let
-  currentSystem = pkgs.system;
+  currentSystem = pkgs.stdenv.hostPlatform.system;
 in
 {
   environment.packages = with pkgs; [
