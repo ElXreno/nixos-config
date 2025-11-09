@@ -169,10 +169,17 @@ in
             {
               domain_suffix = [
                 ".ru"
-                ".by"
               ];
               rule_set = [
                 "geoip-ru"
+              ];
+              action = "reject";
+            }
+            {
+              domain_suffix = [
+                ".by"
+              ];
+              rule_set = [
                 "geoip-by"
               ];
               outbound = "cloudflare";
