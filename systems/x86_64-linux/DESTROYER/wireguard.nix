@@ -27,7 +27,7 @@ in
       peers = [
         # Router
         {
-          publicKey = "WutIrPxgNW7tqKsK/X9sC/+N/K+FimwNg6XqXzNPGHY=";
+          publicKey = "bnnwHNptilPEQQOkaXs8SbNRE+hG0wlQwt5MMoeq2jg=";
           presharedKeyFile = config.sops.secrets."wg-preshared/destroyer-router".path;
           allowedIPs = [ "10.100.0.2/32" ];
         }
