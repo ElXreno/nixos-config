@@ -22,28 +22,48 @@
         enable = true;
         settings = {
           devices = {
+            GRATE.id = "WAPSKKS-INQGXIL-76BTAK7-XMJPFZK-EKNP4H4-F3TYR7R-PYSESF4-6NEGVAL";
             SM-938B.id = "54NW2KX-ZL5JFVK-TSF6GXD-W6ZAQCN-VZS3DAJ-EKRLKJG-AX6W6AH-VQPBWA2";
           };
           folders = {
             "~/Sync/Books" = {
               id = "mb33z-6aqm9";
-              devices = [ "SM-938B" ];
+              devices = [
+                "GRATE"
+                "SM-938B"
+              ];
             };
             "~/Sync/Camera" = {
               id = "29llw-v8myj";
-              devices = [ "SM-938B" ];
+              devices = [
+                "GRATE"
+                "SM-938B"
+              ];
             };
             "~/Sync/Pictures" = {
               id = "s1iqf-q30lv";
-              devices = [ "SM-938B" ];
+              devices = [
+                "GRATE"
+                "SM-938B"
+              ];
             };
             "~/Sync/Music" = {
               id = "cnd20-w7p5o";
-              devices = [ "SM-938B" ];
+              devices = [
+                "GRATE"
+                "SM-938B"
+              ];
             };
             "~/Sync/RandomStuff" = {
               id = "ywnqs-d6y2m";
-              devices = [ "SM-938B" ];
+              devices = [
+                "GRATE"
+                "SM-938B"
+              ];
+            };
+            "~/projects" = {
+              id = "ygtua-856sad";
+              devices = [ "GRATE" ];
             };
           };
         };
