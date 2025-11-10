@@ -17,11 +17,18 @@ in
   config = mkIf cfg.enable {
     services.asusd = {
       enable = true;
-      enableUserService = true;
 
       asusdConfig.source = ./asusd.ron;
       fanCurvesConfig.source = ./fan_curves.ron;
       auraConfigs.tuf.source = ./aura_tuf.ron;
+    };
+
+    systemd.services.asusd = {
+      restartTriggers = with config.services.asusd; [
+        asusdConfig.source
+        fanCurvesConfig.source
+        auraConfigs.tuf.source
+      ];
     };
   };
 }

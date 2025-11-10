@@ -10,38 +10,58 @@
     change_platform_profile_on_ac: true,
     profile_quiet_epp: Power,
     profile_balanced_epp: BalancePower,
-    profile_custom_epp: Performance,
+    profile_custom_epp: BalancePerformance,
     profile_performance_epp: BalancePerformance,
     ac_profile_tunings: {
         Performance: (
             enabled: true,
             group: {
+                PptPl1Spl: 65,
                 PptPl2Sppt: 80,
-                PptPl1Spl: 80,
                 PptPl3Fppt: 80,
             },
         ),
         Balanced: (
             enabled: false,
-            group: {},
+            group: {
+                PptPl1Spl: 60,
+                PptPl2Sppt: 75,
+                PptPl3Fppt: 80,
+            },
         ),
         Quiet: (
             enabled: false,
-            group: {},
+            group: {
+                PptPl1Spl: 50,
+                PptPl2Sppt: 60,
+                PptPl3Fppt: 70,
+            },
         ),
     },
     dc_profile_tunings: {
-        Quiet: (
-            enabled: false,
-            group: {},
-        ),
         Performance: (
             enabled: false,
-            group: {},
+            group: {
+                PptPl1Spl: 45,
+                PptPl2Sppt: 55,
+                PptPl3Fppt: 65,
+            },
         ),
         Balanced: (
             enabled: false,
-            group: {},
+            group: {
+                PptPl1Spl: 35,
+                PptPl2Sppt: 45,
+                PptPl3Fppt: 55,
+            },
+        ),
+        Quiet: (
+            enabled: false,
+            group: {
+                PptPl1Spl: 25,
+                PptPl2Sppt: 35,
+                PptPl3Fppt: 45,
+            },
         ),
     },
     armoury_settings: {
