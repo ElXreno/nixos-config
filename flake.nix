@@ -149,6 +149,13 @@
             };
             fastConnection = true;
           };
+          GRATE = {
+            hostname = "grate";
+            profiles.system = {
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.GRATE;
+            };
+            fastConnection = true;
+          };
           INFINITY = {
             hostname = "infinity";
             profiles.system = {

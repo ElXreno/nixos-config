@@ -2,14 +2,16 @@ keys:
   - &elxreno age1frn6df3pw3ks05vzc6q5fmfxzwcen44sq4c7xj86hwymfsg3qadq7mxf0d
   - &infinity age12ynl5qz5wf7g5805ptwh04ttzh507w3hmqrgx6de9wes696xgdjqhun3ad
   - &destroyer age1x2ekqe0r6f9fys9fvcgmwq3dlr240gkhadq7syr4hyw4tg5z2scqun8cgl
+  - &grate age18rj5rwsp7yfr5wwkvuldzm55ljtc9mnnm55mk9cdy79jx086qy6s4dyaf6
 creation_rules:
   - path_regex: secrets/common.yaml$
     key_groups:
-    - age:
-      - *elxreno
-      - *infinity
+      - age:
+          - *elxreno
+          - *infinity
   - path_regex: secrets/server.yaml$
     key_groups:
-    - age:
-      - *elxreno
-      - *destroyer
+      - age:
+          - *elxreno
+          - *destroyer
+          - *grate
