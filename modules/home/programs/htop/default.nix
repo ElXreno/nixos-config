@@ -6,7 +6,12 @@
   ...
 }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkMerge
+    optionals
+    ;
   cfg = config.${namespace}.programs.htop;
 in
 {
@@ -15,12 +20,17 @@ in
     zfsSupport = mkEnableOption "Whether or not to enable ZFS support." // {
       default = true; # TODO: Handle it by other way, proper way
     };
+    showAdvancedCPUStats =
+      mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
+      // {
+        default = !virtual && !config.${namespace}.roles.server.enable;
+      };
   };
 
   config = mkIf cfg.enable {
     programs.htop = {
       enable = true;
-      settings = lib.mkMerge [
+      settings = mkMerge [
         {
           config_reader_min_version = 3;
           detailed_cpu_time = true;
@@ -37,7 +47,7 @@ in
             "Swap"
             "Zram"
           ]
-          ++ lib.optionals cfg.zfsSupport [
+          ++ optionals cfg.zfsSupport [
             "ZFSARC"
             "ZFSCARC"
           ];
@@ -47,7 +57,7 @@ in
             1
             1
           ]
-          ++ lib.optionals cfg.zfsSupport [
+          ++ optionals cfg.zfsSupport [
             2
             2
           ];
@@ -71,7 +81,7 @@ in
           # screen_tabs = 1;
           # "screen:I/O" = [ "PID" "USER" "IO_PRIORITY" "IO_RATE" "IO_READ_RATE" "IO_WRITE_RATE" "COMM" ];
         }
-        (lib.mkIf (!virtual && !config.${namespace}.roles.server.enable) {
+        (mkIf cfg.showAdvancedCPUStats {
           show_cpu_frequency = true;
           show_cpu_temperature = true;
         })
