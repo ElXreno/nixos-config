@@ -6,7 +6,7 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkEnableOption optionals;
   cfg = config.${namespace}.services.tailscale;
 in
 {
@@ -16,13 +16,16 @@ in
   };
 
   config = mkIf cfg.enable {
+    sops.secrets.tailscale-auth-key = { };
+
     services.tailscale = {
       enable = true;
+      authKeyFile = config.sops.secrets.tailscale-auth-key.path;
       openFirewall = true;
       useRoutingFeatures = "both";
-      extraSetFlags = lib.optionals cfg.isServer [ "--advertise-exit-node" ];
-      extraUpFlags = [ "--accept-dns=false" ]; # TODO: Use authKeyFile to get this working evverywhere
-      permitCertUid = lib.mkIf config.services.caddy.enable config.services.caddy.user;
+      extraSetFlags = optionals cfg.isServer [ "--advertise-exit-node" ];
+      extraUpFlags = [ "--accept-dns=false" ];
+      permitCertUid = with config.services.caddy; mkIf enable user;
     };
 
     networking =
