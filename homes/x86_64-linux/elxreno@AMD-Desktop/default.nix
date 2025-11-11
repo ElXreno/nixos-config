@@ -5,6 +5,8 @@
       desktop.enable = true;
     };
 
+    common-packages.enable = true;
+
     desktop-environments.plasma = {
       enable = true;
       wayland = false;
