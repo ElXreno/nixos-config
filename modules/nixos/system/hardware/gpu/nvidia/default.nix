@@ -21,6 +21,8 @@ in
     enable = mkEnableOption "Whether or not to manage nvidia stuff.";
     package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "latest" { };
 
+    modesetting.enable = mkEnableOption "Whether to enable kernel modesetting.";
+
     dynamicBoost.enable = mkEnableOption "Whether to enable nvidia-powerd.";
     overclock.enable = mkEnableOption "Whether to overclock NVIDIA GPU.";
 
@@ -56,8 +58,9 @@ in
 
     hardware = {
       nvidia = {
-        open = cfg.package ? open && cfg.package ? firmware;
         inherit (cfg) package;
+        open = cfg.package ? open && cfg.package ? firmware;
+        modesetting.enable = cfg.modesetting.enable;
         dynamicBoost.enable = cfg.dynamicBoost.enable;
         powerManagement.enable = true;
         # nvidiaPersistenced = true;
