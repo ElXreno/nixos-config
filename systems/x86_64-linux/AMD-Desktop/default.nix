@@ -21,7 +21,11 @@
       };
 
       hardware = {
-        cpu.manufacturer = "amd";
+        cpu = {
+          manufacturer = "amd";
+          amd.zenpower.enable = false;
+        };
+
         gpu.nvidia = {
           enable = true;
           package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
