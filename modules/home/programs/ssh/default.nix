@@ -19,7 +19,6 @@ in
       enableDefaultConfig = false;
       matchBlocks = {
         "*" = {
-          compression = true;
           serverAliveInterval = 10;
           serverAliveCountMax = 3;
         };
