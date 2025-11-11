@@ -47,6 +47,10 @@ let
 
     # SD cards and internal eMMC drives.
     "mmc_block"
+
+    # For nbfc
+    "ec_sys"
+    "acpi_ec"
   ];
 
   initrdMissingModules = [
