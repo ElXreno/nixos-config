@@ -5,7 +5,10 @@
       desktop.enable = true;
     };
 
-    desktop-environments.plasma.enable = true;
+    desktop-environments.plasma = {
+      enable = true;
+      wayland = false;
+    };
   };
 
   home = {

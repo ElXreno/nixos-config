@@ -39,7 +39,10 @@
       };
     };
 
-    desktop-environments.plasma.enable = true;
+    desktop-environments.plasma = {
+      enable = true;
+      wayland = false;
+    };
   };
 
   services.udev.extraRules = ''
