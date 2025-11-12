@@ -22,6 +22,10 @@
         cpu.manufacturer = "intel";
       };
     };
+
+    services = {
+      home-assistant.enable = true;
+    };
   };
 
   security.sudo.wheelNeedsPassword = false;
