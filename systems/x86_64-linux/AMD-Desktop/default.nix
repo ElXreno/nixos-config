@@ -31,6 +31,8 @@
           package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
           modesetting.enable = true;
         };
+
+        hdd.hitachi.enable = true;
       };
 
       fs.zfs = {
