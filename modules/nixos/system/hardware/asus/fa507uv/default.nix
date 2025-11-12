@@ -49,7 +49,6 @@ let
     "mmc_block"
 
     # For nbfc
-    "ec_sys"
     "acpi_ec"
   ];
 
@@ -88,7 +87,7 @@ let
     "-e ASUS_LAPTOP"
     "-e ASUS_WIRELESS"
 
-    "-m NTSYNC"
+    "-m NTSYNC" # Maybe it useless as we already has `ntsync` at `modprobed.db`
   ];
 
   minimizedConfig = pkgs.stdenv.mkDerivation {

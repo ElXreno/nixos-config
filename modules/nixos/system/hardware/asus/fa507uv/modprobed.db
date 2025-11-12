@@ -42,6 +42,7 @@ chacha_x86_64
 cifs
 cmac
 configfs
+cp210x
 crc16
 crc32c_cryptoapi
 curve25519_x86_64
@@ -56,6 +57,7 @@ drm_suballoc_helper
 drm_ttm_helper
 ecc
 ecdh_generic
+ec_sys
 edac_core
 edac_mce_amd
 efi_pstore
@@ -131,6 +133,7 @@ nft_redir
 nls_ascii
 nls_cp437
 nls_iso8859_1
+ntsync
 nvidia_wmi_ec_backlight
 nvme
 nvme_auth
@@ -156,6 +159,9 @@ rtw89_8852be
 rtw89_core
 rtw89_pci
 sch_fq
+scsi_common
+scsi_mod
+sd_mod
 serio
 serio_raw
 snd
