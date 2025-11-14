@@ -116,6 +116,11 @@ mdio_devres
 mii
 mousedev
 msr
+mt76
+mt76_connac_lib
+mt7925_common
+mt7925e
+mt792x_lib
 nf_conntrack
 nf_defrag_ipv4
 nf_defrag_ipv6
