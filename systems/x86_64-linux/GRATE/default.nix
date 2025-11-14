@@ -25,6 +25,7 @@
 
     services = {
       home-assistant.enable = true;
+      factorio.enable = true;
     };
   };
 

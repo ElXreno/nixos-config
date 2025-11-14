@@ -32,7 +32,6 @@
       # xray.server.enable = true;
       sing-box.server.enable = true;
       nginx.enable = true;
-      factorio.enable = true;
     };
   };
 
