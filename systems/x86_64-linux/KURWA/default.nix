@@ -68,7 +68,10 @@
       restic.enable = !virtual;
       # monitoring.enable = true;
 
-      pipewire.enableRNNoise = true;
+      pipewire.rnnoise = {
+        enable = true;
+        mic = "alsa_input.pci-0000_66_00.6.analog-stereo";
+      };
 
       ollama = {
         # enable = true;

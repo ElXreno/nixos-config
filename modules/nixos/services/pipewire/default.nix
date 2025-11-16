@@ -7,13 +7,24 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    types
+    ;
   cfg = config.${namespace}.services.pipewire;
 in
 {
   options.${namespace}.services.pipewire = {
     enable = mkEnableOption "Whether or not to manage pipewire.";
-    enableRNNoise = mkEnableOption "Whether to enable RNNoise.";
+    rnnoise = {
+      enable = mkEnableOption "Whether to enable RNNoise.";
+      mic = mkOption {
+        type = types.str;
+        default = "alsa_input.target";
+      };
+    };
   };
 
   config = mkIf cfg.enable {
@@ -24,22 +35,24 @@ in
       alsa.support32Bit = true;
       pulse.enable = true;
 
+      extraLv2Packages = [ pkgs.lsp-plugins ];
+
       extraConfig = {
-        client."99-resample"."stream.properties"."resample.quality" = 14;
-        pipewire-pulse."99-resample"."stream.properties"."resample.quality" = 14;
+        client."80-resample"."stream.properties"."resample.quality" = 14;
+        pipewire-pulse."80-resample"."stream.properties"."resample.quality" = 14;
         pipewire = {
-          "92-low-latency"."context.properties" = {
+          "80-low-latency"."context.properties" = {
             "default.clock.quantum" = 512;
             "default.clock.min-quantum" = 512;
             "default.clock.max-quantum" = 512;
           };
-          "99-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
+          "80-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
             44100
             48000
             96000
             192000
           ];
-          "99-rnnoise" = mkIf cfg.enableRNNoise {
+          "99-noise-cancelling" = mkIf cfg.rnnoise.enable {
             "context.modules" = [
               {
                 "name" = "libpipewire-module-filter-chain";
@@ -62,19 +75,57 @@ in
                     ];
                   };
                   "capture.props" = {
-                    "node.name" = "capture.rnnoise_source";
+                    "node.name" = "rnnoise.input";
                     "node.passive" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];
-                    "stream.dont-remix" = true;
+                    "target.object" = cfg.rnnoise.mic;
                   };
                   "playback.props" = {
-                    "node.name" = "rnnoise_source";
+                    "node.name" = "rnnoise.source";
                     "media.class" = "Audio/Source";
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];
+                  };
+                };
+              }
+              {
+                "name" = "libpipewire-module-filter-chain";
+                "args" = {
+                  "node.description" = "Voice Enhanced source";
+                  "media.name" = "Voice Enhanced source";
+                  "filter.graph" = {
+                    "nodes" = [
+                      {
+                        "type" = "ladspa";
+                        "name" = "comp";
+                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4_1882.so";
+                        "label" = "sc4";
+                        "control" = {
+                          "Attack time (ms)" = 10.6;
+                          "Release time (ms)" = 500.0;
+                          "Threshold level (dB)" = -18.3;
+                          "Ratio (1:n)" = 4.0;
+                          "Knee radius (dB)" = 3.0;
+                          "Makeup gain (dB)" = 6.0;
+                        };
+                      }
+                    ];
+                  };
+                  "capture.props" = {
+                    "node.name" = "voicecomp.input";
+                    "node.passive" = true;
+                    "audio.rate" = 48000;
+                    "audio.channels" = 1;
+                    "audio.position" = [ "MONO" ];
+                    "target.object" = "rnnoise.source";
+                  };
+                  "playback.props" = {
+                    "node.name" = "voice.source";
+                    "media.class" = "Audio/Source";
+                    "audio.rate" = 48000;
                   };
                 };
               }
