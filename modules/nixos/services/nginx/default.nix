@@ -111,6 +111,14 @@ in
           }
           (mapAttrs (_virtualHost: virtualHostCfg: virtualHostCfg // commonVirtualHostCfg) cfg.virtualHosts)
         ];
+
+        eventsConfig = ''
+          worker_connections 1024;
+        '';
+        appendConfig = ''
+          worker_processes 4;
+          worker_rlimit_nofile 2048;
+        '';
       };
 
       security.acme = {
