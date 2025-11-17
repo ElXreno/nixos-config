@@ -42,7 +42,7 @@ in
       ];
     };
 
-    boot.extraModprobeConfig = ''
+    boot.extraModprobeConfig = mkIf cfg.xboxSupport ''
       options bluetooth disable_ertm=Y
     '';
 
