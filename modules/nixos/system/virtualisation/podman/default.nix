@@ -17,6 +17,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    networking.dhcpcd.IPv6rs = false; # Not in use anyway
+
     virtualisation.podman = {
       enable = true;
       dockerSocket.enable = true;

@@ -26,6 +26,7 @@
     services = {
       home-assistant.enable = true;
       factorio.enable = true;
+      ripe-atlas.enable = true;
     };
   };
 
