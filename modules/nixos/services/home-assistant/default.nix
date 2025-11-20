@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -49,6 +50,9 @@ in
         "mqtt"
         "zha"
         "isal"
+      ];
+      customComponents = with pkgs.home-assistant-custom-components; [
+        yandex-station
       ];
       extraPackages =
         python3Packages: with python3Packages; [
