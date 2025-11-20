@@ -51,9 +51,14 @@ in
         "zha"
         "isal"
       ];
-      customComponents = with pkgs.home-assistant-custom-components; [
-        yandex-station
-      ];
+      customComponents =
+        with pkgs.home-assistant-custom-components;
+        [
+          yandex-station
+        ]
+        ++ (with pkgs.${namespace}; [
+          hass-yandex-smart-home
+        ]);
       extraPackages =
         python3Packages: with python3Packages; [
           psycopg2
@@ -64,6 +69,61 @@ in
         # https://www.home-assistant.io/integrations/default_config/
         default_config = { };
         homeassistant = { };
+        yandex_smart_home = {
+          entity_config = {
+            "sensor.zal_temperature" = {
+              name = "Температура в зале";
+              properties = [
+                {
+                  type = "temperature";
+                  entity = "sensor.zal_temperature";
+                }
+                {
+                  type = "humidity";
+                  entity = "sensor.zal_humidity";
+                }
+                {
+                  type = "battery_level";
+                  entity = "sensor.zal_battery";
+                }
+              ];
+            };
+            "sensor.kukhnia_temperature" = {
+              name = "Температура на кухне";
+              properties = [
+                {
+                  type = "temperature";
+                  entity = "sensor.kukhnia_temperature";
+                }
+                {
+                  type = "humidity";
+                  entity = "sensor.kukhnia_humidity";
+                }
+                {
+                  type = "battery_level";
+                  entity = "sensor.kukhnia_battery";
+                }
+              ];
+            };
+            "sensor.spalnia_temperature" = {
+              name = "Температура в спальне";
+              properties = [
+                {
+                  type = "temperature";
+                  entity = "sensor.spalnia_temperature";
+                }
+                {
+                  type = "humidity";
+                  entity = "sensor.spalnia_humidity";
+                }
+                {
+                  type = "battery_level";
+                  entity = "sensor.spalnia_battery";
+                }
+              ];
+            };
+          };
+        };
 
         recorder.db_url = "postgresql://@/hass";
       };
