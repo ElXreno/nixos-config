@@ -11,6 +11,7 @@ let
     mkEnableOption
     mkPackageOption
     mkOption
+    mkForce
     ;
   cfg = config.${namespace}.system.hardware.gpu.nvidia;
 
@@ -19,6 +20,7 @@ in
 {
   options.${namespace}.system.hardware.gpu.nvidia = {
     enable = mkEnableOption "Whether or not to manage nvidia stuff.";
+    enableBatterySaverSpecialisation = mkEnableOption "Whether to enable battery saver specialisation.";
     package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "latest" { };
 
     modesetting.enable = mkEnableOption "Whether to enable kernel modesetting.";
@@ -73,6 +75,52 @@ in
             enableOffloadCmd = true;
           };
         };
+      };
+    };
+
+    specialisation = mkIf cfg.enableBatterySaverSpecialisation {
+      battery-saver.configuration = {
+        system.nixos.tags = [ "battery-saver" ];
+        boot = {
+          extraModprobeConfig = ''
+            blacklist nouveau
+            options nouveau modeset=0
+          '';
+          blacklistedKernelModules = [
+            "nouveau"
+            "nvidia"
+            "nvidia_drm"
+            "nvidia_modeset"
+          ];
+        };
+
+        services.udev.extraRules = ''
+          # Remove NVIDIA USB xHCI Host Controller devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{power/control}="auto", ATTR{remove}="1"
+
+          # Remove NVIDIA USB Type-C UCSI devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{power/control}="auto", ATTR{remove}="1"
+
+          # Remove NVIDIA Audio devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto", ATTR{remove}="1"
+
+          # Remove NVIDIA VGA/3D controller devices
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"
+        '';
+
+        hardware.nvidia = {
+          prime.offload = {
+            enable = mkForce false;
+            enableOffloadCmd = mkForce false;
+          };
+          dynamicBoost.enable = mkForce false;
+          powerManagement = {
+            enable = mkForce false;
+            finegrained = mkForce false;
+          };
+        };
+
+        systemd.services.nvidia_oc = mkForce { };
       };
     };
 

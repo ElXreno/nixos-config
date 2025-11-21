@@ -32,6 +32,7 @@
         gpu.amd.enable = true;
         gpu.nvidia = {
           enable = true;
+          enableBatterySaverSpecialisation = true;
           dynamicBoost.enable = true;
           overclock.enable = true;
 
