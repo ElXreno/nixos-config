@@ -239,32 +239,31 @@ in
           " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
         ];
 
-        windowrulev2 = [
-          "float, class:^(nz.co.mega.)$"
-          "noborder, class:^(nz.co.mega.)$"
-          "stayfocused, class:^(nz.co.mega.)$"
+        windowrule = [
+          "float on, match:class ^(nz.co.mega.)$"
+          "border_size 0, match:class ^(nz.co.mega.)$"
+          "stay_focused on, match:class ^(nz.co.mega.)$"
 
-          "float, class:^(steam)$, title:^(Friends List)$"
-          "float, class:^(org.freedesktop.impl.portal.desktop.kde)$"
+          "float on, match:class ^(steam)$, match:title ^(Friends List)$"
+          "float on, match:class ^(org.freedesktop.impl.portal.desktop.kde)$"
 
-          "opacity 0.0 override 0.0 override, class:^(xwaylandvideobridge)$"
-          "noanim, class:^(xwaylandvideobridge)$"
-          "nofocus, class:^(xwaylandvideobridge)$"
-          "noinitialfocus, class:^(xwaylandvideobridge)$"
+          "opacity 0.0 override, match:class ^(xwaylandvideobridge)$"
+          "no_anim on, match:class ^(xwaylandvideobridge)$"
+          "no_focus on, match:class ^(xwaylandvideobridge)$"
+          "no_initial_focus on, match:class ^(xwaylandvideobridge)$"
 
-          "workspace 1, class:^(firefox)$"
-          "workspace 5, class:^(org.telegram.desktop)$"
-          "workspace 9, class:^(spotify)$"
-          "workspace 10, class:^(org.keepassxc.KeePassXC)$"
+          "workspace 1, match:class ^(firefox)$"
+          "workspace 5, match:class ^(org.telegram.desktop)$"
+          "workspace 9, match:class ^(spotify)$"
+          "workspace 10, match:class ^(org.keepassxc.KeePassXC)$"
+          "workspace special silent, match:class ^(explorer.exe)$"
 
-          "immediate, class:^(.*DDNet)$"
-          "immediate, title:^(Minecraft.*)$"
-          "immediate, title:^(STALCRAFT)$"
+          "immediate on, match:class ^(.*DDNet)$"
+          "immediate on, match:title ^(Minecraft.*)$"
+          "immediate on, match:title ^(STALCRAFT)$"
 
-          "workspace special silent, class:^(explorer.exe)$"
+          "suppress_event fullscreen maximize, match:class ^(exbolauncher\.exe|steam_proton)$"
         ];
-
-        windowrule = [ "suppressevent fullscreen maximize, class:^(exbolauncher\.exe|steam_proton)$" ];
 
         misc = {
           disable_hyprland_logo = true;
