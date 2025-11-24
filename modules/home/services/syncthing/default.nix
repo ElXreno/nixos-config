@@ -27,8 +27,8 @@ in
     services.syncthing = {
       enable = true;
 
-      overrideDevices = false;
-      overrideFolders = false;
+      overrideDevices = true;
+      overrideFolders = true;
 
       settings = cfg.settings;
     };
