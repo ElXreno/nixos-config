@@ -67,13 +67,6 @@
                 "SM-938B"
               ];
             };
-            "~/projects" = {
-              id = "ygtua-856sad";
-              devices = [
-                "GRATE"
-                "INFINITY"
-              ];
-            };
           };
         };
       };

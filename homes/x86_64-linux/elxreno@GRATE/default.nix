@@ -61,14 +61,6 @@
               ];
               type = "receiveonly";
             };
-            "~/projects" = {
-              id = "ygtua-856sad";
-              devices = [
-                "KURWA"
-                "INFINITY"
-              ];
-              type = "receiveonly";
-            };
           };
         };
       };

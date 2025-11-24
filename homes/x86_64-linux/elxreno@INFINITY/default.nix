@@ -62,14 +62,6 @@
               ];
               type = "receiveonly";
             };
-            "~/projects" = {
-              id = "ygtua-856sad";
-              devices = [
-                "KURWA"
-                "GRATE"
-              ];
-              type = "receiveonly";
-            };
           };
         };
       };
