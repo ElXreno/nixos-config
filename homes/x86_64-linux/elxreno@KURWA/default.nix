@@ -23,6 +23,7 @@
         settings = {
           devices = {
             GRATE.id = "WAPSKKS-INQGXIL-76BTAK7-XMJPFZK-EKNP4H4-F3TYR7R-PYSESF4-6NEGVAL";
+            INFINITY.id = "5HO6RO2-TWEE7LQ-CHOYWXN-TDNIMRK-BU6Z2IB-BZZ5LNM-TKDAI36-HFXUMAL";
             SM-938B.id = "54NW2KX-ZL5JFVK-TSF6GXD-W6ZAQCN-VZS3DAJ-EKRLKJG-AX6W6AH-VQPBWA2";
           };
           folders = {
@@ -30,6 +31,7 @@
               id = "mb33z-6aqm9";
               devices = [
                 "GRATE"
+                "INFINITY"
                 "SM-938B"
               ];
             };
@@ -37,6 +39,7 @@
               id = "29llw-v8myj";
               devices = [
                 "GRATE"
+                "INFINITY"
                 "SM-938B"
               ];
             };
@@ -44,6 +47,7 @@
               id = "s1iqf-q30lv";
               devices = [
                 "GRATE"
+                "INFINITY"
                 "SM-938B"
               ];
             };
@@ -51,6 +55,7 @@
               id = "cnd20-w7p5o";
               devices = [
                 "GRATE"
+                "INFINITY"
                 "SM-938B"
               ];
             };
@@ -58,12 +63,16 @@
               id = "ywnqs-d6y2m";
               devices = [
                 "GRATE"
+                "INFINITY"
                 "SM-938B"
               ];
             };
             "~/projects" = {
               id = "ygtua-856sad";
-              devices = [ "GRATE" ];
+              devices = [
+                "GRATE"
+                "INFINITY"
+              ];
             };
           };
         };
