@@ -11,7 +11,7 @@ jobs:
     outputs:
       matrix: ${{ steps.generate-jobs.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: cachix/install-nix-action@v31
 
@@ -31,7 +31,7 @@ jobs:
         job: ${{ fromJson(needs.discover_jobs.outputs.matrix) }}
     runs-on: ubuntu-24.04${{ matrix.job.arch == 'aarch64' && '-arm' || '' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: wimpysworld/nothing-but-nix@main
         with:
