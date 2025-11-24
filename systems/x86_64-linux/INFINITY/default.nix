@@ -34,6 +34,8 @@
     user.alena.enable = true;
 
     desktop-environments.plasma.enable = true;
+
+    home-manager.syncthing.randomPortIncrement = 66;
   };
 
   boot.extraModprobeConfig = ''

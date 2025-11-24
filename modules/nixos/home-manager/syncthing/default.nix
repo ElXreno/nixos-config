@@ -9,6 +9,7 @@ let
   inherit (lib)
     mkIf
     mkEnableOption
+    mkOption
     mapAttrs
     concatLists
     mapAttrsToList
@@ -23,8 +24,8 @@ let
     in
     {
       webUIPort = 8384 + inc;
-      announcePort = 21027 + inc;
-      listenPort = 22000 + inc;
+      announcePort = 21027 + inc + cfg.randomPortIncrement;
+      listenPort = 22000 + inc + cfg.randomPortIncrement;
     }
   ) config.${namespace}.user.users; # TODO: Filter here users which has syncthing
 
@@ -41,6 +42,10 @@ in
   options.${namespace}.home-manager.syncthing = {
     enable = mkEnableOption "Whether or not to manage extra stuff for Syncthing." // {
       default = true; # TODO: Enable only if specified user has syncthing
+    };
+    randomPortIncrement = mkOption {
+      description = "Random increment number for ports";
+      default = 0;
     };
   };
 

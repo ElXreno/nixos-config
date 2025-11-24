@@ -27,6 +27,8 @@
       home-assistant.enable = true;
       ripe-atlas.enable = true;
     };
+
+    home-manager.syncthing.randomPortIncrement = 23;
   };
 
   security.sudo.wheelNeedsPassword = false;

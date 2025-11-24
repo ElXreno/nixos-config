@@ -93,6 +93,8 @@
     };
 
     desktop-environments.hyprland.enable = true;
+
+    home-manager.syncthing.randomPortIncrement = 42;
   };
 
   sops.secrets."yandex-license" = {
