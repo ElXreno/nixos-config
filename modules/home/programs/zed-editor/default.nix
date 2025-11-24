@@ -44,6 +44,7 @@ in
             opentofu
             tofu-ls
             helm-ls
+            yaml-language-server
             (tree-sitter.withPlugins (p: builtins.attrValues p))
 
             gopls
