@@ -13,6 +13,7 @@ let
     mkEnableOption
     mkPackageOption
     mkMerge
+    mkForce
     optional
     ;
   cfg = config.${namespace}.system.nix;
@@ -28,6 +29,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    sops.secrets."attic/netrc-file-pull" = {
+      sopsFile = "${inputs.self}/secrets/netrc.yaml";
+    };
+
     nix = {
       inherit (cfg) package;
 
@@ -42,14 +47,15 @@ in
             "flakes"
           ]; # TODO: Something adds extra-experimental-features, find who
 
-          extra-sandbox-paths = optional config.programs.ccache.enable "${config.programs.ccache.cacheDir}";
+          extra-sandbox-paths = with config.programs.ccache; optional enable "${cacheDir}";
 
           trusted-users = [
             "@wheel"
             "elxreno"
           ];
 
-          substituters = [
+          substituters = mkForce [
+            "https://nixos-cache-proxy.elxreno.com"
             "https://cache.elxreno.com/common"
             "https://nix-community.cachix.org"
           ];
@@ -57,6 +63,8 @@ in
             "common:m1kzZFDmZb76MaOKKGGBkJKZL/Rd8MrlQr+Sk+Q92c4="
             "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           ];
+
+          netrc-file = config.sops.secrets."attic/netrc-file-pull".path;
         }
         (mkIf (!virtual) {
           min-free = 2 * 1024 * 1024 * 1024; # 2GB
@@ -70,7 +78,7 @@ in
 
       registry.nixpkgs.flake = inputs.nixpkgs;
 
-      nixPath = lib.mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
+      nixPath = mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
 
       gc = mkIf cfg.gc.enable {
         automatic = true;

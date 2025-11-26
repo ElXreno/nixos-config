@@ -15,3 +15,10 @@ creation_rules:
           - *elxreno
           - *destroyer
           - *grate
+  - path_regex: secrets/netrc.yaml$
+    key_groups:
+      - age:
+          - *elxreno
+          - *infinity
+          - *destroyer
+          - *grate
