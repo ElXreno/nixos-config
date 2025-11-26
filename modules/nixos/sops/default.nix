@@ -36,10 +36,10 @@ in
               (builtins.filter (
                 user:
                 let
-                  inherit (config.users.users."${user}") uid;
+                  inherit (config.${namespace}.user.users."${user}") uid;
                 in
                 uid != null && uid >= 1000 && uid <= 1010
-              ) (builtins.attrNames config.users.users))
+              ) (builtins.attrNames config.${namespace}.user.users))
               (user: {
                 "user_passwords/${user}" = {
                   neededForUsers = true;
