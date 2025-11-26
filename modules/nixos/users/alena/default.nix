@@ -34,6 +34,7 @@ in
       ]
       ++ cfg.extraGroups;
       hashedPasswordFile = mkIf (!virtual) config.sops.secrets."user_passwords/alena".path;
+      linger = true;
       openssh.authorizedKeys.keys = config.users.users.elxreno.openssh.authorizedKeys.keys;
       uid = 1001;
     };

@@ -77,6 +77,24 @@ let
           an encrypted form that is suitable for the `chpasswd -e` command.
         '';
       };
+      linger = mkOption {
+        type = with types; nullOr bool;
+        example = true;
+        default = null;
+        description = ''
+          Whether to enable or disable lingering for this user.  Without
+          lingering, user units will not be started until the user logs in,
+          and may be stopped on logout depending on the settings in
+          `logind.conf`.
+
+          By default, NixOS will not manage lingering, new users will default
+          to not lingering, and lingering can be configured imperatively using
+          `loginctl enable-linger` or `loginctl disable-linger`. Setting
+          this option to `true` or `false` is the declarative equivalent of
+          running `loginctl enable-linger` or `loginctl disable-linger`
+          respectively.
+        '';
+      };
       shell = mkOption {
         type = types.nullOr (types.either types.shellPackage (types.passwdEntry types.path));
         default = pkgs.fish;
@@ -144,6 +162,7 @@ in
             isNormalUser
             initialPassword
             hashedPasswordFile
+            linger
             shell
             openssh
             ;
