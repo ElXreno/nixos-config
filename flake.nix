@@ -53,7 +53,8 @@
     };
 
     hyprland = {
-      url = "github:hyprwm/Hyprland";
+      # https://github.com/hyprwm/Hyprland/commit/40d8fa84919c6d0e9fcb1536f4bc09710d4c031c breaks split-monitor-workspaces
+      url = "github:hyprwm/Hyprland/1c1746de61a90dbbae072f3fc618c45af33fdd59";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     split-monitor-workspaces = {
