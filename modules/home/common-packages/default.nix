@@ -74,6 +74,7 @@ in
 
               # Messengers
               discord
+              betterdiscordctl
 
               # Games
               taterclient-ddnet
