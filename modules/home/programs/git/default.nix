@@ -19,7 +19,7 @@ in
       enable = true;
       lfs.enable = true;
       settings = {
-        aliases = {
+        alias = {
           cp = "cherry-pick";
         };
 
