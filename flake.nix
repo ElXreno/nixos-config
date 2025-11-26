@@ -141,28 +141,25 @@
             profiles.system = {
               path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.AMD-Desktop;
             };
-            fastConnection = true;
+            interactiveSudo = true;
           };
           DESTROYER = {
             hostname = "destroyer";
             profiles.system = {
               path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.DESTROYER;
             };
-            fastConnection = true;
           };
           GRATE = {
             hostname = "grate";
             profiles.system = {
               path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.GRATE;
             };
-            fastConnection = true;
           };
           INFINITY = {
             hostname = "infinity";
             profiles.system = {
               path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.INFINITY;
             };
-            fastConnection = true;
             interactiveSudo = true;
           };
         };
