@@ -2,7 +2,6 @@
   config,
   namespace,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -33,23 +32,5 @@ in
     };
 
     systemd.services.NetworkManager-wait-online.enable = false;
-
-    environment.etc."NetworkManager/dispatcher.d/99-fq" = mkIf cfg.networkmanager.enable {
-      source =
-        let
-          fqDispatcher = pkgs.writeShellScript "fq-dispatcher.sh" ''
-            interface="$1"
-            action="$2"
-
-            if [ "$action" = "up" ] && [ "$interface" != "lo" ] && [ "$interface" != "tailscale0" ]; then
-              ${pkgs.iproute2}/bin/tc qdisc replace dev "$interface" root fq
-
-              echo "FQ applied to $interface"
-            fi
-          '';
-        in
-        fqDispatcher;
-      mode = "0755";
-    };
   };
 }
