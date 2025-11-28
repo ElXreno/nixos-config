@@ -51,7 +51,7 @@ in
 {
   options.${namespace}.services.nginx = {
     enable = mkEnableOption "Whether or not to manage nginx.";
-    package = mkPackageOption pkgs "nginxQuic" { };
+    package = mkPackageOption pkgs "nginx" { };
     virtualHosts = mkOption {
       type = with types; attrs;
       default = { };
