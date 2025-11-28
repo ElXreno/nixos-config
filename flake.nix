@@ -143,6 +143,12 @@
             };
             interactiveSudo = true;
           };
+          BIMBA = {
+            hostname = "bimba";
+            profiles.system = {
+              path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.BIMBA;
+            };
+          };
           DESTROYER = {
             hostname = "destroyer";
             profiles.system = {

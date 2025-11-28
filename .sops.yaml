@@ -3,6 +3,7 @@ keys:
   - &infinity age12ynl5qz5wf7g5805ptwh04ttzh507w3hmqrgx6de9wes696xgdjqhun3ad
   - &destroyer age1x2ekqe0r6f9fys9fvcgmwq3dlr240gkhadq7syr4hyw4tg5z2scqun8cgl
   - &grate age18rj5rwsp7yfr5wwkvuldzm55ljtc9mnnm55mk9cdy79jx086qy6s4dyaf6
+  - &bimba age1axcm63kfv7hssmkj6095gfnv894jwr5tst9gufhjprqjuad5c3fsx3dcc0
 creation_rules:
   - path_regex: secrets/common.yaml$
     key_groups:
@@ -15,6 +16,7 @@ creation_rules:
           - *elxreno
           - *destroyer
           - *grate
+          - *bimba
   - path_regex: secrets/netrc.yaml$
     key_groups:
       - age:
@@ -22,3 +24,4 @@ creation_rules:
           - *infinity
           - *destroyer
           - *grate
+          - *bimba
