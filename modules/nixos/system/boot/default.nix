@@ -104,10 +104,10 @@ in
           "net.core.netdev_max_backlog" = "2000";
           "net.ipv4.tcp_notsent_lowat" = "16384";
 
-          "net.ipv4.tcp_rmem" = "8192 262144 33554432";
-          "net.ipv4.tcp_wmem" = "4096 16384 16777216";
-          "net.ipv4.tcp_adv_win_scale" = -2;
-          "net.ipv4.tcp_collapse_max_bytes" = 6291456;
+          "net.ipv4.tcp_rmem" = "4096 4687500 9375000";
+          "net.ipv4.tcp_wmem" = "4096 2343750 4687500";
+          "net.ipv4.tcp_adv_win_scale" = 1;
+          "net.ipv4.tcp_collapse_max_bytes" = 1048576;
 
           # Memory
           "vm.min_free_kbytes" = 262144;
