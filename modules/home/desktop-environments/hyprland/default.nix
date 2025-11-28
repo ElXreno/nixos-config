@@ -253,9 +253,10 @@ in
           "no_initial_focus on, match:class ^(xwaylandvideobridge)$"
 
           "workspace 1, match:class ^(firefox)$"
-          "workspace 5, match:class ^(org.telegram.desktop)$"
+          "workspace 5, no_screen_share on, match:class ^(org.telegram.desktop)$"
           "workspace 9, match:class ^(spotify)$"
-          "workspace 10, match:class ^(org.keepassxc.KeePassXC)$"
+          "workspace 10, no_screen_share on, match:class ^(org.keepassxc.KeePassXC)$"
+          "workspace 11, no_screen_share on, match:class ^(discord)$"
           "workspace special silent, match:class ^(explorer.exe)$"
 
           "immediate on, match:class ^(.*DDNet)$"
