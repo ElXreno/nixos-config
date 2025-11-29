@@ -261,6 +261,7 @@ in
 
           "immediate on, match:class ^(.*DDNet)$"
           "immediate on, match:title ^(Minecraft.*)$"
+          "immediate on, match:initial_title ^(Minecraft.*)$"
           "immediate on, match:title ^(STALCRAFT)$"
 
           "suppress_event fullscreen maximize, match:class ^(exbolauncher\.exe|steam_proton)$"
