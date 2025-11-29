@@ -14,6 +14,21 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            trusted-public-keys = nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
+            substituters = https://nix-on-droid.cachix.org https://nixos-cache-proxy.elxreno.com
+            system-features = aarch64-linux
+
+      - name: Setup Attic cache
+        uses: ryanccn/attic-action@v0
+        with:
+          endpoint: "https://cache.elxreno.com"
+          cache: "common"
+          token: ${{ secrets.ATTIC_TOKEN }}
+
+      - name: Force replace cache.nixos.org
+        run: sed -i "s|https://cache.nixos.org|https://nixos-cache-proxy.elxreno.com|" ~/.config/nix/nix.conf
 
       - name: Install nix-eval-jobs
         run: nix profile add github:NixOS/nixpkgs/nixpkgs-unstable#nix-eval-jobs
