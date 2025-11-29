@@ -43,7 +43,7 @@ jobs:
         with:
           extra_nix_config: |
             trusted-public-keys = nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
-            substituters = https://nix-on-droid.cachix.org https://cache.nixos.org/
+            substituters = https://nix-on-droid.cachix.org https://nixos-cache-proxy.elxreno.com
             build-dir = /nix/_build
 
       - name: Create build directory
