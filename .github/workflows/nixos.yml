@@ -56,5 +56,8 @@ jobs:
           cache: "common"
           token: ${{ secrets.ATTIC_TOKEN }}
 
+      - name: Force replace cache.nixos.org
+        run: sed -i "s|https://cache.nixos.org|https://nixos-cache-proxy.elxreno.com|" ~/.config/nix/nix.conf
+
       - name: Build ${{ matrix.job.name }} job
         run: nix build -L --no-link --keep-going .#hydraJobs.${{ matrix.job.name }} ${{ matrix.job.additionalBuildArgs }}
