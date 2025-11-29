@@ -173,17 +173,40 @@
 
       hydraJobs =
         with inputs.nixpkgs.lib;
-        (mapAttrs (_: val: val.config.system.build.toplevel) inputs.self.nixosConfigurations)
-        // (concatMapAttrs (name: val: {
-          "nix-on-droid-${name}" = val.activationPackage;
-        }) inputs.self.nixOnDroidConfigurations);
 
-      ci =
-        with inputs.nixpkgs.lib;
-        mapAttrsToList (name: value: {
-          inherit name;
-          arch = strings.removeSuffix "-linux" value.system;
-          additionalBuildArgs = if (name == "nix-on-droid-default") then "--impure" else "";
-        }) inputs.self.hydraJobs;
+        let
+          genMeta =
+            drv: isNixOnDroid:
+            (drv.meta or { })
+            // {
+              arch = removeSuffix "-linux" drv.system;
+              additionalBuildArgs = if isNixOnDroid then "--impure" else "";
+            };
+
+          nixosJobs = mapAttrs (
+            name: cfg:
+            let
+              drv = cfg.config.system.build.toplevel;
+            in
+            drv
+            // {
+              meta = genMeta drv false;
+            }
+          ) inputs.self.nixosConfigurations;
+
+          nixOnDroidJobs = concatMapAttrs (
+            name: cfg:
+            let
+              jobName = "nix-on-droid-${name}";
+              drv = cfg.activationPackage;
+            in
+            {
+              ${jobName} = drv // {
+                meta = genMeta drv true;
+              };
+            }
+          ) inputs.self.nixOnDroidConfigurations;
+        in
+        nixosJobs // nixOnDroidJobs;
     };
 }

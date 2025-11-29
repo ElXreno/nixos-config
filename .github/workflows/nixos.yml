@@ -15,12 +15,26 @@ jobs:
 
       - uses: cachix/install-nix-action@v31
 
+      - name: Install nix-eval-jobs
+        run: nix profile add github:NixOS/nixpkgs/nixpkgs-unstable#nix-eval-jobs
+
       - name: Generate Jobs
         id: generate-jobs
         run: |
-          ci=$(nix eval .#ci --json)
-          echo "Collected jobs: $ci"
-          echo "matrix=$ci" >> $GITHUB_OUTPUT
+          nix-eval-jobs \
+            --flake .#hydraJobs \
+            --impure \
+            --workers 4 \
+            --gc-roots-dir ./gc-roots \
+            --meta | \
+          jq -s -c 'map({
+            name: .attr,
+            arch: .meta.arch,
+            additionalBuildArgs: (.meta.additionalBuildArgs)
+          })' > matrix.json
+
+          echo "Collected $(jq length matrix.json) jobs"
+          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
 
   build:
     needs: discover_jobs
