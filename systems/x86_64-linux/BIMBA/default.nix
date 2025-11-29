@@ -25,6 +25,10 @@
 
     services = {
       atticd.enable = true;
+      nginx = {
+        enable = true;
+        enableDefaultVhost = true;
+      };
     };
   };
 

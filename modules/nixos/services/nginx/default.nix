@@ -51,6 +51,7 @@ in
 {
   options.${namespace}.services.nginx = {
     enable = mkEnableOption "Whether or not to manage nginx.";
+    enableDefaultVhost = mkEnableOption "Whether to setup default vhost.";
     package = mkPackageOption pkgs "nginx" { };
     virtualHosts = mkOption {
       type = with types; attrs;
@@ -97,7 +98,7 @@ in
         ];
 
         virtualHosts = mkMerge [
-          {
+          (mkIf cfg.enableDefaultVhost {
             "elxreno.com" = commonVirtualHostCfg // {
               serverAliases = [ "www.elxreno.com" ];
               default = true;
@@ -108,7 +109,7 @@ in
                 '';
               };
             };
-          }
+          })
           (mapAttrs (_virtualHost: virtualHostCfg: virtualHostCfg // commonVirtualHostCfg) cfg.virtualHosts)
         ];
 
