@@ -21,6 +21,7 @@ in
         "*" = {
           serverAliveInterval = 10;
           serverAliveCountMax = 3;
+          setEnv.TERM = "xterm-256color";
         };
         "desktop" = {
           hostname = "100.107.189.129";
