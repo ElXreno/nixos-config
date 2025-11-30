@@ -28,9 +28,6 @@ in
       type = types.port;
       default = 25565;
     };
-    openFirewall = mkEnableOption "Whether to open port." // {
-      default = true;
-    };
   };
 
   config = mkIf cfg.enable {
@@ -49,7 +46,11 @@ in
 
           "${cfg.dataDir}:/data"
         ];
-        ports = [ "${toString cfg.port}:${toString cfg.port}" ];
+        ports = [
+          "${toString cfg.port}:${toString cfg.port}/tcp"
+          "${toString cfg.port}:${toString cfg.port}/udp"
+          "24454:24454/udp" # Simple Voice Chat
+        ];
 
         environmentFiles = [ config.sops.secrets."curseforge".path ];
         environment = {
@@ -57,25 +58,29 @@ in
           DEBUG_EXEC = "true";
 
           EULA = "true";
+          SERVER_PORT = "${toString cfg.port}";
+
           TYPE = "AUTO_CURSEFORGE";
           CF_SLUG = "all-the-mods-10";
           CF_FILE_ID = "7271400";
           CF_OVERRIDES_EXCLUSIONS = "shaderpacks/**";
-          WHITELIST = "ElXreno,kontonkara,tsalkenov";
-          SERVER_PORT = "${toString cfg.port}";
 
           INIT_MEMORY = "12G";
           MAX_MEMORY = "12G";
           USE_MEOWICE_FLAGS = "true";
           USE_MEOWICE_GRAALVM_FLAGS = "true";
+          JVM_OPTS = "-Dfml.readTimeout=180 -XX:+AutoCreateSharedArchive -XX:SharedArchiveFile=atm10_cds.jsa";
 
           SERVER_NAME = "ATM10";
           MOTD = "Hosted by ElXreno";
           ICON = "https://i.postimg.cc/vZgh2sJQ/minecraft.jpg";
 
           ENABLE_WHITELIST = "true";
+          WHITELIST = "ElXreno,kontonkara,tsalkenov";
 
-          JVM_OPTS = "-Dfml.readTimeout=180";
+          MODRINTH_PROJECTS = ''
+            packet-fixer:2C41Q8WX
+          '';
         };
         extraOptions = [
           "--hostname=minecraft-atm10"
@@ -85,7 +90,5 @@ in
         podman.sdnotify = "healthy"; # avoid nasty errors with deploy-rs about healthcheck
       };
     };
-
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.port ];
   };
 }
