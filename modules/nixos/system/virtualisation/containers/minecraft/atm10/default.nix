@@ -61,7 +61,7 @@ in
           CF_SLUG = "all-the-mods-10";
           CF_FILE_ID = "7271400";
           CF_OVERRIDES_EXCLUSIONS = "shaderpacks/**";
-          WHITELIST = "ElXreno,kontonkara";
+          WHITELIST = "ElXreno,kontonkara,tsalkenov";
           SERVER_PORT = "${toString cfg.port}";
 
           INIT_MEMORY = "12G";
