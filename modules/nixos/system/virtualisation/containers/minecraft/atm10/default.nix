@@ -37,6 +37,17 @@ in
       "d ${cfg.dataDir} 0770 root users -"
     ];
 
+    ${namespace}.services.nginx = {
+      enable = true;
+      virtualHosts = {
+        "map.elxreno.com" = {
+          locations."/" = {
+            proxyPass = "http://localhost:8100";
+          };
+        };
+      };
+    };
+
     virtualisation.oci-containers.containers = {
       minecraft-atm10 = {
         autoStart = true;
@@ -50,6 +61,7 @@ in
           "${toString cfg.port}:${toString cfg.port}/tcp"
           "${toString cfg.port}:${toString cfg.port}/udp"
           "24454:24454/udp" # Simple Voice Chat
+          "127.0.0.1:8100:8100/tcp" # bluemap
         ];
 
         environmentFiles = [ config.sops.secrets."curseforge".path ];
@@ -80,6 +92,7 @@ in
 
           MODRINTH_PROJECTS = ''
             packet-fixer:2C41Q8WX
+            bluemap:8iJcPOHJ
           '';
         };
         extraOptions = [
