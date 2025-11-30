@@ -80,17 +80,9 @@ in
         extraOptions = [
           "--hostname=minecraft-atm10"
           "--pull=newer"
-          # "--health-cmd"
-          # "mc-health"
-          # "--health-interval"
-          # "10s"
-          # "--health-retries"
-          # "6"
-          # "--health-timeout"
-          # "5s"
-          # "--health-start-period"
-          # "5m"
         ];
+
+        podman.sdnotify = "healthy"; # avoid nasty errors with deploy-rs about healthcheck
       };
     };
 
