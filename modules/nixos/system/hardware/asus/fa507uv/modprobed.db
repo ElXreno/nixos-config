@@ -145,6 +145,7 @@ nvme_auth
 nvme_core
 nvme_keyring
 of_mdio
+overlay
 platform_profile
 poly1305_x86_64
 polyval_clmulni
@@ -169,6 +170,7 @@ scsi_mod
 sd_mod
 serio
 serio_raw
+sg
 snd
 snd_acp_config
 snd_acp_legacy_common
