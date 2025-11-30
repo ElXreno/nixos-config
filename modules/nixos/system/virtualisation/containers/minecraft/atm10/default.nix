@@ -67,6 +67,7 @@ in
           INIT_MEMORY = "12G";
           MAX_MEMORY = "12G";
           USE_MEOWICE_FLAGS = "true";
+          USE_MEOWICE_GRAALVM_FLAGS = "true";
 
           SERVER_NAME = "ATM10";
           MOTD = "Hosted by ElXreno";
