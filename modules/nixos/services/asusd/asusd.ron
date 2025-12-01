@@ -67,6 +67,6 @@
     armoury_settings: {
         NvTempTarget: 87,
         NvDynamicBoost: 25,
-        PanelOverdrive: 0,
+        PanelOverdrive: 1,
     },
 )
