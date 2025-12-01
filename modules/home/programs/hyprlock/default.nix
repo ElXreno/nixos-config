@@ -26,7 +26,7 @@ in
 
         background = [
           {
-            path = "${pkgs.${namespace}.custom-wallpapers}/1398562.png";
+            path = toString pkgs.${namespace}.custom-wallpaper;
             blur_passes = 0;
             noise = 0;
           }

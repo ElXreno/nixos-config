@@ -19,10 +19,10 @@ in
       enable = true;
       settings = {
         preload = [
-          "${pkgs.${namespace}.custom-wallpapers}/1398562.png"
+          (toString pkgs.${namespace}.custom-wallpaper)
         ];
 
-        wallpaper = ", ${pkgs.${namespace}.custom-wallpapers}/1398562.png";
+        wallpaper = ", ${toString pkgs.${namespace}.custom-wallpaper}";
       };
     };
   };

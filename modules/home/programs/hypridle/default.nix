@@ -21,7 +21,7 @@ in
         general = {
           before_sleep_cmd = "loginctl lock-session";
           after_sleep_cmd = "hyprctl dispatch dpms on";
-          lock_cmd = "noctalia-shell ipc call lockScreen lock";
+          lock_cmd = "pidof hyprlock || hyprlock --grace 3";
         };
 
         listener = [

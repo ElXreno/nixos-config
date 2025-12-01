@@ -60,10 +60,6 @@
       url = "github:Duckonaut/split-monitor-workspaces";
       inputs.hyprland.follows = "hyprland";
     };
-    noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   outputs =
@@ -94,7 +90,6 @@
       homes.modules = with inputs; [
         nix-index-database.homeModules.nix-index
         plasma-manager.homeModules.plasma-manager
-        inputs.noctalia.homeModules.default
       ];
 
       systems = {
