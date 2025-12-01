@@ -17,38 +17,22 @@ in
   config = mkIf cfg.enable {
     ${namespace}.programs = {
       hypridle.enable = true;
-      hyprlock.enable = true;
-      hyprpaper.enable = true;
-      waybar.enable = true;
+      noctalia.enable = true;
     };
 
     services.hyprpolkitagent.enable = true;
-    services.dunst = {
-      enable = true;
-
-      settings = {
-        global = {
-          follow = "keyboard";
-        };
-      };
-    };
     services.playerctld.enable = true;
 
     home.packages = with pkgs; [
       xfce.thunar
       xfce.tumbler
       qimgv
-      waybar
       pavucontrol
-      networkmanagerapplet
-      blueman
       wl-clipboard
       cliphist
       wofi
-      brightnessctl
       hyprcursor
       hyprshot
-      playerctl
     ];
 
     home.pointerCursor = {
@@ -83,7 +67,7 @@ in
 
       settings = {
         "$mod" = "SUPER";
-        "$terminal" = "${pkgs.kitty}/bin/kitty";
+        "$terminal" = lib.getExe pkgs.kitty;
         "$menu" = "wofi -S drun";
         "$fileManager" = "thunar";
         "$editor" = "zeditor";
@@ -179,11 +163,11 @@ in
           ", Print, exec, hyprshot -zm region --clipboard-only"
           "$mod, B, exec, firefox"
           "$mod, Return, exec, $terminal"
-          "$mod, R, exec, $menu"
+          "$mod, R, exec, noctalia-shell ipc call launcher toggle"
           "$mod, E, exec, $fileManager"
           "$mod, D, exec, $editor"
-          "$mod, H, exec, cliphist list | wofi -d | cliphist decode | wl-copy"
-          "$mod, L, exec, hyprlock"
+          "$mod, H, exec, noctalia-shell ipc call launcher clipboard"
+          "$mod, L, exec, loginctl lock-session"
 
           "$mod, M, exit,"
           "$mod, Q, killactive,"
@@ -219,24 +203,23 @@ in
         ));
 
         bindle = [
-          ", XF86MonBrightnessUp,   exec, brightnessctl set +5%"
-          ", XF86MonBrightnessDown, exec, brightnessctl set 5%-"
+          ", XF86MonBrightnessUp,   exec, noctalia-shell ipc call brightness increase"
+          ", XF86MonBrightnessDown, exec, noctalia-shell ipc call brightness decrease"
 
-          ", XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1"
-          ", XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- -l 1"
+          ", XF86AudioRaiseVolume, exec, noctalia-shell ipc call volume increase"
+          ", XF86AudioLowerVolume, exec, noctalia-shell ipc call volume decrease"
         ];
 
         bindl = [
-          ", XF86AudioMute,    exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-          ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-          ", XF86AudioPlay,  exec, playerctl play --player=spotify"
-          ", XF86AudioPause, exec, playerctl pause --player=spotify"
-          ", XF86AudioPrev,  exec, playerctl previous --player=spotify"
-          ", XF86AudioNext,  exec, playerctl next --player=spotify"
+          ", XF86AudioMute,    exec, noctalia-shell ipc call volume muteOutput"
+          ", XF86AudioMicMute, exec, noctalia-shell ipc call volume muteInput"
+          ", XF86AudioPlay,  exec, noctalia-shell ipc call media play"
+          ", XF86AudioPause, exec, noctalia-shell ipc call media pause"
+          ", XF86AudioPrev,  exec, noctalia-shell ipc call media next"
+          ", XF86AudioNext,  exec, noctalia-shell ipc call media previous"
 
-          # " , switch:Lid Switch,     exec, hyprlock" # Remove it if I will use suspend mode
-          " , switch:on:Lid Switch,  exec, hyprctl keyword monitor 'eDP-1, disable'"
-          " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
+          ", switch:on:Lid Switch,  exec, hyprctl keyword monitor 'eDP-1, disable'"
+          ", switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
         ];
 
         windowrule = [
@@ -279,8 +262,6 @@ in
         };
 
         exec-once = [
-          "nm-applet --indicator"
-          "blueman-applet"
           "wl-paste --type text --watch cliphist store"
           "wl-paste --type image --watch cliphist store"
           (

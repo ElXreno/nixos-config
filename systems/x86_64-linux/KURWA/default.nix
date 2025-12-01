@@ -128,9 +128,23 @@
       25565 # Minecraft
       57621 # Spotify
       8100 # Minecraft web map
+
+      30303
+      13000
+      12000
+      8545
+      4000
+      3500
     ];
     allowedUDPPorts = [
       25565 # Minecraft
+
+      30303
+      13000
+      12000
+      8545
+      4000
+      3500
     ];
   };
 

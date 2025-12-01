@@ -29,12 +29,14 @@ in
       ];
     };
 
+    services.upower.enable = true;
+
     environment.systemPackages =
       let
         sddm-astronaut = pkgs.sddm-astronaut.override {
           embeddedTheme = "pixel_sakura_static";
           themeConfig = {
-            Background = toString pkgs.${namespace}.custom-wallpaper;
+            Background = "${toString pkgs.${namespace}.custom-wallpapers}/1398562.png";
 
             FormPosition = "left";
 
