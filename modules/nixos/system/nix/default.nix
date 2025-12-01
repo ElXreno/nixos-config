@@ -72,10 +72,6 @@ in
         })
       ];
 
-      daemonCPUSchedPolicy = "idle";
-      daemonIOSchedClass = "idle";
-      daemonIOSchedPriority = 7;
-
       registry.nixpkgs.flake = inputs.nixpkgs;
 
       nixPath = mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
