@@ -27,6 +27,7 @@ in
         "noncere"
         "ierm"
         "ierm-extra"
+        "ark"
       ];
     };
   };
