@@ -25,6 +25,13 @@ in
 
     modesetting.enable = mkEnableOption "Whether to enable kernel modesetting.";
 
+    powerManagement = {
+      enable = mkEnableOption "Whether to enable power management." // {
+        default = true;
+      };
+      finegrained = mkEnableOption "Whether to enable fine-grained power management.";
+    };
+
     dynamicBoost.enable = mkEnableOption "Whether to enable nvidia-powerd.";
     overclock.enable = mkEnableOption "Whether to overclock NVIDIA GPU.";
 
@@ -64,7 +71,10 @@ in
         open = cfg.package ? open && cfg.package ? firmware;
         modesetting.enable = cfg.modesetting.enable;
         dynamicBoost.enable = cfg.dynamicBoost.enable;
-        powerManagement.enable = true;
+        powerManagement = {
+          enable = cfg.powerManagement.enable;
+          finegrained = cfg.powerManagement.finegrained;
+        };
         # nvidiaPersistenced = true;
 
         prime = mkIf cfg.prime.enable {

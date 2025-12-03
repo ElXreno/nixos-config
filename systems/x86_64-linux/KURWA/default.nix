@@ -32,9 +32,9 @@
         gpu.amd.enable = true;
         gpu.nvidia = {
           enable = true;
-          enableBatterySaverSpecialisation = true;
           dynamicBoost.enable = true;
           overclock.enable = true;
+          powerManagement.finegrained = true;
 
           prime = {
             enable = true;
@@ -108,15 +108,20 @@
   # And dhcp too
   facter.detected.dhcp.enable = false;
 
-  # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
   boot.kernelParams = [
+    # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
     "amdgpu.dcdebugmask=0x10"
+
+    "acpi_osi=!"
+    "acpi_osi=\"Windows 2022\""
+    "tsc=nowatchdog"
+
     "pcie_aspm.policy=powersupersave"
   ];
 
   boot.extraModprobeConfig = ''
     # NVIDIA dGPU
-    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_DynamicPowerManagement=0x01 NVreg_UsePageAttributeTable=1
+    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_UsePageAttributeTable=1
     options nvidia NVreg_EnableStreamMemOPs=1 NVreg_EnableResizableBar=1 NVreg_EnablePCIERelaxedOrderingMode=1
 
     # MT7925
