@@ -103,6 +103,7 @@ in
               # K8s
               kubectl
               lens
+              freelens-bin
 
               # Self-organization
               obsidian
