@@ -28,26 +28,33 @@ let
           raise RuntimeError("Interface not found")
 
       def get_bytes(iface):
-          network = get_network_bytes(iface).split()
-          bytes = int(network[${if type == "rx" then "1" else "9"}])
-          return bytes
+          if not iface:
+              return 0
+          try:
+              network = get_network_bytes(iface).split()
+              bytes = int(network[${if type == "rx" then "1" else "9"}])
+              return bytes
+          except (RuntimeError, IndexError, ValueError):
+              return 0
 
       def format_speed(bytes_per_sec, width=5):
           mib = bytes_per_sec / (1024 * 1024)
           return f"{mib:>{width}.1f} MiB"
 
       def get_default_iface():
-          # /proc/net/route: default route has Destination=00000000 and RTF_GATEWAY (0x2) in Flags
-          with open("/proc/net/route") as f:
-              next(f, None)  # skip header
-              for line in f:
-                  parts = line.strip().split()
-                  if len(parts) >= 4:
-                      iface, dest, flags_hex = parts[0], parts[1], parts[3]
-                      flags = int(flags_hex, 16)
-                      if dest == "00000000" and (flags & 0x2):
-                          return iface
-          raise RuntimeError("Default route not found")
+          try:
+              with open("/proc/net/route") as f:
+                  next(f, None)
+                  for line in f:
+                      parts = line.strip().split()
+                      if len(parts) >= 4:
+                          iface, dest, flags_hex = parts[0], parts[1], parts[3]
+                          flags = int(flags_hex, 16)
+                          if dest == "00000000" and (flags & 0x2):
+                              return iface
+          except Exception:
+              pass
+          return None
 
       def main():
           refresh_interval = 2
@@ -59,18 +66,29 @@ let
           )
 
           iface = get_default_iface()
-          bytes = get_bytes(iface)
+          current_bytes = get_bytes(iface)
 
           while True:
               new_iface = get_default_iface()
+
               if new_iface != iface:
                   iface = new_iface
-                  bytes = get_bytes(iface)
+                  current_bytes = get_bytes(iface)
                   dbytes = 0
+
               else:
-                  prev_bytes = bytes
-                  bytes = get_bytes(iface)
-                  dbytes = (bytes - prev_bytes) / refresh_interval
+                  if iface is None:
+                      dbytes = 0
+                  else:
+                      try:
+                          prev_bytes = current_bytes
+                          current_bytes = get_bytes(iface)
+                          dbytes = (current_bytes - prev_bytes) / refresh_interval
+                          if dbytes < 0:
+                              dbytes = 0
+                      except Exception:
+                          dbytes = 0
+                          iface = None
 
               dbytes_fmt = format_speed(dbytes)
 
@@ -82,6 +100,7 @@ let
       if __name__ == "__main__":
           main()
     '';
+
 in
 {
   options.${namespace}.programs.waybar = {
