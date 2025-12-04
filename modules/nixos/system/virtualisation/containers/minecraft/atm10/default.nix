@@ -88,7 +88,7 @@ in
           ICON = "https://i.postimg.cc/vZgh2sJQ/minecraft.jpg";
 
           ENABLE_WHITELIST = "true";
-          WHITELIST = "ElXreno,kontonkara,tsalkenov";
+          WHITELIST = "ElXreno,kontonkara,tsalkenov,SaymoonAmogus,G_R_O_M_I_L_A";
 
           MODRINTH_PROJECTS = ''
             packet-fixer:2C41Q8WX
