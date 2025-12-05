@@ -63,6 +63,14 @@ in
               proxy_request_buffering off;
             '';
           };
+
+          locations."/nginx_status" = {
+            extraConfig = ''
+              stub_status;
+              allow 127.0.0.1;
+              deny all;
+            '';
+          };
         };
       };
     };
