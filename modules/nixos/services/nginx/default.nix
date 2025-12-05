@@ -94,6 +94,12 @@ in
             addr = "0.0.0.0";
             port = 443;
             ssl = true;
+            extraParameters = [
+              "fastopen=256"
+              "backlog=4096"
+              "deferred"
+              "reuseport"
+            ];
           }
         ];
 
