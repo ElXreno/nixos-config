@@ -136,6 +136,11 @@ in
 
           "net.netfilter.nf_conntrack_max" = 524288;
           "net.netfilter.nf_conntrack_tcp_timeout_established" = 300;
+
+          "net.ipv4.tcp_syncookies" = 1;
+          "net.ipv4.tcp_max_syn_backlog" = 8192;
+          "net.ipv4.tcp_synack_retries" = 3;
+          "net.ipv4.tcp_syn_retries" = 3;
         })
         (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3 && !isServer) {
           "net.core.rmem_max" = 33554432;
