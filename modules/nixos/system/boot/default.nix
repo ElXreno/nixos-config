@@ -91,6 +91,9 @@ in
           "net.ipv4.tcp_slow_start_after_idle" = 0;
           "net.ipv4.tcp_tw_reuse" = 1;
 
+          "net.ipv4.udp_rmem_min" = 16384;
+          "net.ipv4.udp_wmem_min" = 16384;
+
           # Memory
           "vm.oom_kill_allocating_task" = 1;
         }
@@ -114,7 +117,27 @@ in
           "vm.extfrag_threshold" = 300;
           "vm.vfs_cache_pressure" = 3000;
         })
-        (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3) {
+        (lib.mkIf isServer {
+          "net.core.rmem_max" = 134217728;
+          "net.core.wmem_max" = 134217728;
+          "net.core.rmem_default" = 16777216;
+          "net.core.wmem_default" = 16777216;
+
+          "net.ipv4.tcp_rmem" = "4096 87380 67108864";
+          "net.ipv4.tcp_wmem" = "4096 65536 67108864";
+
+          # min: 1GB, pressure: 1.3GB, max: 2GB
+          "net.ipv4.udp_mem" = "262144 349525 524288";
+
+          "net.core.netdev_max_backlog" = 250000;
+          "net.core.netdev_budget" = 600;
+
+          "net.ipv4.tcp_fastopen" = 3;
+
+          "net.netfilter.nf_conntrack_max" = 524288;
+          "net.netfilter.nf_conntrack_tcp_timeout_established" = 300;
+        })
+        (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3 && !isServer) {
           "net.core.rmem_max" = 33554432;
           "net.core.wmem_max" = 16777216;
         })
