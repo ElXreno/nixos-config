@@ -144,7 +144,7 @@ in
             type = "wireguard";
             tag = "cloudflare";
 
-            mtu = 1280;
+            mtu = 1420;
             address = [
               "172.16.0.2/32"
               "2606:4700:110:8949:fed8:2642:a640:c8e1/128"
