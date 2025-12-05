@@ -34,6 +34,8 @@ in
         };
 
         documentation.enable = false;
+
+        networking.honeypot.enable = true;
       };
     };
   };
