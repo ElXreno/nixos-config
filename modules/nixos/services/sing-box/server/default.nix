@@ -58,6 +58,10 @@ in
           locations."/api/v1/stream" = {
             proxyPass = "http://localhost:10000";
             proxyWebsockets = true;
+            extraConfig = ''
+              proxy_buffering off;
+              proxy_request_buffering off;
+            '';
           };
         };
       };
