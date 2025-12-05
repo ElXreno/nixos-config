@@ -59,25 +59,40 @@ in
             ipset -exist create blocked hash:ip hashsize 4096 maxelem 300000 ${
               if cfg.blockDurationSeconds > 0 then "timeout ${toString cfg.blockDurationSeconds}" else ""
             }
+            ipset -exist create blocked6 hash:ip hashsize 4096 maxelem 300000 family inet6 ${
+              if cfg.blockDurationSeconds > 0 then "timeout ${toString cfg.blockDurationSeconds}" else ""
+            }
         fi
 
         iptables -w -I INPUT 1 -m set --match-set blocked src -j DROP
-
         iptables -w -A nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src
         iptables -w -A nixos-fw -m recent --name honeypot_candidates --set -j DROP
+
+        ip6tables -w -I INPUT 1 -m set --match-set blocked6 src -j DROP
+        ip6tables -w -A nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src
+        ip6tables -w -A nixos-fw -m recent --name honeypot_candidates --set -j DROP
       '';
 
       extraStopCommands = ''
-        iptables -w -D nixos-fw -m recent --name honeypot_candidates --set -j DROP
-        iptables -w -D nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src
-
+        iptables -w -D nixos-fw -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        iptables -w -D nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src 2>/dev/null || true
         iptables -w -D INPUT -m set --match-set blocked src -j DROP 2>/dev/null || true
+
+        ip6tables -w -D nixos-fw -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        ip6tables -w -D nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src 2>/dev/null || true
+        ip6tables -w -D INPUT -m set --match-set blocked6 src -j DROP 2>/dev/null || true
 
         ipset -exist create blocked hash:ip hashsize 4096 maxelem 300000 ${
           if cfg.blockDurationSeconds > 0 then "timeout ${toString cfg.blockDurationSeconds}" else ""
         }
+        ipset -exist create blocked6 hash:ip hashsize 4096 maxelem 300000 family inet6 ${
+          if cfg.blockDurationSeconds > 0 then "timeout ${toString cfg.blockDurationSeconds}" else ""
+        }
+
         ipset save > ${ipsetPath}
-        ipset destroy blocked
+
+        ipset destroy blocked 2>/dev/null || true
+        ipset destroy blocked6 2>/dev/null || true
       '';
     };
   };
