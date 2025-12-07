@@ -42,9 +42,9 @@ in
         pipewire-pulse."80-resample"."stream.properties"."resample.quality" = 14;
         pipewire = {
           "80-low-latency"."context.properties" = {
-            "default.clock.quantum" = 512;
-            "default.clock.min-quantum" = 512;
-            "default.clock.max-quantum" = 512;
+            "default.clock.quantum" = 1024;
+            "default.clock.min-quantum" = 1024;
+            "default.clock.max-quantum" = 4096;
           };
           "80-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
             44100
@@ -57,25 +57,77 @@ in
               {
                 "name" = "libpipewire-module-filter-chain";
                 "args" = {
-                  "node.description" = "Noise Canceling source";
-                  "media.name" = "Noise Canceling source";
+                  "node.description" = "Noise Cancelled Voise";
+                  "media.name" = "Noise Cancelled Voice Chain Source";
                   "filter.graph" = {
                     "nodes" = [
                       {
                         "type" = "ladspa";
-                        "name" = "rnnoise";
-                        "plugin" = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
-                        "label" = "noise_suppressor_mono";
+                        "name" = "hpf";
+                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/butterworth_1902.so";
+                        "label" = "butthigh_iir";
                         "control" = {
-                          "VAD Threshold (%)" = 90.0;
-                          "VAD Grace Period (ms)" = 350;
-                          "Retroactive VAD Grace (ms)" = 80;
+                          "Cutoff Frequency (Hz)" = 120.0;
+                          "Resonance" = 0.707;
                         };
+                      }
+                      {
+                        "type" = "ladspa";
+                        "name" = "gate";
+                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/gate_1410.so";
+                        "label" = "gate";
+                        "control" = {
+                          "LF key filter (Hz)" = 120.0;
+                          "HF key filter (Hz)" = 8000.0;
+                          "Threshold (dB)" = -50.0;
+                          "Attack (ms)" = 1.0;
+                          "Hold (ms)" = 150.0;
+                          "Decay (ms)" = 200.0;
+                          "Range (dB)" = -90.0;
+                          "Output select (-1 = key listen, 0 = gate, 1 = bypass)" = 0;
+                        };
+                      }
+                      {
+                        type = "ladspa";
+                        name = "deepfilternet";
+                        plugin = "${pkgs.deepfilternet}/lib/ladspa/libdeep_filter_ladspa.so";
+                        label = "deep_filter_mono";
+                        control = {
+                          "Attenuation Limit (dB)" = 100;
+                        };
+                      }
+                      {
+                        "type" = "ladspa";
+                        "name" = "comp";
+                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4m_1916.so";
+                        "label" = "sc4m";
+                        "control" = {
+                          "Attack time (ms)" = 5.0;
+                          "Release time (ms)" = 100.0;
+                          "Threshold level (dB)" = -20.0;
+                          "Ratio (1:n)" = 3.0;
+                          "Knee radius (dB)" = 3.0;
+                          "Makeup gain (dB)" = 3.0;
+                        };
+                      }
+                    ];
+                    "links" = [
+                      {
+                        "output" = "hpf:Output";
+                        "input" = "gate:Input";
+                      }
+                      {
+                        "output" = "gate:Output";
+                        "input" = "deepfilternet:Audio In";
+                      }
+                      {
+                        "output" = "deepfilternet:Audio Out";
+                        "input" = "comp:Input";
                       }
                     ];
                   };
                   "capture.props" = {
-                    "node.name" = "rnnoise.input";
+                    "node.name" = "voice_chain.input";
                     "node.passive" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
@@ -83,49 +135,11 @@ in
                     "target.object" = cfg.rnnoise.mic;
                   };
                   "playback.props" = {
-                    "node.name" = "rnnoise.source";
-                    "media.class" = "Audio/Source";
-                    "audio.rate" = 48000;
-                    "audio.channels" = 1;
-                    "audio.position" = [ "MONO" ];
-                  };
-                };
-              }
-              {
-                "name" = "libpipewire-module-filter-chain";
-                "args" = {
-                  "node.description" = "Voice Enhanced source";
-                  "media.name" = "Voice Enhanced source";
-                  "filter.graph" = {
-                    "nodes" = [
-                      {
-                        "type" = "ladspa";
-                        "name" = "comp";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4_1882.so";
-                        "label" = "sc4";
-                        "control" = {
-                          "Attack time (ms)" = 10.6;
-                          "Release time (ms)" = 500.0;
-                          "Threshold level (dB)" = -18.3;
-                          "Ratio (1:n)" = 4.0;
-                          "Knee radius (dB)" = 3.0;
-                          "Makeup gain (dB)" = 6.0;
-                        };
-                      }
-                    ];
-                  };
-                  "capture.props" = {
-                    "node.name" = "voicecomp.input";
-                    "node.passive" = true;
-                    "audio.rate" = 48000;
-                    "audio.channels" = 1;
-                    "audio.position" = [ "MONO" ];
-                    "target.object" = "rnnoise.source";
-                  };
-                  "playback.props" = {
                     "node.name" = "voice.source";
                     "media.class" = "Audio/Source";
                     "audio.rate" = 48000;
+                    "audio.channels" = 1;
+                    "audio.position" = [ "MONO" ];
                   };
                 };
               }

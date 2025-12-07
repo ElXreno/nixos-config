@@ -71,7 +71,7 @@
 
       pipewire.rnnoise = {
         enable = true;
-        mic = "alsa_input.pci-0000_66_00.6.analog-stereo";
+        mic = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
       };
 
       ollama = {
