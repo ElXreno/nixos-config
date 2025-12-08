@@ -156,7 +156,7 @@ in
 
           rounding_power = 4.0;
 
-          active_opacity = 0.9;
+          active_opacity = 1.0;
           inactive_opacity = 0.8;
           fullscreen_opacity = 1.0;
 
