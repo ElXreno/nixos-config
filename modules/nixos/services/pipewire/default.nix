@@ -22,7 +22,7 @@ in
       enable = mkEnableOption "Whether to enable RNNoise.";
       target = mkOption {
         type = with types; nullOr str;
-        default = null;
+        default = "alsa_input.target";
       };
     };
     quantum = {
