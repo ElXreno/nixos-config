@@ -20,14 +20,34 @@ in
     enable = mkEnableOption "Whether or not to manage pipewire.";
     rnnoise = {
       enable = mkEnableOption "Whether to enable RNNoise.";
-      mic = mkOption {
-        type = types.str;
-        default = "alsa_input.target";
+      target = mkOption {
+        type = with types; nullOr str;
+        default = null;
+      };
+    };
+    quantum = {
+      min = mkOption {
+        type = types.int;
+        default = 512;
+      };
+      max = mkOption {
+        type = types.int;
+        default = 1024;
       };
     };
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = with cfg.rnnoise; enable && (target != null);
+        message = ''
+          When `${namespace}.services.pipewire.rnnoise.enable` is set to true,
+          `${namespace}.services.pipewire.rnnoise.target` must be set.
+        '';
+      }
+    ];
+
     security.rtkit.enable = true;
     services.pipewire = {
       enable = true;
@@ -42,9 +62,9 @@ in
         pipewire-pulse."80-resample"."stream.properties"."resample.quality" = 14;
         pipewire = {
           "80-low-latency"."context.properties" = {
-            "default.clock.quantum" = 1024;
-            "default.clock.min-quantum" = 1024;
-            "default.clock.max-quantum" = 4096;
+            "default.clock.quantum" = cfg.quantum.min;
+            "default.clock.min-quantum" = cfg.quantum.min;
+            "default.clock.max-quantum" = cfg.quantum.max;
           };
           "80-allowed-rates"."context.properties"."default.clock.allowed-rates" = [
             44100
@@ -52,48 +72,24 @@ in
             96000
             192000
           ];
-          "99-noise-cancelling" = mkIf cfg.rnnoise.enable {
+          "95-generic-noise-cancelling" = mkIf cfg.rnnoise.enable {
             "context.modules" = [
               {
                 "name" = "libpipewire-module-filter-chain";
                 "args" = {
-                  "node.description" = "Noise Cancelled Voise";
-                  "media.name" = "Noise Cancelled Voice Chain Source";
+                  "node.description" = "Noise Cancelled Voise (Generic)";
+                  "media.name" = "Noise Cancelled Voise (Generic)";
                   "filter.graph" = {
                     "nodes" = [
                       {
                         "type" = "ladspa";
-                        "name" = "hpf";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/butterworth_1902.so";
-                        "label" = "butthigh_iir";
+                        "name" = "rnnoise";
+                        "plugin" = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                        "label" = "noise_suppressor_mono";
                         "control" = {
-                          "Cutoff Frequency (Hz)" = 120.0;
-                          "Resonance" = 0.707;
-                        };
-                      }
-                      {
-                        "type" = "ladspa";
-                        "name" = "gate";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/gate_1410.so";
-                        "label" = "gate";
-                        "control" = {
-                          "LF key filter (Hz)" = 120.0;
-                          "HF key filter (Hz)" = 8000.0;
-                          "Threshold (dB)" = -50.0;
-                          "Attack (ms)" = 1.0;
-                          "Hold (ms)" = 150.0;
-                          "Decay (ms)" = 200.0;
-                          "Range (dB)" = -90.0;
-                          "Output select (-1 = key listen, 0 = gate, 1 = bypass)" = 0;
-                        };
-                      }
-                      {
-                        type = "ladspa";
-                        name = "deepfilternet";
-                        plugin = "${pkgs.deepfilternet}/lib/ladspa/libdeep_filter_ladspa.so";
-                        label = "deep_filter_mono";
-                        control = {
-                          "Attenuation Limit (dB)" = 100;
+                          "VAD Threshold (%)" = 90.0;
+                          "VAD Grace Period (ms)" = 350;
+                          "Retroactive VAD Grace (ms)" = 80;
                         };
                       }
                       {
@@ -102,40 +98,32 @@ in
                         "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4m_1916.so";
                         "label" = "sc4m";
                         "control" = {
-                          "Attack time (ms)" = 5.0;
-                          "Release time (ms)" = 100.0;
-                          "Threshold level (dB)" = -20.0;
-                          "Ratio (1:n)" = 3.0;
+                          "Attack time (ms)" = 20.0;
+                          "Release time (ms)" = 500.0;
+                          "Threshold level (dB)" = -18.0;
+                          "Ratio (1:n)" = 4.0;
                           "Knee radius (dB)" = 3.0;
-                          "Makeup gain (dB)" = 3.0;
+                          "Makeup gain (dB)" = 6.0;
                         };
                       }
                     ];
                     "links" = [
                       {
-                        "output" = "hpf:Output";
-                        "input" = "gate:Input";
-                      }
-                      {
-                        "output" = "gate:Output";
-                        "input" = "deepfilternet:Audio In";
-                      }
-                      {
-                        "output" = "deepfilternet:Audio Out";
+                        "output" = "rnnoise:Output";
                         "input" = "comp:Input";
                       }
                     ];
                   };
                   "capture.props" = {
-                    "node.name" = "voice_chain.input";
+                    "node.name" = "generic_rnnoise_voice.input";
                     "node.passive" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];
-                    "target.object" = cfg.rnnoise.mic;
+                    "target.object" = cfg.rnnoise.target;
                   };
                   "playback.props" = {
-                    "node.name" = "voice.source";
+                    "node.name" = "generic_rnnoise_voice.source";
                     "media.class" = "Audio/Source";
                     "audio.rate" = 48000;
                     "audio.channels" = 1;

@@ -44,6 +44,10 @@
         };
 
         lamzu.enable = true;
+        fifine-am8 = {
+          enable = true;
+          pipewire.noise-cancelling.target = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
+        };
       };
 
       fs.zfs = {
@@ -71,7 +75,7 @@
 
       pipewire.rnnoise = {
         enable = true;
-        mic = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
+        target = "alsa_input.pci-0000_66_00.6.analog-stereo";
       };
 
       ollama = {
