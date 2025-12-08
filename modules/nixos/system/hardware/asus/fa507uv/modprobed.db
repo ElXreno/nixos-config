@@ -133,6 +133,7 @@ nf_tables
 nft_chain_nat
 nft_compat
 nft_ct
+nft_limit
 nft_nat
 nft_redir
 nls_ascii
@@ -167,6 +168,7 @@ rtw89_pci
 sch_fq
 scsi_common
 scsi_mod
+sctp
 sd_mod
 serio
 serio_raw
@@ -279,6 +281,7 @@ xt_CHECKSUM
 xt_comment
 xt_connmark
 xt_conntrack
+xt_limit
 xt_LOG
 xt_mark
 xt_MASQUERADE
