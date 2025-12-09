@@ -12,6 +12,7 @@ let
     mkEnableOption
     mkOption
     types
+    optionals
     ;
   cfg = config.${namespace}.services.pipewire;
 in
@@ -38,9 +39,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
+    assertions = optionals cfg.rnnoise.enable [
       {
-        assertion = with cfg.rnnoise; enable && (target != null);
+        assertion = cfg.rnnoise.target != null;
         message = ''
           When `${namespace}.services.pipewire.rnnoise.enable` is set to true,
           `${namespace}.services.pipewire.rnnoise.target` must be set.

@@ -11,6 +11,7 @@ let
     mkEnableOption
     mkOption
     types
+    optionals
     ;
   cfg = config.${namespace}.system.hardware.fifine-am8;
 in
@@ -44,9 +45,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
+    assertions = optionals cfg.pipewire.noise-cancelling.enable [
       {
-        assertion = with cfg.pipewire.noise-cancelling; enable && (target != null);
+        assertion = cfg.pipewire.noise-cancelling.target != null;
         message = ''
           When `${namespace}.system.hardware.fifine-am8.pipewire.noise-cancelling.enable` is set to true,
           `${namespace}.system.hardware.fifine-am8.pipewire.noise-cancelling.target` must be set.
