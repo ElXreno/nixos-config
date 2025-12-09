@@ -128,6 +128,22 @@ in
                           "Makeup gain (dB)" = 3.0;
                         };
                       }
+                      {
+                        "type" = "ladspa";
+                        "name" = "final_gate";
+                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/gate_1410.so";
+                        "label" = "gate";
+                        "control" = {
+                          "LF key filter (Hz)" = 100.0;
+                          "HF key filter (Hz)" = 10000.0;
+                          "Threshold (dB)" = -40.0;
+                          "Attack (ms)" = 0.5;
+                          "Hold (ms)" = 100.0;
+                          "Decay (ms)" = 150.0;
+                          "Range (dB)" = -90.0;
+                          "Output select (-1 = key listen, 0 = gate, 1 = bypass)" = 0;
+                        };
+                      }
                     ];
                     "links" = [
                       {
@@ -141,6 +157,10 @@ in
                       {
                         "output" = "deepfilternet:Audio Out";
                         "input" = "comp:Input";
+                      }
+                      {
+                        "output" = "comp:Output";
+                        "input" = "final_gate:Input";
                       }
                     ];
                   };
