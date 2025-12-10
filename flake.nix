@@ -56,8 +56,13 @@
       url = "github:hyprwm/Hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    split-monitor-workspaces = {
-      url = "github:Duckonaut/split-monitor-workspaces";
+    hyprsplit = {
+      url = "github:shezdy/hyprsplit";
+      inputs.hyprland.follows = "hyprland";
+    };
+    hy3 = {
+      # https://github.com/outfoxxed/hy3/pull/261
+      url = "github:outfoxxed/hy3/pull/261/head";
       inputs.hyprland.follows = "hyprland";
     };
   };

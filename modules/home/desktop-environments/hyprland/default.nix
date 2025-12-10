@@ -78,7 +78,8 @@ in
       portalPackage = null;
 
       plugins = with pkgs.${namespace}; [
-        split-monitor-workspaces
+        hyprsplit
+        hy3
       ];
 
       settings = {
@@ -137,8 +138,9 @@ in
           allow_tearing = true;
 
           gaps_out = 16;
-
           "col.active_border" = "rgb(F3CC26)";
+
+          layout = "hy3";
         };
 
         animations = {
@@ -170,8 +172,12 @@ in
         };
 
         plugin = {
-          split-monitor-workspaces = {
-            count = 10;
+          hyprsplit = {
+            persistent_workspaces = true;
+          };
+          hy3 = {
+            tabs.text_center = true;
+            autotile.enable = true;
           };
         };
 
@@ -187,18 +193,19 @@ in
 
           "$mod, M, exit,"
           "$mod, Q, killactive,"
-          "$mod, J, layoutmsg, togglesplit"
-          "$mod SHIFT, J, layoutmsg, swapsplit"
 
-          "$mod, left, movefocus, l"
-          "$mod, right, movefocus, r"
-          "$mod, up, movefocus, u"
-          "$mod, down, movefocus, d"
+          "$mod, left, hy3:movefocus, l"
+          "$mod, right, hy3:movefocus, r"
+          "$mod, up, hy3:movefocus, u"
+          "$mod, down, hy3:movefocus, d"
 
-          "$mod SHIFT, left, movewindow, l"
-          "$mod SHIFT, right, movewindow, r"
-          "$mod SHIFT, up, movewindow, u"
-          "$mod SHIFT, down, movewindow, d"
+          "$mod SHIFT, left, hy3:movewindow, l"
+          "$mod SHIFT, right, hy3:movewindow, r"
+          "$mod SHIFT, up, hy3:movewindow, u"
+          "$mod SHIFT, down, hy3:movewindow, d"
+
+          "$mod SHIFT, bracketleft, movewindow, mon:l"
+          "$mod SHIFT, bracketright, movewindow, mon:r"
 
           "$mod ALT, left, resizeactive, -20 0"
           "$mod ALT, right, resizeactive, 20 0"
@@ -212,8 +219,8 @@ in
               ws = i + 1;
             in
             [
-              "$mod, code:${toString (10 + i)}, split-workspace, ${toString ws}"
-              "$mod SHIFT, code:${toString (10 + i)}, split-movetoworkspace, ${toString ws}"
+              "$mod, code:${toString (10 + i)}, split:workspace, ${toString ws}"
+              "$mod SHIFT, code:${toString (10 + i)}, split:movetoworkspace, ${toString ws}"
             ]
           ) 10
         ));
