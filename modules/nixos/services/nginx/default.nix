@@ -94,12 +94,6 @@ in
             addr = "0.0.0.0";
             port = 443;
             ssl = true;
-            extraParameters = [
-              "fastopen=256"
-              "backlog=4096"
-              "deferred"
-              "reuseport"
-            ];
           }
         ];
 
@@ -108,6 +102,21 @@ in
             "elxreno.com" = commonVirtualHostCfg // {
               serverAliases = [ "www.elxreno.com" ];
               default = true;
+
+              listen = [
+                {
+                  addr = "0.0.0.0";
+                  port = 443;
+                  ssl = true;
+                  extraParameters = [
+                    "fastopen=256"
+                    "backlog=4096"
+                    "deferred"
+                    "reuseport"
+                  ];
+                }
+              ];
+
               locations."= /" = {
                 return = "200 '<html><body>Hello there!</body></html>'";
                 extraConfig = ''
