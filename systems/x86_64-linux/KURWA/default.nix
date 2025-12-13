@@ -113,9 +113,6 @@
   facter.detected.dhcp.enable = false;
 
   boot.kernelParams = [
-    # Workaround for https://www.reddit.com/r/Fedora/comments/1gystaj/amdgpu_dmcub_error_collecting_diagnostic_data/
-    "amdgpu.dcdebugmask=0x10"
-
     "acpi_osi=!"
     "acpi_osi=\"Windows 2022\""
     "tsc=nowatchdog"
@@ -137,9 +134,11 @@
       25565 # Minecraft
       57621 # Spotify
       8100 # Minecraft web map
+      56660 # Torrents
     ];
     allowedUDPPorts = [
       25565 # Minecraft
+      56660 # Torrents
     ];
   };
 
