@@ -732,13 +732,13 @@
       "locked": {
         "lastModified": 1765442039,
         "narHash": "sha256-k3lYQ+A1F7aTz8HnlU++bd9t/x/NP2A4v9+x6opcVg0=",
-        "owner": "numtide",
+        "owner": "nix-community",
         "repo": "nixos-facter-modules",
         "rev": "9dd775ee92de63f14edd021d59416e18ac2c00f1",
         "type": "github"
       },
       "original": {
-        "owner": "numtide",
+        "owner": "nix-community",
         "repo": "nixos-facter-modules",
         "type": "github"
       }

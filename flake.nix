@@ -11,7 +11,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
+    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
