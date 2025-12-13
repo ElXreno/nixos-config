@@ -119,14 +119,14 @@ in
         gesture = [ "3, horizontal, workspace" ];
 
         monitor = [
-          "eDP-1, 1920x1080@144, 0x0, 1"
-          "eDP-2, 1920x1080@144, 0x0, 1, vrr, 2"
-          "DP-2, preferred, -1920x0, 1.0"
-          "HDMI-A-1, 1920x1080@60, -1920x0, 1.0"
+          "DP-2, 2560x1440@180.00Hz, 0x0, 1.0, cm, dcip3, vrr, 2"
+
+          "eDP-1, 1920x1080@144, auto-center-left, 1"
+          "eDP-2, 1920x1080@144, auto-center-left, 1, vrr, 2"
         ];
 
         cursor = {
-          default_monitor = "eDP-1";
+          default_monitor = "DP-2";
         };
 
         render = {
@@ -243,7 +243,7 @@ in
 
           # " , switch:Lid Switch,     exec, hyprlock" # Remove it if I will use suspend mode
           " , switch:on:Lid Switch,  exec, hyprctl keyword monitor 'eDP-1, disable'"
-          " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, preffered, auto, 1'"
+          " , switch:off:Lid Switch, exec, hyprctl keyword monitor 'eDP-1, 1920x1080@144, auto-center-left, 1'"
         ];
 
         windowrule = [
@@ -259,11 +259,10 @@ in
           "no_focus on, match:class ^(xwaylandvideobridge)$"
           "no_initial_focus on, match:class ^(xwaylandvideobridge)$"
 
-          "workspace 1, match:class ^(firefox)$"
+          "workspace 4, no_screen_share on, match:class ^(discord)$"
           "workspace 5, no_screen_share on, match:class ^(org.telegram.desktop)$"
           "workspace 9, match:class ^(spotify)$"
           "workspace 10, no_screen_share on, match:class ^(org.keepassxc.KeePassXC)$"
-          "workspace 11, no_screen_share on, match:class ^(discord)$"
           "workspace special silent, match:class ^(explorer.exe)$"
 
           "immediate on, match:class ^(.*DDNet)$"
