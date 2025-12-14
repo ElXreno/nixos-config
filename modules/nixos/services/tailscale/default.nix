@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -42,11 +43,23 @@ in
         firewall.trustedInterfaces = with ts; [ interfaceName ];
       };
 
-    systemd.services.tailscaled = {
-      before = [ "network.target" ];
-      after = [
-        "dnscrypt-proxy.service"
-      ];
+    systemd.services = {
+      tailscaled = {
+        before = [ "network.target" ];
+        after = [
+          "dnscrypt-proxy.service"
+        ];
+      };
+
+      # don't wait for this stupid thing to be done executing
+      # i.e. when no wifi, system doesn't hang 3 minutes for this crap
+      tailscaled-autoconnect = {
+        serviceConfig.Type = lib.mkForce "exec";
+        path = [
+          # Haxxx for `No status data could be sent: $NOTIFY_SOCKET was not set`
+          (pkgs.writeShellScriptBin "systemd-notify" "true")
+        ];
+      };
     };
   };
 }
