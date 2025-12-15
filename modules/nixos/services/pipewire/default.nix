@@ -136,7 +136,117 @@ in
               }
             ];
           };
+          "99-force-roles" = {
+            "pulse.rules" = [
+              {
+                "matches" = [
+                  { "application.process.binary" = ".Discord-wrapper"; }
+                  { "application.process.binary" = ".Telegram-wrapped"; }
+                ];
+                "actions" = {
+                  "update-props" = {
+                    "media.role" = "phone";
+                  };
+                };
+              }
+              {
+                "matches" = [
+                  { "application.process.binary" = "firefox"; }
+                  { "application.process.binary" = "spotify"; }
+                ];
+                "actions" = {
+                  "update-props" = {
+                    "media.role" = "music";
+                  };
+                };
+              }
+            ];
+          };
         };
+      };
+      wireplumber.extraConfig."50-role-ducking" = {
+        "wireplumber.profiles" = {
+          main = {
+            "policy.linking.role-based.loopbacks" = "required";
+            "loopback.sink.role.multimedia" = "required";
+            "loopback.sink.role.voice" = "required";
+          };
+        };
+
+        "wireplumber.settings" = {
+          "node.stream.default-media-role" = "Multimedia";
+          "linking.role-based.duck-level" = 0.3;
+        };
+
+        "wireplumber.components" =
+          let
+            mkLoopbackSink =
+              {
+                name,
+                description,
+                intendedRoles,
+                priority,
+                lowerPriorityAction,
+              }:
+              {
+                type = "pw-module";
+                name = "libpipewire-module-loopback";
+                arguments = {
+                  "node.name" = "loopback.sink.role.${name}";
+                  "node.description" = description;
+                  "audio.position" = [
+                    "FL"
+                    "FR"
+                  ];
+                  "capture.props" = {
+                    "device.intended-roles" = intendedRoles;
+                    "policy.role-based.priority" = priority;
+                    "policy.role-based.action.same-priority" = "mix";
+                    "policy.role-based.action.lower-priority" = lowerPriorityAction;
+                    "policy.role-based.target" = true;
+                    "media.class" = "Audio/Sink";
+                  };
+                  "playback.props" = {
+                    "node.passive" = true;
+                    "media.role" = "Loopback";
+                  };
+                };
+                provides = "loopback.sink.role.${name}";
+              };
+          in
+          [
+            (mkLoopbackSink {
+              name = "multimedia";
+              description = "Multimedia (Ducked)";
+              intendedRoles = [
+                "Music"
+                "Movie"
+                "Game"
+                "Multimedia"
+              ];
+              priority = 10;
+              lowerPriorityAction = "mix";
+            })
+
+            (mkLoopbackSink {
+              name = "voice";
+              description = "Voice Communication";
+              intendedRoles = [
+                "phone"
+                "Communication"
+                "Assistant"
+                "Voice"
+              ];
+              priority = 50;
+              lowerPriorityAction = "duck";
+            })
+
+            {
+              type = "virtual";
+              provides = "policy.linking.role-based.loopbacks";
+              requires = [ ];
+            }
+          ];
       };
     };
 
