@@ -51,7 +51,7 @@
       };
 
       fs.zfs = {
-        # enable = true;
+        enable = true;
         hostId = "e7e00058";
       };
 
