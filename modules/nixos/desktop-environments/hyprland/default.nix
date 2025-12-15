@@ -71,7 +71,11 @@ in
         sddm-astronaut
       ];
 
-    services.power-profiles-daemon.enable = true;
+    services = {
+      power-profiles-daemon.enable = true;
+      udisks2.enable = true;
+      colord.enable = true;
+    };
 
     programs.hyprland = {
       enable = true;
