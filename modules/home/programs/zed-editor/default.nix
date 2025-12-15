@@ -55,6 +55,7 @@ in
             gopls
             golangci-lint-langserver
             delve
+            package-version-server
           ]
           ++ (with pkgs.${namespace}; [
             crates-lsp
