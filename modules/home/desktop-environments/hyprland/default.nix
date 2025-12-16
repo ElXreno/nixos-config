@@ -119,10 +119,10 @@ in
         gesture = [ "3, horizontal, workspace" ];
 
         monitor = [
-          "DP-2, 2560x1440@180.00Hz, 0x0, 1.0, cm, dcip3, vrr, 2"
+          "eDP-1, 1920x1080@144, 0x0, 1"
+          "eDP-2, 1920x1080@144, 0x0, 1, vrr, 2"
 
-          "eDP-1, 1920x1080@144, auto-center-left, 1"
-          "eDP-2, 1920x1080@144, auto-center-left, 1, vrr, 2"
+          "DP-2, 2560x1440@180.00Hz, auto-center-right, 1.0, cm, dcip3"
         ];
 
         cursor = {
@@ -131,7 +131,6 @@ in
 
         render = {
           direct_scanout = 2;
-          new_render_scheduling = true;
         };
 
         general = {
@@ -289,20 +288,6 @@ in
           "blueman-applet"
           "wl-paste --type text --watch cliphist store"
           "wl-paste --type image --watch cliphist store"
-          (
-            let
-              monitor-hotplug = pkgs.writeShellScript "monitor-hotplug.sh" ''
-                handle() {
-                  case $1 in
-                    monitoradded*|monitorremoved*) hyprctl dispatch focusmonitor eDP-1 ;;
-                  esac
-                }
-
-                ${lib.getExe pkgs.socat} -U - UNIX-CONNECT:$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock | while read -r line; do handle "$line"; done
-              '';
-            in
-            monitor-hotplug
-          )
         ];
       };
     };
