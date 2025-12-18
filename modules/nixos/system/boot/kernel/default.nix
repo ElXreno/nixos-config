@@ -51,7 +51,11 @@ in
     };
     packages = mkOption {
       type = types.raw;
-      default = pkgs.linuxPackages_latest;
+      default =
+        if config.${namespace}.roles.laptop.enable then
+          pkgs.linuxPackages_xanmod_latest
+        else
+          pkgs.linuxPackages_latest;
       defaultText = literalExpression "pkgs.linuxPackages_latest";
     };
     optimizations = {
