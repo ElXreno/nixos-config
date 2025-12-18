@@ -30,6 +30,11 @@
     services = {
       sing-box.server.enable = true;
       factorio.enable = true;
+
+      nginx = {
+        enable = true;
+        serveNixCache = true;
+      };
     };
   };
 

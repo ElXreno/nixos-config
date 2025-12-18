@@ -60,12 +60,16 @@ in
     configureFail2ban = mkEnableOption "Whether to configure fail2ban service." // {
       default = true;
     };
+    serveNixCache = mkEnableOption "Whether to enable virtual host which will proxy cache.nixos.org.";
   };
 
   config = mkIf cfg.enable (mkMerge [
     {
       networking.firewall = {
-        allowedTCPPorts = [ 443 ];
+        allowedTCPPorts = [
+          443
+          80
+        ];
         allowedUDPPorts = [ 443 ];
       };
 
@@ -88,14 +92,6 @@ in
         recommendedOptimisation = true;
 
         clientMaxBodySize = "4g";
-
-        defaultListen = [
-          {
-            addr = "0.0.0.0";
-            port = 443;
-            ssl = true;
-          }
-        ];
 
         virtualHosts = mkMerge [
           (mkIf cfg.enableDefaultVhost {
@@ -124,9 +120,36 @@ in
                 '';
               };
             };
+
+          })
+          (mkIf cfg.serveNixCache {
+            "nixos-cache-proxy-direct.elxreno.com" = commonVirtualHostCfg // {
+              locations."/" = {
+                proxyPass = "https://cache.nixos.org";
+                recommendedProxySettings = false;
+                extraConfig = ''
+                  proxy_cache nixos-cache-proxy;
+                  proxy_cache_valid 200 302 1y;
+                  proxy_cache_valid 404 1m;
+                  proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+
+                  proxy_set_header Host cache.nixos.org;
+                '';
+              };
+            };
           })
           (mapAttrs (_virtualHost: virtualHostCfg: virtualHostCfg // commonVirtualHostCfg) cfg.virtualHosts)
         ];
+
+        proxyCachePath = mkIf cfg.serveNixCache {
+          "nixos-cache-proxy" = {
+            enable = true;
+            levels = "1:2";
+            keysZoneName = "nixos-cache-proxy";
+            maxSize = "40g";
+            inactive = "14d";
+          };
+        };
 
         eventsConfig = ''
           worker_connections 1024;
