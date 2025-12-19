@@ -22,7 +22,7 @@
             },
         ),
         Balanced: (
-            enabled: false,
+            enabled: true,
             group: {
                 PptPl1Spl: 60,
                 PptPl2Sppt: 75,
@@ -30,7 +30,7 @@
             },
         ),
         Quiet: (
-            enabled: false,
+            enabled: true,
             group: {
                 PptPl1Spl: 50,
                 PptPl2Sppt: 60,
@@ -40,7 +40,7 @@
     },
     dc_profile_tunings: {
         Performance: (
-            enabled: false,
+            enabled: true,
             group: {
                 PptPl1Spl: 45,
                 PptPl2Sppt: 55,
@@ -48,7 +48,7 @@
             },
         ),
         Balanced: (
-            enabled: false,
+            enabled: true,
             group: {
                 PptPl1Spl: 35,
                 PptPl2Sppt: 45,
@@ -56,7 +56,7 @@
             },
         ),
         Quiet: (
-            enabled: false,
+            enabled: true,
             group: {
                 PptPl1Spl: 25,
                 PptPl2Sppt: 35,
