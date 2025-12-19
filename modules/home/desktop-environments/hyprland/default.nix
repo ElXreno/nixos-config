@@ -237,6 +237,7 @@ in
           ", XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
           ", XF86AudioPlay,  exec, playerctl play --player=spotify"
           ", XF86AudioPause, exec, playerctl pause --player=spotify"
+          ", XF86AudioStop, exec, playerctl pause --player=spotify"
           ", XF86AudioPrev,  exec, playerctl previous --player=spotify"
           ", XF86AudioNext,  exec, playerctl next --player=spotify"
 
