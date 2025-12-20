@@ -23,6 +23,7 @@ in
   };
 
   config = mkIf cfg.enable {
+    boot.initrd.systemd.enable = true;
     boot.initrd.supportedFilesystems = [ "zfs" ];
     boot.supportedFilesystems = [ "zfs" ];
 

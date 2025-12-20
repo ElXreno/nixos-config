@@ -17,6 +17,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      "/var/lib/tailscale"
+    ];
+
     sops.secrets.tailscale-auth-key = { };
 
     services.tailscale = {

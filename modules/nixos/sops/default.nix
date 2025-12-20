@@ -9,6 +9,10 @@
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.sops;
+
+  keyPathPrefix =
+    with config.${namespace}.system.impermanence;
+    if enable then defaultPersistentPath else "";
 in
 {
   options.${namespace}.sops = {
@@ -19,14 +23,18 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      "/var/lib/sops-nix"
+    ];
+
     sops = {
       defaultSopsFile = mkIf (!virtual) (
         lib.snowfall.fs.get-file (
           if config.${namespace}.roles.server.enable then "secrets/server.yaml" else "secrets/common.yaml"
         )
       );
-      age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
-      age.keyFile = "/var/lib/sops-nix/key";
+      age.sshKeyPaths = [ "${keyPathPrefix}/etc/ssh/ssh_host_ed25519_key" ];
+      age.keyFile = "${keyPathPrefix}/var/lib/sops-nix/key";
       age.generateKey = true;
 
       secrets =

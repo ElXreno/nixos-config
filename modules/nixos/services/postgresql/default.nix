@@ -17,6 +17,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      "/var/lib/postgresql"
+    ];
+
     services.postgresql = {
       enable = true;
       inherit (cfg) package;

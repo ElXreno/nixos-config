@@ -15,6 +15,15 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      {
+        directory = "/var/lib/private/dnscrypt-proxy";
+        user = "nobody";
+        group = "nogroup";
+        mode = "0700";
+      }
+    ];
+
     networking.networkmanager.dns = "none";
 
     services.dnscrypt-proxy = {

@@ -22,6 +22,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [ "/var/lib/bluetooth" ];
+
     hardware.bluetooth = {
       enable = true;
       package = cfg.bluezPackage;

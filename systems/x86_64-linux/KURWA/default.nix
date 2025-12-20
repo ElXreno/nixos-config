@@ -26,6 +26,8 @@
         };
       };
 
+      impermanence.enable = true;
+
       hardware = {
         asus.fa507uv.enable = true;
         cpu.manufacturer = "amd";

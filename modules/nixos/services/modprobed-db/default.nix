@@ -86,6 +86,15 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      {
+        directory = "/var/lib/private/modprobed-db";
+        user = "nobody";
+        group = "nogroup";
+        mode = "0700";
+      }
+    ];
+
     environment.etc."xdg/modprobed-db/modprobed-db.conf" = {
       text = generatedCfg;
       mode = "0440";
