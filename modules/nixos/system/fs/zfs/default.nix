@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -23,6 +24,7 @@ in
   };
 
   config = mkIf cfg.enable {
+    boot.zfs.package = pkgs.zfs_2_4;
     boot.initrd.systemd.enable = true;
     boot.initrd.supportedFilesystems = [ "zfs" ];
     boot.supportedFilesystems = [ "zfs" ];
