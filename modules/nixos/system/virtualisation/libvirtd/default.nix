@@ -18,6 +18,10 @@ in
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.impermanence.directories = [
+      "/var/lib/libvirt"
+    ];
+
     virtualisation = {
       spiceUSBRedirection.enable = true;
       libvirtd = {
