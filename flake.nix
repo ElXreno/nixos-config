@@ -64,7 +64,7 @@
     };
     hy3 = {
       # https://github.com/outfoxxed/hy3/pull/261
-      url = "github:outfoxxed/hy3/pull/261/head";
+      url = "github:outfoxxed/hy3";
       inputs.hyprland.follows = "hyprland";
     };
   };
