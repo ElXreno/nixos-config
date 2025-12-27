@@ -25,6 +25,7 @@ let
   extraPatches = [
     "${patchesSrc}/${majorMinor}/0001-asus.patch"
     ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch
+    ./kernel-patches/iwlwifi-lar_disable.patch
   ];
 
   baseKernel = pkgs.linux_xanmod_latest.overrideAttrs (prevAttrs: {
@@ -145,5 +146,10 @@ in
         find kernel | cpio -H newc -o > $out
       ''}"
     ];
+
+    boot.extraModprobeConfig = ''
+      options cfg80211 ieee80211_regdom=US
+      options iwlwifi lar_disable=1
+    '';
   };
 }
