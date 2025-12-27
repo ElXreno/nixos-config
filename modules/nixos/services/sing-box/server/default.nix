@@ -179,12 +179,45 @@ in
               action = "sniff";
             }
             {
+              domain_suffix = [
+                ".ru"
+              ];
+              rule_set = [
+                "geoip-ru"
+              ];
+              outbound = "cloudflare";
+            }
+            {
+              domain_suffix = [
+                ".by"
+              ];
+              rule_set = [
+                "geoip-by"
+              ];
+              outbound = "cloudflare";
+            }
+            {
               protocol = "bittorrent";
               action = "reject";
             }
           ];
 
-          final = "cloudflare";
+          rule_set = [
+            {
+              tag = "geoip-ru";
+              type = "remote";
+              format = "binary";
+              url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs";
+            }
+            {
+              tag = "geoip-by";
+              type = "remote";
+              format = "binary";
+              url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-by.srs";
+            }
+          ];
+
+          final = "direct-out";
           auto_detect_interface = true;
         };
       };
