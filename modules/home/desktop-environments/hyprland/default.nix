@@ -265,6 +265,7 @@ in
           "workspace 10, no_screen_share on, match:class ^(org.keepassxc.KeePassXC)$"
           "workspace special silent, match:class ^(explorer.exe)$"
 
+          "immediate on, match:class ^(steam_app.*)$"
           "immediate on, match:class ^(.*DDNet)$"
           "immediate on, match:title ^(Minecraft.*)$"
           "immediate on, match:initial_title ^(Minecraft.*)$"

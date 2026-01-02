@@ -22,6 +22,7 @@ in
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
       localNetworkGameTransfers.openFirewall = true;
+      gamescopeSession.enable = true;
     };
 
     environment.systemPackages = with pkgs; [
@@ -35,6 +36,7 @@ in
     ${namespace} = {
       programs.gamemode.enable = true;
       programs.gamescope.enable = true;
+      services.ananicy.enable = true;
       system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
     };
     hardware.xpadneo.enable = cfg.xboxSupport;
