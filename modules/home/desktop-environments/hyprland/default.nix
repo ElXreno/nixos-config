@@ -35,8 +35,8 @@ in
     services.playerctld.enable = true;
 
     home.packages = with pkgs; [
-      xfce.thunar
-      xfce.tumbler
+      thunar
+      tumbler
       qimgv
       waybar
       pavucontrol

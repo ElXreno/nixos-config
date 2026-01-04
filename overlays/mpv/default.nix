@@ -2,7 +2,7 @@ _:
 
 final: prev: {
   mpv = prev.mpv.override {
-    mpv = prev.mpv-unwrapped.override {
+    mpv-unwrapped = prev.mpv-unwrapped.override {
       vapoursynthSupport = true;
       vapoursynth = final.vapoursynth.withPlugins [
         final.vapoursynth-mvtools

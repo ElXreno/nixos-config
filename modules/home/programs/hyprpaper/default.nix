@@ -18,11 +18,11 @@ in
     services.hyprpaper = {
       enable = true;
       settings = {
-        preload = [
-          (toString pkgs.${namespace}.custom-wallpaper)
-        ];
-
-        wallpaper = ", ${toString pkgs.${namespace}.custom-wallpaper}";
+        splash = false;
+        wallpaper = {
+          monitor = "";
+          path = "${toString pkgs.${namespace}.custom-wallpaper}";
+        };
       };
     };
   };
