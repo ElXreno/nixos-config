@@ -11,17 +11,18 @@
   gtk3,
   libsForQt5,
   qt6,
+  curl,
   libGL,
   vivaldi-ffmpeg-codecs,
 }:
 
 stdenv.mkDerivation rec {
   pname = "yandex-browser-corporate";
-  version = "25.8.4.822-1";
+  version = "25.10.3.1047-1";
 
   src = requireFile {
     name = "YandexBrowser.deb";
-    hash = "sha256-AcdBDetpoUpNovrmhMc4mRb2Gbl8tOVf5Lafy/6wUYM=";
+    hash = "sha256-Q/rkShce+NdSQSlxj7vBPWa6Rd3zN8vFuD8byQ5qAso=";
     url = "https://browser.yandex.ru";
   };
 
@@ -42,6 +43,7 @@ stdenv.mkDerivation rec {
     gtk3
     libsForQt5.libqtpas
     qt6.qtbase
+    curl
   ];
 
   installPhase = ''

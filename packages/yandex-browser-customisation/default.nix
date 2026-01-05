@@ -7,11 +7,11 @@
 
 stdenv.mkDerivation rec {
   pname = "yandex-browser-customisation";
-  version = "25.8.4.822-1";
+  version = "0.2512.2817.0504";
 
   src = requireFile {
     name = "${pname}.deb";
-    hash = "sha256-Hb3cIpEAJ8GD2+E8601hly6XGvon0a0lx8qkKvzZft0=";
+    hash = "sha256-XalvPw+Dt6Y9dBbMBqvP++QjfLWMR1CcM3Bv2KcZd+w=";
     url = "https://browser.yandex.ru";
   };
 
