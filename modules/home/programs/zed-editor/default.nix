@@ -66,7 +66,6 @@ in
             diagnostics = false;
             metrics = false;
           };
-          disable_ai = true;
 
           theme = "Ayu Dark";
 
