@@ -11,6 +11,7 @@
 
     services = {
       sing-box.client.enable = lib.mkForce false;
+      tailscale.enable = lib.mkForce false;
     };
   };
 

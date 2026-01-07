@@ -5,7 +5,7 @@
       laptop.enable = true;
     };
 
-    desktop-environments.hyprland.enable = true;
+    desktop-environments.sway.enable = true;
 
     common-packages.enable = true;
 

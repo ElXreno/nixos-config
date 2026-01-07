@@ -118,18 +118,18 @@ in
           ];
           layer = "top";
           position = "top";
-          modules-left = [ "hyprland/workspaces" ];
-          modules-center = [ "hyprland/window" ];
+          modules-left = [ "sway/workspaces" ];
+          modules-center = [ "sway/window" ];
           modules-right = [
             "mpris"
           ];
 
-          "hyprland/workspaces" = {
+          "sway/workspaces" = {
             on-click = "activate";
             sort-by-number = true;
           };
 
-          "hyprland/window" = {
+          "sway/window" = {
             separate-outputs = true;
           };
 
@@ -159,7 +159,7 @@ in
             "battery"
             "backlight"
             "wireplumber"
-            "hyprland/language"
+            "sway/language"
             "idle_inhibitor"
           ];
 
@@ -286,7 +286,7 @@ in
             };
           };
 
-          "hyprland/language" = {
+          "sway/language" = {
             format = " {}";
             format-en = "EN";
             format-ru = "RU";

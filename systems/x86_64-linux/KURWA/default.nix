@@ -99,15 +99,15 @@
       noisetorch.enable = true;
     };
 
-    desktop-environments.hyprland.enable = true;
+    desktop-environments.sway.enable = true;
 
     home-manager.syncthing.randomPortIncrement = 42;
   };
 
-  sops.secrets."yandex-license" = {
-    group = "users";
-    mode = "0440";
-  };
+  # sops.secrets."yandex-license" = {
+  #   group = "users";
+  #   mode = "0440";
+  # };
 
   # I'll manage it manually
   # Nvidia kernel module too big for `/boot` partition

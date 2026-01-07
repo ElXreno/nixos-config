@@ -1,6 +1,11 @@
-{ pkgs, ... }:
 {
-  boot.initrd.systemd.services.initrd-rollback-root = {
+  pkgs,
+  virtual,
+  lib,
+  ...
+}:
+{
+  boot.initrd.systemd.services.initrd-rollback-root = lib.mkIf (!virtual) {
     after = [ "zfs-import-rpool.service" ];
     wantedBy = [ "initrd.target" ];
     before = [
