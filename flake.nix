@@ -67,6 +67,11 @@
       url = "github:outfoxxed/hy3";
       inputs.hyprland.follows = "hyprland";
     };
+
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -106,6 +111,7 @@
             disko.nixosModules.disko
             sops-nix.nixosModules.sops
             impermanence.nixosModules.impermanence
+            niri.nixosModules.niri
           ];
         };
 

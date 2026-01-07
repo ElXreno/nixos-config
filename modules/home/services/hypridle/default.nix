@@ -6,10 +6,10 @@
 }:
 let
   inherit (lib) mkIf mkEnableOption;
-  cfg = config.${namespace}.programs.hypridle;
+  cfg = config.${namespace}.services.hypridle;
 in
 {
-  options.${namespace}.programs.hypridle = {
+  options.${namespace}.services.hypridle = {
     enable = mkEnableOption "Whether or not to manage hypridle.";
   };
 
@@ -20,7 +20,7 @@ in
       settings = {
         general = {
           before_sleep_cmd = "loginctl lock-session";
-          after_sleep_cmd = "hyprctl dispatch dpms on";
+          after_sleep_cmd = "niri msg action power-on-monitors";
           lock_cmd = "pidof hyprlock || hyprlock --grace 3";
         };
 
@@ -36,8 +36,8 @@ in
           }
           {
             timeout = 1200;
-            on-timeout = "hyprctl dispatch dpms off";
-            on-resume = "hyprctl dispatch dpms on";
+            on-timeout = "niri msg action power-off-monitors";
+            on-resume = "niri msg action power-on-monitors";
           }
         ];
       };

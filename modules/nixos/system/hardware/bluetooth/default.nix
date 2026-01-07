@@ -24,6 +24,8 @@ in
   config = mkIf cfg.enable {
     ${namespace}.system.impermanence.directories = [ "/var/lib/bluetooth" ];
 
+    services.blueman.enable = true;
+
     hardware.bluetooth = {
       enable = true;
       package = cfg.bluezPackage;

@@ -15,11 +15,15 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.programs = {
-      hypridle.enable = true;
-      hyprlock.enable = true;
-      hyprpaper.enable = true;
-      waybar.enable = true;
+    ${namespace} = {
+      programs = {
+        hyprlock.enable = true;
+        # hyprpaper.enable = true;
+        waybar.enable = true;
+      };
+      services = {
+        hypridle.enable = true;
+      };
     };
 
     services.hyprpolkitagent.enable = true;

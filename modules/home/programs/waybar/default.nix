@@ -118,18 +118,18 @@ in
           ];
           layer = "top";
           position = "top";
-          modules-left = [ "sway/workspaces" ];
-          modules-center = [ "sway/window" ];
+          modules-left = [ "niri/workspaces" ];
+          modules-center = [ "niri/window" ];
           modules-right = [
             "mpris"
           ];
 
-          "sway/workspaces" = {
+          "niri/workspaces" = {
             on-click = "activate";
             sort-by-number = true;
           };
 
-          "sway/window" = {
+          "niri/window" = {
             separate-outputs = true;
           };
 
@@ -159,7 +159,7 @@ in
             "battery"
             "backlight"
             "wireplumber"
-            "sway/language"
+            "niri/language"
             "idle_inhibitor"
           ];
 
@@ -286,7 +286,7 @@ in
             };
           };
 
-          "sway/language" = {
+          "niri/language" = {
             format = " {}";
             format-en = "EN";
             format-ru = "RU";

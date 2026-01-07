@@ -5,7 +5,7 @@
       laptop.enable = true;
     };
 
-    desktop-environments.sway.enable = true;
+    desktop-environments.niri.enable = true;
 
     common-packages.enable = true;
 

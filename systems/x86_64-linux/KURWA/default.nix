@@ -99,7 +99,7 @@
       noisetorch.enable = true;
     };
 
-    desktop-environments.sway.enable = true;
+    desktop-environments.niri.enable = true;
 
     home-manager.syncthing.randomPortIncrement = 42;
   };
