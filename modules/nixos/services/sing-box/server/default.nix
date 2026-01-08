@@ -155,7 +155,7 @@ in
             mtu = 1420;
             address = [
               "172.16.0.2/32"
-              "2606:4700:110:8ddf:b248:122a:dcef:1e5a/128"
+              "2606:4700:110:8e9c:bd0e:a7d0:416a:dd84/128"
             ];
             private_key._secret = config.sops.secrets."sing-box/cf-private-key".path;
             peers = [
@@ -166,6 +166,11 @@ in
                 allowed_ips = [
                   "0.0.0.0/0"
                   "::/0"
+                ];
+                reserved = [
+                  202
+                  14
+                  85
                 ];
                 persistent_keepalive_interval = 15;
               }
