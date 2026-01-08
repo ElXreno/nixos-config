@@ -147,37 +147,6 @@ in
           }
         ];
 
-        endpoints = [
-          {
-            type = "wireguard";
-            tag = "cloudflare";
-
-            mtu = 1420;
-            address = [
-              "172.16.0.2/32"
-              "2606:4700:110:8e9c:bd0e:a7d0:416a:dd84/128"
-            ];
-            private_key._secret = config.sops.secrets."sing-box/cf-private-key".path;
-            peers = [
-              {
-                address = "engage.cloudflareclient.com";
-                port = 2408;
-                public_key = "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=";
-                allowed_ips = [
-                  "0.0.0.0/0"
-                  "::/0"
-                ];
-                reserved = [
-                  202
-                  14
-                  85
-                ];
-                persistent_keepalive_interval = 15;
-              }
-            ];
-          }
-        ];
-
         route = {
           rules = [
             {
@@ -190,7 +159,7 @@ in
               rule_set = [
                 "geoip-ru"
               ];
-              outbound = "cloudflare";
+              action = "reject";
             }
             {
               domain_suffix = [
@@ -199,7 +168,7 @@ in
               rule_set = [
                 "geoip-by"
               ];
-              outbound = "cloudflare";
+              action = "reject";
             }
             {
               protocol = "bittorrent";
