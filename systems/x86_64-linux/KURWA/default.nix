@@ -81,11 +81,6 @@
         target = "alsa_input.pci-0000_66_00.6.analog-stereo";
       };
 
-      ollama = {
-        # enable = true;
-        acceleration = "rocm"; # Just benchmarked iGPU
-      };
-
       flatpak.enable = true;
       modprobed-db.enable = true;
     };
