@@ -39,6 +39,11 @@ in
             on-timeout = "niri msg action power-off-monitors";
             on-resume = "niri msg action power-on-monitors";
           }
+          {
+            timeout = 1210;
+            on-timeout = "powerprofilesctl set power-saver";
+            on-resume = "powerprofilesctl set performance";
+          }
         ];
       };
     };

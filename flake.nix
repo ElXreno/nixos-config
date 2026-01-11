@@ -54,22 +54,17 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    hyprland = {
-      url = "github:hyprwm/Hyprland";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    hyprsplit = {
-      url = "github:shezdy/hyprsplit";
-      inputs.hyprland.follows = "hyprland";
-    };
-    hy3 = {
-      # https://github.com/outfoxxed/hy3/pull/261
-      url = "github:outfoxxed/hy3";
-      inputs.hyprland.follows = "hyprland";
-    };
-
     niri = {
       url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    elephant = {
+      url = "github:abenz1267/elephant";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    walker = {
+      url = "github:abenz1267/walker";
+      inputs.elephant.follows = "elephant";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -102,6 +97,7 @@
       homes.modules = with inputs; [
         nix-index-database.homeModules.nix-index
         plasma-manager.homeModules.plasma-manager
+        walker.homeManagerModules.default
       ];
 
       systems = {

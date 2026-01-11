@@ -81,6 +81,7 @@ in
               gamemode
               prismlauncher
               xclicker
+              lutris
 
               # MEGA
               megasync

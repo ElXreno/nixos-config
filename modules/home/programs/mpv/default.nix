@@ -6,12 +6,22 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkOption
+    types
+    optionalAttrs
+    ;
   cfg = config.${namespace}.programs.mpv;
 in
 {
   options.${namespace}.programs.mpv = {
     enable = mkEnableOption "Whether or not to manage MPV.";
+    vulkanDevice = mkOption {
+      type = with types; nullOr str;
+      default = null;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -19,7 +29,7 @@ in
       enable = true;
       config = {
         ytdl-format = "bestvideo[height<=1080]+(bestaudio[acodec=opus]/bestaudio)/best[height<=1080]";
-        hwdec = "nvdec-copy,auto";
+        hwdec = "vulkan";
         hwdec-codecs = "all";
         vo = "gpu-next";
         gpu-api = "vulkan";
@@ -29,15 +39,17 @@ in
         demuxer-max-back-bytes = "32M";
 
         video-sync = "display-resample";
+
+        target-colorspace-hint = "no";
+      }
+      // optionalAttrs (cfg.vulkanDevice != null) {
+        vulkan-device = cfg.vulkanDevice;
       };
 
       bindings = {
-        "Ctrl+l" = "vf toggle vapoursynth=~~/motioninterpolation.py:buffered-frames=4:concurrent-frames=3";
         "F" = "script-binding quality_menu/video_formats_toggle";
         "Alt+f" = "script-binding quality_menu/audio_formats_toggle";
       };
     };
-
-    home.file.".config/mpv/motioninterpolation.py".source = ./motioninterpolation.py;
   };
 }

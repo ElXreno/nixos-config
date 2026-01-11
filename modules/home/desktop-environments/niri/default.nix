@@ -19,6 +19,7 @@ in
       programs = {
         waybar.enable = true;
         hyprlock.enable = true;
+        walker.enable = true;
       };
       services = {
         hypridle.enable = true;
@@ -27,17 +28,21 @@ in
     };
 
     programs.kitty.enable = true;
-    programs.fuzzel.enable = true;
     services.polkit-gnome.enable = true;
     services.network-manager-applet.enable = true;
     services.blueman-applet.enable = true;
     services.playerctld.enable = true;
+    services.cliphist.enable = true;
 
     home.packages = with pkgs; [
-      swaybg
       xwayland-satellite
       playerctl
       pavucontrol
+      qimgv
+      thunar
+      tumbler
+      cliphist
+      wl-clipboard
     ];
 
     home.pointerCursor = {
@@ -133,12 +138,16 @@ in
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
         "Mod+D" = {
-          action.spawn = "fuzzel";
-          hotkey-overlay.title = "Run an Application: fuzzel";
+          action.spawn = "walker";
+          hotkey-overlay.title = "Run an Application: walker";
+        };
+        "Mod+E" = {
+          action.spawn = "thunar";
+          hotkey-overlay.title = "Run an File Manager: thunar";
         };
         "Mod+Shift+D" = {
           action.spawn = "zeditor";
-          hotkey-overlay.title = "Run an text editor: zeditor";
+          hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
         "Mod+Alt+L" = {
           action.spawn = "hyprlock";
@@ -216,10 +225,6 @@ in
         "Mod+Down".action.focus-window-down = [ ];
         "Mod+Up".action.focus-window-up = [ ];
         "Mod+Right".action.focus-column-right = [ ];
-        "Mod+H".action.focus-column-left = [ ];
-        "Mod+J".action.focus-window-down = [ ];
-        "Mod+K".action.focus-window-up = [ ];
-        "Mod+L".action.focus-column-right = [ ];
 
         "Mod+Ctrl+Left".action.move-column-left = [ ];
         "Mod+Ctrl+Down".action.move-window-down = [ ];
@@ -364,26 +369,46 @@ in
         }
 
         {
-          matches = [ { app-id = "^org\\.telegram\\.desktop$"; } ];
-          open-maximized = true;
-          open-on-output = "eDP-1";
-          block-out-from = "screen-capture";
-        }
-
-        {
-          matches = [ { app-id = "^org\\.keepassxc\\.KeePassXC$"; } ];
-          open-maximized = true;
-          open-on-output = "eDP-1";
-          block-out-from = "screen-capture";
-        }
-
-        {
           matches = [ { app-id = "^Spotify$"; } ];
           open-maximized = true;
+          open-focused = true;
           open-on-output = "eDP-1";
         }
 
         {
+          matches = [
+            { app-id = "^org\\.telegram\\.desktop$"; }
+            { app-id = "^org\\.keepassxc\\.KeePassXC$"; }
+          ];
+          open-maximized = true;
+          open-focused = true;
+          open-on-output = "eDP-1";
+          block-out-from = "screen-capture";
+        }
+
+        {
+          matches = [
+            {
+              app-id = "steam";
+              title = "^notificationtoasts_\d+_desktop$";
+            }
+          ];
+          block-out-from = "screen-capture";
+          default-floating-position = {
+            x = 10;
+            y = 10;
+            relative-to = "bottom-right";
+          };
+        }
+
+        {
+          default-column-width = {
+            proportion = 0.5;
+          };
+          shadow = {
+            enable = true;
+            draw-behind-window = true;
+          };
           geometry-corner-radius = {
             top-left = 6.0;
             top-right = 6.0;
@@ -394,10 +419,21 @@ in
         }
       ];
 
+      layer-rules = [
+        {
+          matches = [ { namespace = "^notifications$"; } ];
+          block-out-from = "screen-capture";
+        }
+        {
+          matches = [ { namespace = "^wallpaper$"; } ];
+          place-within-backdrop = true;
+        }
+      ];
+
       spawn-at-startup = [
         # {
         #   command = [
-        #     (lib.getExe pkgs.xwayland-satellite)
+        #     (lib.getExe pkgs.something)
         #   ];
         # }
       ];

@@ -29,7 +29,7 @@ in
 
     environment.pathsToLink = [
       "share/thumbnailers"
-    ]; # TODO: Move to hyprland
+    ];
 
     environment.sessionVariables = {
       # Use librsvg's gdk-pixbuf loader cache file as it enables gdk-pixbuf to load
