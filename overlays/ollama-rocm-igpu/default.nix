@@ -2,7 +2,7 @@ _:
 
 _final: prev: {
   ollama-rocm-igpu = prev.ollama.overrideAttrs (
-    _finalAttrs: prevAttrs: {
+    _finalAttrs: _prevAttrs: {
       src = prev.fetchFromGitHub {
         owner = "ollama";
         repo = "ollama";

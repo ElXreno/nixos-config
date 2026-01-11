@@ -1,5 +1,5 @@
 # https://github.com/NixOS/nixpkgs/issues/126590#issuecomment-3194531220
-{ ... }:
+_:
 
 final: prev: {
   kdePackages = prev.kdePackages // {

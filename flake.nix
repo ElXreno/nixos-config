@@ -195,7 +195,7 @@
             };
 
           nixosJobs = mapAttrs (
-            name: cfg:
+            _name: cfg:
             let
               drv = cfg.config.system.build.toplevel;
             in

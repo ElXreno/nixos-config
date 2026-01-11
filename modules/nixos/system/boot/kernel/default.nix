@@ -31,7 +31,7 @@ let
   applyOptimizations =
     kernelPackages:
     kernelPackages.extend (
-      self: super: {
+      _self: super: {
         stdenv = optimizedStdenv super.stdenv;
         kernel = super.kernel.overrideAttrs (
           _finalAttrs: prevAttrs: {

@@ -72,8 +72,8 @@ in
         modesetting.enable = cfg.modesetting.enable;
         dynamicBoost.enable = cfg.dynamicBoost.enable;
         powerManagement = {
-          enable = cfg.powerManagement.enable;
-          finegrained = cfg.powerManagement.finegrained;
+          inherit (cfg.powerManagement) enable;
+          inherit (cfg.powerManagement) finegrained;
         };
         # nvidiaPersistenced = true;
 

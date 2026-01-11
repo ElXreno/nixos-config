@@ -34,9 +34,9 @@ in
   config = mkIf cfg.enable {
     services.ollama = {
       enable = true;
-      acceleration = cfg.acceleration;
+      inherit (cfg) acceleration;
     }
-    // optionalAttrs (cfg.acceleration != false) {
+    // optionalAttrs cfg.acceleration {
       rocmOverrideGfx = "11.0.1";
       package = pkgs.ollama-rocm-igpu;
     };

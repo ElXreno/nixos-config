@@ -51,7 +51,7 @@ in
     virtualisation.oci-containers.containers = {
       minecraft-atm10 = {
         autoStart = true;
-        image = cfg.image;
+        inherit (cfg) image;
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
 

@@ -54,7 +54,7 @@ in
     networking.firewall.allowedUDPPorts = udpPorts;
 
     home-manager = {
-      users = mapAttrs (name: ports: {
+      users = mapAttrs (_name: ports: {
         services.syncthing = with ports; {
           guiAddress = "127.0.0.1:${toString webUIPort}";
 

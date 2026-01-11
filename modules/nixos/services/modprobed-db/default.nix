@@ -98,8 +98,8 @@ in
     environment.etc."xdg/modprobed-db/modprobed-db.conf" = {
       text = generatedCfg;
       mode = "0440";
-      user = cfg.user;
-      group = cfg.group;
+      inherit (cfg) user;
+      inherit (cfg) group;
     };
 
     systemd = {
@@ -139,7 +139,7 @@ in
     users = {
       users = mkIf (cfg.user == "modprobed-db") {
         modprobed-db = {
-          group = cfg.group;
+          inherit (cfg) group;
           isSystemUser = true;
         };
       };

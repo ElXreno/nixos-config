@@ -31,7 +31,7 @@ in
 buildFHSEnv {
   name = "flatpak-cpan-generator";
 
-  targetPkgs = pkgs: [
+  targetPkgs = _pkgs: [
     customPerl
     openssl
     openssl.dev

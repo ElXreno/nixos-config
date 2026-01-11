@@ -2,7 +2,7 @@ _:
 
 _final: prev: {
   profile-sync-daemon = prev.profile-sync-daemon.overrideAttrs (
-    _finalAttrs: prevAttrs: {
+    _finalAttrs: _prevAttrs: {
       version = "unstable-2025-07-25";
 
       src = prev.fetchFromGitHub {

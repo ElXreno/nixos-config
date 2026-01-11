@@ -1,7 +1,7 @@
-{ ... }:
+_:
 
 _final: prev: {
-  linux-firmware = prev.linux-firmware.overrideAttrs (prevAttrs: {
+  linux-firmware = prev.linux-firmware.overrideAttrs (_prevAttrs: {
     src = prev.fetchurl {
       # https://www.kernel.org/pub/linux/kernel/firmware/
       # https://gitlab.com/kernel-firmware/linux-firmware

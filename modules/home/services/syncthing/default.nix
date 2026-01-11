@@ -30,7 +30,7 @@ in
       overrideDevices = true;
       overrideFolders = true;
 
-      settings = cfg.settings;
+      inherit (cfg) settings;
     };
   };
 }

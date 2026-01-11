@@ -23,7 +23,7 @@ in
       flake = "github:ElXreno/nixos-config";
       flags = [ "--print-build-logs" ];
       dates = "04:00";
-      allowReboot = cfg.allowReboot;
+      inherit (cfg) allowReboot;
       rebootWindow = {
         lower = "03:00";
         upper = "05:00";

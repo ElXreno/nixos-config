@@ -1,7 +1,7 @@
-{ ... }:
+_:
 
 _final: prev: {
-  gamescope = prev.gamescope.overrideAttrs (prevAttrs: {
+  gamescope = prev.gamescope.overrideAttrs (_prevAttrs: {
     src = prev.fetchFromGitHub {
       owner = "ValveSoftware";
       repo = "gamescope";
