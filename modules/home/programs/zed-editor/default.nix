@@ -38,7 +38,7 @@ in
           with pkgs;
           [
             nixd
-            nixfmt-rfc-style
+            nixfmt
 
             gitlab-ci-ls
             opentofu

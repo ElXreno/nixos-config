@@ -50,7 +50,7 @@ in
             # Nix stuff
             deadnix
             nix-tree
-            nixfmt-rfc-style
+            nixfmt
             statix
             nix-output-monitor
             nurl

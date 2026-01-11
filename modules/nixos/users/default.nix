@@ -178,7 +178,7 @@ in
               ]
               ++ lib.optional config.networking.networkmanager.enable "networkmanager"
               # I know that is not a full restriction, but anyway let's do that
-              ++ lib.optional (forMainUser config.programs.adb.enable) "adbusers"
+              ++ lib.optional (forMainUser config.${namespace}.programs.adb.enable) "adbusers"
               ++ lib.optionals (forMainUser config.virtualisation.libvirtd.enable) [
                 "kvm"
                 "libvirtd"

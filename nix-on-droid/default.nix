@@ -10,7 +10,7 @@ in
 {
   environment.packages = with pkgs; [
     nixd
-    nixfmt-rfc-style
+    nixfmt
     openssh
     sops
 

@@ -127,7 +127,7 @@
           };
       };
 
-      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
+      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt; };
     })
     // {
       nixOnDroidConfigurations.default = inputs.nix-on-droid.lib.nixOnDroidConfiguration {
