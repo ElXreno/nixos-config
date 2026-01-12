@@ -13,12 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: docker/setup-qemu-action@v3
+
       - uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: |
             trusted-public-keys = nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
             substituters = https://nix-on-droid.cachix.org https://nixos-cache-proxy.elxreno.com
-            system-features = aarch64-linux
+            extra-platforms = aarch64-linux
 
       - name: Setup Attic cache
         uses: ryanccn/attic-action@v0
@@ -31,7 +33,7 @@ jobs:
         run: sed -i "s|https://cache.nixos.org|https://nixos-cache-proxy.elxreno.com|" ~/.config/nix/nix.conf
 
       - name: Install nix-eval-jobs
-        run: nix profile add github:NixOS/nixpkgs/nixpkgs-unstable#nix-eval-jobs
+        run: nix profile add github:ElXreno/nixpkgs/nixos-unstable-cust#nix-eval-jobs
 
       - name: Generate Jobs
         id: generate-jobs
