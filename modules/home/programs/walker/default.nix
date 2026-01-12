@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -23,6 +24,7 @@ in
       runAsService = true;
 
       elephant = {
+        provider.desktopapplications.settings.launch_prefix = "${lib.getExe pkgs.app2unit} --";
         provider.websearch.settings = {
           always_show_default = false;
           entries = [

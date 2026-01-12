@@ -21,7 +21,10 @@ in
     setupBootloader = mkEnableOption "Whether to setup bootloader settings." // {
       default = true;
     };
-    uefi.enable = mkEnableOption "Whether to setup boot for modern UEFI.";
+    uefi = {
+      enable = mkEnableOption "Whether to setup boot for modern UEFI.";
+      secureBoot = mkEnableOption "Whether to use secure boot.";
+    };
     legacy = {
       enable = mkEnableOption "Whether to setup boot for legacy BIOS.";
       setupDevice = mkEnableOption "Whether to setup default device." // {
@@ -49,7 +52,7 @@ in
         (mkIf cfg.uefi.enable {
           efi.canTouchEfiVariables = true;
           systemd-boot = {
-            enable = true;
+            enable = !cfg.uefi.secureBoot;
             configurationLimit = 3;
           };
         })
@@ -61,6 +64,11 @@ in
           };
         })
       ]);
+
+      lanzaboote = {
+        enable = cfg.uefi.secureBoot;
+        pkiBundle = "/var/lib/sbctl";
+      };
 
       kernelParams = [
         "nohibernate"

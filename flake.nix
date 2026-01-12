@@ -108,6 +108,7 @@
             sops-nix.nixosModules.sops
             impermanence.nixosModules.impermanence
             niri.nixosModules.niri
+            lanzaboote.nixosModules.lanzaboote
           ];
         };
 

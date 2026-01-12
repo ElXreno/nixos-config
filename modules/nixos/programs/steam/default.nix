@@ -45,6 +45,20 @@ in
     services.udev.extraRules = ''
       KERNEL=="ntsync", MODE="0644", TAG+="uaccess"
     '';
+
+    # Esync
+    systemd.settings.Manager = {
+      DefaultLimitNOFILE = 524288;
+    };
+    security.pam.loginLimits = [
+      {
+        domain = "elxreno";
+        type = "hard";
+        item = "nofile";
+        value = "524288";
+      }
+    ];
+
     environment.sessionVariables = {
       PROTON_ENABLE_WAYLAND = "1";
       PROTON_NO_WM_DECORATION = "1";

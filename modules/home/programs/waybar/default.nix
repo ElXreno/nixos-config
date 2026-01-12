@@ -116,7 +116,7 @@ in
           output = [
             "*"
           ];
-          layer = "top";
+          layer = "bottom";
           position = "top";
           modules-left = [ "niri/workspaces" ];
           modules-center = [ "niri/window" ];
@@ -340,6 +340,10 @@ in
           border-radius: 20px;
           padding: 0 5px;
           margin: 2px;
+        }
+
+        #workspaces, #mpris, #window {
+          margin: 2px 0;
         }
 
         #tray {

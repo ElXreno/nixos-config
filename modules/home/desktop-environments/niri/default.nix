@@ -3,11 +3,14 @@
   namespace,
   lib,
   pkgs,
+  osConfig,
   ...
 }:
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.niri;
+
+  app2unit = "${lib.getExe pkgs.app2unit} --";
 in
 {
   options.${namespace}.desktop-environments.niri = {
@@ -56,6 +59,16 @@ in
       gtk.enable = true;
     };
 
+    home.sessionVariables = {
+      QT_QPA_PLATFORM = "wayland;xcb";
+      GDK_BACKEND = "wayland,x11";
+      CLUTTER_BACKEND = "wayland";
+      SDL_VIDEODRIVER = "wayland";
+
+      NIXOS_OZONE_WL = 1;
+      ELECTRON_OZONE_PLATFORM_HINT = "wayland"; # Fallback for NIXOS_OZONE_WL, non-nix packaged software
+    };
+
     programs.niri.settings = {
       input = {
         keyboard = {
@@ -83,7 +96,7 @@ in
         "eDP-1" = {
           position = {
             x = 0;
-            y = 0;
+            y = 360;
           };
         };
         "Xiaomi Corporation Mi monitor 5392700044842" = {
@@ -97,7 +110,7 @@ in
       };
 
       layout = {
-        gaps = 8;
+        gaps = 12;
         background-color = "transparent";
 
         focus-ring.enable = false;
@@ -119,38 +132,37 @@ in
           };
           color = "#222222";
         };
-
-        struts = {
-          left = 10;
-          right = 10;
-        };
       };
 
       binds = {
         "Mod+Shift+Slash".action.show-hotkey-overlay = [ ];
 
         "Mod+B" = {
-          action.spawn = "firefox";
+          action.spawn-sh = "${app2unit} firefox";
           hotkey-overlay.title = "Open a Browser: firefox";
         };
         "Mod+Return" = {
-          action.spawn = "kitty";
+          action.spawn-sh = "${app2unit} kitty";
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
-        "Mod+D" = {
-          action.spawn = "walker";
-          hotkey-overlay.title = "Run an Application: walker";
-        };
+        "Mod+D" =
+          let
+            uid = osConfig.users.users.${config.home.username}.uid;
+          in
+          {
+            action.spawn-sh = "nc -U /run/user/${toString uid}/walker/walker.sock";
+            hotkey-overlay.title = "Run an Application: walker";
+          };
         "Mod+E" = {
-          action.spawn = "thunar";
+          action.spawn-sh = "${app2unit} thunar";
           hotkey-overlay.title = "Run an File Manager: thunar";
         };
         "Mod+Shift+D" = {
-          action.spawn = "zeditor";
+          action.spawn-sh = "${app2unit} zeditor";
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
         "Mod+Alt+L" = {
-          action.spawn = "hyprlock";
+          action.spawn-sh = "${app2unit} hyprlock";
           hotkey-overlay.title = "Lock the Screen: hyprlock";
         };
 
@@ -351,11 +363,9 @@ in
         {
           matches = [
             { app-id = "^xdg-desktop-portal-gtk$"; }
-            { title = "^Open"; }
+            { app-id = "^nz\\.co\\.mega\\.$"; }
           ];
           open-floating = true;
-          max-width = 1000;
-          max-height = 1000;
         }
 
         {
