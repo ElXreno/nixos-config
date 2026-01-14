@@ -16,10 +16,17 @@ in
   config = mkIf cfg.enable {
     services.udev = {
       extraRules = ''
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", TAG+="uaccess"
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", TAG+="uaccess"
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", TAG+="uaccess"
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", TAG+="uaccess"
+        # Lamzu Maya X (Normal Mode)
+        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", MODE="0666", TAG+="uaccess"
+
+        # Lamzu Maya X DFU (DFU Mode)
+        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01c", MODE="0666", TAG+="uaccess"
+
+        # Lamzu Maya X 8K Dongle (Normal Mode)
+        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", MODE="0666", TAG+="uaccess"
+
+        # Lamzu Maya X 8K Dongle DFU (DFU Mode)
+        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01e", MODE="0666", TAG+="uaccess"
       '';
     };
 
