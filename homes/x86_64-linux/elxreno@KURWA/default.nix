@@ -6,6 +6,7 @@
     };
 
     desktop-environments.niri.enable = true;
+    stylix.enable = true;
 
     common-packages.enable = true;
 

@@ -24,6 +24,19 @@ in
       runAsService = true;
 
       elephant = {
+        providers = [
+          "desktopapplications"
+          "clipboard"
+          "runner"
+          "calc"
+          "menus"
+          "providerlist"
+          "websearch"
+          "todo"
+          "windows"
+          "snippets"
+          "nirisessions"
+        ];
         provider.desktopapplications.settings.launch_prefix = "${lib.getExe pkgs.app2unit} --";
         provider.websearch.settings = {
           always_show_default = false;

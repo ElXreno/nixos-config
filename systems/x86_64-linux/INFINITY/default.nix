@@ -29,6 +29,8 @@
         # enable = true;
         hostId = "20a7d5d8";
       };
+
+      nix.gc.enable = true;
     };
 
     user.alena.enable = true;

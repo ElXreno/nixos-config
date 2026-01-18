@@ -108,10 +108,11 @@ in
 
               # Self-organization
               obsidian
+              super-productivity
 
               ## etc
               sony-headphones-client
-              chromium
+              # chromium
               hashcat
             ]
             ++ (with pkgs.${namespace}; [
@@ -124,6 +125,8 @@ in
           ))
         ];
     };
+
+    programs.chromium.enable = true;
 
     xdg.mimeApps = {
       defaultApplications = {

@@ -67,6 +67,11 @@
       inputs.elephant.follows = "elephant";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    stylix = {
+      url = "github:nix-community/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -98,6 +103,7 @@
         nix-index-database.homeModules.nix-index
         plasma-manager.homeModules.plasma-manager
         walker.homeManagerModules.default
+        stylix.homeModules.default
       ];
 
       systems = {

@@ -67,8 +67,6 @@ in
             metrics = false;
           };
 
-          theme = "Ayu Dark";
-
           ensure_final_newline_on_save = true;
           load_direnv = "shell_hook";
           formatter = "language_server";

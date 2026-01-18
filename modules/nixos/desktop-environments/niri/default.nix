@@ -39,7 +39,5 @@ in
       jetbrains-mono
       nerd-fonts.jetbrains-mono
     ];
-
-    xdg.portal.extraPortals = with pkgs; [ xdg-desktop-portal-wlr ];
   };
 }

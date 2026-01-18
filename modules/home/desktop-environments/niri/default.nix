@@ -23,6 +23,7 @@ in
         waybar.enable = true;
         hyprlock.enable = true;
         walker.enable = true;
+        kitty.enable = true;
       };
       services = {
         hypridle.enable = true;
@@ -30,8 +31,6 @@ in
       };
     };
 
-    programs.kitty.enable = true;
-    services.polkit-gnome.enable = true;
     services.network-manager-applet.enable = true;
     services.blueman-applet.enable = true;
     services.playerctld.enable = true;
@@ -369,20 +368,12 @@ in
         }
 
         {
-          matches = [ { app-id = "^firefox$"; } ];
+          matches = [
+            { app-id = "^firefox$"; }
+            { app-id = "^dev\\.zed\\.Zed$"; }
+            { app-id = "^spotify$"; }
+          ];
           open-maximized = true;
-        }
-
-        {
-          matches = [ { app-id = "^dev\\.zed\\.Zed$"; } ];
-          open-maximized = true;
-        }
-
-        {
-          matches = [ { app-id = "^Spotify$"; } ];
-          open-maximized = true;
-          open-focused = true;
-          open-on-output = "eDP-1";
         }
 
         {
@@ -391,8 +382,6 @@ in
             { app-id = "^org\\.keepassxc\\.KeePassXC$"; }
           ];
           open-maximized = true;
-          open-focused = true;
-          open-on-output = "eDP-1";
           block-out-from = "screen-capture";
         }
 
@@ -454,20 +443,29 @@ in
 
     gtk = {
       enable = true;
-
-      theme = {
-        package = pkgs.flat-remix-gtk;
-        name = "Flat-Remix-GTK-Grey-Darkest";
-      };
-
       iconTheme = {
         package = pkgs.papirus-icon-theme;
         name = "Papirus-Dark";
       };
+    };
 
-      font = {
-        name = "Sans";
-        size = 11;
+    xdg.portal = {
+      enable = true;
+      xdgOpenUsePortal = true;
+
+      extraPortals = with pkgs; [
+        kdePackages.xdg-desktop-portal-kde
+        xdg-desktop-portal-gtk
+        xdg-desktop-portal-wlr
+      ];
+
+      config.common = {
+        default = [
+          "kde"
+          "gtk"
+        ];
+        "org.freedesktop.impl.portal.ScreenCast" = "kde";
+        "org.freedesktop.impl.portal.FileChooser" = "kde";
       };
     };
 

@@ -79,7 +79,7 @@ in
       gc = mkIf cfg.gc.enable {
         automatic = true;
         dates = "daily";
-        options = "-d --delete-older-than 3d";
+        options = "-d --delete-older-than 14d";
       };
     };
   };

@@ -25,11 +25,6 @@ in
         group-by = "app-name,summary";
 
         on-button-middle = "dismiss-all";
-
-        # colours:
-        background-color = "#505050";
-        border-color = "#cccccc";
-        progress-color = "over #222222";
       };
     };
   };

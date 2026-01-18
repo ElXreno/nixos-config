@@ -18,6 +18,11 @@ in
   config = mkIf cfg.enable {
     ${namespace}.services.psd.enable = true;
 
+    stylix.targets.firefox = {
+      profileNames = [ "default" ];
+      colorTheme.enable = true;
+    };
+
     programs.firefox = {
       enable = true;
       inherit (cfg) package;
@@ -28,6 +33,7 @@ in
       ];
 
       profiles.default = {
+        extensions.force = true;
         settings = {
           "widget.use-xdg-desktop-portal.file-picker" = 1;
         };
