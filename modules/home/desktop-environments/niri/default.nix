@@ -3,7 +3,6 @@
   namespace,
   lib,
   pkgs,
-  osConfig,
   ...
 }:
 let
@@ -20,6 +19,7 @@ in
   config = mkIf cfg.enable {
     ${namespace} = {
       programs = {
+        anyrun.enable = true;
         waybar.enable = true;
         hyprlock.enable = true;
         walker.enable = true;
@@ -45,6 +45,7 @@ in
       tumbler
       cliphist
       wl-clipboard
+      kdePackages.ark
     ];
 
     home.pointerCursor = {
@@ -60,7 +61,6 @@ in
 
     home.sessionVariables = {
       QT_QPA_PLATFORM = "wayland;xcb";
-      GDK_BACKEND = "wayland,x11";
       CLUTTER_BACKEND = "wayland";
       SDL_VIDEODRIVER = "wayland";
 
@@ -110,16 +110,7 @@ in
 
       layout = {
         gaps = 12;
-        background-color = "transparent";
-
-        focus-ring.enable = false;
-        border = {
-          enable = true;
-          width = 1;
-          active.color = "#cccccc";
-          inactive.color = "#505050";
-          urgent.color = "#9b0000";
-        };
+        border.width = 1;
 
         shadow = {
           enable = true;
@@ -144,14 +135,10 @@ in
           action.spawn-sh = "${app2unit} kitty";
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
-        "Mod+D" =
-          let
-            uid = osConfig.users.users.${config.home.username}.uid;
-          in
-          {
-            action.spawn-sh = "nc -U /run/user/${toString uid}/walker/walker.sock";
-            hotkey-overlay.title = "Run an Application: walker";
-          };
+        "Alt+Space" = {
+          action.spawn-sh = "anyrun";
+          hotkey-overlay.title = "Run an Application: anyrun";
+        };
         "Mod+E" = {
           action.spawn-sh = "${app2unit} thunar";
           hotkey-overlay.title = "Run an File Manager: thunar";
@@ -222,7 +209,7 @@ in
           allow-when-locked = true;
         };
 
-        "Mod+O" = {
+        "Mod+Tab" = {
           action.toggle-overview = [ ];
           repeat = false;
         };
@@ -285,11 +272,11 @@ in
 
         "Mod+WheelScrollDown" = {
           action.focus-workspace-down = [ ];
-          cooldown-ms = 150;
+          cooldown-ms = 50;
         };
         "Mod+WheelScrollUp" = {
           action.focus-workspace-up = [ ];
-          cooldown-ms = 150;
+          cooldown-ms = 50;
         };
 
         "Mod+Shift+WheelScrollDown".action.focus-column-right = [ ];
@@ -424,7 +411,7 @@ in
           block-out-from = "screen-capture";
         }
         {
-          matches = [ { namespace = "^wallpaper$"; } ];
+          matches = [ { namespace = "^swww-daemonbackdrop$"; } ];
           place-within-backdrop = true;
         }
       ];
@@ -455,35 +442,63 @@ in
 
       extraPortals = with pkgs; [
         kdePackages.xdg-desktop-portal-kde
+        xdg-desktop-portal-gnome
         xdg-desktop-portal-gtk
-        xdg-desktop-portal-wlr
       ];
 
-      config.common = {
-        default = [
-          "kde"
-          "gtk"
-        ];
-        "org.freedesktop.impl.portal.ScreenCast" = "kde";
-        "org.freedesktop.impl.portal.FileChooser" = "kde";
+      config = {
+        common = {
+          default = [
+            "kde"
+            "gtk"
+          ];
+          "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
+          "org.freedesktop.impl.portal.Screenshot" = [ "gnome" ];
+        };
       };
     };
 
-    systemd.user.services.swaybg = {
-      Unit = {
-        Description = "Wayland wallpaper daemon";
-        ConditionEnvironment = "WAYLAND_DISPLAY";
-        After = [ "niri.service" ];
-        Requires = [ "niri.service" ];
-        PartOf = [ "graphical-session.target" ];
+    systemd.user.services =
+      let
+        wallpaper = pkgs.${namespace}.custom-wallpaper;
+        blurredWallpaper = pkgs.runCommand "blurred-wallpaper" { } ''
+          ${lib.getExe' pkgs.imagemagick "magick"} ${wallpaper} -blur 0x30 -fill black -colorize 20% -attenuate 0.1 +noise Gaussian $out
+        '';
+
+        mkSwww = ns: wallpaper: {
+          Install = {
+            WantedBy = [ config.wayland.systemd.target ];
+          };
+
+          Unit = {
+            Description = "swww-daemon-${ns}";
+            ConditionEnvironment = "WAYLAND_DISPLAY";
+            After = [ config.wayland.systemd.target ];
+            PartOf = [ config.wayland.systemd.target ];
+          };
+
+          Service =
+            let
+              runSwww = pkgs.writeShellScript "run-swww" ''
+                ${lib.getExe' pkgs.swww "swww-daemon"} --namespace ${ns} &
+                DAEMON_PID=$!
+
+                sleep 0.5
+
+                ${lib.getExe' pkgs.swww "swww"} img --namespace ${ns} --transition-fps=180 --transition-type grow --transition-duration 2 ${wallpaper}
+
+                wait $DAEMON_PID
+              '';
+            in
+            {
+              ExecStart = runSwww;
+              Restart = "on-failure";
+            };
+        };
+      in
+      {
+        swww-daemon-backdrop = mkSwww "backdrop" blurredWallpaper;
+        swww-daemon-wallpaper = mkSwww "wallpaper" wallpaper;
       };
-      Install = {
-        WantedBy = [ "graphical-session.target" ];
-      };
-      Service = {
-        ExecStart = "${lib.getExe pkgs.swaybg} -i ${pkgs.${namespace}.custom-wallpaper}";
-        Restart = "on-failure";
-      };
-    };
   };
 }

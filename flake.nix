@@ -30,7 +30,10 @@
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
 
-    impermanence.url = "github:nix-community/impermanence";
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     lanzaboote.url = "github:nix-community/lanzaboote";
     lanzaboote.inputs.nixpkgs.follows = "nixpkgs";
@@ -65,6 +68,11 @@
     walker = {
       url = "github:abenz1267/walker";
       inputs.elephant.follows = "elephant";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    anyrun = {
+      url = "github:anyrun-org/anyrun";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -104,6 +112,15 @@
         plasma-manager.homeModules.plasma-manager
         walker.homeManagerModules.default
         stylix.homeModules.default
+        niri.homeModules.stylix
+
+        (
+          { modulesPath, ... }:
+          {
+            disabledModules = [ "${modulesPath}/programs/anyrun.nix" ];
+          }
+        )
+        anyrun.homeManagerModules.default
       ];
 
       systems = {

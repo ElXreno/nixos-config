@@ -2,6 +2,7 @@
   inputs,
   namespace,
   virtual,
+  pkgs,
   ...
 }:
 
@@ -65,6 +66,8 @@
         libvirtd.enable = true;
         podman.enable = true;
       };
+
+      nix.package = pkgs.lixPackageSets.latest.lix;
     };
 
     services = {
@@ -90,6 +93,7 @@
 
     programs = {
       wireshark.enable = true;
+      obs-studio.enable = true;
       steam = {
         enable = true;
         xboxSupport = true;
