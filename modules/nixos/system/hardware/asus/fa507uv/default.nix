@@ -22,6 +22,16 @@ let
   };
 
   majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
+
+  overrideMesa =
+    mesa:
+    mesa.overrideAttrs (oldAttrs: {
+      mesonFlags = oldAttrs.mesonFlags ++ [
+        (pkgs.lib.mesonOption "c_args" "-march=znver4")
+        (pkgs.lib.mesonOption "cpp_args" "-march=znver4")
+        (pkgs.lib.mesonOption "optimization" "3")
+      ];
+    });
 in
 {
   options.${namespace}.system.hardware.asus.fa507uv = {
@@ -70,5 +80,29 @@ in
       options cfg80211 ieee80211_regdom=US
       options iwlwifi lar_disable=1
     '';
+
+    hardware.graphics = {
+      package = overrideMesa pkgs.mesa;
+      package32 = overrideMesa pkgs.pkgsi686Linux.mesa;
+    };
+
+    environment.sessionVariables = {
+      # Prevent some apps from waking the NVIDIA dGPU unnecessarily
+      VK_DRIVER_FILES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
+      __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
+    };
+
+    ${namespace}.system.hardware.gpu.nvidia.prime.offload.enableOffloadCmd = false; # Handled manually
+    environment.systemPackages = [
+      (pkgs.writeShellScriptBin config.hardware.nvidia.prime.offload.offloadCmdMainProgram ''
+        export VK_DRIVER_FILES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
+        export __EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/share/glvnd/egl_vendor.d/10_nvidia.json
+        export __NV_PRIME_RENDER_OFFLOAD=1
+        export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __VK_LAYER_NV_optimus=NVIDIA_only
+        exec "$@"
+      '')
+    ];
   };
 }

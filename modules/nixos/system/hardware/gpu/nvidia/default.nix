@@ -37,6 +37,9 @@ in
 
     prime = {
       enable = mkEnableOption "Whether to enable Prime support.";
+      offload.enableOffloadCmd = mkEnableOption "Whether to enable offload cmd." // {
+        default = true;
+      };
       amdgpuBusId = mkOption {
         type = busIDType;
         default = "";
@@ -82,7 +85,7 @@ in
 
           offload = {
             enable = true;
-            enableOffloadCmd = true;
+            enableOffloadCmd = cfg.prime.offload.enableOffloadCmd;
           };
         };
       };
