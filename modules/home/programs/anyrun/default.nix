@@ -12,6 +12,11 @@ let
   cfg = config.${namespace}.programs.anyrun;
 
   anyrunPkgs = inputs.anyrun.packages.${pkgs.stdenv.hostPlatform.system};
+
+  preprocessScript = pkgs.writeShellScriptBin "anyrun-preprocess-application-exec" ''
+    shift
+    echo "${lib.getExe pkgs.app2unit} -- $*"
+  '';
 in
 {
   options.${namespace}.programs.anyrun = {
@@ -31,6 +36,20 @@ in
           translate
           niri-focus
         ];
+      };
+
+      extraConfigFiles = {
+        "applications.ron".text = ''
+          Config(
+            desktop_actions: true,
+            max_entries: 10,
+            terminal: Some(Terminal(
+              command: "${lib.getExe pkgs.xdg-terminal-exec}",
+              args: "{}"
+            )),
+            "preprocess_exec_script: Some("${lib.getExe preprocessScript}"),
+          )
+        '';
       };
 
       extraCss =
