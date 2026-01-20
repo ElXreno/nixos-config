@@ -19,17 +19,20 @@ in
       power-profiles-daemon.enable = true;
       udisks2.enable = true;
       colord.enable = true;
-    };
 
-    services.greetd = {
-      enable = true;
-      settings = {
-        default_session = {
-          command = "${pkgs.cage}/bin/cage -s -d -m last -- ${pkgs.foot}/bin/foot ${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session";
-          user = "greeter";
+      greetd = {
+        enable = true;
+        settings = {
+          default_session = {
+            command = "${pkgs.cage}/bin/cage -s -d -m last -- ${pkgs.foot}/bin/foot ${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --remember-session";
+            user = "greeter";
+          };
         };
       };
     };
+
+    security.soteria.enable = true;
+    systemd.user.services.niri-flake-polkit.enable = false;
 
     programs.niri = {
       enable = true;
