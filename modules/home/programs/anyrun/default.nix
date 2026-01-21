@@ -2,52 +2,73 @@
   config,
   namespace,
   lib,
-  inputs,
   pkgs,
   ...
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkEnableOption
+    mkPackageOption
+    replaceStrings
+    getExe
+    ;
   cfg = config.${namespace}.programs.anyrun;
-
-  anyrunPkgs = inputs.anyrun.packages.${pkgs.stdenv.hostPlatform.system};
 
   preprocessScript = pkgs.writeShellScriptBin "anyrun-preprocess-application-exec" ''
     shift
-    echo "${lib.getExe pkgs.app2unit} -- $*"
+    echo "${lib.getExe pkgs.uwsm} app -- $*"
   '';
 in
 {
   options.${namespace}.programs.anyrun = {
     enable = mkEnableOption "Whether or not to manage anyrun.";
+    package = mkPackageOption pkgs "anyrun" { };
+
+    daemon.enable =
+      mkEnableOption "Enable running Anyrun as a daemon, allowing for faster startup speed."
+      // {
+        default = true;
+      };
   };
 
   config = mkIf cfg.enable {
     programs.anyrun = {
       enable = true;
+      package = cfg.package;
 
       config = {
-        plugins = with anyrunPkgs; [
-          applications
-          dictionary
-          nix-run
-          rink
-          translate
-          niri-focus
-        ];
+        plugins =
+          map
+            (
+              name:
+              let
+                plugin = replaceStrings [ "-" ] [ "_" ] name;
+              in
+              "${cfg.package}/lib/lib${plugin}.so"
+            )
+            [
+              "applications"
+              "dictionary"
+              "nix-run"
+              "rink"
+              "translate"
+              "niri-focus"
+            ];
       };
 
       extraConfigFiles = {
         "applications.ron".text = ''
           Config(
-            desktop_actions: true,
-            max_entries: 10,
+            desktop_actions: false,
+            max_entries: 5,
+            hide_description: false,
             terminal: Some(Terminal(
               command: "${lib.getExe pkgs.xdg-terminal-exec}",
               args: "{}"
             )),
-            "preprocess_exec_script: Some("${lib.getExe preprocessScript}"),
+            preprocess_exec_script: Some("${lib.getExe preprocessScript}"),
           )
         '';
       };
@@ -149,6 +170,25 @@ in
             }
           }
         '';
+    };
+
+    systemd.user.services.anyrun = mkIf cfg.daemon.enable {
+      Unit = {
+        Description = "Anyrun daemon";
+        PartOf = "graphical-session.target";
+        After = "graphical-session.target";
+      };
+
+      Service = {
+        Type = "simple";
+        ExecStart = "${getExe cfg.package} daemon";
+        Restart = "on-failure";
+        KillMode = "process";
+      };
+
+      Install = {
+        WantedBy = [ "graphical-session.target" ];
+      };
     };
   };
 }

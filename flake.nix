@@ -61,20 +61,6 @@
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    elephant = {
-      url = "github:abenz1267/elephant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    walker = {
-      url = "github:abenz1267/walker";
-      inputs.elephant.follows = "elephant";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    anyrun = {
-      url = "github:anyrun-org/anyrun";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     stylix = {
       url = "github:nix-community/stylix";
@@ -110,17 +96,8 @@
       homes.modules = with inputs; [
         nix-index-database.homeModules.nix-index
         plasma-manager.homeModules.plasma-manager
-        walker.homeManagerModules.default
         stylix.homeModules.default
         niri.homeModules.stylix
-
-        (
-          { modulesPath, ... }:
-          {
-            disabledModules = [ "${modulesPath}/programs/anyrun.nix" ];
-          }
-        )
-        anyrun.homeManagerModules.default
       ];
 
       systems = {
