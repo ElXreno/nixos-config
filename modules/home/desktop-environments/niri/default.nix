@@ -9,7 +9,7 @@ let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.niri;
 
-  app2unit = "${lib.getExe pkgs.app2unit} --";
+  uwsm = "${lib.getExe pkgs.uwsm} app --";
 in
 {
   options.${namespace}.desktop-environments.niri = {
@@ -128,27 +128,27 @@ in
         "Mod+Shift+Slash".action.show-hotkey-overlay = [ ];
 
         "Mod+B" = {
-          action.spawn-sh = "${app2unit} firefox";
+          action.spawn-sh = "${uwsm} firefox";
           hotkey-overlay.title = "Open a Browser: firefox";
         };
         "Mod+Return" = {
-          action.spawn-sh = "${app2unit} kitty";
+          action.spawn-sh = "${uwsm} kitty";
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
         "Alt+Space" = {
-          action.spawn-sh = "anyrun";
+          action.spawn-sh = "${uwsm} anyrun";
           hotkey-overlay.title = "Run an Application: anyrun";
         };
         "Mod+E" = {
-          action.spawn-sh = "${app2unit} thunar";
+          action.spawn-sh = "${uwsm} thunar";
           hotkey-overlay.title = "Run an File Manager: thunar";
         };
         "Mod+Shift+D" = {
-          action.spawn-sh = "${app2unit} zeditor";
+          action.spawn-sh = "${uwsm} zeditor";
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
         "Mod+Alt+L" = {
-          action.spawn-sh = "${app2unit} hyprlock";
+          action.spawn-sh = "${uwsm} hyprlock";
           hotkey-overlay.title = "Lock the Screen: hyprlock";
         };
 
