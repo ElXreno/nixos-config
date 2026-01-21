@@ -22,7 +22,6 @@ in
         anyrun.enable = true;
         waybar.enable = true;
         hyprlock.enable = true;
-        walker.enable = true;
         kitty.enable = true;
       };
       services = {
