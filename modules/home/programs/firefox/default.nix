@@ -16,8 +16,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.services.psd.enable = true;
-
     stylix.targets.firefox = {
       profileNames = [ "default" ];
       colorTheme.enable = true;
