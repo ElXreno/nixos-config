@@ -22,7 +22,6 @@
       boot = {
         uefi = {
           enable = true;
-          secureBoot = true;
         };
         kernel.optimizations = {
           enable = true;
