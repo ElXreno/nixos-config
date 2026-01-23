@@ -365,9 +365,17 @@ in
         {
           matches = [
             { app-id = "^org\\.telegram\\.desktop$"; }
+          ];
+          open-maximized = true;
+          block-out-from = "screen-capture";
+        }
+
+        {
+          matches = [
             { app-id = "^org\\.keepassxc\\.KeePassXC$"; }
           ];
           open-maximized = true;
+          open-focused = true;
           block-out-from = "screen-capture";
         }
 
