@@ -66,6 +66,11 @@
       url = "github:nix-community/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    firefox-addons = {
+      url = "github:petrkozorezov/firefox-addons-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -82,6 +87,8 @@
           title = "ElXreno's NixOS Configurations";
         };
       };
+
+      overlays = with inputs; [ firefox-addons.overlays.default ];
 
       channels-config = {
         allowUnfree = true;
