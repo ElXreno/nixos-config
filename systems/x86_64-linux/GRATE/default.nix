@@ -24,7 +24,10 @@
     };
 
     services = {
-      home-assistant.enable = true;
+      home-assistant = {
+        enable = true;
+        zigbee2mqtt.enable = false;
+      };
       ripe-atlas.enable = true;
     };
 
