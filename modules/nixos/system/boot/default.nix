@@ -81,7 +81,6 @@ in
         "mitigations=off"
       ]
       ++ lib.optionals isLaptop [
-        "amdgpu.securedisplay=0"
         "threadirqs"
       ];
 

@@ -40,6 +40,14 @@
     home-manager.syncthing.randomPortIncrement = 66;
   };
 
+  boot.kernelParams = [
+    "amdgpu.dcdebugmask=0x10"
+    "amdgpu.sg_display=0"
+    "amdgpu.dither=0"
+    "tsc=reliable"
+    "clocksource=tsc"
+  ];
+
   boot.extraModprobeConfig = ''
     options iwlwifi amsdu_size=3
     options iwlmvm power_scheme=1
