@@ -50,6 +50,7 @@ in
         "mqtt"
         "zha"
         "isal"
+        "bthome"
       ];
       customComponents =
         with pkgs.home-assistant-custom-components;
