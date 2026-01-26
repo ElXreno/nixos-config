@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
@@ -40,19 +41,20 @@ in
           port = 8083;
         };
         availability.enabled = true;
-        # ota.zigbee_ota_override_index_location = pkgs.writeText "ota-config.json" (
-        #   builtins.toJSON [
-        #     {
-        #       url = (
-        #         pkgs.fetchurl {
-        #           url = "https://github.com/devbis/z03mmc/raw/refs/heads/master/assets/db15-0203-99993001-ATC_v46.zigbee";
-        #           hash = "sha256-4t7WxFa+/iyS/P3+mfbhrFjW6RAbZ+cf0ViO237pFyc=";
-        #         }
-        #       );
-        #       force = true;
-        #     }
-        #   ]
-        # );
+        ota.zigbee_ota_override_index_location = pkgs.writeText "ota-config.json" (
+          builtins.toJSON [
+            {
+              url = (
+                pkgs.fetchurl {
+                  url = "https://github.com/pvvx/ATC_MiThermometer/raw/refs/heads/master/zigbee_ota/1141-020a-99993001-ATC_v56.zigbee";
+                  hash = "sha256-mYK+8ti5b23NIE4/myCeuTocp9kcF/Wwbo98NOgRlik=";
+                }
+              );
+              modelId = "LYWSD03MMC-z";
+              force = true;
+            }
+          ]
+        );
       };
     };
   };
