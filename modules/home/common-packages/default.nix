@@ -92,7 +92,7 @@ in
 
               # Photos
               # darktable
-              rawtherapee
+              # rawtherapee
               # upscaler
 
               # Libvirtd manager
@@ -103,7 +103,6 @@ in
 
               # K8s
               kubectl
-              lens
               freelens-bin
 
               # Self-organization
@@ -117,10 +116,10 @@ in
             ]
             ++ (with pkgs.${namespace}; [
               # K8s
-              headlamp
+              # headlamp
 
-              qcsuper
-              signalcat
+              # qcsuper
+              # signalcat
             ])
           ))
         ];
