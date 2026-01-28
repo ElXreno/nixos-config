@@ -64,6 +64,7 @@
       virtualisation = {
         libvirtd.enable = true;
         podman.enable = true;
+        docker.enable = true;
       };
 
       nix.package = pkgs.lixPackageSets.latest.lix;

@@ -19,10 +19,7 @@ in
   config = mkIf cfg.enable {
     networking.dhcpcd.IPv6rs = false; # Not in use anyway
 
-    virtualisation.podman = {
-      enable = true;
-      dockerSocket.enable = true;
-    };
+    virtualisation.podman.enable = true;
 
     hardware.nvidia-container-toolkit.enable = config.hardware.nvidia.enabled;
   };

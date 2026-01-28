@@ -12,6 +12,7 @@ let
     mkEnableOption
     mkOption
     types
+    optional
     ;
   cfg = config.${namespace}.user.elxreno;
 in
@@ -35,7 +36,8 @@ in
         "networkmanager"
         "dialout"
       ]
-      ++ cfg.extraGroups;
+      ++ cfg.extraGroups
+      ++ optional config.${namespace}.system.virtualisation.docker.enable "docker";
       hashedPasswordFile = mkIf (!virtual) config.sops.secrets."user_passwords/elxreno".path;
       linger = true;
       openssh.authorizedKeys.keys = [
