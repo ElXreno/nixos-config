@@ -10,7 +10,9 @@ let
 in
 {
   options.${namespace}.programs.fish = {
-    enable = mkEnableOption "Whether or not to manage fish.";
+    enable = mkEnableOption "Whether or not to manage fish." // {
+      default = true;
+    };
   };
 
   config = mkIf cfg.enable {
