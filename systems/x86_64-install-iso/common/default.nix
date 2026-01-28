@@ -2,6 +2,7 @@
   config,
   inputs,
   pkgs,
+  lib,
   ...
 }:
 let
@@ -21,6 +22,8 @@ in
     "${inputs.nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
   ];
 
+  boot.kernelPackages = lib.mkForce pkgs.linuxPackages;
+
   # isoImage.storeContents = [
   #   inputs.self.nixosConfigurations.INFINITY.config.system.build.toplevel
   #   inputs.self.nixosConfigurations.KURWA.config.system.build.toplevel
@@ -29,17 +32,6 @@ in
   isoImage.edition = "graphical";
 
   specialisation = {
-    Prestigio-Visconte-2.configuration = {
-      isoImage.showConfiguration = true;
-      isoImage.configurationName = "Prestigio Visconte 2 edition";
-
-      environment.systemPackages = [
-        pkgs.maliit-keyboard # Virtual Keyboard
-      ];
-
-      hardware.firmware = [ (pkgs.callPackage ./rtl8723b-firmware.nix { }) ];
-    };
-
     asus-nvidia-open.configuration = {
       isoImage.showConfiguration = true;
       isoImage.configurationName = "ASUS with open-source NVidia ${config.hardware.nvidia.package.version} driver";
