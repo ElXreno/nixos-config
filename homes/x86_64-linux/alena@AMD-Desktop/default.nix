@@ -20,6 +20,4 @@
       hunspellDicts.ru-ru
     ];
   };
-
-  home.stateVersion = "25.05";
 }
