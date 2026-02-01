@@ -76,7 +76,7 @@ in
 
           TYPE = "AUTO_CURSEFORGE";
           CF_SLUG = "all-the-mods-10";
-          CF_FILE_ID = "7285655";
+          CF_FILE_ID = "7558573";
           CF_OVERRIDES_EXCLUSIONS = "shaderpacks/**";
 
           INIT_MEMORY = "12G";
