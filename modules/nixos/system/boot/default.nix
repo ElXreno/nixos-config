@@ -82,6 +82,8 @@ in
       ]
       ++ lib.optionals isLaptop [
         "threadirqs"
+        "nowatchdog"
+        "nmi_watchdog=0"
       ];
 
       kernel.sysctl = lib.mkMerge [
