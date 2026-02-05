@@ -87,6 +87,7 @@ in
           MAX_MEMORY = "12G";
           USE_MEOWICE_FLAGS = "true";
           USE_MEOWICE_GRAALVM_FLAGS = "true";
+          USE_SIMD_FLAGS = "true";
           JVM_OPTS = "-Dfml.readTimeout=180 -XX:+AutoCreateSharedArchive -XX:SharedArchiveFile=atm10_cds.jsa";
 
           SERVER_NAME = "ATM10";
