@@ -52,6 +52,10 @@ in
       24454 # Simple Voice Chat
     ];
 
+    boot.kernel.sysctl = {
+      "vm.nr_hugepages" = 7680; # For Java
+    };
+
     virtualisation.oci-containers.containers = {
       minecraft-atm10 = {
         autoStart = true;
@@ -85,10 +89,67 @@ in
 
           INIT_MEMORY = "12G";
           MAX_MEMORY = "12G";
-          USE_MEOWICE_FLAGS = "true";
-          USE_MEOWICE_GRAALVM_FLAGS = "true";
-          USE_SIMD_FLAGS = "true";
-          JVM_OPTS = "-Dfml.readTimeout=180 -XX:+AutoCreateSharedArchive -XX:SharedArchiveFile=atm10_cds.jsa";
+
+          ### VIBE ARGS START ENTRY ###
+          JVM_OPTS = ''
+            -XX:+UnlockExperimentalVMOptions
+            -XX:+UnlockDiagnosticVMOptions
+
+            -XX:+AlwaysPreTouch
+            -XX:+UseLargePages
+            -XX:LargePageSizeInBytes=2m
+
+            -XX:+DisableExplicitGC
+            -XX:+PerfDisableSharedMem
+            -XX:+UseStringDeduplication
+            -XX:+UseCriticalJavaThreadPriority
+            -XX:+UseFastUnorderedTimeStamps
+            -XX:+AlwaysActAsServerClassMachine
+            -XX:AllocatePrefetchStyle=3
+
+            -XX:-DontCompileHugeMethods
+            -XX:MaxNodeLimit=240000
+            -XX:NodeLimitFudgeFactor=8000
+            -XX:ReservedCodeCacheSize=400M
+            -XX:NonNMethodCodeHeapSize=12M
+            -XX:ProfiledCodeHeapSize=194M
+            -XX:NonProfiledCodeHeapSize=194M
+            -XX:NmethodSweepActivity=1
+            -XX:+UseVectorStubs
+
+            -XX:G1NewSizePercent=40
+            -XX:G1MaxNewSizePercent=50
+            -XX:G1HeapRegionSize=16M
+            -XX:G1ReservePercent=15
+            -XX:G1MixedGCCountTarget=3
+            -XX:InitiatingHeapOccupancyPercent=20
+            -XX:G1MixedGCLiveThresholdPercent=90
+            -XX:SurvivorRatio=32
+            -XX:MaxTenuringThreshold=1
+            -XX:G1SATBBufferEnqueueingThresholdPercent=30
+            -XX:G1ConcMarkStepDurationMillis=5
+            -XX:G1RSetUpdatingPauseTimePercent=0
+            -XX:MaxGCPauseMillis=130
+
+            -Djdk.graal.TuneInlinerExploration=1
+            -Djdk.graal.OptimizeLongJumps=true
+            -Djdk.graal.OptMethodDuplication=true
+            -Djdk.graal.TrivialInliningSize=25
+            -Djdk.graal.MaximumInliningSize=800
+            -Djdk.graal.MaximumEscapeAnalysisArrayLength=512
+            -Djdk.graal.DuplicationBudgetFactor=0.75
+            -Djdk.graal.MaxDuplicationFactor=4.0
+            -Djdk.graal.TypicalGraphSize=8000
+            -Djdk.graal.SpectrePHTBarriers=None
+            -Djdk.graal.SpectrePHTIndexMasking=false
+
+            -XX:+AutoCreateSharedArchive
+            -XX:SharedArchiveFile=atm10_cds.jsa
+
+            -Djdk.nio.maxCachedBufferSize=262144
+            -Dfml.readTimeout=180
+          '';
+          ### VIBE ARGS END ENTRY ###
 
           SERVER_NAME = "ATM10";
           MOTD = "Hosted by ElXreno";
