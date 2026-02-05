@@ -17,6 +17,10 @@ let
     optional
     ;
   cfg = config.${namespace}.system.nix;
+
+  finalPackage = cfg.package.appendPatches [
+    ./patches/0001-Support-store-specific-setting-for-HTTP-binary-cache.patch
+  ];
 in
 {
   options.${namespace}.system.nix = {
@@ -34,7 +38,7 @@ in
     };
 
     nix = {
-      inherit (cfg) package;
+      package = finalPackage;
 
       settings = mkMerge [
         {
@@ -55,7 +59,7 @@ in
           ];
 
           substituters = mkForce [
-            "https://nixos-cache-proxy.elxreno.com"
+            "https://nixos-cache-proxy.elxreno.com?http-version=http3"
             "https://cache.elxreno.com/common"
             "https://nix-community.cachix.org"
           ];

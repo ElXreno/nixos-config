@@ -1,0 +1,287 @@
+From 9a51b8e586b63b3be7fc5e4f7c409cfc893eeef9 Mon Sep 17 00:00:00 2001
+From: Peter Bynum <pkpbynum@gmail.com>
+Date: Tue, 16 Dec 2025 09:19:57 -0800
+Subject: [PATCH] Support store-specific  setting for HTTP binary cache store
+
+---
+ src/libstore/filetransfer.cc                  |  30 ++++-
+ src/libstore/http-binary-cache-store.cc       | 120 +++++++++++++++++-
+ .../include/nix/store/filetransfer.hh         |  14 ++
+ .../nix/store/http-binary-cache-store.hh      |  19 +++
+ 4 files changed, 176 insertions(+), 7 deletions(-)
+
+diff --git a/src/libstore/filetransfer.cc b/src/libstore/filetransfer.cc
+index 26ceba729..c3a9340c5 100644
+--- a/src/libstore/filetransfer.cc
++++ b/src/libstore/filetransfer.cc
+@@ -414,12 +414,7 @@ struct curlFileTransfer : public FileTransfer
+ #if LIBCURL_VERSION_NUM >= 0x072b00
+             curl_easy_setopt(req, CURLOPT_PIPEWAIT, 1);
+ #endif
+-#if LIBCURL_VERSION_NUM >= 0x072f00
+-            if (fileTransferSettings.enableHttp2)
+-                curl_easy_setopt(req, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2TLS);
+-            else
+-                curl_easy_setopt(req, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+-#endif
++            curl_easy_setopt(req, CURLOPT_HTTP_VERSION, curlHttpVersion(request.httpVersion));
+             curl_easy_setopt(req, CURLOPT_WRITEFUNCTION, TransferItem::writeCallbackWrapper);
+             curl_easy_setopt(req, CURLOPT_WRITEDATA, this);
+             curl_easy_setopt(req, CURLOPT_HEADERFUNCTION, TransferItem::headerCallbackWrapper);
+@@ -1148,4 +1143,27 @@ FileTransferError::FileTransferError(
+         err.msg = hf;
+ }
+ 
++long curlHttpVersion(HttpVersion httpVersion)
++{
++    switch (httpVersion) {
++    case HttpVersion::None:
++        return CURL_HTTP_VERSION_NONE;
++    case HttpVersion::Http1_1:
++        return CURL_HTTP_VERSION_1_1;
++    case HttpVersion::Http2:
++        return CURL_HTTP_VERSION_2_0;
++    case HttpVersion::Http2PriorKnowledge:
++#if LIBCURL_VERSION_NUM >= 0x073100
++        return CURL_HTTP_VERSION_2_PRIOR_KNOWLEDGE;
++#endif
++    case HttpVersion::Http3:
++#if LIBCURL_VERSION_NUM >= 0x074200
++        return CURL_HTTP_VERSION_3;
++#endif
++    default:
++        // If we get here somehow, let curl decide
++        return CURL_HTTP_VERSION_NONE;
++    }
++}
++
+ } // namespace nix
+diff --git a/src/libstore/http-binary-cache-store.cc b/src/libstore/http-binary-cache-store.cc
+index ef6ae92a4..26798542d 100644
+--- a/src/libstore/http-binary-cache-store.cc
++++ b/src/libstore/http-binary-cache-store.cc
+@@ -4,6 +4,8 @@
+ #include "nix/store/nar-info-disk-cache.hh"
+ #include "nix/util/callback.hh"
+ #include "nix/store/store-registration.hh"
++#include "nix/util/configuration.hh"
++#include "nix/util/args.hh"
+ 
+ namespace nix {
+ 
+@@ -90,6 +92,15 @@ std::optional<std::string> HttpBinaryCacheStore::getCompressionMethod(const std:
+         return std::nullopt;
+ }
+ 
++HttpVersion HttpBinaryCacheStore::getHttpVersion()
++{
++    // Check filetransfer settings for backwards compatibility
++    if (config->httpVersion == HttpVersion::None && !fileTransferSettings.enableHttp2) {
++        return HttpVersion::Http1_1;
++    }
++    return config->httpVersion;
++}
++
+ void HttpBinaryCacheStore::maybeDisable()
+ {
+     auto state(_state.lock());
+@@ -193,7 +204,9 @@ FileTransferRequest HttpBinaryCacheStore::makeRequest(std::string_view path)
+         result.query = config->cacheUri.query;
+     }
+ 
+-    return FileTransferRequest(result);
++    auto req = FileTransferRequest(result);
++    req.httpVersion = getHttpVersion();
++    return req;
+ }
+ 
+ void HttpBinaryCacheStore::getFile(const std::string & path, Sink & sink)
+@@ -273,6 +286,111 @@ ref<Store> HttpBinaryCacheStore::Config::openStore() const
+             std::const_pointer_cast<HttpBinaryCacheStore::Config>(shared_from_this())});
+ }
+ 
++template<>
++HttpVersion BaseSetting<HttpVersion>::parse(const std::string & str) const
++{
++    if (str == "none")
++        return HttpVersion::None;
++    else if (str == "http1.1")
++        return HttpVersion::Http1_1;
++    else if (str == "http2")
++        return HttpVersion::Http2;
++    else if (str == "http2-prior-knowledge")
++        return HttpVersion::Http2PriorKnowledge;
++    else if (str == "http3")
++        return HttpVersion::Http3;
++    else
++        throw UsageError("option '%s' has invalid value '%s'", name, str);
++}
++
++template<>
++struct BaseSetting<HttpVersion>::trait
++{
++    static constexpr bool appendable = false;
++};
++
++template<>
++std::string BaseSetting<HttpVersion>::to_string() const
++{
++    if (value == HttpVersion::None)
++        return "none";
++    else if (value == HttpVersion::Http1_1)
++        return "http1.1";
++    else if (value == HttpVersion::Http2)
++        return "http2";
++    else if (value == HttpVersion::Http2PriorKnowledge)
++        return "http2-prior-knowledge";
++    else if (value == HttpVersion::Http3)
++        return "http3";
++    else
++        unreachable();
++}
++
++template<>
++bool BaseSetting<HttpVersion>::isAppendable()
++{
++    return trait::appendable;
++}
++
++template<>
++void BaseSetting<HttpVersion>::appendOrSet(HttpVersion newValue, bool append)
++{
++    assert(!append);
++
++    value = std::move(newValue);
++}
++
++template<>
++void BaseSetting<HttpVersion>::set(const std::string & str, bool append)
++{
++    if (experimentalFeatureSettings.isEnabled(experimentalFeature))
++        appendOrSet(parse(str), append);
++    else {
++        assert(experimentalFeature);
++        warn(
++            "Ignoring setting '%s' because experimental feature '%s' is not enabled",
++            name,
++            showExperimentalFeature(*experimentalFeature));
++    }
++}
++
++template<>
++void BaseSetting<HttpVersion>::convertToArg(Args & args, const std::string & category)
++{
++    args.addFlag({
++        .longName = name,
++        .aliases = aliases,
++        .description = fmt("Set the `%s` setting.", name),
++        .category = category,
++        .labels = {"value"},
++        .handler = {[this](std::string s) {
++            overridden = true;
++            set(s);
++        }},
++        .experimentalFeature = experimentalFeature,
++    });
++}
++
++template<>
++std::map<std::string, nlohmann::json> BaseSetting<HttpVersion>::toJSONObject() const
++{
++    auto obj = AbstractSetting::toJSONObject();
++    obj.emplace("value", value);
++    obj.emplace("defaultValue", defaultValue);
++    obj.emplace("documentDefault", documentDefault);
++    return obj;
++}
++
++NLOHMANN_JSON_SERIALIZE_ENUM(
++    HttpVersion,
++    {
++        {HttpVersion::None, "none"},
++        {HttpVersion::Http1_1, "http1.1"},
++        {HttpVersion::Http2, "http2"},
++        {HttpVersion::Http2PriorKnowledge, "http2-prior-knowledge"},
++        {HttpVersion::Http3, "http3"},
++    });
++
+ static RegisterStoreImplementation<HttpBinaryCacheStore::Config> regHttpBinaryCacheStore;
+ 
+ } // namespace nix
+diff --git a/src/libstore/include/nix/store/filetransfer.hh b/src/libstore/include/nix/store/filetransfer.hh
+index 57b781c33..719ba1034 100644
+--- a/src/libstore/include/nix/store/filetransfer.hh
++++ b/src/libstore/include/nix/store/filetransfer.hh
+@@ -83,6 +83,19 @@ extern FileTransferSettings fileTransferSettings;
+ 
+ extern const unsigned int RETRY_TIME_MS_DEFAULT;
+ 
++enum struct HttpVersion {
++    None,
++    Http1_1,
++    Http2,
++    Http2PriorKnowledge,
++    Http3,
++};
++
++/**
++ * Get the libcurl HTTP Version corresponding to HttpVersion
++ */
++long curlHttpVersion(HttpVersion httpVersion);
++
+ /**
+  * HTTP methods supported by FileTransfer.
+  */
+@@ -116,6 +129,7 @@ struct FileTransferRequest
+     Headers headers;
+     std::string expectedETag;
+     HttpMethod method = HttpMethod::Get;
++    HttpVersion httpVersion;
+     size_t tries = fileTransferSettings.tries;
+     unsigned int baseRetryTimeMs = RETRY_TIME_MS_DEFAULT;
+     ActivityId parentAct;
+diff --git a/src/libstore/include/nix/store/http-binary-cache-store.hh b/src/libstore/include/nix/store/http-binary-cache-store.hh
+index ea3d77b79..ce9d83afc 100644
+--- a/src/libstore/include/nix/store/http-binary-cache-store.hh
++++ b/src/libstore/include/nix/store/http-binary-cache-store.hh
+@@ -36,6 +36,17 @@ struct HttpBinaryCacheStoreConfig : std::enable_shared_from_this<HttpBinaryCache
+           (e.g. `brotli`).
+         )"};
+ 
++    const Setting<HttpVersion> httpVersion{this, HttpVersion::None, "http-version", R"(
++        The HTTP version to use. This maps to the HTTP versions supported by
++        [libcurl](https://curl.se/libcurl/c/CURLOPT_HTTP_VERSION.html). Accepted values are:
++        `none`, `http1.1`, `http2`, `http2-prior-knowledge`, `http3`. The default 
++        value can be globally downgraded to `http1-1` by setting [`http2 = false`](@docroot@/command-ref/conf-file.md#conf-http2).
++        
++        > **Note**
++        > 
++        > HTTPv3 has not been tested, but is included here for completion and
++        > to allow for experimentation.)"};
++
+     static const std::string name()
+     {
+         return "HTTP Binary Cache Store";
+@@ -74,6 +85,8 @@ protected:
+ 
+     std::optional<std::string> getCompressionMethod(const std::string & path);
+ 
++    HttpVersion getHttpVersion();
++
+     void maybeDisable();
+ 
+     void checkEnabled();
+@@ -114,4 +127,10 @@ protected:
+     std::optional<TrustedFlag> isTrustedClient() override;
+ };
+ 
++template<>
++HttpVersion BaseSetting<HttpVersion>::parse(const std::string & str) const;
++
++template<>
++std::string BaseSetting<HttpVersion>::to_string() const;
++
+ } // namespace nix
+-- 
+2.52.0
+
