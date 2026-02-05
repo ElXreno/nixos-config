@@ -163,6 +163,7 @@ in
           MODRINTH_PROJECTS = ''
             packet-fixer:2C41Q8WX
             bluemap:8iJcPOHJ
+            create-bluemap:B1EqQDIC
           '';
         };
         extraOptions = [
