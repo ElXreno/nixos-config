@@ -18,7 +18,7 @@ in
     enable = mkEnableOption "Whether or not to manage podman.";
     image = mkOption {
       type = types.str;
-      default = "itzg/minecraft-server:java25-graalvm";
+      default = "itzg/minecraft-server:2026.1.0-java25-graalvm";
     };
     dataDir = mkOption {
       type = types.str;
@@ -47,6 +47,10 @@ in
         };
       };
     };
+
+    networking.firewall.allowedUDPPorts = [
+      24454 # Simple Voice Chat
+    ];
 
     virtualisation.oci-containers.containers = {
       minecraft-atm10 = {
