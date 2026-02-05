@@ -43,8 +43,27 @@ in
           search_domains=angora-ide.ts.net
         '';
 
-        networkmanager.unmanaged = with ts; [ interfaceName ];
         firewall.trustedInterfaces = with ts; [ interfaceName ];
+        networkmanager = {
+          unmanaged = with ts; [ interfaceName ];
+          dispatcherScripts = [
+            # https://tailscale.com/docs/reference/best-practices/performance#ethtool-configuration
+            {
+              source = pkgs.writeShellScript "configure-udp-gro-forwarding-hook" ''
+                INTERFACE=$1
+                ACTION=$2
+                LOG_IDENTIFIER=configure-udp-gro-forwarding-hook
+
+                logger -t $LOG_IDENTIFIER "Event: $ACTION on $INTERFACE"
+
+                if [ "$ACTION" = "up" ] || [ "$ACTION" = "dhcp4-change" ]; then
+                  logger -t $LOG_IDENTIFIER "Attempting to enable UDP GRO on $INTERFACE"
+                  ${lib.getExe pkgs.ethtool} -K "$INTERFACE" rx-udp-gro-forwarding on rx-gro-list off >/dev/null 2>&1 || true
+                fi
+              '';
+            }
+          ];
+        };
       };
 
     systemd.services = {
