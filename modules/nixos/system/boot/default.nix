@@ -111,15 +111,23 @@ in
           "vm.compaction_proactiveness" = 0;
         })
         (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
-        (lib.mkIf isLaptop {
+        (lib.mkIf (!isServer) {
           # Network
-          "net.core.netdev_max_backlog" = "2000";
-          "net.ipv4.tcp_notsent_lowat" = "16384";
+          "net.core.netdev_max_backlog" = 5000;
+          "net.ipv4.tcp_notsent_lowat" = 16384;
 
           "net.ipv4.tcp_rmem" = "4096 4687500 9375000";
           "net.ipv4.tcp_wmem" = "4096 2343750 4687500";
           "net.ipv4.tcp_adv_win_scale" = 1;
           "net.ipv4.tcp_collapse_max_bytes" = 1048576;
+
+          "net.core.rmem_default" = 4194304;
+          "net.core.rmem_max" = 33554432;
+
+          "net.core.wmem_default" = 2097152;
+          "net.core.wmem_max" = 16777216;
+
+          "net.core.optmem_max" = 65536;
 
           # Memory
           "vm.min_free_kbytes" = 262144;
@@ -150,10 +158,6 @@ in
           "net.ipv4.tcp_max_syn_backlog" = 8192;
           "net.ipv4.tcp_synack_retries" = 3;
           "net.ipv4.tcp_syn_retries" = 3;
-        })
-        (lib.mkIf (with config.services.dnscrypt-proxy; enable && settings.http3 && !isServer) {
-          "net.core.rmem_max" = 33554432;
-          "net.core.wmem_max" = 16777216;
         })
       ];
       supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
