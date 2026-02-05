@@ -77,6 +77,10 @@ in
     ];
 
     boot.extraModprobeConfig = ''
+      options iwlwifi amsdu_size=3
+      options iwlwifi 11n_disable=8
+      options iwlmvm power_scheme=1
+
       options cfg80211 ieee80211_regdom=US
       options iwlwifi lar_disable=1
     '';

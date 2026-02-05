@@ -48,10 +48,5 @@
     "clocksource=tsc"
   ];
 
-  boot.extraModprobeConfig = ''
-    options iwlwifi amsdu_size=3
-    options iwlmvm power_scheme=1
-  '';
-
   system.stateVersion = "25.05";
 }
