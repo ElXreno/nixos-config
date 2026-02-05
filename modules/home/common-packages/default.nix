@@ -107,7 +107,6 @@ in
 
               # Self-organization
               obsidian
-              super-productivity
 
               ## etc
               sony-headphones-client
