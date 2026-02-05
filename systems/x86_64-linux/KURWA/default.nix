@@ -66,8 +66,6 @@
         podman.enable = true;
         docker.enable = true;
       };
-
-      nix.package = pkgs.nixVersions.latest;
     };
 
     services = {
