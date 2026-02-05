@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -40,9 +41,47 @@ in
     );
 
     networking = {
-      networkmanager = mkIf cfg.networkmanager.enable {
-        enable = true;
+      networkmanager = {
+        enable = cfg.networkmanager.enable;
         wifi.powersave = false;
+
+        dispatcherScripts = [
+          {
+            source = pkgs.writeShellScript "configure-rps-hook" ''
+              INTERFACE=$1
+              ACTION=$2
+              LOG_IDENTIFIER=configure-rps-hook
+
+              logger -t $LOG_IDENTIFIER "Event: $ACTION on $INTERFACE"
+
+              if [ "$ACTION" = "up" ] || [ "$ACTION" = "dhcp4-change" ]; then
+                if [ ! -d "/sys/class/net/$INTERFACE/queues" ]; then
+                   exit 0
+                fi
+
+                CPU_COUNT=$(${lib.getExe' pkgs.coreutils "nproc"})
+
+                if [ "$CPU_COUNT" -ge 32 ]; then
+                     RPS_MASK="ffffffff"
+                else
+                     RPS_MASK=$(printf '%x' $(( (1 << CPU_COUNT) - 1 )))
+                fi
+
+                FOUND=0
+                for rps_file in /sys/class/net/"$INTERFACE"/queues/rx-*/rps_cpus; do
+                  if [ -f "$rps_file" ]; then
+                    echo "$RPS_MASK" > "$rps_file"
+                    FOUND=1
+                  fi
+                done
+
+                if [ "$FOUND" -eq 1 ]; then
+                   logger -t $LOG_IDENTIFIER "Applied RPS mask $RPS_MASK to $INTERFACE"
+                fi
+              fi
+            '';
+          }
+        ];
       };
       useDHCP = false;
       useNetworkd = lib.mkDefault false;
