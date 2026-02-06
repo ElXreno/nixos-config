@@ -18,6 +18,7 @@ in
     services = {
       power-profiles-daemon.enable = true;
       udisks2.enable = true;
+      upower.enable = true;
       colord.enable = true;
 
       greetd = {
