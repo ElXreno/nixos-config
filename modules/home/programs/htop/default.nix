@@ -3,6 +3,7 @@
   namespace,
   lib,
   virtual,
+  osConfig,
   ...
 }:
 let
@@ -18,7 +19,7 @@ in
   options.${namespace}.programs.htop = {
     enable = mkEnableOption "Whether or not to manage htop.";
     zfsSupport = mkEnableOption "Whether or not to enable ZFS support." // {
-      default = true; # TODO: Handle it by other way, proper way
+      default = osConfig.boot.zfs.enabled;
     };
     showAdvancedCPUStats =
       mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
