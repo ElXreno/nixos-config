@@ -30,6 +30,10 @@
         hostId = "20a7d5d8";
       };
 
+      virtualisation = {
+        podman.enable = true;
+      };
+
       nix.gc.enable = true;
     };
 
