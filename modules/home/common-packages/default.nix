@@ -124,7 +124,7 @@ in
         ];
     };
 
-    programs.chromium.enable = true;
+    programs.chromium.enable = config.${namespace}.roles.laptop.enable;
 
     xdg.mimeApps = {
       defaultApplications = {
