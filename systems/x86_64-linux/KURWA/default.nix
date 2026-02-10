@@ -126,9 +126,6 @@
     # NVIDIA dGPU
     options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_UsePageAttributeTable=1
     options nvidia NVreg_EnableStreamMemOPs=1 NVreg_EnableResizableBar=1 NVreg_EnablePCIERelaxedOrderingMode=1
-
-    # MT7925
-    options mt7925e disable_aspm=y
   '';
 
   networking.firewall = {
