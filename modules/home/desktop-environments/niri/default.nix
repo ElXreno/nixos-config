@@ -420,7 +420,7 @@ in
           block-out-from = "screen-capture";
         }
         {
-          matches = [ { namespace = "^swww-daemonbackdrop$"; } ];
+          matches = [ { namespace = "^backdrop$"; } ];
           place-within-backdrop = true;
         }
       ];
@@ -474,40 +474,27 @@ in
           ${lib.getExe' pkgs.imagemagick "magick"} ${wallpaper} -blur 0x30 -fill black -colorize 20% -attenuate 0.1 +noise Gaussian $out
         '';
 
-        mkSwww = ns: wallpaper: {
+        mkSwaybg = ns: wallpaper: {
           Install = {
             WantedBy = [ config.wayland.systemd.target ];
           };
 
           Unit = {
-            Description = "swww-daemon-${ns}";
+            Description = "swaybg-${ns}";
             ConditionEnvironment = "WAYLAND_DISPLAY";
             After = [ config.wayland.systemd.target ];
             PartOf = [ config.wayland.systemd.target ];
           };
 
-          Service =
-            let
-              runSwww = pkgs.writeShellScript "run-swww" ''
-                ${lib.getExe' pkgs.swww "swww-daemon"} --namespace ${ns} &
-                DAEMON_PID=$!
-
-                sleep 0.5
-
-                ${lib.getExe' pkgs.swww "swww"} img --namespace ${ns} --transition-fps=180 --transition-type grow --transition-duration 2 ${wallpaper}
-
-                wait $DAEMON_PID
-              '';
-            in
-            {
-              ExecStart = runSwww;
-              Restart = "on-failure";
-            };
+          Service = {
+            ExecStart = "${lib.getExe' pkgs.swaybg "swaybg"} --namespace ${ns} --mode fill --image ${wallpaper}";
+            Restart = "on-failure";
+          };
         };
       in
       {
-        swww-daemon-backdrop = mkSwww "backdrop" blurredWallpaper;
-        swww-daemon-wallpaper = mkSwww "wallpaper" wallpaper;
+        swaybg-backdrop = mkSwaybg "backdrop" blurredWallpaper;
+        swaybg-wallpaper = mkSwaybg "wallpaper" wallpaper;
       };
   };
 }

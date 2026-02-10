@@ -1,0 +1,61 @@
+diff --git a/main.c b/main.c
+index bf02516..8267fac 100644
+--- a/main.c
++++ b/main.c
+@@ -52,6 +52,7 @@ struct swaybg_state {
+ 	struct wl_list outputs;  // struct swaybg_output::link
+ 	struct wl_list images;   // struct swaybg_image::link
+ 	bool run_display;
++	const char *namespace;
+ };
+ 
+ struct swaybg_image {
+@@ -257,7 +258,7 @@ static void create_layer_surface(struct swaybg_output *output) {
+ 
+ 	output->layer_surface = zwlr_layer_shell_v1_get_layer_surface(
+ 			output->state->layer_shell, output->surface, output->wl_output,
+-			ZWLR_LAYER_SHELL_V1_LAYER_BACKGROUND, "wallpaper");
++			ZWLR_LAYER_SHELL_V1_LAYER_BACKGROUND, output->state->namespace);
+ 	assert(output->layer_surface);
+ 
+ 	zwlr_layer_surface_v1_set_size(output->layer_surface, 0, 0);
+@@ -426,6 +427,7 @@ static void parse_command_line(int argc, char **argv,
+ 		{"help", no_argument, NULL, 'h'},
+ 		{"image", required_argument, NULL, 'i'},
+ 		{"mode", required_argument, NULL, 'm'},
++		{"namespace", required_argument, NULL, 'n'},
+ 		{"output", required_argument, NULL, 'o'},
+ 		{"version", no_argument, NULL, 'v'},
+ 		{0, 0, 0, 0}
+@@ -438,6 +440,7 @@ static void parse_command_line(int argc, char **argv,
+ 		"  -h, --help             Show help message and quit.\n"
+ 		"  -i, --image <path>     Set the image to display.\n"
+ 		"  -m, --mode <mode>      Set the mode to use for the image.\n"
++		"  -n, --namespace <name> Set layer-shell namespace (default: wallpaper).\n"
+ 		"  -o, --output <name>    Set the output to operate on or * for all.\n"
+ 		"  -v, --version          Show the version number and quit.\n"
+ 		"\n"
+@@ -452,10 +455,14 @@ static void parse_command_line(int argc, char **argv,
+ 	int c;
+ 	while (1) {
+ 		int option_index = 0;
+-		c = getopt_long(argc, argv, "c:hi:m:o:v", long_options, &option_index);
++		c = getopt_long(argc, argv, "c:hi:m:n:o:v", long_options, &option_index);
+ 		if (c == -1) {
+ 			break;
+ 		}
++		if (c == 'n') {
++			state->namespace = optarg;
++			continue;
++		}
+ 		switch (c) {
+ 		case 'c':  // color
+ 			if (!parse_color(optarg, &config->color)) {
+@@ -532,6 +539,7 @@ int main(int argc, char **argv) {
+ 	wl_list_init(&state.configs);
+ 	wl_list_init(&state.outputs);
+ 	wl_list_init(&state.images);
++	state.namespace = "wallpaper";
+ 
+ 	parse_command_line(argc, argv, &state);
+ 
