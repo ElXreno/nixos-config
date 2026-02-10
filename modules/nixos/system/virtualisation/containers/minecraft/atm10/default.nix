@@ -52,10 +52,6 @@ in
       24454 # Simple Voice Chat
     ];
 
-    boot.kernel.sysctl = {
-      "vm.nr_hugepages" = 7680; # For Java
-    };
-
     virtualisation.oci-containers.containers = {
       minecraft-atm10 = {
         autoStart = true;
@@ -96,11 +92,9 @@ in
             -XX:+UnlockDiagnosticVMOptions
 
             -XX:+AlwaysPreTouch
-            -XX:+UseLargePages
-            -XX:LargePageSizeInBytes=2m
+            -XX:+UseTransparentHugePages
 
             -XX:+DisableExplicitGC
-            -XX:+PerfDisableSharedMem
             -XX:+UseStringDeduplication
             -XX:+UseCriticalJavaThreadPriority
             -XX:+UseFastUnorderedTimeStamps
@@ -131,7 +125,7 @@ in
             -XX:G1RSetUpdatingPauseTimePercent=0
             -XX:MaxGCPauseMillis=130
 
-            -Djdk.graal.TuneInlinerExploration=1
+            -Djdk.graal.TuneInlinerExploration=0.1
             -Djdk.graal.OptimizeLongJumps=true
             -Djdk.graal.OptMethodDuplication=true
             -Djdk.graal.TrivialInliningSize=25
