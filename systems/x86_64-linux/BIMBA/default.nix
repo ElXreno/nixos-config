@@ -33,6 +33,8 @@
         enable = true;
         enableDefaultVhost = true;
       };
+
+      ripe-atlas.enable = true;
     };
   };
 
