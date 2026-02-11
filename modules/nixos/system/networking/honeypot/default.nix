@@ -11,10 +11,16 @@ let
     mkEnableOption
     mkOption
     types
+    concatStringsSep
     ;
   cfg = config.${namespace}.system.networking.honeypot;
 
   ipsetPath = "${cfg.ipsetDirectory}/ipset.conf";
+  ignoredPortsArg =
+    if cfg.ignoredPorts == [ ] then
+      ""
+    else
+      "-m multiport ! --dports ${concatStringsSep "," (map toString cfg.ignoredPorts)}";
 in
 {
   options.${namespace}.system.networking.honeypot = {
@@ -35,6 +41,14 @@ in
       description = ''
         The time window (in seconds) during which `hitCount` must be reached
         to trigger a ban. Each new packet within this window resets the timer.
+      '';
+    };
+    ignoredPorts = mkOption {
+      type = types.listOf types.port;
+      default = [ ];
+      description = ''
+        Destination ports that should be ignored by honeypot accounting.
+        Useful for excluding noisy probes from ban logic.
       '';
     };
     ipsetDirectory = mkOption {
@@ -65,21 +79,29 @@ in
         fi
 
         iptables -w -I INPUT 1 -m set --match-set blocked src -j DROP
-        iptables -w -A nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src
-        iptables -w -A nixos-fw -m recent --name honeypot_candidates --set -j DROP
+        iptables -w -A nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src
+        iptables -w -A nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP
+        iptables -w -A nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src
+        iptables -w -A nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP
 
         ip6tables -w -I INPUT 1 -m set --match-set blocked6 src -j DROP
-        ip6tables -w -A nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src
-        ip6tables -w -A nixos-fw -m recent --name honeypot_candidates --set -j DROP
+        ip6tables -w -A nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src
+        ip6tables -w -A nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP
+        ip6tables -w -A nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src
+        ip6tables -w -A nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP
       '';
 
       extraStopCommands = ''
-        iptables -w -D nixos-fw -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
-        iptables -w -D nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src 2>/dev/null || true
+        iptables -w -D nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        iptables -w -D nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src 2>/dev/null || true
+        iptables -w -D nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        iptables -w -D nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked src 2>/dev/null || true
         iptables -w -D INPUT -m set --match-set blocked src -j DROP 2>/dev/null || true
 
-        ip6tables -w -D nixos-fw -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
-        ip6tables -w -D nixos-fw -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src 2>/dev/null || true
+        ip6tables -w -D nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        ip6tables -w -D nixos-fw -p tcp --syn ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src 2>/dev/null || true
+        ip6tables -w -D nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --set -j DROP 2>/dev/null || true
+        ip6tables -w -D nixos-fw -p udp ${ignoredPortsArg} -m recent --name honeypot_candidates --update --seconds ${toString cfg.hitSeconds} --hitcount ${toString cfg.hitCount} -j SET --add-set blocked6 src 2>/dev/null || true
         ip6tables -w -D INPUT -m set --match-set blocked6 src -j DROP 2>/dev/null || true
 
         ipset -exist create blocked hash:ip hashsize 4096 maxelem 300000 ${
