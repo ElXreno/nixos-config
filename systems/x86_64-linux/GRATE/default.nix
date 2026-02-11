@@ -21,13 +21,11 @@
       hardware = {
         cpu.manufacturer = "intel";
       };
+
+      networking.wireless.enable = true;
     };
 
     services = {
-      home-assistant = {
-        enable = true;
-        zigbee2mqtt.enable = false;
-      };
       ripe-atlas.enable = true;
     };
 

@@ -25,3 +25,8 @@ creation_rules:
           - *destroyer
           - *grate
           - *bimba
+  - path_regex: secrets/wireless.yaml$
+    key_groups:
+      - age:
+          - *elxreno
+          - *grate
