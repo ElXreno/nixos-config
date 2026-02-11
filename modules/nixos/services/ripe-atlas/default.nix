@@ -36,7 +36,7 @@ in
 
     virtualisation.oci-containers.containers = {
       ripe-atlas = {
-        image = "jamesits/ripe-atlas:latest";
+        image = "jamesits/ripe-atlas:5120"; # https://hub.docker.com/r/jamesits/ripe-atlas/tags
 
         autoStart = true;
         user = "root:root";
