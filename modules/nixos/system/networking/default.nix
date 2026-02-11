@@ -85,10 +85,6 @@ in
       };
       useDHCP = false;
       useNetworkd = lib.mkDefault false;
-
-      firewall = {
-        pingLimit = "--limit 1/minute --limit-burst 5";
-      };
     };
 
     systemd.services.NetworkManager-wait-online.enable = false;
