@@ -128,12 +128,8 @@ in
             -Djdk.graal.TuneInlinerExploration=0.1
             -Djdk.graal.OptimizeLongJumps=true
             -Djdk.graal.OptMethodDuplication=true
-            -Djdk.graal.TrivialInliningSize=25
-            -Djdk.graal.MaximumInliningSize=800
+            -Djdk.graal.TrivialInliningSize=16
             -Djdk.graal.MaximumEscapeAnalysisArrayLength=512
-            -Djdk.graal.DuplicationBudgetFactor=0.75
-            -Djdk.graal.MaxDuplicationFactor=4.0
-            -Djdk.graal.TypicalGraphSize=8000
             -Djdk.graal.SpectrePHTBarriers=None
             -Djdk.graal.SpectrePHTIndexMasking=false
 
