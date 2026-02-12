@@ -149,6 +149,7 @@ in
           WHITELIST = "ElXreno,kontonkara,tsalkenov,SaymoonAmogus,G_R_O_M_I_L_A";
 
           ALLOW_FLIGHT = "true";
+          SYNC_CHUNK_WRITES = "false";
 
           MODRINTH_PROJECTS = ''
             packet-fixer:2C41Q8WX
