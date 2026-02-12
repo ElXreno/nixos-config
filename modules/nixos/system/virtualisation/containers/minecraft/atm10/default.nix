@@ -102,8 +102,6 @@ in
             -XX:AllocatePrefetchStyle=3
 
             -XX:-DontCompileHugeMethods
-            -XX:MaxNodeLimit=240000
-            -XX:NodeLimitFudgeFactor=8000
             -XX:ReservedCodeCacheSize=400M
             -XX:NonNMethodCodeHeapSize=12M
             -XX:ProfiledCodeHeapSize=194M
@@ -125,9 +123,7 @@ in
             -XX:G1RSetUpdatingPauseTimePercent=0
             -XX:MaxGCPauseMillis=130
 
-            -Djdk.graal.TuneInlinerExploration=0.1
             -Djdk.graal.OptimizeLongJumps=true
-            -Djdk.graal.OptMethodDuplication=true
             -Djdk.graal.TrivialInliningSize=16
             -Djdk.graal.MaximumEscapeAnalysisArrayLength=512
             -Djdk.graal.SpectrePHTBarriers=None
