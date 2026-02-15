@@ -25,13 +25,25 @@ let
 
   overrideMesa =
     mesa:
-    mesa.overrideAttrs (oldAttrs: {
-      mesonFlags = oldAttrs.mesonFlags ++ [
-        (pkgs.lib.mesonOption "c_args" "-march=znver4")
-        (pkgs.lib.mesonOption "cpp_args" "-march=znver4")
-        (pkgs.lib.mesonOption "optimization" "3")
+    (mesa.override {
+      galliumDrivers = [
+        "llvmpipe"
+        "radeonsi"
+        "zink"
       ];
-    });
+      vulkanDrivers = [
+        "amd"
+      ];
+    }).overrideAttrs
+      (oldAttrs: {
+        mesonFlags = oldAttrs.mesonFlags ++ [
+          (pkgs.lib.mesonOption "c_args" "-march=znver4")
+          (pkgs.lib.mesonOption "cpp_args" "-march=znver4")
+          (pkgs.lib.mesonOption "optimization" "3")
+        ];
+
+        outputs = lib.filter (out: out != "spirv2dxil") oldAttrs.outputs;
+      });
 in
 {
   options.${namespace}.system.hardware.asus.fa507uv = {
