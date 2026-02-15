@@ -30,6 +30,47 @@ in
     package = mkPackageOption pkgs.nixVersions "latest" { };
     auto-optimise.enable = mkEnableOption "Whether to enable automatic store optimisation.";
     gc.enable = mkEnableOption "Whether to enable automatic garbage collection.";
+
+    daemonCPUSchedPolicy = lib.mkOption {
+      type = lib.types.enum [
+        "other"
+        "batch"
+        "idle"
+      ];
+      default = "other";
+      description = "CPU scheduling policy for nix-daemon and its build processes.";
+    };
+    daemonIOSchedClass = lib.mkOption {
+      type = lib.types.enum [
+        "best-effort"
+        "idle"
+      ];
+      default = "best-effort";
+      description = "I/O scheduling class for the daemon.";
+    };
+
+    daemonCPUWeight = lib.mkOption {
+      type = lib.types.ints.between 1 10000;
+      default = 100;
+      example = 10;
+      description = "systemd CPUWeight for nix-daemon.";
+    };
+    daemonIOWeight = lib.mkOption {
+      type = lib.types.ints.between 1 10000;
+      default = 100;
+      example = 10;
+      description = "systemd IOWeight for nix-daemon.";
+    };
+
+    # user.slice CPU weight. When competing with system.slice (default 100), higher = more CPU for user.
+    userSliceCPUWeight = lib.mkOption {
+      type = lib.types.ints.between 1 10000;
+      default = 10000;
+      example = 10000;
+      description = ''
+        systemd CPUWeight for user.slice. Default 10000 so user sessions get ~99% when competing with system.slice (nix).
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -39,6 +80,9 @@ in
 
     nix = {
       package = finalPackage;
+
+      daemonCPUSchedPolicy = cfg.daemonCPUSchedPolicy;
+      daemonIOSchedClass = cfg.daemonIOSchedClass;
 
       settings = mkMerge [
         {
@@ -85,6 +129,15 @@ in
         dates = "daily";
         options = "-d --delete-older-than 14d";
       };
+    };
+
+    systemd.services.nix-daemon.serviceConfig = {
+      CPUWeight = cfg.daemonCPUWeight;
+      IOWeight = cfg.daemonIOWeight;
+    };
+
+    systemd.slices.user = {
+      sliceConfig.CPUWeight = cfg.userSliceCPUWeight;
     };
   };
 }

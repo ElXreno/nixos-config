@@ -32,6 +32,13 @@ in
 
       system = {
         hardware.bluetooth.enable = true;
+
+        nix = {
+          daemonCPUSchedPolicy = "idle";
+          daemonIOSchedClass = "idle";
+          daemonCPUWeight = 1;
+          daemonIOWeight = 1;
+        };
       };
     };
 
