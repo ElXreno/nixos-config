@@ -34,7 +34,7 @@ in
     sops.secrets."curseforge" = { };
 
     systemd.tmpfiles.rules = [
-      "d ${cfg.dataDir} 0770 root users -"
+      "d ${cfg.dataDir} 0770 1000 1000 -"
     ];
 
     ${namespace}.services.nginx = {
@@ -56,6 +56,7 @@ in
       minecraft-atm10 = {
         autoStart = true;
         inherit (cfg) image;
+
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
 
