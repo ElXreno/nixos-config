@@ -54,6 +54,7 @@
           pipewire.noise-cancelling.target = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
         };
         silakka54.enable = true;
+        rk-m87.enable = true;
       };
 
       fs.zfs = {
