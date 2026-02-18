@@ -152,7 +152,6 @@ in
             packet-fixer:2C41Q8WX
             bluemap:8iJcPOHJ
             c2me-neoforge:O0Yop0i3
-            scalablelux:j10HNoNf
           '';
         };
         extraOptions = [
