@@ -15,6 +15,12 @@ in
 {
   options.${namespace}.services.monitoring.prometheus.exporters = {
     enable = mkEnableOption "Whether or not to manage prometheus exporters.";
+    zfs.enable = mkEnableOption "Whether to enable zfs exporter." // {
+      default = zfsEnabled;
+    };
+    nvidia.enable = mkEnableOption "Whether to enable nvidia exporter." // {
+      default = nvidiaEnabled;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -34,15 +40,13 @@ in
         ];
       };
 
-      zfs.enable = zfsEnabled;
+      zfs.enable = cfg.zfs.enable;
 
       smartctl.enable = true;
 
       # TODO: Restic
 
-      nvidia-gpu = {
-        enable = nvidiaEnabled;
-      };
+      nvidia-gpu.enable = cfg.nvidia.enable;
     };
 
     # Required for SMART exporter to access NVMe disks
