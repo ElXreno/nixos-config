@@ -1,6 +1,7 @@
 {
   inputs,
   namespace,
+  pkgs,
   ...
 }:
 
@@ -16,7 +17,17 @@
     roles.server.enable = true;
 
     system = {
-      boot.uefi.enable = true;
+      boot = {
+        uefi.enable = true;
+
+        kernel = {
+          packages = pkgs.linuxPackages_xanmod_latest;
+          optimizations = {
+            enable = true;
+            isa = 3;
+          };
+        };
+      };
 
       hardware = {
         cpu.manufacturer = "amd";
