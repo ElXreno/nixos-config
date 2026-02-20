@@ -35,9 +35,7 @@ in
 
         nix = {
           daemonCPUSchedPolicy = "idle";
-          daemonIOSchedClass = "idle";
           daemonCPUWeight = 1;
-          daemonIOWeight = 1;
         };
       };
     };
