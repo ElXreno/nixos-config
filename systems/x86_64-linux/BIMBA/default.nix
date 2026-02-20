@@ -38,6 +38,9 @@
     };
   };
 
+  # Don't touch hardware.graphics.enable
+  facter.detected.graphics.enable = false;
+
   services.qemuGuest.enable = true;
 
   security.sudo.wheelNeedsPassword = false;
