@@ -3,12 +3,13 @@
 
   inputs = {
     nixpkgs.url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
-    nixpkgs-cuda.follows = "nixpkgs";
 
-    # Upstream: https://github.com/snowfallorg/lib
+    flake-utils-plus.url = "github:ElXreno/flake-utils-plus";
     snowfall-lib = {
+      # Upstream: https://github.com/snowfallorg/lib
       url = "github:ElXreno/snowfallorg-lib";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils-plus.follows = "flake-utils-plus";
     };
 
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
@@ -94,11 +95,37 @@
         allowUnfree = true;
       };
 
-      channels.nixpkgs-cuda.config = {
-        allowUnfree = true;
-        cudaSupport = true;
-        nvidia.acceptLicense = true;
-      };
+      channels =
+        let
+          cuda-config = {
+            allowUnfree = true;
+            cudaSupport = true;
+            nvidia.acceptLicense = true;
+          };
+
+          mkLocalZnverSystem = isa: {
+            system = "x86_64-linux";
+            gcc.arch = "znver${toString isa}";
+            gcc.tune = "znver${toString isa}";
+          };
+        in
+        {
+          nixpkgs-znver4 = {
+            input = inputs.nixpkgs;
+            localSystem = mkLocalZnverSystem 4;
+          };
+
+          nixpkgs-cuda = {
+            input = inputs.nixpkgs;
+            config = cuda-config;
+          };
+
+          nixpkgs-cuda-znver4 = {
+            input = inputs.nixpkgs;
+            config = cuda-config;
+            localSystem = mkLocalZnverSystem 4;
+          };
+        };
 
       homes.modules = with inputs; [
         nix-index-database.homeModules.nix-index
@@ -119,20 +146,11 @@
           ];
         };
 
-        hosts =
-          let
-            withNvidiaCfg = {
-              channelName = "nixpkgs-cuda";
-
-              specialArgs = {
-                withNvidia = true;
-              };
-            };
-          in
-          {
-            KURWA = withNvidiaCfg;
-            AMD-Desktop = withNvidiaCfg;
-          };
+        hosts = {
+          AMD-Desktop.channelName = "nixpkgs-cuda";
+          BIMBA.channelName = "nixpkgs-znver4";
+          KURWA.channelName = "nixpkgs-cuda-znver4";
+        };
       };
 
       outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt; };
