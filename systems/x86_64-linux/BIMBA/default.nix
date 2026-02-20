@@ -65,5 +65,7 @@
 
   services.bpftune.enable = true;
 
+  nix.settings.system-features = [ "gccarch-znver4" ];
+
   system.stateVersion = "25.05";
 }
