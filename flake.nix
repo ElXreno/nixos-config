@@ -148,8 +148,7 @@
 
         hosts = {
           AMD-Desktop.channelName = "nixpkgs-cuda";
-          BIMBA.channelName = "nixpkgs-znver4";
-          KURWA.channelName = "nixpkgs-cuda-znver4";
+          KURWA.channelName = "nixpkgs-cuda";
         };
       };
 
