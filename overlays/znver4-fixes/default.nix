@@ -1,6 +1,7 @@
 _:
 
-_final: prev: {
+_final: prev:
+prev.lib.optionalAttrs (prev.stdenv.hostPlatform ? gcc.arch) {
   pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
     (_: python-super: {
       picosvg = python-super.picosvg.overridePythonAttrs (_: {
