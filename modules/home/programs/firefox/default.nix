@@ -110,10 +110,7 @@ in
 
           force = true;
         };
-        settings = {
-          "widget.use-xdg-desktop-portal.file-picker" = 1;
-        }
-        // cfg.settings;
+        inherit (cfg) settings;
       };
     };
 

@@ -81,8 +81,8 @@ in
     nix = {
       package = finalPackage;
 
-      daemonCPUSchedPolicy = cfg.daemonCPUSchedPolicy;
-      daemonIOSchedClass = cfg.daemonIOSchedClass;
+      inherit (cfg) daemonCPUSchedPolicy;
+      inherit (cfg) daemonIOSchedClass;
 
       settings = mkMerge [
         {

@@ -42,7 +42,7 @@ in
 
     networking = {
       networkmanager = {
-        enable = cfg.networkmanager.enable;
+        inherit (cfg.networkmanager) enable;
         wifi.powersave = false;
 
         dispatcherScripts = [

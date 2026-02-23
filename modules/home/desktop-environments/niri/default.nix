@@ -432,7 +432,6 @@ in
       xdgOpenUsePortal = true;
 
       extraPortals = with pkgs; [
-        kdePackages.xdg-desktop-portal-kde
         xdg-desktop-portal-gnome
         xdg-desktop-portal-gtk
       ];
@@ -440,7 +439,6 @@ in
       config = {
         common = {
           default = [
-            "kde"
             "gtk"
           ];
           "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];

@@ -13,7 +13,6 @@
     programs = {
       gpg.enable = true;
       ssh.enable = true;
-      bottles.enable = true;
       mangohud.enable = true;
 
       # Integrated graphics is more power efficient

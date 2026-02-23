@@ -85,7 +85,7 @@ in
 
           offload = {
             enable = true;
-            enableOffloadCmd = cfg.prime.offload.enableOffloadCmd;
+            inherit (cfg.prime.offload) enableOffloadCmd;
           };
         };
       };

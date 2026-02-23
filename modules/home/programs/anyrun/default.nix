@@ -36,7 +36,7 @@ in
   config = mkIf cfg.enable {
     programs.anyrun = {
       enable = true;
-      package = cfg.package;
+      inherit (cfg) package;
 
       config = {
         plugins =

@@ -2,7 +2,6 @@
   inputs,
   namespace,
   virtual,
-  pkgs,
   ...
 }:
 
@@ -70,9 +69,6 @@
     };
 
     services = {
-      asusd.enable = true;
-      supergfxd.enable = true;
-
       sing-box.client.enable = true;
       scx.enable = true;
       postgresql.enable = true;
@@ -86,17 +82,13 @@
       };
 
       flatpak.enable = true;
-      modprobed-db.enable = true;
     };
 
     programs = {
-      wireshark.enable = true;
-      obs-studio.enable = true;
       steam = {
         enable = true;
         xboxSupport = true;
       };
-      noisetorch.enable = true;
     };
 
     desktop-environments.niri.enable = true;

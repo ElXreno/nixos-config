@@ -25,8 +25,6 @@ in
             aria2
             attic-client
             binutils
-            binwalk
-            bmon
             compsize
             dua
             fd
@@ -36,7 +34,6 @@ in
             jq
             mtr
             pciutils
-            pigz
             restic
             ripgrep
             screen
@@ -45,13 +42,9 @@ in
             tree
             unzip
             usbutils
-            wget
 
             # Nix stuff
-            deadnix
             nix-tree
-            nixfmt
-            statix
             nix-output-monitor
             nurl
           ]
@@ -81,7 +74,6 @@ in
               gamemode
               prismlauncher
               xclicker
-              lutris
 
               # MEGA
               megasync
@@ -110,8 +102,6 @@ in
 
               ## etc
               sony-headphones-client
-              # chromium
-              hashcat
             ]
             ++ (with pkgs.${namespace}; [
               # K8s
