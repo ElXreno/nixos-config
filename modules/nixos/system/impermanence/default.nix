@@ -34,14 +34,14 @@ in
   };
 
   config = mkIf cfg.enable {
+    clan.core.vars.sops.secretUploadDirectory = "${cfg.defaultPersistentPath}/var/lib/sops-nix";
+
     environment.persistence.${cfg.defaultPersistentPath} = {
       hideMounts = true;
       directories = [
-        "/etc/ssh"
         "/var/log"
         "/var/lib/nixos"
       ]
-      # TODO: Migrate
       ++ (optionals config.services.power-profiles-daemon.enable [
         "/var/lib/power-profiles-daemon"
       ])

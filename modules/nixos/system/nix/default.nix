@@ -19,7 +19,7 @@ let
   cfg = config.${namespace}.system.nix;
 
   finalPackage = cfg.package.appendPatches [
-    ./patches/0001-Support-store-specific-setting-for-HTTP-binary-cache.patch
+    # ./patches/0001-Support-store-specific-setting-for-HTTP-binary-cache.patch
   ];
 in
 {
@@ -74,8 +74,23 @@ in
   };
 
   config = mkIf cfg.enable {
-    sops.secrets."attic/netrc-file-pull" = {
-      sopsFile = "${inputs.self}/secrets/netrc.yaml";
+    clan.core.vars.generators.nix-netrc = {
+      share = true;
+
+      prompts.attic-jwt = {
+        description = ''
+          Provide a attic jwt key with read-only access.
+        '';
+        type = "line";
+      };
+
+      files.netrc.secret = true;
+
+      script = ''
+        cat > "$out/netrc" << EOF
+        machine cache.elxreno.com password $(cat "$prompts/attic-jwt")
+        EOF
+      '';
     };
 
     nix = {
@@ -95,24 +110,19 @@ in
             "flakes"
           ]; # TODO: Something adds extra-experimental-features, find who
 
-          extra-sandbox-paths = with config.programs.ccache; optional enable "${cacheDir}";
-
           trusted-users = [
             "@wheel"
             "elxreno"
           ];
 
-          substituters = mkForce [
-            "https://nixos-cache-proxy.elxreno.com?http-version=http3"
-            "https://cache.elxreno.com/common"
-            "https://nix-community.cachix.org"
+          substituters = [
+            "https://cache.elxreno.com/common?priority=11"
           ];
           trusted-public-keys = [
             "common:m1kzZFDmZb76MaOKKGGBkJKZL/Rd8MrlQr+Sk+Q92c4="
-            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
           ];
 
-          netrc-file = config.sops.secrets."attic/netrc-file-pull".path;
+          netrc-file = config.clan.core.vars.generators.nix-netrc.files.netrc.path;
         }
         (mkIf (!virtual) {
           min-free = 2 * 1024 * 1024 * 1024; # 2GB

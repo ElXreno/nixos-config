@@ -23,7 +23,8 @@ in
 
     services.postgresql = {
       enable = true;
-      inherit (cfg) package;
+      package = lib.mkForce cfg.package;
+      dataDir = lib.mkForce "/var/lib/postgresql/${cfg.package.psqlSchema}";
       authentication = lib.mkForce ''
         local all all trust
       '';

@@ -22,8 +22,6 @@ in
 
       services = {
         pipewire.enable = true;
-
-        printing.enable = true;
       };
 
       programs = {
@@ -40,6 +38,10 @@ in
       };
     };
 
-    services.logind.settings.Login.HandleLidSwitch = "ignore";
+    services.logind.settings.Login = {
+      HandleLidSwitch = "ignore";
+      HandleSuspendKey = "ignore";
+      HandleSuspendKeyLongPress = "ignore";
+    };
   };
 }

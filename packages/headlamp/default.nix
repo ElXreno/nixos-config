@@ -1,4 +1,4 @@
-{ pkgs, fetchurl, ... }:
+{ pkgs, fetchurl }:
 pkgs.appimageTools.wrapType2 rec {
   pname = "headlamp";
   version = "0.38.0";

@@ -21,7 +21,7 @@ in
   options.${namespace}.system.hardware.gpu.nvidia = {
     enable = mkEnableOption "Whether or not to manage nvidia stuff.";
     enableBatterySaverSpecialisation = mkEnableOption "Whether to enable battery saver specialisation.";
-    package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "latest" { };
+    package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "beta" { };
 
     modesetting.enable = mkEnableOption "Whether to enable kernel modesetting.";
 
@@ -144,7 +144,7 @@ in
         wantedBy = [ "graphical.target" ];
 
         serviceConfig = {
-          ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 140 --min-clock 0 --max-clock 2760 --mem-offset 1000";
+          ExecStart = "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset 140 --min-clock 0 --max-clock 2625 --mem-offset 1000";
           User = "root";
           Restart = "on-failure";
         };

@@ -33,6 +33,7 @@ in
       settings.General = mkMerge [
         {
           Experimental = true;
+          KernelExperimental = true;
         }
 
         (mkIf cfg.xboxSupport {
@@ -52,17 +53,23 @@ in
 
     services.pipewire.wireplumber.extraConfig = {
       "10-bluez" = {
+        "monitor.bluez.properties" = {
+          "bluez5.roles" = [
+            "a2dp_sink"
+            "a2dp_source"
+            "bap_sink"
+            "bap_source"
+            "hsp_hs"
+            "hsp_ag"
+            "hfp_hf"
+            "hfp_ag"
+          ];
+        };
         "monitor.bluez.rules" = [
           {
             matches = [ { "device.name" = "~bluez_card.*"; } ];
             actions = {
               update-props = {
-                "bluez5.roles" = [
-                  "hsp_hs"
-                  "hsp_ag"
-                  "hfp_hf"
-                  "hfp_ag"
-                ];
                 "bluez5.enable-msbc" = true;
                 "bluez5.enable-sbc-xq" = true;
                 "bluez5.enable-hw-volume" = true;

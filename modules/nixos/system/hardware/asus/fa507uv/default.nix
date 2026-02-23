@@ -18,8 +18,8 @@ let
   patchesSrc = pkgs.fetchFromGitHub {
     owner = "CachyOS";
     repo = "kernel-patches";
-    rev = "bfcf34bd22aa1fa740c5d60a8f126919cfdacfdf";
-    hash = "sha256-YdhrS8JBGnM4BvdkG0MbO8I4dJLmF+RyP7VCRCf7LVQ=";
+    rev = "d60f37176775b87d3300b333b39ae974adbda381";
+    hash = "sha256-qsniqHnVIZdhGO6tYyugtWpOtdYofnUcpJAj6YAAvM4=";
   };
 
   majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
@@ -30,10 +30,12 @@ let
       galliumDrivers = [
         "llvmpipe"
         "radeonsi"
+        "virgl"
         "zink"
       ];
       vulkanDrivers = [
         "amd"
+        "virtio"
       ];
     }).overrideAttrs
       (oldAttrs: {
@@ -55,8 +57,18 @@ in
     {
       boot.kernelPatches = [
         {
-          name = "asus-armoury-crate";
-          patch = "${patchesSrc}/${majorMinor}/0001-asus.patch";
+          name = "cachy-fixes";
+          patch = pkgs.runCommand "0004-fixes-filtered.patch" { nativeBuildInputs = [ pkgs.patchutils ]; } ''
+            filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
+          '';
+        }
+        {
+          name = "hdmi";
+          patch = "${patchesSrc}/${majorMinor}/0005-hdmi.patch";
+        }
+        {
+          name = "vesa-dsc-bpp";
+          patch = "${patchesSrc}/${majorMinor}/0007-vesa-dsc-bpp.patch";
         }
         {
           name = "asus-armoury-crate-fa507uv";

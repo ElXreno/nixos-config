@@ -56,6 +56,20 @@ in
       alsa.support32Bit = true;
       pulse.enable = true;
 
+      package =
+        let
+          patchedPipewire = pkgs.pipewire.override {
+            libldac-dec = pkgs.libldac-dec.overrideAttrs (old: {
+              patches = (old.patches or [ ]) ++ [
+                # https://nixpk.gs/pr-tracker.html?pr=502690
+                # Fix uninitialized struct members passed to ldaclib_set_config_info in decode init
+                ./patches/fix-decode-init.patch
+              ];
+            });
+          };
+        in
+        patchedPipewire;
+
       extraLv2Packages = [ pkgs.lsp-plugins ];
 
       extraConfig = {
@@ -120,6 +134,7 @@ in
                   "capture.props" = {
                     "node.name" = "generic_rnnoise_voice.input";
                     "node.passive" = true;
+                    "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];
@@ -128,6 +143,7 @@ in
                   "playback.props" = {
                     "node.name" = "generic_rnnoise_voice.source";
                     "media.class" = "Audio/Source";
+                    "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];

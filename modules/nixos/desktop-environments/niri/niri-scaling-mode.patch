@@ -1,0 +1,386 @@
+diff --git a/niri-config/src/lib.rs b/niri-config/src/lib.rs
+index 28e54e6b..25e66ac9 100644
+--- a/niri-config/src/lib.rs
++++ b/niri-config/src/lib.rs
+@@ -676,6 +676,7 @@ mod tests {
+                 position x=10 y=20
+                 mode "1920x1080@144"
+                 variable-refresh-rate on-demand=true
++                scaling-mode "full"
+                 background-color "rgba(25, 25, 102, 1.0)"
+                 hot-corners {
+                     off
+@@ -1106,6 +1107,9 @@ mod tests {
+                                 on_demand: true,
+                             },
+                         ),
++                        scaling_mode: Some(
++                            Full,
++                        ),
+                         focus_at_startup: true,
+                         background_color: Some(
+                             Color {
+@@ -1147,6 +1151,7 @@ mod tests {
+                         ),
+                         modeline: None,
+                         variable_refresh_rate: None,
++                        scaling_mode: None,
+                         focus_at_startup: false,
+                         background_color: None,
+                         backdrop_color: None,
+@@ -1176,6 +1181,7 @@ mod tests {
+                             },
+                         ),
+                         variable_refresh_rate: None,
++                        scaling_mode: None,
+                         focus_at_startup: false,
+                         background_color: None,
+                         backdrop_color: None,
+diff --git a/niri-config/src/output.rs b/niri-config/src/output.rs
+index 5d6565f5..a420cccc 100644
+--- a/niri-config/src/output.rs
++++ b/niri-config/src/output.rs
+@@ -65,6 +65,8 @@ pub struct Output {
+     pub modeline: Option<Modeline>,
+     #[knuffel(child)]
+     pub variable_refresh_rate: Option<Vrr>,
++    #[knuffel(child, unwrap(argument, str))]
++    pub scaling_mode: Option<niri_ipc::ScalingMode>,
+     #[knuffel(child)]
+     pub focus_at_startup: bool,
+     // Deprecated; use layout.background_color.
+@@ -104,6 +106,7 @@ impl Default for Output {
+             mode: None,
+             modeline: None,
+             variable_refresh_rate: None,
++            scaling_mode: None,
+             background_color: None,
+             backdrop_color: None,
+             hot_corners: None,
+diff --git a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
+index 5226dda4..9611da20 100644
+--- a/niri-ipc/src/lib.rs
++++ b/niri-ipc/src/lib.rs
+@@ -1070,6 +1070,12 @@ pub enum OutputAction {
+         #[cfg_attr(feature = "clap", command(flatten))]
+         vrr: VrrToSet,
+     },
++    /// Set the output scaling mode (how non-native resolutions are scaled).
++    ScalingMode {
++        /// Scaling mode to set.
++        #[cfg_attr(feature = "clap", arg())]
++        scaling_mode: ScalingMode,
++    },
+ }
+ 
+ /// Output mode to set.
+@@ -1171,6 +1177,24 @@ pub struct VrrToSet {
+     pub on_demand: bool,
+ }
+ 
++/// Output scaling mode for non-native resolutions.
++///
++/// Controls how the GPU scaler handles resolutions that don't match the panel's native
++/// resolution.
++#[derive(Serialize, Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
++#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
++#[cfg_attr(feature = "json-schema", derive(schemars::JsonSchema))]
++pub enum ScalingMode {
++    /// No scaling.
++    None,
++    /// Stretch to fill the entire output, ignoring aspect ratio.
++    Full,
++    /// Center without scaling.
++    Center,
++    /// Scale to fill as much as possible while preserving aspect ratio.
++    FullAspect,
++}
++
+ /// Connected output.
+ #[derive(Debug, Serialize, Deserialize, Clone)]
+ #[cfg_attr(feature = "json-schema", derive(schemars::JsonSchema))]
+@@ -1197,6 +1221,8 @@ pub struct Output {
+     pub vrr_supported: bool,
+     /// Whether variable refresh rate is enabled on the output.
+     pub vrr_enabled: bool,
++    /// Current scaling mode, if the connector supports it.
++    pub scaling_mode: Option<ScalingMode>,
+     /// Logical output information.
+     ///
+     /// `None` if the output is not mapped to any logical output (for example, if it is disabled).
+@@ -1751,6 +1777,20 @@ impl FromStr for Transform {
+     }
+ }
+ 
++impl FromStr for ScalingMode {
++    type Err = &'static str;
++
++    fn from_str(s: &str) -> Result<Self, Self::Err> {
++        match s {
++            "none" => Ok(Self::None),
++            "full" => Ok(Self::Full),
++            "center" => Ok(Self::Center),
++            "full-aspect" => Ok(Self::FullAspect),
++            _ => Err(r#"invalid scaling mode, can be "none", "full", "center" or "full-aspect""#),
++        }
++    }
++}
++
+ impl FromStr for ModeToSet {
+     type Err = &'static str;
+ 
+diff --git a/resources/default-config.kdl b/resources/default-config.kdl
+index 0af16c7f..5ce6f26e 100644
+--- a/resources/default-config.kdl
++++ b/resources/default-config.kdl
+@@ -94,6 +94,12 @@ input {
+     // normal, 90, 180, 270, flipped, flipped-90, flipped-180 and flipped-270.
+     transform "normal"
+ 
++    // Scaling mode controls how the GPU scaler handles non-native resolutions.
++    // Valid values are: "none", "full", "center" and "full-aspect".
++    // "full" stretches to fill the panel, "full-aspect" preserves the aspect ratio.
++    // Only supported on some connector types (e.g. eDP with AMDGPU or Intel).
++    // scaling-mode "full"
++
+     // Position of the output in the global coordinate space.
+     // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
+     // The cursor can only move between directly adjacent outputs.
+diff --git a/src/backend/headless.rs b/src/backend/headless.rs
+index 8b5ee827..5acae825 100644
+--- a/src/backend/headless.rs
++++ b/src/backend/headless.rs
+@@ -108,6 +108,7 @@ impl Headless {
+                 is_custom_mode: true,
+                 vrr_supported: false,
+                 vrr_enabled: false,
++                scaling_mode: None,
+                 logical: Some(logical_output(&output)),
+             },
+         );
+diff --git a/src/backend/tty.rs b/src/backend/tty.rs
+index 407596f6..e49fcf73 100644
+--- a/src/backend/tty.rs
++++ b/src/backend/tty.rs
+@@ -390,6 +390,8 @@ struct Surface {
+     /// Plot name for the presentation misprediction plot.
+     presentation_misprediction_plot_name: tracy_client::PlotName,
+     sequence_delta_plot_name: tracy_client::PlotName,
++    /// Current scaling mode set on the connector.
++    current_scaling_mode: Option<niri_ipc::ScalingMode>,
+ }
+ 
+ pub struct SurfaceDmabufFeedback {
+@@ -1307,6 +1309,13 @@ impl Tty {
+             }
+         }
+ 
++        // Set scaling mode if configured.
++        if let Some(scaling_mode) = config.scaling_mode {
++            if let Err(err) = set_scaling_mode(&device.drm, connector.handle(), scaling_mode) {
++                warn!("error setting scaling mode: {err:?}");
++            }
++        }
++
+         // Update the output mode.
+         let (physical_width, physical_height) = connector.size().unwrap_or((0, 0));
+ 
+@@ -1483,6 +1492,7 @@ impl Tty {
+             time_since_presentation_plot_name,
+             presentation_misprediction_plot_name,
+             sequence_delta_plot_name,
++            current_scaling_mode: config.scaling_mode,
+         };
+ 
+         let res = device.surfaces.insert(crtc, surface);
+@@ -2121,6 +2131,8 @@ impl Tty {
+                     });
+                 let vrr_enabled = surface.is_some_and(|surface| surface.compositor.vrr_enabled());
+ 
++                let scaling_mode = get_scaling_mode(&device.drm, connector.handle());
++
+                 let logical = niri
+                     .global_space
+                     .outputs()
+@@ -2147,6 +2159,7 @@ impl Tty {
+                     is_custom_mode,
+                     vrr_supported,
+                     vrr_enabled,
++                    scaling_mode,
+                     logical,
+                 };
+ 
+@@ -2366,8 +2379,12 @@ impl Tty {
+                 let vrr_enabled = surface.compositor.vrr_enabled();
+                 let change_always_vrr = vrr_enabled != config.is_vrr_always_on();
+                 let is_on_demand_vrr = config.is_vrr_on_demand();
++                let desired_scaling_mode = config.scaling_mode;
++                let change_scaling_mode =
++                    desired_scaling_mode != surface.current_scaling_mode;
+ 
+-                if !change_mode && !change_always_vrr && !is_on_demand_vrr {
++                if !change_mode && !change_always_vrr && !is_on_demand_vrr && !change_scaling_mode
++                {
+                     continue;
+                 }
+ 
+@@ -2404,6 +2421,39 @@ impl Tty {
+                         .set_vrr(surface.compositor.vrr_enabled());
+                 }
+ 
++                if change_scaling_mode {
++                    if let Some(scaling_mode) = desired_scaling_mode {
++                        match set_scaling_mode(&device.drm, surface.connector, scaling_mode) {
++                            Ok(()) => {
++                                surface.current_scaling_mode = Some(scaling_mode);
++                            }
++                            Err(err) => {
++                                warn!(
++                                    "output {:?}: error setting scaling mode: {err:?}",
++                                    surface.name.connector
++                                );
++                            }
++                        }
++                    } else {
++                        // Reset to default when unconfigured.
++                        match set_scaling_mode(
++                            &device.drm,
++                            surface.connector,
++                            niri_ipc::ScalingMode::FullAspect,
++                        ) {
++                            Ok(()) => {
++                                surface.current_scaling_mode = None;
++                            }
++                            Err(err) => {
++                                warn!(
++                                    "output {:?}: error resetting scaling mode: {err:?}",
++                                    surface.name.connector
++                                );
++                            }
++                        }
++                    }
++                }
++
+                 if change_mode {
+                     if fallback {
+                         let target = config.mode.unwrap();
+@@ -2829,6 +2879,64 @@ fn get_drm_property(
+         .find_map(|(handle, value)| (handle == prop).then_some(value))
+ }
+ 
++fn set_scaling_mode(
++    drm: &DrmDevice,
++    connector: connector::Handle,
++    mode: niri_ipc::ScalingMode,
++) -> anyhow::Result<()> {
++    let (handle, info, current) =
++        find_drm_property(drm, connector, "scaling mode").context("no scaling mode property")?;
++
++    let property::ValueType::Enum(ref enum_values) = info.value_type() else {
++        bail!("wrong property type for scaling mode");
++    };
++
++    let target_name = match mode {
++        niri_ipc::ScalingMode::None => "None",
++        niri_ipc::ScalingMode::Full => "Full",
++        niri_ipc::ScalingMode::Center => "Center",
++        niri_ipc::ScalingMode::FullAspect => "Full aspect",
++    };
++
++    let (_, enums) = enum_values.values();
++    let value = enums
++        .iter()
++        .find(|e| e.name().to_str().ok() == Some(target_name))
++        .map(|e| e.value())
++        .with_context(|| format!("scaling mode {target_name:?} not supported by this connector"))?;
++
++    if current != value {
++        drm.set_property(connector, handle, value)
++            .context("error setting scaling mode property")?;
++    }
++
++    Ok(())
++}
++
++fn get_scaling_mode(
++    drm: &DrmDevice,
++    connector: connector::Handle,
++) -> Option<niri_ipc::ScalingMode> {
++    let (_, info, value) = find_drm_property(drm, connector, "scaling mode")?;
++    let property::ValueType::Enum(ref enum_values) = info.value_type() else {
++        return None;
++    };
++    let (_, enums) = enum_values.values();
++    let name = enums
++        .iter()
++        .find(|e| e.value() == value)?
++        .name()
++        .to_str()
++        .ok()?;
++    match name {
++        "None" => Some(niri_ipc::ScalingMode::None),
++        "Full" => Some(niri_ipc::ScalingMode::Full),
++        "Center" => Some(niri_ipc::ScalingMode::Center),
++        "Full aspect" => Some(niri_ipc::ScalingMode::FullAspect),
++        _ => None,
++    }
++}
++
+ fn refresh_interval(mode: DrmMode) -> Duration {
+     let clock = mode.clock() as u64;
+     let htotal = mode.hsync().2 as u64;
+diff --git a/src/backend/winit.rs b/src/backend/winit.rs
+index 92132bd4..c97f1c67 100644
+--- a/src/backend/winit.rs
++++ b/src/backend/winit.rs
+@@ -88,6 +88,7 @@ impl Winit {
+                 is_custom_mode: true,
+                 vrr_supported: false,
+                 vrr_enabled: false,
++                scaling_mode: None,
+                 logical: Some(logical_output(&output)),
+             },
+         )])));
+diff --git a/src/ipc/client.rs b/src/ipc/client.rs
+index ef4bdf51..f188da57 100644
+--- a/src/ipc/client.rs
++++ b/src/ipc/client.rs
+@@ -535,6 +535,7 @@ fn print_output(output: Output) -> anyhow::Result<()> {
+         is_custom_mode,
+         vrr_supported,
+         vrr_enabled,
++        scaling_mode,
+         logical,
+     } = output;
+ 
+@@ -587,6 +588,16 @@ fn print_output(output: Output) -> anyhow::Result<()> {
+         println!("  Variable refresh rate: not supported");
+     }
+ 
++    if let Some(scaling_mode) = scaling_mode {
++        let mode = match scaling_mode {
++            niri_ipc::ScalingMode::None => "none",
++            niri_ipc::ScalingMode::Full => "full",
++            niri_ipc::ScalingMode::Center => "center",
++            niri_ipc::ScalingMode::FullAspect => "full-aspect",
++        };
++        println!("  Scaling mode: {mode}");
++    }
++
+     if let Some((width, height)) = physical_size {
+         println!("  Physical size: {width}x{height} mm");
+     } else {
+diff --git a/src/niri.rs b/src/niri.rs
+index e59de48b..cb90f303 100644
+--- a/src/niri.rs
++++ b/src/niri.rs
+@@ -1894,6 +1894,9 @@ impl State {
+                     None
+                 }
+             }
++            niri_ipc::OutputAction::ScalingMode { scaling_mode } => {
++                config.scaling_mode = Some(scaling_mode);
++            }
+         });
+ 
+         self.reload_output_config();

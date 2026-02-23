@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLAKE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+PORT=7172
+MACHINE=""
+
+usage() {
+    cat <<'EOF'
+Usage: unlock-luks [-p PORT] -m MACHINE <host>
+
+Unlock LUKS partition on a remote server via initrd SSH.
+Reads the passphrase from clan vars and pipes it to the
+systemd password prompt automatically.
+
+Options:
+  -m MACHINE   clan machine name (required)
+  -p PORT      initrd SSH port (default: 7172)
+  -h, --help   show this help
+
+Examples:
+  unlock-luks -m BIMBA 1.2.3.4
+  unlock-luks -m my-server -p 2222 my-server.example.com
+EOF
+    exit "${1:-0}"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -m) MACHINE="${2:?-m requires a machine name}"; shift 2 ;;
+        -p) PORT="${2:?-p requires a port number}"; shift 2 ;;
+        -h|--help) usage 0 ;;
+        -*) echo "Unknown option: $1" >&2; usage 1 ;;
+        *) HOST="$1"; shift ;;
+    esac
+done
+
+: "${HOST:?No host specified. See --help.}"
+: "${MACHINE:?No machine specified (-m). See --help.}"
+
+# Read passphrase from clan vars
+PASSPHRASE="$(clan vars get "$MACHINE" luks/key --flake "$FLAKE_DIR")"
+
+# Wait for host to be reachable
+while ! ping -W 1 -c 1 "$HOST"; do
+    sleep 1
+done
+
+# Wait for initrd SSH to be ready
+while ! timeout --foreground 10 ssh -p "$PORT" "root@$HOST" true; do
+    sleep 1
+done
+
+# Pipe passphrase into systemd password prompt via forced PTY
+printf '%s\n' "$PASSPHRASE" | ssh -tt -p "$PORT" "root@$HOST" systemd-tty-ask-password-agent --query

@@ -2,7 +2,7 @@
   config,
   namespace,
   lib,
-  inputs,
+  pkgs,
   ...
 }:
 let
@@ -18,38 +18,57 @@ in
   };
 
   config = mkIf cfg.enable {
-    sops = {
-      secrets."ap/Home".sopsFile = "${inputs.self}/secrets/wireless.yaml";
-      secrets."ap/Homelander".sopsFile = "${inputs.self}/secrets/wireless.yaml";
-
-      templates."wpa_supplicant.conf" = {
-        restartUnits = [ "wpa_supplicant.service" ];
-        owner = "wpa_supplicant";
-        content = ''
-          network={
-            ssid="Home"
-            key_mgmt=WPA-PSK SAE FT-PSK FT-SAE
-            psk=${config.sops.placeholder."ap/Home"}
-          }
-
-          network={
-            ssid="Homelander"
-            key_mgmt=SAE FT-SAE
-            sae_password="${config.sops.placeholder."ap/Homelander"}"
-            ieee80211w=2
-          }
-        '';
+    clan.core.vars.generators.wireless-aps = {
+      prompts = {
+        home-password = {
+          description = "Home AP Password";
+          type = "hidden";
+        };
+        homelander-password = {
+          description = "Homelander AP Password";
+          type = "hidden";
+        };
       };
+
+      files."wpa_supplicant.conf" = {
+        secret = true;
+        owner = "wpa_supplicant";
+      };
+
+      script = ''
+        cat > "$out/wpa_supplicant.conf" << EOF
+        network={
+          ssid="Home"
+          key_mgmt=WPA-PSK SAE FT-PSK FT-SAE
+          psk=$(wpa_passphrase Home $(cat $prompts/home-password) | grep -oE 'psk=[0-9a-f]{64}' | cut -d= -f2)
+        }
+
+        network={
+          ssid="Homelander"
+          key_mgmt=SAE FT-SAE
+          sae_password="$(cat "$prompts/homelander-password")"
+          ieee80211w=2
+        }
+        EOF
+      '';
+      runtimeInputs = with pkgs; [
+        wpa_supplicant
+        gnugrep
+      ];
     };
 
     networking.wireless = {
       enable = true;
       fallbackToWPA2 = false;
-      extraConfigFiles = [ config.sops.templates."wpa_supplicant.conf".path ];
+      extraConfigFiles = [
+        config.clan.core.vars.generators.wireless-aps.files."wpa_supplicant.conf".path
+      ];
     };
 
     systemd.services.wpa_supplicant.serviceConfig = {
-      BindReadOnlyPaths = [ config.sops.templates."wpa_supplicant.conf".path ];
+      BindReadOnlyPaths = [
+        config.clan.core.vars.generators.wireless-aps.files."wpa_supplicant.conf".path
+      ];
     };
   };
 }

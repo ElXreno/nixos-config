@@ -56,20 +56,26 @@ in
     hardware.xpadneo.enable = cfg.xboxSupport;
 
     boot.kernelModules = [ "ntsync" ];
-    services.udev.extraRules = ''
-      KERNEL=="ntsync", MODE="0644", TAG+="uaccess"
-    '';
+    services.udev.packages = [
+      (pkgs.writeTextFile {
+        name = "ntsync-udev-rules";
+        destination = "/lib/udev/rules.d/70-ntsync.rules";
+        text = ''
+          KERNEL=="ntsync", MODE="0644", TAG+="uaccess"
+        '';
+      })
+    ];
 
     # Esync
     systemd.settings.Manager = {
-      DefaultLimitNOFILE = 524288;
+      DefaultLimitNOFILE = 1048576;
     };
     security.pam.loginLimits = [
       {
         domain = "elxreno";
         type = "hard";
         item = "nofile";
-        value = "524288";
+        value = "1048576";
       }
     ];
 

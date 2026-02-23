@@ -19,7 +19,7 @@ in
       localbackup = {
         user = "elxreno";
         repository = "/home/elxreno/MEGA/Backups/restic-repo";
-        passwordFile = config.sops.secrets."restic/mega_password".path;
+        passwordFile = config.clan.core.vars.generators.restic-mega-password.files.password.path;
         paths = [
           "/home/elxreno"
           "/home/elxreno/Sync/RandomStuff/Databases"
@@ -105,9 +105,17 @@ in
       };
     };
 
-    sops.secrets."restic/mega_password" = {
-      owner = config.users.users.elxreno.name;
-      restartUnits = [ "restic-backups-localbackup.service" ];
+    clan.core.vars.generators.restic-mega-password = {
+      files.password = {
+        owner = "elxreno";
+      };
+      prompts.password = {
+        description = ''
+          Provide a restic repo password located at `${config.services.restic.backups.localbackup.repository}`.
+        '';
+        type = "hidden";
+        persist = true;
+      };
     };
   };
 }

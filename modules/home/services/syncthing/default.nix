@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   ...
@@ -13,6 +14,11 @@ let
     types
     ;
   cfg = config.${namespace}.services.syncthing;
+  inherit (osConfig.${namespace}.home-manager.syncthing.ports.${config.home.username})
+    webUIPort
+    announcePort
+    listenPort
+    ;
 in
 {
   options.${namespace}.services.syncthing = {
@@ -30,7 +36,20 @@ in
       overrideDevices = true;
       overrideFolders = true;
 
-      inherit (cfg) settings;
+      guiAddress = "127.0.0.1:${toString webUIPort}";
+
+      settings = lib.recursiveUpdate {
+        options = {
+          # https://docs.syncthing.net/v2.0.0/users/config#listen-addresses
+          listenAddresses = [
+            "tcp://:${toString listenPort}"
+            "quic://:${toString listenPort}"
+          ];
+          localAnnounceEnabled = true;
+          localAnnouncePort = announcePort;
+          localAnnounceMCAddr = "[ff12::${toString webUIPort}]:${toString announcePort}";
+        };
+      } cfg.settings;
     };
   };
 }

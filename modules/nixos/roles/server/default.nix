@@ -23,19 +23,12 @@ in
       };
 
       system = {
-        autoupgrade = {
-          enable = true;
-          allowReboot = true;
-        };
-
         nix = {
           auto-optimise.enable = true;
           gc.enable = true;
         };
 
         documentation.enable = false;
-
-        networking.honeypot.enable = true;
       };
     };
   };

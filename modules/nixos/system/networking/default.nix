@@ -83,8 +83,6 @@ in
           }
         ];
       };
-      useDHCP = false;
-      useNetworkd = lib.mkDefault false;
     };
 
     systemd.services.NetworkManager-wait-online.enable = false;

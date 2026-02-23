@@ -17,6 +17,12 @@ in
   };
 
   config = mkIf cfg.enable {
+    environment.sessionVariables = {
+      RADV_PERFTEST = "gpl,nggc,transfer_queue";
+      MESA_SHADER_CACHE_MAX_SIZE = "4G";
+      MESA_DISK_CACHE_SINGLE_FILE = "1";
+    };
+
     hardware = {
       graphics = {
         enable = true;
@@ -24,14 +30,7 @@ in
       };
 
       amdgpu = {
-        # Replaced via RADV in Mesa
-        # amdvlk = {
-        #   enable = true;
-        #   support32Bit.enable = true;
-        # };
-
         opencl.enable = true;
-
         initrd.enable = true;
       };
     };

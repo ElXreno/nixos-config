@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -14,21 +15,25 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.udev = {
-      extraRules = ''
-        # Lamzu Maya X (Normal Mode)
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", MODE="0666", TAG+="uaccess"
+    services.udev.packages = [
+      (pkgs.writeTextFile {
+        name = "lamzu-udev-rules";
+        destination = "/lib/udev/rules.d/70-lamzu.rules";
+        text = ''
+          # Lamzu Maya X (Normal Mode)
+          SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001c", MODE="0660", TAG+="uaccess"
 
-        # Lamzu Maya X DFU (DFU Mode)
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01c", MODE="0666", TAG+="uaccess"
+          # Lamzu Maya X DFU (DFU Mode)
+          SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01c", MODE="0660", TAG+="uaccess"
 
-        # Lamzu Maya X 8K Dongle (Normal Mode)
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", MODE="0666", TAG+="uaccess"
+          # Lamzu Maya X 8K Dongle (Normal Mode)
+          SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="001e", MODE="0660", TAG+="uaccess"
 
-        # Lamzu Maya X 8K Dongle DFU (DFU Mode)
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01e", MODE="0666", TAG+="uaccess"
-      '';
-    };
+          # Lamzu Maya X 8K Dongle DFU (DFU Mode)
+          SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="373e", ATTRS{idProduct}=="b01e", MODE="0660", TAG+="uaccess"
+        '';
+      })
+    ];
 
     environment.etc = {
       "libinput/local-overrides.quirks" = {

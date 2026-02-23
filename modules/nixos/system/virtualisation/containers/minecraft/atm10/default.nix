@@ -31,7 +31,13 @@ in
   };
 
   config = mkIf cfg.enable {
-    sops.secrets."curseforge" = { };
+    clan.core.vars.generators."curseforge" = {
+      prompts.env = {
+        description = "CurseForge environment file contents (CF_API_KEY=xxx format)";
+        type = "hidden";
+        persist = true;
+      };
+    };
 
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0770 1000 1000 -"
@@ -69,7 +75,7 @@ in
           "127.0.0.1:8100:8100/tcp" # bluemap
         ];
 
-        environmentFiles = [ config.sops.secrets."curseforge".path ];
+        environmentFiles = [ config.clan.core.vars.generators."curseforge".files.env.path ];
         environment = {
           DEBUG = "true";
           DEBUG_EXEC = "true";

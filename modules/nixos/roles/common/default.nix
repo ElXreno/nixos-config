@@ -19,6 +19,7 @@ in
       system.boot.enable = true;
 
       services = {
+        bpftune.enable = true;
         dnscrypt-proxy.enable = true;
         irqbalance.enable = true;
         openssh.enable = true;
@@ -29,9 +30,7 @@ in
         fish.enable = true;
       };
 
-      system.zram.enable = true;
-
-      sops.enable = true;
+      system.zswap.enable = true;
     };
   };
 }

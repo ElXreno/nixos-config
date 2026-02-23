@@ -26,7 +26,12 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.services.xserver.enable = true;
+    ${namespace} = {
+      services = {
+        xserver.enable = true;
+        printing.enable = true;
+      };
+    };
     services = {
       displayManager = {
         sddm = {

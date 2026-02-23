@@ -1,0 +1,16 @@
+{
+  "machines": {
+    "GRATE": {
+      "installedAt": 1771897122
+    },
+    "BIMBA": {
+      "installedAt": 1773319187
+    },
+    "INFINITY": {
+      "installedAt": 1774177449
+    },
+    "STARY": {
+      "installedAt": 1775183827
+    }
+  }
+}

@@ -14,14 +14,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.udev = {
-      extraRules = ''
-        # USB Dongle
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="0150", MODE="0666", TAG+="uaccess"
-
-        # Keyboard
-        SUBSYSTEM=="hidraw", KERNEL=="hidraw*", ATTRS{idVendor}=="258a", ATTRS{idProduct}=="01a2", MODE="0666", TAG+="uaccess"
-      '';
-    };
+    services.rk-m87-sync.enable = true;
   };
 }

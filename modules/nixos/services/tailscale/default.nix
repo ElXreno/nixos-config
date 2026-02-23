@@ -7,13 +7,15 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption optionals;
+  inherit (lib) mkIf mkEnableOption optional;
   cfg = config.${namespace}.services.tailscale;
 in
 {
   options.${namespace}.services.tailscale = {
     enable = mkEnableOption "Whether or not to manage tailscale.";
-    isServer = mkEnableOption "Whether or not to configure tailscale for server.";
+    isServer = mkEnableOption "Whether or not to configure tailscale for server." // {
+      default = config.${namespace}.roles.server.enable;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -21,15 +23,36 @@ in
       "/var/lib/tailscale"
     ];
 
-    sops.secrets.tailscale-auth-key = { };
+    clan.core.vars.generators.tailscale = {
+      prompts.authKey = {
+        description = ''
+          Provide a tailscale "auth key" to connect to the desired network.
+          See <https://login.tailscale.com/admin/settings/keys>.
+        '';
+        type = "line";
+      };
+
+      files.authKey.secret = true;
+
+      script = ''
+        cat $prompts/authKey > $out/authKey
+      '';
+    };
 
     services.tailscale = {
       enable = true;
-      authKeyFile = config.sops.secrets.tailscale-auth-key.path;
+      authKeyFile = config.clan.core.vars.generators.tailscale.files.authKey.path;
       openFirewall = true;
       useRoutingFeatures = "both";
-      extraSetFlags = optionals cfg.isServer [ "--advertise-exit-node" ];
-      extraUpFlags = [ "--accept-dns=false" ];
+      extraUpFlags = [
+        "--reset"
+      ];
+      extraSetFlags =
+        [
+          "--accept-dns"
+        ]
+        ++ (optional cfg.isServer "--advertise-exit-node")
+        ++ (optional (!cfg.isServer) "--exit-node-allow-lan-access");
       permitCertUid = with config.services.caddy; mkIf enable user;
     };
 
@@ -38,11 +61,6 @@ in
         ts = config.services.tailscale;
       in
       {
-        resolvconf.extraConfig = ''
-          prepend_nameservers=100.100.100.100
-          search_domains=angora-ide.ts.net
-        '';
-
         firewall.trustedInterfaces = with ts; [ interfaceName ];
         networkmanager = {
           unmanaged = with ts; [ interfaceName ];

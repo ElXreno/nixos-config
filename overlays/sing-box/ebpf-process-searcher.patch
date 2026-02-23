@@ -1,0 +1,560 @@
+diff --git a/.gitignore b/.gitignore
+index d2b74d08..b478b7e4 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -15,6 +15,7 @@
+ /experimental/libbox/*.aar
+ /experimental/libbox/*.xcframework/
+ /experimental/libbox/*.nupkg
++*.o
+ .DS_Store
+ /config.d/
+ /venv/
+diff --git a/common/process/ebpf/socket_monitor.c b/common/process/ebpf/socket_monitor.c
+new file mode 100644
+index 00000000..cfe7dfb9
+--- /dev/null
++++ b/common/process/ebpf/socket_monitor.c
+@@ -0,0 +1,164 @@
++//go:build ignore
++
++// eBPF program to track socket→process mappings.
++// Uses fentry/fexit trampolines (kernel 5.5+) with CO-RE for portable field access.
++// Field offsets are resolved at load time via BTF — exact struct layout is not required.
++
++#include <linux/bpf.h>
++#include <linux/errno.h>
++#include <linux/types.h>
++#include <bpf/bpf_helpers.h>
++#include <bpf/bpf_tracing.h>
++#include <bpf/bpf_core_read.h>
++
++char __license[] SEC("license") = "Dual MIT/GPL";
++
++#define AF_INET 2
++#define AF_INET6 10
++#define IPPROTO_TCP 6
++#define IPPROTO_UDP 17
++
++// Kernel struct definitions with CO-RE support.
++// Only fields we access need to be declared; offsets are resolved via BTF.
++
++struct in6_addr {
++	__u8 in6_u[16];
++} __attribute__((preserve_access_index));
++
++struct sock_common {
++	union {
++		struct {
++			__be32 skc_daddr;
++			__be32 skc_rcv_saddr;
++		};
++	};
++	union {
++		struct {
++			__be16 skc_dport;
++			__u16 skc_num;
++		};
++	};
++	short unsigned int skc_family;
++	struct in6_addr skc_v6_rcv_saddr;
++} __attribute__((preserve_access_index));
++
++struct sock {
++	struct sock_common __sk_common;
++} __attribute__((preserve_access_index));
++
++struct msghdr;
++struct sockaddr;
++
++// Map key: identifies a local socket endpoint
++struct socket_key {
++	__u8 addr[16];
++	__u16 port;       // Source port (host byte order)
++	__u8 protocol;
++	__u8 padding;
++};
++
++// Map value: process info
++struct socket_info {
++	__u32 pid;
++	__u32 uid;
++};
++
++struct {
++	__uint(type, BPF_MAP_TYPE_LRU_HASH);
++	__uint(max_entries, 65536);
++	__type(key, struct socket_key);
++	__type(value, struct socket_info);
++} socket_pid_map SEC(".maps");
++
++static __always_inline void store_ipv4_socket(struct sock *sk, __u8 protocol)
++{
++	struct socket_key key = {};
++	struct socket_info info = {};
++
++	__u16 sport = sk->__sk_common.skc_num;
++	if (sport == 0)
++		return;
++
++	// Store raw __be32 bytes as the kernel stores them
++	*((__be32 *)key.addr) = sk->__sk_common.skc_rcv_saddr;
++	key.port = sport;
++	key.protocol = protocol;
++
++	__u64 pid_tgid = bpf_get_current_pid_tgid();
++	__u64 uid_gid = bpf_get_current_uid_gid();
++	info.pid = pid_tgid >> 32;
++	info.uid = uid_gid & 0xFFFFFFFF;
++
++	bpf_map_update_elem(&socket_pid_map, &key, &info, BPF_ANY);
++}
++
++static __always_inline void store_ipv6_socket(struct sock *sk, __u8 protocol)
++{
++	if (!bpf_core_field_exists(sk->__sk_common.skc_v6_rcv_saddr))
++		return;
++
++	struct socket_key key = {};
++	struct socket_info info = {};
++
++	__u16 sport = sk->__sk_common.skc_num;
++	if (sport == 0)
++		return;
++
++	struct in6_addr saddr = sk->__sk_common.skc_v6_rcv_saddr;
++	__builtin_memcpy(key.addr, &saddr, sizeof(saddr));
++	key.port = sport;
++	key.protocol = protocol;
++
++	__u64 pid_tgid = bpf_get_current_pid_tgid();
++	__u64 uid_gid = bpf_get_current_uid_gid();
++	info.pid = pid_tgid >> 32;
++	info.uid = uid_gid & 0xFFFFFFFF;
++
++	bpf_map_update_elem(&socket_pid_map, &key, &info, BPF_ANY);
++}
++
++// --- TCP ---
++
++SEC("fexit/tcp_v4_connect")
++int BPF_PROG(fexit_tcp_v4_connect, struct sock *sk, struct sockaddr *uaddr, int addr_len, int ret)
++{
++	if (sk->__sk_common.skc_family != AF_INET)
++		return 0;
++	if (ret != 0 && ret != -EINPROGRESS)
++		return 0;
++	store_ipv4_socket(sk, IPPROTO_TCP);
++	return 0;
++}
++
++SEC("fexit/tcp_v6_connect")
++int BPF_PROG(fexit_tcp_v6_connect, struct sock *sk, struct sockaddr *uaddr, int addr_len, int ret)
++{
++	if (ret != 0 && ret != -EINPROGRESS)
++		return 0;
++	if (sk->__sk_common.skc_family == AF_INET)
++		store_ipv4_socket(sk, IPPROTO_TCP);
++	else if (sk->__sk_common.skc_family == AF_INET6)
++		store_ipv6_socket(sk, IPPROTO_TCP);
++	return 0;
++}
++
++// --- UDP ---
++
++SEC("fentry/udp_sendmsg")
++int BPF_PROG(fentry_udp_sendmsg, struct sock *sk, struct msghdr *msg, __u64 len)
++{
++	if (sk->__sk_common.skc_family != AF_INET)
++		return 0;
++	store_ipv4_socket(sk, IPPROTO_UDP);
++	return 0;
++}
++
++SEC("fentry/udpv6_sendmsg")
++int BPF_PROG(fentry_udpv6_sendmsg, struct sock *sk, struct msghdr *msg, __u64 len)
++{
++	if (sk->__sk_common.skc_family == AF_INET)
++		store_ipv4_socket(sk, IPPROTO_UDP);
++	else if (sk->__sk_common.skc_family == AF_INET6)
++		store_ipv6_socket(sk, IPPROTO_UDP);
++	return 0;
++}
+diff --git a/common/process/searcher.go b/common/process/searcher.go
+index 1af2c2bd..743a8037 100644
+--- a/common/process/searcher.go
++++ b/common/process/searcher.go
+@@ -14,6 +14,7 @@ import (
+ 
+ type Searcher interface {
+ 	FindProcessInfo(ctx context.Context, network string, source netip.AddrPort, destination netip.AddrPort) (*adapter.ConnectionOwner, error)
++	Close() error
+ }
+ 
+ var ErrNotFound = E.New("process not found")
+diff --git a/common/process/searcher_android.go b/common/process/searcher_android.go
+index ac9550ce..ef2d74bf 100644
+--- a/common/process/searcher_android.go
++++ b/common/process/searcher_android.go
+@@ -37,3 +37,7 @@ func (s *androidSearcher) FindProcessInfo(ctx context.Context, network string, s
+ 	}
+ 	return &adapter.ConnectionOwner{UserId: int32(uid)}, nil
+ }
++
++func (s *androidSearcher) Close() error {
++	return nil
++}
+diff --git a/common/process/searcher_darwin.go b/common/process/searcher_darwin.go
+index 03428cc8..598cd99b 100644
+--- a/common/process/searcher_darwin.go
++++ b/common/process/searcher_darwin.go
+@@ -151,3 +151,7 @@ func getExecPathFromPID(pid uint32) (string, error) {
+ func readNativeUint32(b []byte) uint32 {
+ 	return *(*uint32)(unsafe.Pointer(&b[0]))
+ }
++
++func (d *darwinSearcher) Close() error {
++	return nil
++}
+diff --git a/common/process/searcher_ebpf_linux.go b/common/process/searcher_ebpf_linux.go
+new file mode 100644
+index 00000000..b5fa237e
+--- /dev/null
++++ b/common/process/searcher_ebpf_linux.go
+@@ -0,0 +1,190 @@
++//go:build linux && !android
++
++package process
++
++//go:generate clang -target bpfel -O2 -g -Wall -c ebpf/socket_monitor.c -o ebpf/socket_monitor_bpfel.o
++
++import (
++	"bytes"
++	"context"
++	_ "embed"
++	"net/netip"
++	"os"
++	"strconv"
++	"syscall"
++	"time"
++
++	"github.com/sagernet/sing-box/adapter"
++	"github.com/sagernet/sing-box/log"
++	"github.com/sagernet/sing/common"
++	E "github.com/sagernet/sing/common/exceptions"
++	N "github.com/sagernet/sing/common/network"
++	"github.com/sagernet/sing/contrab/freelru"
++	"github.com/sagernet/sing/contrab/maphash"
++
++	"github.com/cilium/ebpf"
++	"github.com/cilium/ebpf/link"
++	"github.com/cilium/ebpf/rlimit"
++)
++
++//go:embed ebpf/socket_monitor_bpfel.o
++var bpfBytecode []byte
++
++// Must match struct socket_key in socket_monitor.c exactly
++type bpfSocketKey struct {
++	Addr     [16]byte
++	Port     uint16
++	Protocol uint8
++	Padding  uint8
++}
++
++// Must match struct socket_info in socket_monitor.c exactly
++type bpfSocketInfo struct {
++	PID uint32
++	UID uint32
++}
++
++var _ Searcher = (*ebpfSearcher)(nil)
++
++type ebpfSearcher struct {
++	logger     log.ContextLogger
++	collection *ebpf.Collection
++	links      []link.Link
++	pidMap     *ebpf.Map
++	pathCache  freelru.Cache[uint32, string]
++}
++
++const pathCacheTTL = 5 * time.Second
++
++func newEBPFSearcher(logger log.ContextLogger) (*ebpfSearcher, error) {
++	if err := rlimit.RemoveMemlock(); err != nil {
++		return nil, E.Cause(err, "remove memlock")
++	}
++
++	spec, err := ebpf.LoadCollectionSpecFromReader(bytes.NewReader(bpfBytecode))
++	if err != nil {
++		return nil, E.Cause(err, "load BPF spec")
++	}
++
++	coll, err := ebpf.NewCollection(spec)
++	if err != nil {
++		return nil, E.Cause(err, "create BPF collection")
++	}
++
++	s := &ebpfSearcher{
++		logger:     logger,
++		collection: coll,
++		pidMap:     coll.Maps["socket_pid_map"],
++		pathCache:  common.Must1(freelru.NewSharded[uint32, string](1024, maphash.NewHasher[uint32]().Hash32)),
++	}
++
++	if s.pidMap == nil {
++		coll.Close()
++		return nil, E.New("socket_pid_map not found in BPF collection")
++	}
++
++	// Attach fentry/fexit programs via BTF trampoline
++	required := []string{
++		"fexit_tcp_v4_connect",
++		"fentry_udp_sendmsg",
++	}
++
++	for _, name := range required {
++		prog := coll.Programs[name]
++		if prog == nil {
++			s.Close()
++			return nil, E.New("BPF program ", name, " not found")
++		}
++		l, err := link.AttachTracing(link.TracingOptions{Program: prog})
++		if err != nil {
++			s.Close()
++			return nil, E.Cause(err, "attach ", name)
++		}
++		s.links = append(s.links, l)
++	}
++
++	// Optional: IPv6 programs
++	optional := []string{
++		"fexit_tcp_v6_connect",
++		"fentry_udpv6_sendmsg",
++	}
++
++	for _, name := range optional {
++		prog := coll.Programs[name]
++		if prog == nil {
++			continue
++		}
++		l, err := link.AttachTracing(link.TracingOptions{Program: prog})
++		if err != nil {
++			logger.Debug("optional BPF attach ", name, ": ", err)
++			continue
++		}
++		s.links = append(s.links, l)
++	}
++
++	return s, nil
++}
++
++func (s *ebpfSearcher) FindProcessInfo(ctx context.Context, network string, source netip.AddrPort, destination netip.AddrPort) (*adapter.ConnectionOwner, error) {
++	var key bpfSocketKey
++
++	addr := source.Addr().Unmap()
++	if addr.Is4() {
++		a4 := addr.As4()
++		copy(key.Addr[:4], a4[:])
++	} else {
++		a16 := addr.As16()
++		copy(key.Addr[:], a16[:])
++	}
++	key.Port = source.Port()
++
++	switch network {
++	case N.NetworkTCP:
++		key.Protocol = syscall.IPPROTO_TCP
++	case N.NetworkUDP:
++		key.Protocol = syscall.IPPROTO_UDP
++	default:
++		return nil, os.ErrInvalid
++	}
++
++	var info bpfSocketInfo
++	err := s.pidMap.Lookup(&key, &info)
++	if err != nil {
++		return nil, err
++	}
++
++	processPath := s.getProcessPath(info.PID)
++
++	return &adapter.ConnectionOwner{
++		ProcessID:   info.PID,
++		UserId:      int32(info.UID),
++		ProcessPath: processPath,
++	}, nil
++}
++
++func (s *ebpfSearcher) getProcessPath(pid uint32) string {
++	if p, ok := s.pathCache.Get(pid); ok {
++		return p
++	}
++
++	p, err := os.Readlink(pathProc + "/" + strconv.FormatUint(uint64(pid), 10) + "/exe")
++	if err != nil {
++		return ""
++	}
++
++	s.pathCache.AddWithLifetime(pid, p, pathCacheTTL)
++	return p
++}
++
++func (s *ebpfSearcher) Close() error {
++	var err error
++	for _, l := range s.links {
++		err = E.Append(err, l.Close(), func(closeErr error) error {
++			return E.Cause(closeErr, "close BPF link")
++		})
++	}
++	if s.collection != nil {
++		s.collection.Close()
++	}
++	return err
++}
+diff --git a/common/process/searcher_linux.go b/common/process/searcher_linux.go
+index 86d37d7c..b6338f8d 100644
+--- a/common/process/searcher_linux.go
++++ b/common/process/searcher_linux.go
+@@ -17,7 +17,13 @@ type linuxSearcher struct {
+ }
+ 
+ func NewSearcher(config Config) (Searcher, error) {
+-	return &linuxSearcher{config.Logger}, nil
++	s, err := newEBPFSearcher(config.Logger)
++	if err != nil {
++		config.Logger.Debug("eBPF process searcher unavailable: ", err, ", using netlink fallback")
++		return &linuxSearcher{config.Logger}, nil
++	}
++	config.Logger.Info("using eBPF process searcher")
++	return s, nil
+ }
+ 
+ func (s *linuxSearcher) FindProcessInfo(ctx context.Context, network string, source netip.AddrPort, destination netip.AddrPort) (*adapter.ConnectionOwner, error) {
+@@ -34,3 +40,7 @@ func (s *linuxSearcher) FindProcessInfo(ctx context.Context, network string, sou
+ 		ProcessPath: processPath,
+ 	}, nil
+ }
++
++func (s *linuxSearcher) Close() error {
++	return nil
++}
+diff --git a/common/process/searcher_windows.go b/common/process/searcher_windows.go
+index ac95e0ce..eb2432ab 100644
+--- a/common/process/searcher_windows.go
++++ b/common/process/searcher_windows.go
+@@ -60,3 +60,7 @@ func getProcessPath(pid uint32) (string, error) {
+ 	}
+ 	return windows.UTF16ToString(buf[:size]), nil
+ }
++
++func (s *windowsSearcher) Close() error {
++	return nil
++}
+diff --git a/go.mod b/go.mod
+index c00a9a2d..f9bafce2 100644
+--- a/go.mod
++++ b/go.mod
+@@ -6,6 +6,7 @@ require (
+ 	github.com/anthropics/anthropic-sdk-go v1.26.0
+ 	github.com/anytls/sing-anytls v0.0.11
+ 	github.com/caddyserver/certmagic v0.25.2
++	github.com/cilium/ebpf v0.21.0
+ 	github.com/coder/websocket v1.8.14
+ 	github.com/cretz/bine v0.2.0
+ 	github.com/database64128/tfo-go/v2 v2.3.2
+diff --git a/go.sum b/go.sum
+index 9348343a..c80ca495 100644
+--- a/go.sum
++++ b/go.sum
+@@ -22,8 +22,8 @@ github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK3
+ github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
+ github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
+ github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+-github.com/cilium/ebpf v0.15.0 h1:7NxJhNiBT3NG8pZJ3c+yfrVdHY8ScgKD27sScgjLMMk=
+-github.com/cilium/ebpf v0.15.0/go.mod h1:DHp1WyrLeiBh19Cf/tfiSMhqheEiK8fXFZ4No0P1Hso=
++github.com/cilium/ebpf v0.21.0 h1:4dpx1J/B/1apeTmWBH5BkVLayHTkFrMovVPnHEk+l3k=
++github.com/cilium/ebpf v0.21.0/go.mod h1:1kHKv6Kvh5a6TePP5vvvoMa1bclRyzUXELSs272fmIQ=
+ github.com/coder/websocket v1.8.14 h1:9L0p0iKiNOibykf283eHkKUHHrpG7f65OE3BhhO7v9g=
+ github.com/coder/websocket v1.8.14/go.mod h1:NX3SzP+inril6yawo5CQXx8+fk145lPDC6pumgx0mVg=
+ github.com/coreos/go-iptables v0.7.1-0.20240112124308-65c67c9f46e6 h1:8h5+bWd7R6AYUslN6c6iuZWTKsKxUFDlpnmilO6R2n0=
+@@ -70,6 +70,8 @@ github.com/go-logr/stdr v1.2.2 h1:hSWxHoqTgW2S2qGc0LTAI563KZ5YKYRhT3MFKZMbjag=
+ github.com/go-logr/stdr v1.2.2/go.mod h1:mMo/vtBO5dYbehREoey6XUKy/eSumjCCveDpRre4VKE=
+ github.com/go-ole/go-ole v1.3.0 h1:Dt6ye7+vXGIKZ7Xtk4s6/xVdGDQynvom7xCFEdWr6uE=
+ github.com/go-ole/go-ole v1.3.0/go.mod h1:5LS6F96DhAwUc7C+1HLexzMXY1xGRSryjyPPKW6zv78=
++github.com/go-quicktest/qt v1.101.1-0.20240301121107-c6c8733fa1e6 h1:teYtXy9B7y5lHTp8V9KPxpYRAVA7dozigQcMiBust1s=
++github.com/go-quicktest/qt v1.101.1-0.20240301121107-c6c8733fa1e6/go.mod h1:p4lGIVX+8Wa6ZPNDvqcxq36XpUDLh42FLetFU7odllI=
+ github.com/gobwas/httphead v0.1.0 h1:exrUm0f4YX0L7EBwZHuCF4GDp8aJfVeBrlLQrs6NqWU=
+ github.com/gobwas/httphead v0.1.0/go.mod h1:O/RXo79gxV8G+RqlR/otEwx4Q36zl9rqC5u12GKvMCM=
+ github.com/gobwas/pool v0.2.1 h1:xfeeEhW7pwmX8nuLVlqbzVc7udMDrwetjEv+TZIz1og=
+@@ -104,12 +106,18 @@ github.com/insomniacslk/dhcp v0.0.0-20260220084031-5adc3eb26f91/go.mod h1:qfvBmy
+ github.com/jessevdk/go-flags v1.4.0/go.mod h1:4FA24M0QyGHXBuZZK/XkWh8h0e1EYbRYJSGM75WSRxI=
+ github.com/jsimonetti/rtnetlink v1.4.0 h1:Z1BF0fRgcETPEa0Kt0MRk3yV5+kF1FWTni6KUFKrq2I=
+ github.com/jsimonetti/rtnetlink v1.4.0/go.mod h1:5W1jDvWdnthFJ7fxYX1GMK07BUpI4oskfOqvPteYS6E=
++github.com/jsimonetti/rtnetlink/v2 v2.0.1 h1:xda7qaHDSVOsADNouv7ukSuicKZO7GgVUCXxpaIEIlM=
++github.com/jsimonetti/rtnetlink/v2 v2.0.1/go.mod h1:7MoNYNbb3UaDHtF8udiJo/RH6VsTKP1pqKLUTVCvToE=
+ github.com/keybase/go-keychain v0.0.1 h1:way+bWYa6lDppZoZcgMbYsvC7GxljxrskdNInRtuthU=
+ github.com/keybase/go-keychain v0.0.1/go.mod h1:PdEILRW3i9D8JcdM+FmY6RwkHGnhHxXwkPPMeUgOK1k=
+ github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+ github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
+ github.com/klauspost/cpuid/v2 v2.3.0 h1:S4CRMLnYUhGeDFDqkGriYKdfoFlDnMtqTiI/sFzhA9Y=
+ github.com/klauspost/cpuid/v2 v2.3.0/go.mod h1:hqwkgyIinND0mEev00jJYCxPNVRVXFQeu1XKlok6oO0=
++github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
++github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
++github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
++github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
+ github.com/letsencrypt/challtestsrv v1.4.2 h1:0ON3ldMhZyWlfVNYYpFuWRTmZNnyfiL9Hh5YzC3JVwU=
+ github.com/letsencrypt/challtestsrv v1.4.2/go.mod h1:GhqMqcSoeGpYd5zX5TgwA6er/1MbWzx/o7yuuVya+Wk=
+ github.com/letsencrypt/pebble/v2 v2.10.0 h1:Wq6gYXlsY6ubqI3hhxsTzdyotvfdjFBxuwYqCLCnj/U=
+@@ -153,6 +161,8 @@ github.com/prometheus-community/pro-bing v0.4.0 h1:YMbv+i08gQz97OZZBwLyvmmQEEzyf
+ github.com/prometheus-community/pro-bing v0.4.0/go.mod h1:b7wRYZtCcPmt4Sz319BykUU241rWLe1VFXyiyWK/dH4=
+ github.com/quic-go/qpack v0.6.0 h1:g7W+BMYynC1LbYLSqRt8PBg5Tgwxn214ZZR34VIOjz8=
+ github.com/quic-go/qpack v0.6.0/go.mod h1:lUpLKChi8njB4ty2bFLX2x4gzDqXwUpaO1DP9qMDZII=
++github.com/rogpeppe/go-internal v1.13.1 h1:KvO1DLK/DRN07sQ1LQKScxyZJuNnedQ5/wKSR38lUII=
++github.com/rogpeppe/go-internal v1.13.1/go.mod h1:uMEvuHeurkdAXX61udpOXGD/AzZDWNMNyH2VO9fmH0o=
+ github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
+ github.com/safchain/ethtool v0.3.0 h1:gimQJpsI6sc1yIqP/y8GYgiXn/NjgvpM0RNoWLVVmP0=
+ github.com/safchain/ethtool v0.3.0/go.mod h1:SA9BwrgyAqNo7M+uaL6IYbxpm5wk3L7Mm6ocLW+CJUs=
+diff --git a/route/platform_searcher.go b/route/platform_searcher.go
+index f6a4e764..20fbda3f 100644
+--- a/route/platform_searcher.go
++++ b/route/platform_searcher.go
+@@ -43,3 +43,7 @@ func (s *platformSearcher) FindProcessInfo(ctx context.Context, network string,
+ 
+ 	return s.platform.FindConnectionOwner(request)
+ }
++
++func (s *platformSearcher) Close() error {
++	return nil
++}
+diff --git a/route/route.go b/route/route.go
+index cdd7ba25..0fa895cf 100644
+--- a/route/route.go
++++ b/route/route.go
+@@ -417,7 +417,7 @@ func (r *Router) matchRule(
+ 		}
+ 		processInfo, fErr := process.FindProcessInfo(r.processSearcher, ctx, metadata.Network, metadata.Source.AddrPort(), originDestination)
+ 		if fErr != nil {
+-			r.logger.InfoContext(ctx, "failed to search process: ", fErr)
++			r.logger.DebugContext(ctx, "failed to search process: ", fErr)
+ 		} else {
+ 			if processInfo.ProcessPath != "" {
+ 				if processInfo.UserName != "" {
+diff --git a/route/router.go b/route/router.go
+index 5c73cb1c..e04256ba 100644
+--- a/route/router.go
++++ b/route/router.go
+@@ -172,6 +172,13 @@ func (r *Router) Start(stage adapter.StartStage) error {
+ func (r *Router) Close() error {
+ 	monitor := taskmonitor.New(r.logger, C.StopTimeout)
+ 	var err error
++	if r.processSearcher != nil {
++		monitor.Start("close process searcher")
++		err = E.Append(err, r.processSearcher.Close(), func(closeErr error) error {
++			return E.Cause(closeErr, "close process searcher")
++		})
++		monitor.Finish()
++	}
+ 	for i, rule := range r.rules {
+ 		monitor.Start("close rule[", i, "]")
+ 		err = E.Append(err, rule.Close(), func(err error) error {

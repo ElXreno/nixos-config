@@ -24,32 +24,22 @@ in
       default = [
         namespace
         "mobile"
-        "noncere"
-        "ierm"
-        "ierm-extra"
-        "ark"
       ];
     };
   };
 
   config = mkIf cfg.enable {
-    sops = {
-      secrets = {
-        "sing-box/cf-private-key" = {
-          owner = "sing-box";
-          group = "sing-box";
-        };
-      }
-      // listToAttrs (
-        map (
-          client:
-          nameValuePair "vless/${client}-uuid" {
-            owner = "sing-box";
-            group = "sing-box";
-          }
-        ) cfg.clients
-      );
-    };
+    clan.core.vars.generators = listToAttrs (
+      map (
+        client:
+        nameValuePair "sing-box-uuid-${client}" {
+          files.uuid.secret = true;
+          script = ''
+            cat /proc/sys/kernel/random/uuid > "$out/uuid"
+          '';
+        }
+      ) cfg.clients
+    );
 
     ${namespace}.services.nginx = {
       enable = true;
@@ -86,11 +76,12 @@ in
         dns = {
           servers = [
             {
-              tag = "local";
-              type = "local";
+              type = "https";
+              tag = "dns-direct";
+              server = "1.1.1.1";
             }
           ];
-          final = "local";
+          final = "dns-direct";
           strategy = "prefer_ipv6";
         };
 
@@ -111,7 +102,7 @@ in
 
             users = map (name: {
               inherit name;
-              uuid._secret = config.sops.secrets."vless/${name}-uuid".path;
+              uuid._secret = config.clan.core.vars.generators."sing-box-uuid-${name}".files.uuid.path;
             }) cfg.clients;
 
             transport = {
@@ -131,7 +122,7 @@ in
 
             users = map (name: {
               inherit name;
-              uuid._secret = config.sops.secrets."vless/${name}-uuid".path;
+              uuid._secret = config.clan.core.vars.generators."sing-box-uuid-${name}".files.uuid.path;
             }) cfg.clients;
 
             tls = {

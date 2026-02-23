@@ -82,6 +82,7 @@ in
                 "args" = {
                   "node.description" = "Noise Cancelled Voise (Fifine AM8)";
                   "media.name" = "Noise Cancelled Voice (Fifine AM8)";
+                  "audio.rate" = 48000;
                   "filter.graph" = {
                     "nodes" = [
                       {
@@ -172,6 +173,7 @@ in
                   "capture.props" = {
                     "node.name" = "fifine_am8_voice.input";
                     "node.passive" = true;
+                    "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];
@@ -180,6 +182,7 @@ in
                   "playback.props" = {
                     "node.name" = "fifine_am8_voice.source";
                     "media.class" = "Audio/Source";
+                    "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
                     "audio.position" = [ "MONO" ];

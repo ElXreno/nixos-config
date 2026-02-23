@@ -19,6 +19,21 @@ in
   };
 
   config = mkIf cfg.enable {
+    clan.core.vars.generators.atticd = {
+      files."env".secret = true;
+
+      script = ''
+        ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=$(openssl genrsa -traditional 4096 | base64 -w0)
+        cat > "$out/env" << EOF
+        ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=$ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64
+        EOF
+      '';
+
+      runtimeInputs = with pkgs; [
+        openssl
+      ];
+    };
+
     ${namespace}.services = {
       postgresql.enable = true;
       nginx = {
@@ -37,7 +52,7 @@ in
 
     services.atticd = {
       enable = true;
-      environmentFile = config.sops.secrets."attic/env".path;
+      environmentFile = config.clan.core.vars.generators.atticd.files.env.path;
 
       settings = {
         listen = "[::]:18080";
@@ -68,7 +83,5 @@ in
         }
       ];
     };
-
-    sops.secrets."attic/env" = { };
   };
 }

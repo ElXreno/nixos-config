@@ -23,6 +23,6 @@ in
       usbmon.enable = true;
     };
 
-    ${namespace}.user.elxreno.extraGroups = [ "wireshark" ];
+    users.users.elxreno.extraGroups = [ "wireshark" ];
   };
 }

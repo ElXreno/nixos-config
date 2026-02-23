@@ -16,11 +16,29 @@ in
   };
 
   config = mkIf cfg.enable {
-    sops = {
-      secrets = {
-        "vless/${namespace}-uuid" = {
-          owner = "sing-box";
-          group = "sing-box";
+    clan.core.vars.generators.sing-box-uuid = {
+      files.uuid.secret = true;
+      script = ''
+        cat /proc/sys/kernel/random/uuid > "$out/uuid"
+      '';
+    };
+
+    clan.core.vars.generators.sing-box-socks = {
+      prompts = {
+        address = {
+          description = "IP Address of a SOCKS5 proxy";
+          type = "hidden";
+          persist = true;
+        };
+        username = {
+          description = "Username of a SOCKS5 proxy";
+          type = "hidden";
+          persist = true;
+        };
+        password = {
+          description = "Password of a SOCKS5 proxy";
+          type = "hidden";
+          persist = true;
         };
       };
     };
@@ -33,12 +51,40 @@ in
         };
 
         dns = {
+          strategy = "ipv4_only";
           servers = [
             {
-              tag = "local-dns";
-              type = "local";
+              type = "https";
+              tag = "dns-proxy";
+              server = "1.1.1.1";
+              detour = "proxy-seller";
+            }
+            {
+              type = "udp";
+              tag = "dns-direct";
+              server = "127.0.0.1";
             }
           ];
+          rules = [
+            {
+              domain_suffix = [
+                "anthropic.com"
+                "clau.de"
+                "claude.ai"
+                "claude.com"
+                "claudemcpclient.com"
+                "claudeusercontent.com"
+                "sentry.io"
+                "servd-anthropic-website.b-cdn.net"
+                "statsig.com"
+                "stripe.com"
+                "usefathom.com"
+              ];
+              action = "route";
+              server = "dns-proxy";
+            }
+          ];
+          final = "dns-direct";
         };
 
         inbounds = [
@@ -47,7 +93,6 @@ in
 
             address = [
               "172.18.0.1/30"
-              "fdfe:dcba:9876::1/126"
             ];
 
             mtu = 65535;
@@ -62,18 +107,29 @@ in
               "::/0"
             ];
 
+            exclude_interface = [ "tailscale0" ];
+
             route_exclude_address = [
               "10.0.0.0/8"
               "172.16.0.0/12"
               "100.64.0.0/10"
-              "200::/7"
-              "fd00::/8"
 
-              # cloudflare & google dns
+              # DNS
               "1.1.1.1/32"
               "1.0.0.1/32"
               "8.8.8.8/32"
               "8.8.4.4/32"
+
+              # IPv6 loopback
+              "::1/128"
+
+              # Yggdrasil
+              "200::/7"
+
+              # link-local multicast
+              "ff02::/16"
+              # link-local unicast
+              "fe80::/10"
             ];
           }
         ];
@@ -86,12 +142,7 @@ in
             server = "datalake.elxreno.com";
             server_port = 443;
 
-            domain_resolver = {
-              server = "local-dns";
-              domain_strategy = "prefer_ipv4";
-            };
-
-            uuid._secret = config.sops.secrets."vless/${namespace}-uuid".path;
+            uuid._secret = config.clan.core.vars.generators."sing-box-uuid".files.uuid.path;
 
             tls = {
               enabled = true;
@@ -110,6 +161,15 @@ in
               headers.Host = [ "datalake.elxreno.com" ];
             };
           }
+          (with config.clan.core.vars.generators.sing-box-socks.files; {
+            type = "socks";
+            tag = "proxy-seller";
+            server._secret = address.path;
+            server_port = 50101;
+            username._secret = username.path;
+            password._secret = password.path;
+            version = "5";
+          })
           {
             type = "direct";
             tag = "direct";
@@ -117,15 +177,19 @@ in
         ];
 
         route = {
+          default_domain_resolver = {
+            server = "dns-direct";
+            domain_strategy = "prefer_ipv4";
+          };
+
           rules = [
             {
-              domain_suffix = [
-                ".ru"
-                ".by"
-              ];
-              rule_set = [
-                "geoip-ru"
-                "geoip-by"
+              process_name = [
+                "dnscrypt-proxy"
+                "syncthing"
+                "qbittorrent"
+                "qbittorrent-nox"
+                ".qbittorrent-nox-wrapped"
               ];
               outbound = "direct";
             }
@@ -137,8 +201,35 @@ in
               action = "hijack-dns";
             }
             {
-              protocol = "bittorrent";
-              action = "reject";
+              domain_suffix = [
+                "anthropic.com"
+                "clau.de"
+                "claude.ai"
+                "claude.com"
+                "claudemcpclient.com"
+                "claudeusercontent.com"
+                "sentry.io"
+                "servd-anthropic-website.b-cdn.net"
+                "statsig.com"
+                "stripe.com"
+                "usefathom.com"
+
+                # Arr stack metadata APIs (Cloudflare-blocked)
+                "api.radarr.video"
+                "api.sonarr.tv"
+              ];
+              outbound = "proxy-seller";
+            }
+            {
+              domain_suffix = [
+                ".ru"
+                ".by"
+              ];
+              rule_set = [
+                "geoip-ru"
+                "geoip-by"
+              ];
+              outbound = "direct";
             }
           ];
 
@@ -159,12 +250,42 @@ in
             }
           ];
 
-          final = "vless-out";
+          final = "direct";
           auto_detect_interface = true;
         };
 
-        experimental.cache_file.enabled = true;
+        experimental = {
+          cache_file.enabled = true;
+          clash_api = {
+            external_controller = "127.0.0.1:9090";
+          };
+          debug = {
+            listen = "127.0.0.1:9091";
+          };
+        };
       };
+    };
+
+    # eBPF kprobe attachment requires CAP_BPF + CAP_PERFMON
+    systemd.services.sing-box.serviceConfig = {
+      CapabilityBoundingSet = [
+        "CAP_NET_ADMIN"
+        "CAP_NET_RAW"
+        "CAP_NET_BIND_SERVICE"
+        "CAP_SYS_PTRACE"
+        "CAP_DAC_READ_SEARCH"
+        "CAP_BPF"
+        "CAP_PERFMON"
+      ];
+      AmbientCapabilities = [
+        "CAP_NET_ADMIN"
+        "CAP_NET_RAW"
+        "CAP_NET_BIND_SERVICE"
+        "CAP_SYS_PTRACE"
+        "CAP_DAC_READ_SEARCH"
+        "CAP_BPF"
+        "CAP_PERFMON"
+      ];
     };
 
     systemd.services.sing-box.wantedBy = mkIf (!cfg.autostart) (lib.mkForce [ ]);

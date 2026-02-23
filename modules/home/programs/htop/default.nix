@@ -21,6 +21,9 @@ in
     zfsSupport = mkEnableOption "Whether or not to enable ZFS support." // {
       default = osConfig.boot.zfs.enabled;
     };
+    zramSupport = mkEnableOption "Whether to enable ZRAM support." // {
+      default = osConfig.${namespace}.system.zram.enable;
+    };
     showAdvancedCPUStats =
       mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
       // {
@@ -46,6 +49,8 @@ in
             "LeftCPUs2"
             "Memory"
             "Swap"
+          ]
+          ++ optionals cfg.zramSupport [
             "Zram"
           ]
           ++ optionals cfg.zfsSupport [
@@ -56,6 +61,8 @@ in
             1
             1
             1
+          ]
+          ++ optionals cfg.zramSupport [
             1
           ]
           ++ optionals cfg.zfsSupport [

@@ -98,6 +98,7 @@ in
             x = 0;
             y = 360;
           };
+          variable-refresh-rate = true;
         };
         "Xiaomi Corporation Mi monitor 5392700044842" = {
           mode = {
@@ -106,8 +107,13 @@ in
             refresh = 180.0;
           };
           focus-at-startup = true;
+          variable-refresh-rate = true;
         };
       };
+
+      debug.enable-overlay-planes = { };
+
+      clipboard.disable-primary = true;
 
       layout = {
         gaps = 12;

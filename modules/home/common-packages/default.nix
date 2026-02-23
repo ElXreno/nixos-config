@@ -29,7 +29,7 @@ in
             dua
             fd
             file
-            inetutils
+            iputils
             iotop
             jq
             mtr
@@ -65,6 +65,9 @@ in
               ffmpeg-full
               yt-dlp
 
+              gh
+              glab
+
               # Messengers
               discord
               betterdiscordctl
@@ -74,6 +77,7 @@ in
               gamemode
               prismlauncher
               xclicker
+              bottles
 
               # MEGA
               megasync
@@ -102,6 +106,7 @@ in
 
               ## etc
               sony-headphones-client
+              (hashcat.override { cudaSupport = true; })
             ]
             ++ (with pkgs.${namespace}; [
               # K8s

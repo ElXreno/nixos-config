@@ -28,8 +28,105 @@ in
       NIXOS_OZONE_WL = 1;
     };
 
+    ${namespace} = {
+      programs.konsole.enable = true;
+    };
+
     programs.plasma = {
       enable = true;
+
+      session.sessionRestore.restoreOpenApplicationsOnLogin = "onLastLogout";
+
+      workspace = {
+        clickItemTo = "open";
+        lookAndFeel = "org.kde.breeze.desktop";
+        cursor.theme = "breeze_cursors";
+        iconTheme = "Papirus";
+        enableMiddleClickPaste = false;
+      };
+
+      hotkeys.commands."launch-konsole" = {
+        name = "Launch Konsole";
+        key = "Ctrl+Alt+T";
+        command = "konsole";
+      };
+
+      powerdevil = {
+        general.pausePlayersOnSuspend = true;
+
+        AC = {
+          autoSuspend.action = "nothing";
+          inhibitLidActionWhenExternalMonitorConnected = true;
+
+          dimDisplay = {
+            enable = true;
+            idleTimeout = 600;
+          };
+
+          turnOffDisplay.idleTimeout = 900;
+
+          powerButtonAction = "sleep";
+          powerProfile = "performance";
+          whenLaptopLidClosed = "turnOffScreen";
+          whenSleepingEnter = "standby";
+        };
+
+        battery = {
+          autoSuspend = {
+            action = "sleep";
+            idleTimeout = 900;
+          };
+          inhibitLidActionWhenExternalMonitorConnected = true;
+
+          dimDisplay = {
+            enable = true;
+            idleTimeout = 300;
+          };
+
+          turnOffDisplay.idleTimeout = 600;
+
+          powerButtonAction = "sleep";
+          powerProfile = "balanced";
+          whenLaptopLidClosed = "turnOffScreen";
+          whenSleepingEnter = "standby";
+        };
+      };
+
+      kscreenlocker = {
+        autoLock = true;
+        lockOnResume = true;
+        passwordRequired = true;
+        timeout = 30; # minutes
+        passwordRequiredDelay = 7; # seconds
+      };
+
+      kwin.nightLight = {
+        enable = config.home.username != "alena";
+        mode = "automatic";
+      };
+
+      input.touchpads = [
+        {
+          enable = true;
+          name = "GXTP7863:00 27C6:01E0 Touchpad";
+          vendorId = "27c6";
+          productId = "01e0";
+
+          accelerationProfile = "default";
+          rightClickMethod = "twoFingers";
+          scrollMethod = "twoFingers";
+
+          pointerSpeed = 0;
+          scrollSpeed = 0.5;
+
+          disableWhileTyping = true;
+          leftHanded = false;
+          middleButtonEmulation = true;
+          naturalScroll = true;
+          tapToClick = true;
+        }
+      ];
+
       configFile = {
         baloofilerc = {
           "Basic Settings"."Indexing-Enabled" = false;
@@ -40,54 +137,6 @@ in
             GlobalViewProps = false;
             ShowFullPath = true;
           };
-        };
-
-        kdeglobals = {
-          Icons.Theme = "Papirus";
-          KDE.SingleClick = true;
-        };
-
-        kscreenlockerrc = {
-          Daemon = {
-            Timeout = 10; # min
-            LockGrace = 7; # sec
-          };
-        };
-
-        kcminputrc."Libinput.10182.480.GXTP7863:00 27C6:01E0 Touchpad" = {
-          NaturalScroll = true;
-          ScrollFactor = 0.5;
-          TapToClick = true;
-        };
-
-        ksmserverrc.General.loginMode = "restoreSavedSession";
-
-        konsolerc = {
-          "Desktop Entry".DefaultProfile = "default.profile";
-
-          KonsoleWindow.RememberWindowSize = false;
-
-          TabBar = {
-            NewTabBehavior = "PutNewTabAfterCurrentTab";
-            TabBarVisibility = "AlwaysShowTabBar";
-            TabBarPosition = "Bottom";
-          };
-        };
-        "../.local/share/konsole/default.profile" = {
-          Appearance.Font = "JetBrains Mono,10,-1,5,50,0,0,0,0,0";
-          General = {
-            Name = "default";
-            TerminalColumns = 120;
-            TerminalRows = 30;
-          };
-          Scrolling = {
-            HistorySize = 50000;
-          };
-        };
-
-        kwinrc = {
-          NightColor.Active = true;
-          Xwayland.Scale = 1;
         };
       };
     };

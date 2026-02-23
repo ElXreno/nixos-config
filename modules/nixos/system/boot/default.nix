@@ -51,9 +51,10 @@ in
 
         (mkIf cfg.uefi.enable {
           efi.canTouchEfiVariables = true;
+          grub.enable = false;
           systemd-boot = {
             enable = !cfg.uefi.secureBoot;
-            configurationLimit = 3;
+            configurationLimit = 10;
           };
         })
 
@@ -116,16 +117,16 @@ in
           "net.core.netdev_max_backlog" = 5000;
           "net.ipv4.tcp_notsent_lowat" = 16384;
 
-          "net.ipv4.tcp_rmem" = "4096 4687500 9375000";
-          "net.ipv4.tcp_wmem" = "4096 2343750 4687500";
+          "net.ipv4.tcp_rmem" = "4096 131072 67108864";
+          "net.ipv4.tcp_wmem" = "4096 65536 67108864";
           "net.ipv4.tcp_adv_win_scale" = 1;
           "net.ipv4.tcp_collapse_max_bytes" = 1048576;
 
           "net.core.rmem_default" = 4194304;
-          "net.core.rmem_max" = 33554432;
+          "net.core.rmem_max" = 134217728;
 
           "net.core.wmem_default" = 2097152;
-          "net.core.wmem_max" = 16777216;
+          "net.core.wmem_max" = 134217728;
 
           "net.core.optmem_max" = 65536;
 

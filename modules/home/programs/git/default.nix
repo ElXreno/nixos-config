@@ -2,7 +2,6 @@
   config,
   namespace,
   lib,
-  isServer ? false,
   ...
 }:
 let
@@ -37,7 +36,7 @@ in
 
       signing = {
         key = "C573235A0F2B0FE2";
-        signByDefault = !isServer;
+        signByDefault = !config.${namespace}.roles.server.enable;
       };
     };
   };
