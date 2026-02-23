@@ -136,7 +136,7 @@ in
           action.spawn-sh = "${uwsm} kitty";
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
-        "Alt+Space" = {
+        "Mod+D" = {
           action.spawn-sh = "${uwsm} anyrun";
           hotkey-overlay.title = "Run an Application: anyrun";
         };
@@ -148,7 +148,7 @@ in
           action.spawn-sh = "${uwsm} zeditor";
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
-        "Mod+Alt+L" = {
+        "Mod+Shift+L" = {
           action.spawn-sh = "${uwsm} hyprlock";
           hotkey-overlay.title = "Lock the Screen: hyprlock";
         };
@@ -171,11 +171,11 @@ in
         };
 
         "XF86AudioPlay" = {
-          action.spawn-sh = "playerctl play --player=spotify";
+          action.spawn-sh = "playerctl play-pause --player=spotify";
           allow-when-locked = true;
         };
         "XF86AudioPause" = {
-          action.spawn-sh = "playerctl pause --player=spotify";
+          action.spawn-sh = "playerctl play-pause --player=spotify";
           allow-when-locked = true;
         };
         "XF86AudioStop" = {
@@ -229,10 +229,6 @@ in
         "Mod+Ctrl+Down".action.move-window-down = [ ];
         "Mod+Ctrl+Up".action.move-window-up = [ ];
         "Mod+Ctrl+Right".action.move-column-right = [ ];
-        "Mod+Ctrl+H".action.move-column-left = [ ];
-        "Mod+Ctrl+J".action.move-window-down = [ ];
-        "Mod+Ctrl+K".action.move-window-up = [ ];
-        "Mod+Ctrl+L".action.move-column-right = [ ];
 
         "Mod+Home".action.focus-column-first = [ ];
         "Mod+End".action.focus-column-last = [ ];
@@ -243,33 +239,19 @@ in
         "Mod+Shift+Down".action.focus-monitor-down = [ ];
         "Mod+Shift+Up".action.focus-monitor-up = [ ];
         "Mod+Shift+Right".action.focus-monitor-right = [ ];
-        "Mod+Shift+H".action.focus-monitor-left = [ ];
-        "Mod+Shift+J".action.focus-monitor-down = [ ];
-        "Mod+Shift+K".action.focus-monitor-up = [ ];
-        "Mod+Shift+L".action.focus-monitor-right = [ ];
 
         "Mod+Shift+Ctrl+Left".action.move-column-to-monitor-left = [ ];
         "Mod+Shift+Ctrl+Down".action.move-column-to-monitor-down = [ ];
         "Mod+Shift+Ctrl+Up".action.move-column-to-monitor-up = [ ];
         "Mod+Shift+Ctrl+Right".action.move-column-to-monitor-right = [ ];
-        "Mod+Shift+Ctrl+H".action.move-column-to-monitor-left = [ ];
-        "Mod+Shift+Ctrl+J".action.move-column-to-monitor-down = [ ];
-        "Mod+Shift+Ctrl+K".action.move-column-to-monitor-up = [ ];
-        "Mod+Shift+Ctrl+L".action.move-column-to-monitor-right = [ ];
 
         "Mod+Page_Down".action.focus-workspace-down = [ ];
         "Mod+Page_Up".action.focus-workspace-up = [ ];
-        "Mod+U".action.focus-workspace-down = [ ];
-        "Mod+I".action.focus-workspace-up = [ ];
         "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = [ ];
         "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = [ ];
-        "Mod+Ctrl+U".action.move-column-to-workspace-down = [ ];
-        "Mod+Ctrl+I".action.move-column-to-workspace-up = [ ];
 
         "Mod+Shift+Page_Down".action.move-workspace-down = [ ];
         "Mod+Shift+Page_Up".action.move-workspace-up = [ ];
-        "Mod+Shift+U".action.move-workspace-down = [ ];
-        "Mod+Shift+I".action.move-workspace-up = [ ];
 
         "Mod+WheelScrollDown" = {
           action.focus-workspace-down = [ ];
