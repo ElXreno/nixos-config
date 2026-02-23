@@ -12,6 +12,7 @@ let
     mkOption
     types
     optionals
+    optionalString
     ;
   cfg = config.${namespace}.system.hardware.fifine-am8;
 in
@@ -63,8 +64,12 @@ in
       };
     };
 
-    services.udev.extraRules = mkIf cfg.disableSidetone ''
-      ACTION=="add|change", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="${cfg.vendorId}", ATTRS{idProduct}=="${cfg.productId}", RUN+="${pkgs.alsa-utils}/bin/amixer -c %n cset name='Mic Playback Switch' off"
+    services.udev.extraRules = ''
+      ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="${cfg.vendorId}", ATTR{idProduct}=="${cfg.productId}", ATTR{power/control}="on"
+
+      ${optionalString cfg.disableSidetone ''
+        ACTION=="add|change", SUBSYSTEM=="sound", KERNEL=="controlC*", ATTRS{idVendor}=="${cfg.vendorId}", ATTRS{idProduct}=="${cfg.productId}", RUN+="${pkgs.alsa-utils}/bin/amixer -c %n cset name='Mic Playback Switch' off"
+      ''}
     '';
 
     services.pipewire = {
