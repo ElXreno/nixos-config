@@ -15,43 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: docker/setup-qemu-action@v4
-
       - uses: cachix/install-nix-action@v31
-        with:
-          extra_nix_config: |
-            trusted-public-keys = nix-on-droid.cachix.org-1:56snoMJTXmDRC1Ei24CmKoUqvHJ9XCp+nidK7qkMQrU= cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=
-            substituters = https://nix-on-droid.cachix.org https://nixos-cache-proxy.elxreno.com
-            extra-platforms = aarch64-linux
-
-      - name: Setup Attic cache
-        if: github.event_name == 'push'
-        uses: ryanccn/attic-action@v0
-        with:
-          endpoint: "https://cache.elxreno.com"
-          cache: "common"
-          token: ${{ secrets.ATTIC_TOKEN }}
-
-      - name: Force replace cache.nixos.org
-        run: sed -i "s|https://cache.nixos.org|https://nixos-cache-proxy.elxreno.com|" ~/.config/nix/nix.conf
-
-      - name: Install nix-eval-jobs
-        run: nix profile add github:ElXreno/nixpkgs/nixos-unstable-cust#nix-eval-jobs
 
       - name: Generate Jobs
         id: generate-jobs
         run: |
-          nix-eval-jobs \
-            --flake .#hydraJobs \
-            --impure \
-            --workers 4 \
-            --gc-roots-dir ./gc-roots \
-            --meta | \
-          jq -s -c 'map({
-            name: .attr,
-            arch: .meta.arch,
-            additionalBuildArgs: (.meta.additionalBuildArgs)
-          })' > matrix.json
+          nix eval --read-only --json .#ciMatrix | jq -c '[.[]]' > matrix.json
 
           echo "Collected $(jq length matrix.json) jobs"
           echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT

@@ -37,4 +37,30 @@
       ) inputs.self.nixOnDroidConfigurations;
     in
     nixosJobs // nixOnDroidJobs;
+
+  flake.ciMatrix =
+    with inputs.nixpkgs.lib;
+
+    let
+      nixosJobs = mapAttrs (name: cfg: {
+        inherit name;
+        arch = removeSuffix "-linux" cfg.config.nixpkgs.hostPlatform.system;
+        additionalBuildArgs = "";
+      }) inputs.self.nixosConfigurations;
+
+      nixOnDroidJobs = concatMapAttrs (
+        name: cfg:
+        let
+          jobName = "nix-on-droid-${name}";
+        in
+        {
+          ${jobName} = {
+            name = jobName;
+            arch = removeSuffix "-linux" cfg.pkgs.stdenv.hostPlatform.system;
+            additionalBuildArgs = "--impure";
+          };
+        }
+      ) inputs.self.nixOnDroidConfigurations;
+    in
+    nixosJobs // nixOnDroidJobs;
 }
