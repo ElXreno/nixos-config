@@ -1,6 +1,8 @@
 name: Build NixOS
 
-on: push
+on:
+  push:
+  pull_request:
 
 concurrency:
   group: ${{ github.ref }}
@@ -23,6 +25,7 @@ jobs:
             extra-platforms = aarch64-linux
 
       - name: Setup Attic cache
+        if: github.event_name == 'push'
         uses: ryanccn/attic-action@v0
         with:
           endpoint: "https://cache.elxreno.com"
@@ -81,6 +84,7 @@ jobs:
         run: sudo mkdir -p /nix/_build && echo "TMPDIR=" >> $GITHUB_ENV
 
       - name: Setup Attic cache
+        if: github.event_name == 'push'
         uses: ryanccn/attic-action@v0
         with:
           endpoint: "https://cache.elxreno.com"
