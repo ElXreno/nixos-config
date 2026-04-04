@@ -1,6 +1,6 @@
 { pkgs, namespace, ... }:
 let
-  ghidra-mcp = pkgs.${namespace}.ghidra-mcp;
+  inherit (pkgs.${namespace}) ghidra-mcp;
   ghidra-with-mcp = pkgs.ghidra.withExtensions (_: [ ghidra-mcp ]);
 in
 pkgs.mkShell {

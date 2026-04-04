@@ -11,35 +11,38 @@ in
     '';
   };
 
-  boot.initrd.systemd.enable = true;
-
-  boot.initrd.network = {
-    enable = true;
-    ssh = {
+  boot.initrd = {
+    systemd = {
       enable = true;
-      port = 7172;
-      authorizedKeys = config.users.users.elxreno.openssh.authorizedKeys.keys;
-      hostKeys = [
-        config.clan.core.vars.generators.openssh.files."ssh.id_ed25519".path
-      ];
+      network = {
+        enable = true;
+        networks."10-ens3" = {
+          matchConfig.Name = "ens3";
+          address = [
+            "159.195.56.52/22"
+            "2a0a:4cc0:c1:e9be::/64"
+          ];
+          routes = [
+            { Gateway = "159.195.56.1"; }
+            { Gateway = "fe80::1"; }
+          ];
+        };
+      };
     };
-  };
 
-  boot.initrd.kernelModules = [ "virtio_net" ];
-
-  boot.initrd.systemd.network = {
-    enable = true;
-    networks."10-ens3" = {
-      matchConfig.Name = "ens3";
-      address = [
-        "159.195.56.52/22"
-        "2a0a:4cc0:c1:e9be::/64"
-      ];
-      routes = [
-        { Gateway = "159.195.56.1"; }
-        { Gateway = "fe80::1"; }
-      ];
+    network = {
+      enable = true;
+      ssh = {
+        enable = true;
+        port = 7172;
+        authorizedKeys = config.users.users.elxreno.openssh.authorizedKeys.keys;
+        hostKeys = [
+          config.clan.core.vars.generators.openssh.files."ssh.id_ed25519".path
+        ];
+      };
     };
+
+    kernelModules = [ "virtio_net" ];
   };
 
   disko.devices = {

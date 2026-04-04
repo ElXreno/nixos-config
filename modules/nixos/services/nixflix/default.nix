@@ -18,78 +18,80 @@ in
   };
 
   config = mkIf cfg.enable {
-    clan.core.vars.generators.nixflix-sonarr = {
-      files."api-key".secret = true;
-      files."password".secret = true;
-      runtimeInputs = [ pkgs.openssl ];
-      script = ''
-        openssl rand -hex 16 > "$out/api-key"
-        openssl rand -base64 32 > "$out/password"
-      '';
-    };
+    clan.core.vars.generators = {
+      nixflix-sonarr = {
+        files."api-key".secret = true;
+        files."password".secret = true;
+        runtimeInputs = [ pkgs.openssl ];
+        script = ''
+          openssl rand -hex 16 > "$out/api-key"
+          openssl rand -base64 32 > "$out/password"
+        '';
+      };
 
-    clan.core.vars.generators.nixflix-radarr = {
-      files."api-key".secret = true;
-      files."password".secret = true;
-      runtimeInputs = [ pkgs.openssl ];
-      script = ''
-        openssl rand -hex 16 > "$out/api-key"
-        openssl rand -base64 32 > "$out/password"
-      '';
-    };
+      nixflix-radarr = {
+        files."api-key".secret = true;
+        files."password".secret = true;
+        runtimeInputs = [ pkgs.openssl ];
+        script = ''
+          openssl rand -hex 16 > "$out/api-key"
+          openssl rand -base64 32 > "$out/password"
+        '';
+      };
 
-    clan.core.vars.generators.nixflix-prowlarr = {
-      files."api-key".secret = true;
-      files."password".secret = true;
-      runtimeInputs = [ pkgs.openssl ];
-      script = ''
-        openssl rand -hex 16 > "$out/api-key"
-        openssl rand -base64 32 > "$out/password"
-      '';
-    };
+      nixflix-prowlarr = {
+        files."api-key".secret = true;
+        files."password".secret = true;
+        runtimeInputs = [ pkgs.openssl ];
+        script = ''
+          openssl rand -hex 16 > "$out/api-key"
+          openssl rand -base64 32 > "$out/password"
+        '';
+      };
 
-    clan.core.vars.generators.nixflix-jellyfin = {
-      files."api-key".secret = true;
-      files."admin-password".secret = true;
-      runtimeInputs = [ pkgs.openssl ];
-      script = ''
-        openssl rand -hex 16 > "$out/api-key"
-        openssl rand -base64 32 > "$out/admin-password"
-      '';
-    };
+      nixflix-jellyfin = {
+        files."api-key".secret = true;
+        files."admin-password".secret = true;
+        runtimeInputs = [ pkgs.openssl ];
+        script = ''
+          openssl rand -hex 16 > "$out/api-key"
+          openssl rand -base64 32 > "$out/admin-password"
+        '';
+      };
 
-    clan.core.vars.generators.nixflix-rutracker = {
-      prompts = {
-        username = {
-          description = "RuTracker username";
-          type = "hidden";
-          persist = true;
-        };
-        password = {
-          description = "RuTracker password";
-          type = "hidden";
-          persist = true;
+      nixflix-rutracker = {
+        prompts = {
+          username = {
+            description = "RuTracker username";
+            type = "hidden";
+            persist = true;
+          };
+          password = {
+            description = "RuTracker password";
+            type = "hidden";
+            persist = true;
+          };
         };
       };
-    };
 
-    clan.core.vars.generators.nixflix-qbittorrent = {
-      files."password".secret = true;
-      files."password-pbkdf2".secret = false;
-      runtimeInputs = [
-        pkgs.openssl
-        pkgs.python3
-      ];
-      script = ''
-                openssl rand -base64 32 > "$out/password"
-                python3 -c "
-        import hashlib, os, base64
-        password = open('$out/password').read().strip().encode()
-        salt = os.urandom(16)
-        dk = hashlib.pbkdf2_hmac('sha512', password, salt, 100000)
-        print(f'@ByteArray({base64.b64encode(salt).decode()}:{base64.b64encode(dk).decode()})')
-        " | tr -d '\n' > "$out/password-pbkdf2"
-      '';
+      nixflix-qbittorrent = {
+        files."password".secret = true;
+        files."password-pbkdf2".secret = false;
+        runtimeInputs = [
+          pkgs.openssl
+          pkgs.python3
+        ];
+        script = ''
+                  openssl rand -base64 32 > "$out/password"
+                  python3 -c "
+          import hashlib, os, base64
+          password = open('$out/password').read().strip().encode()
+          salt = os.urandom(16)
+          dk = hashlib.pbkdf2_hmac('sha512', password, salt, 100000)
+          print(f'@ByteArray({base64.b64encode(salt).decode()}:{base64.b64encode(dk).decode()})')
+          " | tr -d '\n' > "$out/password-pbkdf2"
+        '';
+      };
     };
 
     systemd.services.jellyfin-dlna-plugin = {
@@ -102,18 +104,20 @@ in
         User = "jellyfin";
         Group = "media";
       };
-      script = let
-        dlnaPlugin = pkgs.fetchzip {
-          url = "https://repo.jellyfin.org/files/plugin/dlna/dlna_10.0.0.0.zip";
-          hash = "sha256-EAEnwOA/NzyP3R8JjQLtzYWP62nIYdM3eDPvbpB+kqE=";
-          stripRoot = false;
-        };
-      in ''
-        PLUGIN_DIR="${config.nixflix.jellyfin.dataDir}/plugins/DLNA"
-        mkdir -p "$PLUGIN_DIR"
-        cp -rn ${dlnaPlugin}/* "$PLUGIN_DIR"/
-        chmod -R u+w "$PLUGIN_DIR"
-      '';
+      script =
+        let
+          dlnaPlugin = pkgs.fetchzip {
+            url = "https://repo.jellyfin.org/files/plugin/dlna/dlna_10.0.0.0.zip";
+            hash = "sha256-EAEnwOA/NzyP3R8JjQLtzYWP62nIYdM3eDPvbpB+kqE=";
+            stripRoot = false;
+          };
+        in
+        ''
+          PLUGIN_DIR="${config.nixflix.jellyfin.dataDir}/plugins/DLNA"
+          mkdir -p "$PLUGIN_DIR"
+          cp -rn ${dlnaPlugin}/* "$PLUGIN_DIR"/
+          chmod -R u+w "$PLUGIN_DIR"
+        '';
     };
 
     users.groups.media = lib.mkForce {
@@ -134,7 +138,6 @@ in
         "/var/lib/qBittorrent"
       ];
     };
-
 
     nixflix = {
       enable = true;

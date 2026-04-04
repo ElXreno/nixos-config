@@ -9,7 +9,7 @@
           namespace = clanMeta.name;
         })
           system;
-      pkgs = customNixpkgs.pkgs;
+      inherit (customNixpkgs) pkgs;
     in
     {
       _module.args.pkgs = pkgs;

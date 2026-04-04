@@ -2,6 +2,7 @@
 {
   perSystem =
     {
+      config,
       pkgs,
       inputs',
       lib,
@@ -11,6 +12,7 @@
       devShells = {
         default = pkgs.mkShell {
           packages = [ inputs'.clan-core.packages.clan-cli ];
+          inputsFrom = [ config.pre-commit.devShell ];
         };
       }
       // lib.mapAttrs (

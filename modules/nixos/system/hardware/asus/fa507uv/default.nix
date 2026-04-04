@@ -55,61 +55,63 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
-      boot.kernelPatches = [
-        {
-          name = "cachy-fixes";
-          patch = pkgs.runCommand "0004-fixes-filtered.patch" { nativeBuildInputs = [ pkgs.patchutils ]; } ''
-            filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
-          '';
-        }
-        {
-          name = "hdmi";
-          patch = "${patchesSrc}/${majorMinor}/0005-hdmi.patch";
-        }
-        {
-          name = "vesa-dsc-bpp";
-          patch = "${patchesSrc}/${majorMinor}/0007-vesa-dsc-bpp.patch";
-        }
-        {
-          name = "asus-armoury-crate-fa507uv";
-          patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
-        }
-        {
-          name = "iwlwifi-lar_disable";
-          patch = ./kernel-patches/iwlwifi-lar_disable.patch;
-        }
-        {
-          name = "fa507uv-tunables";
-          patch = null;
-          structuredExtraConfig = with kernel; {
-            X86_64_VERSION = mkForce unset;
-            MZEN4 = yes;
+      boot = {
+        kernelPatches = [
+          {
+            name = "cachy-fixes";
+            patch = pkgs.runCommand "0004-fixes-filtered.patch" { nativeBuildInputs = [ pkgs.patchutils ]; } ''
+              filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
+            '';
+          }
+          {
+            name = "hdmi";
+            patch = "${patchesSrc}/${majorMinor}/0005-hdmi.patch";
+          }
+          {
+            name = "vesa-dsc-bpp";
+            patch = "${patchesSrc}/${majorMinor}/0007-vesa-dsc-bpp.patch";
+          }
+          {
+            name = "asus-armoury-crate-fa507uv";
+            patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
+          }
+          {
+            name = "iwlwifi-lar_disable";
+            patch = ./kernel-patches/iwlwifi-lar_disable.patch;
+          }
+          {
+            name = "fa507uv-tunables";
+            patch = null;
+            structuredExtraConfig = with kernel; {
+              X86_64_VERSION = mkForce unset;
+              MZEN4 = yes;
 
-            ASUS_ARMOURY = module;
+              ASUS_ARMOURY = module;
 
-            NTSYNC = module;
-          };
-        }
-      ];
+              NTSYNC = module;
+            };
+          }
+        ];
 
-      boot.initrd.prepend = [
-        # Fix D3cold power state loop (D0 -> D3cold -> D0), thanks ASUS
-        # For reference: Remove Notify (\_SB.NPCF, 0xC0) in the `_OFF` method of \_SB.PCI0.GPP0 scope
-        "${pkgs.runCommand "acpi-overrides" { buildInputs = with pkgs; [ cpio ]; } ''
-          mkdir -p kernel/firmware/acpi
-          cp ${./acpi/ssdt4.aml} kernel/firmware/acpi/ssdt4.aml
-          find kernel | cpio -H newc -o > $out
-        ''}"
-      ];
+        initrd.prepend = [
+          # Fix D3cold power state loop (D0 -> D3cold -> D0), thanks ASUS
+          # For reference: Remove Notify (\_SB.NPCF, 0xC0) in the `_OFF` method of \_SB.PCI0.GPP0 scope
+          "${pkgs.runCommand "acpi-overrides" { buildInputs = with pkgs; [ cpio ]; } ''
+            mkdir -p kernel/firmware/acpi
+            cp ${./acpi/ssdt4.aml} kernel/firmware/acpi/ssdt4.aml
+            find kernel | cpio -H newc -o > $out
+          ''}"
+        ];
 
-      boot.extraModprobeConfig = ''
-        options iwlwifi amsdu_size=3
-        options iwlwifi 11n_disable=8
-        options iwlmvm power_scheme=1
+        extraModprobeConfig = ''
+          options iwlwifi amsdu_size=3
+          options iwlwifi 11n_disable=8
+          options iwlmvm power_scheme=1
 
-        options cfg80211 ieee80211_regdom=US
-        options iwlwifi lar_disable=1
-      '';
+          options cfg80211 ieee80211_regdom=US
+          options iwlwifi lar_disable=1
+        '';
+      };
     }
 
     {

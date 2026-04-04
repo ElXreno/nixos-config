@@ -5,7 +5,7 @@
 }:
 system:
 let
-  lib = inputs.nixpkgs.lib;
+  inherit (inputs.nixpkgs) lib;
 
   collectModules =
     dir: builtins.filter (lib.hasSuffix ".nix") (lib.filesystem.listFilesRecursive dir);

@@ -89,7 +89,7 @@ in
             hide_input = false;
             check_color = "rgba(205, 214, 244, 1)";
             fail_color = "rgba(243, 139, 168, 1)";
-            fail_text = ''<i>$FAIL <b>($ATTEMPTS)</b></i>'';
+            fail_text = "<i>$FAIL <b>($ATTEMPTS)</b></i>";
             font_color = "rgba(226, 183, 20, 1)";
             capslock_color = "rgba(249, 226, 175, 1)";
             halign = "left";

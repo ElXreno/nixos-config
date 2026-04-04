@@ -30,43 +30,47 @@ in
       };
     };
 
-    services.network-manager-applet.enable = true;
-    services.blueman-applet.enable = true;
-    services.playerctld.enable = true;
-    services.cliphist.enable = true;
-
-    home.packages = with pkgs; [
-      xwayland-satellite
-      playerctl
-      pavucontrol
-      qimgv
-      thunar
-      tumbler
-      cliphist
-      wl-clipboard
-      kdePackages.ark
-    ];
-
-    home.pointerCursor = {
-      enable = true;
-
-      name = "Breeze_Hacked";
-      size = 24;
-      package = pkgs.breeze-hacked-cursor-theme;
-
-      x11.enable = true;
-      gtk.enable = true;
+    services = {
+      network-manager-applet.enable = true;
+      blueman-applet.enable = true;
+      playerctld.enable = true;
+      cliphist.enable = true;
     };
 
-    home.sessionVariables = {
-      _JAVA_AWT_WM_NONREPARENTING = 1;
+    home = {
+      packages = with pkgs; [
+        xwayland-satellite
+        playerctl
+        pavucontrol
+        qimgv
+        thunar
+        tumbler
+        cliphist
+        wl-clipboard
+        kdePackages.ark
+      ];
 
-      QT_QPA_PLATFORM = "wayland;xcb";
-      CLUTTER_BACKEND = "wayland";
-      SDL_VIDEODRIVER = "wayland";
+      pointerCursor = {
+        enable = true;
 
-      NIXOS_OZONE_WL = 1;
-      ELECTRON_OZONE_PLATFORM_HINT = "wayland"; # Fallback for NIXOS_OZONE_WL, non-nix packaged software
+        name = "Breeze_Hacked";
+        size = 24;
+        package = pkgs.breeze-hacked-cursor-theme;
+
+        x11.enable = true;
+        gtk.enable = true;
+      };
+
+      sessionVariables = {
+        _JAVA_AWT_WM_NONREPARENTING = 1;
+
+        QT_QPA_PLATFORM = "wayland;xcb";
+        CLUTTER_BACKEND = "wayland";
+        SDL_VIDEODRIVER = "wayland";
+
+        NIXOS_OZONE_WL = 1;
+        ELECTRON_OZONE_PLATFORM_HINT = "wayland"; # Fallback for NIXOS_OZONE_WL, non-nix packaged software
+      };
     };
 
     programs.niri.settings = {

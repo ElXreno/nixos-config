@@ -45,9 +45,9 @@ in
           builtins.toJSON [
             {
               url = pkgs.fetchurl {
-                  url = "https://github.com/pvvx/ATC_MiThermometer/raw/refs/heads/master/zigbee_ota/1141-020a-99993001-ATC_v56.zigbee";
-                  hash = "sha256-mYK+8ti5b23NIE4/myCeuTocp9kcF/Wwbo98NOgRlik=";
-                };
+                url = "https://github.com/pvvx/ATC_MiThermometer/raw/refs/heads/master/zigbee_ota/1141-020a-99993001-ATC_v56.zigbee";
+                hash = "sha256-mYK+8ti5b23NIE4/myCeuTocp9kcF/Wwbo98NOgRlik=";
+              };
               modelId = "LYWSD03MMC-z";
               force = true;
             }

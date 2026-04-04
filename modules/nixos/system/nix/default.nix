@@ -14,7 +14,6 @@ let
     mkPackageOption
     mkMerge
     mkForce
-    optional
     ;
   cfg = config.${namespace}.system.nix;
 

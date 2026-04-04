@@ -1,0 +1,20 @@
+[files]
+extend-exclude = [
+  "*.json",
+  "*.patch",
+  "*.aml",
+  "*.lock",
+  "vars/",
+  "sops/",
+]
+
+[default.extend-words]
+hda = "hda"
+hass = "hass"
+facter = "facter"
+Pn = "Pn"
+Iz = "Iz"
+
+[default.extend-identifiers]
+mosquitto = "mosquitto"
+zink = "zink"

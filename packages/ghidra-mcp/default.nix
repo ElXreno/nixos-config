@@ -39,16 +39,18 @@ let
   };
 
   installGhidraJars = repoDir: ''
-    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: jarPath: ''
-      mvn -q install:install-file \
-        -Dmaven.repo.local="${repoDir}" \
-        -Dfile="${ghidraHome}/${jarPath}" \
-        -DgroupId=ghidra \
-        -DartifactId=${name} \
-        -Dversion=${ghidraVersion} \
-        -Dpackaging=jar \
-        -DgeneratePom=true
-    '') ghidraJars)}
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (name: jarPath: ''
+        mvn -q install:install-file \
+          -Dmaven.repo.local="${repoDir}" \
+          -Dfile="${ghidraHome}/${jarPath}" \
+          -DgroupId=ghidra \
+          -DartifactId=${name} \
+          -Dversion=${ghidraVersion} \
+          -Dpackaging=jar \
+          -DgeneratePom=true
+      '') ghidraJars
+    )}
   '';
 
   patchPomVersion = ''
@@ -58,7 +60,10 @@ let
   mavenDeps = stdenv.mkDerivation {
     pname = "${pname}-maven-deps";
     inherit src version;
-    nativeBuildInputs = [ maven jdk21 ];
+    nativeBuildInputs = [
+      maven
+      jdk21
+    ];
 
     buildPhase = ''
       runHook preBuild
@@ -85,10 +90,12 @@ let
     outputHash = "sha256-xoNH22gn/YZiBo8vxJIwQjuhHhrCyGprfyS3x7cLWMo=";
   };
 
-  pythonEnv = python3.withPackages (ps: with ps; [
-    mcp
-    requests
-  ]);
+  pythonEnv = python3.withPackages (
+    ps: with ps; [
+      mcp
+      requests
+    ]
+  );
 
 in
 stdenv.mkDerivation {

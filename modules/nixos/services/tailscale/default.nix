@@ -47,12 +47,11 @@ in
       extraUpFlags = [
         "--reset"
       ];
-      extraSetFlags =
-        [
-          "--accept-dns"
-        ]
-        ++ (optional cfg.isServer "--advertise-exit-node")
-        ++ (optional (!cfg.isServer) "--exit-node-allow-lan-access");
+      extraSetFlags = [
+        "--accept-dns"
+      ]
+      ++ (optional cfg.isServer "--advertise-exit-node")
+      ++ (optional (!cfg.isServer) "--exit-node-allow-lan-access");
       permitCertUid = with config.services.caddy; mkIf enable user;
     };
 

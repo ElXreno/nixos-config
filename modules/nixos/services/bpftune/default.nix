@@ -25,7 +25,10 @@ let
     "udp_buffer_tuner"
   ];
 
-  tunerArgs = lib.concatMap (t: [ "-a" "${t}.so" ]) tuners;
+  tunerArgs = lib.concatMap (t: [
+    "-a"
+    "${t}.so"
+  ]) tuners;
 in
 {
   options.${namespace}.services.bpftune = {

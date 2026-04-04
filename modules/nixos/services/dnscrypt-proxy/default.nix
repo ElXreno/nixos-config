@@ -80,7 +80,9 @@ in
     };
 
     systemd.services.dnscrypt-proxy.serviceConfig.LoadCredential = [
-      "localhost.pem:${config.clan.core.vars.generators."dnscrypt-proxy-local-doh".files."localhost.pem".path}"
+      "localhost.pem:${
+        config.clan.core.vars.generators."dnscrypt-proxy-local-doh".files."localhost.pem".path
+      }"
     ];
 
     services.dnscrypt-proxy = {

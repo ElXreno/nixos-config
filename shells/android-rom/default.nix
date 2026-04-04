@@ -2,7 +2,7 @@
 
 # I used this shell.nix to build LineageOS 21.0 for redfin (Google Pixel 5)
 #
-# IMPORANT NOTE: I had to use a pure shell for my builds to work, i.e: `nix-shell --pure` rather than `nix-shell`
+# IMPORTANT NOTE: I had to use a pure shell for my builds to work, i.e: `nix-shell --pure` rather than `nix-shell`
 #
 # The build instructions are here: https://wiki.lineageos.org/devices/redfin/build
 #
@@ -29,7 +29,7 @@ let
         fontconfig # java NPE: "sun.awt.FontConfiguration.head" is null
         yaml-cpp # necessary for some kernels according to a comment on the gist
 
-        # Some of the packages here are probably unecessary but I don't wanna figure out which
+        # Some of the packages here are probably unnecessary but I don't wanna figure out which
         bc
         binutils
         bison
@@ -80,7 +80,7 @@ let
         readline
 
         libgcc # crtbeginS.o
-        iconv # ??? - i put this here and by the time i went back to remove unecessary packages i forgot why
+        iconv # ??? - i put this here and by the time i went back to remove unnecessary packages i forgot why
         iconv.dev # sys/types.h
         glibc.dev
       ];

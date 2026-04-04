@@ -46,18 +46,20 @@
     };
   };
 
-  # mdadm monitoring not needed — boot mirror only
-  boot.swraid.mdadmConf = "PROGRAM /run/current-system/sw/bin/true";
+  boot = {
+    # mdadm monitoring not needed — boot mirror only
+    swraid.mdadmConf = "PROGRAM /run/current-system/sw/bin/true";
 
-  # Super I/O sensor chip (Nuvoton NCT6776F) — not detected by facter
-  boot.kernelModules = [ "nct6775" ];
+    # Super I/O sensor chip (Nuvoton NCT6776F) — not detected by facter
+    kernelModules = [ "nct6775" ];
 
-  # ZFS tuning for HDD mirror + 12GB RAM
-  boot.kernelParams = [
-    "zfs.zfs_arc_max=6442450944"
-    "zfs.zfs_txg_timeout=10"
-    "zfs.zfs_dirty_data_max=536870912"
-  ];
+    # ZFS tuning for HDD mirror + 12GB RAM
+    kernelParams = [
+      "zfs.zfs_arc_max=6442450944"
+      "zfs.zfs_txg_timeout=10"
+      "zfs.zfs_dirty_data_max=536870912"
+    ];
+  };
 
   # HDD write-back throttle tuning
   services.udev.extraRules = ''

@@ -24,16 +24,20 @@ in
   };
 
   config = mkIf cfg.enable {
-    boot.zfs.package = pkgs.zfs_2_4;
-    boot.initrd.systemd.enable = true;
-    boot.initrd.supportedFilesystems = [ "zfs" ];
-    boot.supportedFilesystems = [ "zfs" ];
+    boot = {
+      zfs.package = pkgs.zfs_2_4;
+      initrd = {
+        systemd.enable = true;
+        supportedFilesystems = [ "zfs" ];
+      };
+      supportedFilesystems = [ "zfs" ];
 
-    boot.kernelParams = [
-      "init_on_alloc=0"
-      "zfs.metaslab_lba_weighting_enabled=0"
-      "zfs.zfs_arc_sys_free=1073741824"
-    ];
+      kernelParams = [
+        "init_on_alloc=0"
+        "zfs.metaslab_lba_weighting_enabled=0"
+        "zfs.zfs_arc_sys_free=1073741824"
+      ];
+    };
 
     networking.hostId = cfg.hostId;
   };
