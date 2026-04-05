@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+  thermald configuration for MOREFINE M6S (Jasper Lake N5105)
+
+  Fan is exposed as "mmio-fan" cooling device via the mmio_fan kernel module.
+  The fan is binary (on/off), controlled via GPIO at MMIO 0xFD6A0670 bit 0.
+
+  Fan ON at 47°C, OFF below 42°C (5°C hysteresis).
+  CPU throttling kicks in at 75°C as a safety net.
+-->
+<ThermalConfiguration>
+  <Platform>
+    <Name>MOREFINE M6S</Name>
+    <ProductName>*</ProductName>
+    <Preference>PERFORMANCE</Preference>
+    <ThermalZones>
+      <ThermalZone>
+        <Type>x86_pkg_temp</Type>
+        <TripPoints>
+          <TripPoint>
+            <SensorType>x86_pkg_temp</SensorType>
+            <Temperature>47000</Temperature>
+            <Hyst>5000</Hyst>
+            <type>active</type>
+            <CoolingDevice>
+              <index>1</index>
+              <type>mmio-fan</type>
+              <influence>100</influence>
+              <SamplingPeriod>0</SamplingPeriod>
+              <TargetState>1</TargetState>
+            </CoolingDevice>
+          </TripPoint>
+          <TripPoint>
+            <SensorType>x86_pkg_temp</SensorType>
+            <Temperature>75000</Temperature>
+            <type>passive</type>
+            <ControlType>SEQUENTIAL</ControlType>
+            <CoolingDevice>
+              <index>1</index>
+              <type>rapl_controller</type>
+              <influence>100</influence>
+              <SamplingPeriod>8</SamplingPeriod>
+            </CoolingDevice>
+            <CoolingDevice>
+              <index>2</index>
+              <type>intel_powerclamp</type>
+              <influence>50</influence>
+              <SamplingPeriod>12</SamplingPeriod>
+            </CoolingDevice>
+          </TripPoint>
+        </TripPoints>
+      </ThermalZone>
+    </ThermalZones>
+    <CoolingDevices>
+      <CoolingDevice>
+        <Type>mmio-fan</Type>
+        <MinState>0</MinState>
+        <MaxState>1</MaxState>
+        <IncDecStep>1</IncDecStep>
+        <ReadBack>1</ReadBack>
+        <DebouncePeriod>5</DebouncePeriod>
+      </CoolingDevice>
+    </CoolingDevices>
+  </Platform>
+</ThermalConfiguration>
