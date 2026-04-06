@@ -47,8 +47,8 @@ in
             yaml-language-server
             (runCommand "json-language-server" { } ''
               mkdir -p "$out"/bin
-              ln -s ${lib.getExe nodePackages.vscode-json-languageserver} "$out"/bin/json-language-server
-              ln -s ${lib.getExe nodePackages.vscode-json-languageserver} "$out"/bin/vscode-json-languageserver
+              ln -s ${lib.getExe vscode-json-languageserver} "$out"/bin/json-language-server
+              ln -s ${lib.getExe vscode-json-languageserver} "$out"/bin/vscode-json-languageserver
             '')
             (tree-sitter.withPlugins (p: builtins.attrValues p))
 

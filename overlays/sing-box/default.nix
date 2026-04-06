@@ -28,7 +28,7 @@ _final: prev: {
       };
 
       # vendorHash changes because go.mod adds cilium/ebpf
-      vendorHash = "sha256-c96qG+5wIdUq35UhCnBwp9Q4F/+JTx7Rs4hS6inqEqg=";
+      vendorHash = "sha256-/NCbiC5pMTFPy0POBT3Xz91I/+F1y+R0XKh4jArdiJ4=";
     }
   );
 }

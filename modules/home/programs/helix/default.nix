@@ -18,7 +18,6 @@ let
         --suffix PATH : ${
           lib.makeBinPath (
             with pkgs;
-            with nodePackages;
             [
               # LSP Servers
               bash-language-server

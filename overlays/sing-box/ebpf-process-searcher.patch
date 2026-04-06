@@ -180,42 +180,6 @@ index 00000000..cfe7dfb9
 +		store_ipv6_socket(sk, IPPROTO_UDP);
 +	return 0;
 +}
-diff --git a/common/process/searcher.go b/common/process/searcher.go
-index 1af2c2bd..743a8037 100644
---- a/common/process/searcher.go
-+++ b/common/process/searcher.go
-@@ -14,6 +14,7 @@ import (
- 
- type Searcher interface {
- 	FindProcessInfo(ctx context.Context, network string, source netip.AddrPort, destination netip.AddrPort) (*adapter.ConnectionOwner, error)
-+	Close() error
- }
- 
- var ErrNotFound = E.New("process not found")
-diff --git a/common/process/searcher_android.go b/common/process/searcher_android.go
-index ac9550ce..ef2d74bf 100644
---- a/common/process/searcher_android.go
-+++ b/common/process/searcher_android.go
-@@ -37,3 +37,7 @@ func (s *androidSearcher) FindProcessInfo(ctx context.Context, network string, s
- 	}
- 	return &adapter.ConnectionOwner{UserId: int32(uid)}, nil
- }
-+
-+func (s *androidSearcher) Close() error {
-+	return nil
-+}
-diff --git a/common/process/searcher_darwin.go b/common/process/searcher_darwin.go
-index 03428cc8..598cd99b 100644
---- a/common/process/searcher_darwin.go
-+++ b/common/process/searcher_darwin.go
-@@ -151,3 +151,7 @@ func getExecPathFromPID(pid uint32) (string, error) {
- func readNativeUint32(b []byte) uint32 {
- 	return *(*uint32)(unsafe.Pointer(&b[0]))
- }
-+
-+func (d *darwinSearcher) Close() error {
-+	return nil
-+}
 diff --git a/common/process/searcher_ebpf_linux.go b/common/process/searcher_ebpf_linux.go
 new file mode 100644
 index 00000000..b5fa237e
@@ -413,46 +377,25 @@ index 00000000..b5fa237e
 +	return err
 +}
 diff --git a/common/process/searcher_linux.go b/common/process/searcher_linux.go
-index 86d37d7c..b6338f8d 100644
+index 9b1a9160..864ea26a 100644
 --- a/common/process/searcher_linux.go
 +++ b/common/process/searcher_linux.go
-@@ -17,7 +17,13 @@ type linuxSearcher struct {
+@@ -23,6 +23,13 @@ type linuxSearcher struct {
  }
  
  func NewSearcher(config Config) (Searcher, error) {
--	return &linuxSearcher{config.Logger}, nil
 +	s, err := newEBPFSearcher(config.Logger)
 +	if err != nil {
 +		config.Logger.Debug("eBPF process searcher unavailable: ", err, ", using netlink fallback")
-+		return &linuxSearcher{config.Logger}, nil
++	} else {
++		config.Logger.Info("using eBPF process searcher")
++		return s, nil
 +	}
-+	config.Logger.Info("using eBPF process searcher")
-+	return s, nil
- }
- 
- func (s *linuxSearcher) FindProcessInfo(ctx context.Context, network string, source netip.AddrPort, destination netip.AddrPort) (*adapter.ConnectionOwner, error) {
-@@ -34,3 +40,7 @@ func (s *linuxSearcher) FindProcessInfo(ctx context.Context, network string, sou
- 		ProcessPath: processPath,
- 	}, nil
- }
-+
-+func (s *linuxSearcher) Close() error {
-+	return nil
-+}
-diff --git a/common/process/searcher_windows.go b/common/process/searcher_windows.go
-index ac95e0ce..eb2432ab 100644
---- a/common/process/searcher_windows.go
-+++ b/common/process/searcher_windows.go
-@@ -60,3 +60,7 @@ func getProcessPath(pid uint32) (string, error) {
- 	}
- 	return windows.UTF16ToString(buf[:size]), nil
- }
-+
-+func (s *windowsSearcher) Close() error {
-+	return nil
-+}
+ 	searcher := &linuxSearcher{
+ 		logger:           config.Logger,
+ 		processPathCache: newUIDProcessPathCache(time.Second),
 diff --git a/go.mod b/go.mod
-index c00a9a2d..f9bafce2 100644
+index 7af87ee3..eadc2359 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -6,6 +6,7 @@ require (
@@ -464,7 +407,7 @@ index c00a9a2d..f9bafce2 100644
  	github.com/cretz/bine v0.2.0
  	github.com/database64128/tfo-go/v2 v2.3.2
 diff --git a/go.sum b/go.sum
-index 9348343a..c80ca495 100644
+index 9fd6ec86..13691268 100644
 --- a/go.sum
 +++ b/go.sum
 @@ -22,8 +22,8 @@ github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK3
@@ -515,46 +458,16 @@ index 9348343a..c80ca495 100644
  github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
  github.com/safchain/ethtool v0.3.0 h1:gimQJpsI6sc1yIqP/y8GYgiXn/NjgvpM0RNoWLVVmP0=
  github.com/safchain/ethtool v0.3.0/go.mod h1:SA9BwrgyAqNo7M+uaL6IYbxpm5wk3L7Mm6ocLW+CJUs=
-diff --git a/route/platform_searcher.go b/route/platform_searcher.go
-index f6a4e764..20fbda3f 100644
---- a/route/platform_searcher.go
-+++ b/route/platform_searcher.go
-@@ -43,3 +43,7 @@ func (s *platformSearcher) FindProcessInfo(ctx context.Context, network string,
- 
- 	return s.platform.FindConnectionOwner(request)
- }
-+
-+func (s *platformSearcher) Close() error {
-+	return nil
-+}
 diff --git a/route/route.go b/route/route.go
-index cdd7ba25..0fa895cf 100644
+index 77b66ea4..842ded61 100644
 --- a/route/route.go
 +++ b/route/route.go
-@@ -417,7 +417,7 @@ func (r *Router) matchRule(
+@@ -416,7 +416,7 @@ func (r *Router) matchRule(
  		}
- 		processInfo, fErr := process.FindProcessInfo(r.processSearcher, ctx, metadata.Network, metadata.Source.AddrPort(), originDestination)
+ 		processInfo, fErr := r.findProcessInfoCached(ctx, metadata.Network, metadata.Source.AddrPort(), originDestination)
  		if fErr != nil {
 -			r.logger.InfoContext(ctx, "failed to search process: ", fErr)
 +			r.logger.DebugContext(ctx, "failed to search process: ", fErr)
  		} else {
  			if processInfo.ProcessPath != "" {
  				if processInfo.UserName != "" {
-diff --git a/route/router.go b/route/router.go
-index 5c73cb1c..e04256ba 100644
---- a/route/router.go
-+++ b/route/router.go
-@@ -172,6 +172,13 @@ func (r *Router) Start(stage adapter.StartStage) error {
- func (r *Router) Close() error {
- 	monitor := taskmonitor.New(r.logger, C.StopTimeout)
- 	var err error
-+	if r.processSearcher != nil {
-+		monitor.Start("close process searcher")
-+		err = E.Append(err, r.processSearcher.Close(), func(closeErr error) error {
-+			return E.Cause(closeErr, "close process searcher")
-+		})
-+		monitor.Finish()
-+	}
- 	for i, rule := range r.rules {
- 		monitor.Start("close rule[", i, "]")
- 		err = E.Append(err, rule.Close(), func(err error) error {

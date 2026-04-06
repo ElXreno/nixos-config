@@ -60,7 +60,7 @@ in
           {
             name = "cachy-fixes";
             patch = pkgs.runCommand "0004-fixes-filtered.patch" { nativeBuildInputs = [ pkgs.patchutils ]; } ''
-              filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
+              filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' -x '*/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
             '';
           }
           {
