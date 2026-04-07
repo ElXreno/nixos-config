@@ -75,19 +75,18 @@ in
   config = mkIf cfg.enable {
     clan.core.vars.generators.nix-netrc = {
       share = true;
-
-      prompts.attic-jwt = {
-        description = ''
-          Provide a attic jwt key with read-only access.
-        '';
-        type = "line";
-      };
-
+      dependencies = [ "attic-jwt-key" ];
       files.netrc.secret = true;
+      runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
 
       script = ''
+        token=$(attic-mint-token "$in/attic-jwt-key/key-base64" \
+          --sub "nix-substituter" \
+          --validity "10 years" \
+          --pull "common")
+
         cat > "$out/netrc" << EOF
-        machine cache.elxreno.com password $(cat "$prompts/attic-jwt")
+        machine cache.elxreno.com password $token
         EOF
       '';
     };

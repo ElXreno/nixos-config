@@ -73,6 +73,7 @@
       postgresql.enable = true;
       bitmagnet.enable = true;
       restic.enable = !virtual;
+      attic-watch-store.enable = true;
       # monitoring.enable = true;
 
       pipewire.rnnoise = {
