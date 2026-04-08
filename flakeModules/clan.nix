@@ -13,6 +13,8 @@ in
 
     inherit meta;
 
+    modules.pam-rssh = ../clanServices/pam-rssh;
+
     specialArgs = {
       inherit inputs;
       namespace = meta.name;

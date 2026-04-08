@@ -34,6 +34,4 @@
   ];
 
   boot.kernelModules = [ "mmio_fan" ];
-
-  security.sudo.wheelNeedsPassword = false;
 }

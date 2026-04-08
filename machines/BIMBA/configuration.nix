@@ -44,8 +44,6 @@
 
   services.qemuGuest.enable = true;
 
-  security.sudo.wheelNeedsPassword = false;
-
   networking.useNetworkd = true;
   networking.enableIPv6 = true;
   systemd.network = {
