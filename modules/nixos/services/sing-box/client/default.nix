@@ -266,25 +266,23 @@ in
       };
     };
 
-    # eBPF kprobe attachment requires CAP_BPF + CAP_PERFMON
+    # CAP_NET_ADMIN + CAP_NET_RAW: tun device, routing
+    # CAP_BPF + CAP_PERFMON:       load eBPF fentry/fexit tracing programs
+    # CAP_SYS_PTRACE:              readlink /proc/<pid>/exe across UIDs
     systemd.services.sing-box.serviceConfig = {
       CapabilityBoundingSet = [
         "CAP_NET_ADMIN"
         "CAP_NET_RAW"
-        "CAP_NET_BIND_SERVICE"
-        "CAP_SYS_PTRACE"
-        "CAP_DAC_READ_SEARCH"
         "CAP_BPF"
         "CAP_PERFMON"
+        "CAP_SYS_PTRACE"
       ];
       AmbientCapabilities = [
         "CAP_NET_ADMIN"
         "CAP_NET_RAW"
-        "CAP_NET_BIND_SERVICE"
-        "CAP_SYS_PTRACE"
-        "CAP_DAC_READ_SEARCH"
         "CAP_BPF"
         "CAP_PERFMON"
+        "CAP_SYS_PTRACE"
       ];
     };
 
