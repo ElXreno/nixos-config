@@ -1,5 +1,6 @@
 {
   config,
+  lib',
   namespace,
   virtual,
   lib,
@@ -79,10 +80,13 @@ in
       files.netrc.secret = true;
       runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
 
+      # Rotate monthly.
+      validation = lib'.mkRotationBucket 30;
+
       script = ''
         token=$(attic-mint-token "$in/attic-jwt-key/key-base64" \
           --sub "nix-substituter" \
-          --validity "10 years" \
+          --validity "90 days" \
           --pull "common")
 
         cat > "$out/netrc" << EOF

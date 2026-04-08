@@ -1,5 +1,6 @@
 {
   config,
+  lib',
   namespace,
   lib,
   pkgs,
@@ -90,6 +91,9 @@ in
           secret = true;
           deploy = false;
         };
+
+        # Rotate every 180 days; cascades to all dependents.
+        validation = lib'.mkRotationBucket 180;
 
         script = ''
           openssl genrsa -traditional 4096 | base64 -w0 > "$out/key-base64"

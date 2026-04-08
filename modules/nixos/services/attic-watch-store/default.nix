@@ -1,5 +1,6 @@
 {
   config,
+  lib',
   namespace,
   lib,
   pkgs,
@@ -48,12 +49,15 @@ in
         restartUnits = [ "attic-watch-store.service" ];
       };
 
+      # Rotate weekly.
+      validation = lib'.mkRotationBucket 7;
+
       runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
 
       script = ''
         attic-mint-token "$in/attic-jwt-key/key-base64" \
           --sub ${escapeShellArg "watch-store@${config.clan.core.settings.machine.name}"} \
-          --validity "10 years" \
+          --validity "14 days" \
           --pull ${escapeShellArg cfg.cacheName} \
           --push ${escapeShellArg cfg.cacheName} \
           > "$out/token"

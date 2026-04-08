@@ -17,6 +17,7 @@ in
 
     specialArgs = {
       inherit inputs;
+      lib' = import ../lib { inherit inputs; };
       namespace = meta.name;
       virtual = false;
     };
