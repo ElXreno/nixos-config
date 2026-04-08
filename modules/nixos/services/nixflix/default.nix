@@ -125,6 +125,18 @@ in
       members = [ "elxreno" ];
     };
 
+    networking.firewall = {
+      allowedTCPPorts = [
+        config.nixflix.jellyfin.network.internalHttpPort
+        config.nixflix.torrentClients.qbittorrent.torrentingPort
+      ];
+      allowedUDPPorts = [
+        1900 # SSDP (Jellyfin auto-discovery)
+        7359 # Jellyfin client discovery
+        config.nixflix.torrentClients.qbittorrent.torrentingPort # DHT / μTP
+      ];
+    };
+
     ${namespace} = {
       services.postgresql.enable = true;
       system.impermanence.directories = [
@@ -194,9 +206,7 @@ in
 
       jellyfin = {
         enable = true;
-        openFirewall = true;
         apiKey._secret = vars.nixflix-jellyfin.files."api-key".path;
-        network.enableUPnP = true;
         users.admin = {
           policy.isAdministrator = true;
           password._secret = vars.nixflix-jellyfin.files."admin-password".path;
@@ -232,7 +242,6 @@ in
 
       torrentClients.qbittorrent = {
         enable = true;
-        openFirewall = true;
         torrentingPort = 56670;
         password._secret = vars.nixflix-qbittorrent.files."password".path;
         serverConfig = {
