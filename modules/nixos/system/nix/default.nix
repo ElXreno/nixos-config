@@ -108,11 +108,6 @@ in
             "flakes"
           ]; # TODO: Something adds extra-experimental-features, find who
 
-          trusted-users = [
-            "@wheel"
-            "elxreno"
-          ];
-
           substituters = [
             "https://cache.elxreno.com/common?priority=11"
           ];
