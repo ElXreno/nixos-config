@@ -21,7 +21,7 @@ let
   cacheEndpoint = "cache.${baseDomain}";
 
   atticdSettings = {
-    listen = "[::]:18080";
+    listen = "127.0.0.1:18080";
 
     api-endpoint = "https://cache.elxreno.com:443/";
 
