@@ -103,6 +103,29 @@ in
           openssl
         ];
       };
+
+      clan.core.vars.generators.attic-ci-token = {
+        share = true;
+        dependencies = [ "attic-jwt-key" ];
+        files.token = {
+          secret = true;
+          deploy = false;
+        };
+
+        # Rotate with the JWT key — old tokens are useless once it changes.
+        validation = lib'.mkRotationBucket 180;
+
+        runtimeInputs = [ mintToken ];
+
+        script = ''
+          attic-mint-token "$in/attic-jwt-key/key-base64" \
+            --sub "ci@github-actions" \
+            --validity "200 days" \
+            --pull "common" \
+            --push "common" \
+            > "$out/token"
+        '';
+      };
     }
     (mkIf cfg.enable {
       clan.core.vars.generators.atticd = {
