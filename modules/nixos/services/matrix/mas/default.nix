@@ -39,6 +39,7 @@ let
             { name = "human"; }
             { name = "oauth"; }
             { name = "compat"; }
+            { name = "graphql"; }
             { name = "assets"; }
           ];
         }
@@ -90,7 +91,8 @@ let
     };
 
     account = {
-      password_registration_enabled = false;
+      password_registration_enabled = true;
+      password_registration_email_required = false;
       registration_token_required = true;
       email_change_allowed = false;
       displayname_change_allowed = true;
@@ -116,6 +118,13 @@ let
   };
 
   configFile = yamlFormat.generate "matrix-authentication-service.yaml" staticSettings;
+
+  masCliWrapper = pkgs.writeShellScriptBin "mas-cli" ''
+    exec sudo -u matrix-authentication-service \
+      ${pkgs.matrix-authentication-service}/bin/mas-cli \
+      --config=${configFile} \
+      "$@"
+  '';
 in
 {
   options.${namespace}.services.matrix.mas = {
@@ -129,6 +138,8 @@ in
         message = "${namespace}.services.matrix.mas requires matrix.synapse to be enabled.";
       }
     ];
+
+    environment.systemPackages = [ masCliWrapper ];
 
     clan.core.vars.generators.matrix-mas-encryption = {
       files.encryption = {

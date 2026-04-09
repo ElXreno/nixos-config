@@ -23,15 +23,18 @@ let
     "m.server" = "${matrixHost}:443";
   };
 
-  wellKnownClient = builtins.toJSON {
-    "m.homeserver" = {
-      base_url = "https://${matrixHost}";
-    };
-    "org.matrix.msc2965.authentication" = {
-      issuer = "https://${authHost}/";
-      account = "https://${authHost}/account";
-    };
-  };
+  wellKnownClient = builtins.toJSON (
+    {
+      "m.homeserver" = {
+        base_url = "https://${matrixHost}";
+      };
+      "org.matrix.msc2965.authentication" = {
+        issuer = "https://${authHost}/";
+        account = "https://${authHost}/account";
+      };
+    }
+    // cfg.wellKnownClientExtra
+  );
 
   wellKnownSupport = builtins.toJSON {
     contacts = [
@@ -70,13 +73,28 @@ in
         existing user IDs and federation.
       '';
     };
+
+    wellKnownClientExtra = mkOption {
+      type = types.attrs;
+      default = { };
+      description = ''
+        Extra attributes merged into the `/.well-known/matrix/client` JSON.
+        Used by voice/video modules to advertise RTC foci, etc.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
     ${namespace} = {
       services = {
         postgresql.enable = true;
-        matrix.mas.enable = true;
+        matrix = {
+          mas.enable = true;
+          coturn.enable = true;
+          livekit.enable = true;
+          lk-jwt-service.enable = true;
+          element-call.enable = true;
+        };
         nginx = {
           enable = true;
           virtualHosts = {
@@ -296,6 +314,10 @@ in
           enabled = true;
           endpoint = "http://127.0.0.1:8081/";
           secret_path = "/run/credentials/matrix-synapse.service/mas-shared-secret";
+        };
+
+        experimental_features = {
+          msc3266_enabled = true;
         };
       };
     };
