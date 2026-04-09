@@ -28,6 +28,7 @@
 
     services = {
       atticd.enable = true;
+      matrix.synapse.enable = true;
       nginx = {
         enable = true;
         enableDefaultVhost = true;
