@@ -13,6 +13,13 @@
       roles.client.tags = [ "laptop" ];
     };
 
+    crowdsec = {
+      module.name = "crowdsec";
+      module.input = "self";
+      roles.server.machines.BIMBA = { };
+      roles.client.tags = [ "all" ];
+    };
+
     sshd = {
       roles.server.tags = [ "all" ];
       roles.server.settings.authorizedKeys = {

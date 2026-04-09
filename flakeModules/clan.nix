@@ -14,6 +14,7 @@ in
     inherit meta;
 
     modules.pam-rssh = ../clanServices/pam-rssh;
+    modules.crowdsec = ../clanServices/crowdsec;
 
     specialArgs = {
       inherit inputs;
