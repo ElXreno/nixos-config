@@ -18,10 +18,6 @@ in
     ${namespace} = {
       roles.common.enable = true;
 
-      services = {
-        fail2ban.enable = true;
-      };
-
       system = {
         nix = {
           auto-optimise.enable = true;
