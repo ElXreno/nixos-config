@@ -79,5 +79,7 @@ in
         User = "root";
       };
     };
+
+    environment.systemPackages = [ pkgs.duperemove ];
   };
 }
