@@ -3,6 +3,7 @@
   namespace,
   lib,
   pkgs,
+  osConfig,
   ...
 }:
 let
@@ -11,9 +12,21 @@ let
     mkEnableOption
     mkPackageOption
     mkOption
+    optionalAttrs
     types
     ;
   cfg = config.${namespace}.programs.firefox;
+
+  # TODO: Move this to the system config
+  ramMiB =
+    with builtins;
+    (head (
+      filter (elem: elem.type == "phys_mem")
+        (head (filter (elem: elem.model == "Main Memory") osConfig.hardware.facter.report.hardware.memory))
+        .resources
+    )).range
+    / 1024
+    / 1024;
 in
 {
   options.${namespace}.programs.firefox = {
@@ -46,7 +59,20 @@ in
 
     programs.firefox = {
       enable = true;
-      inherit (cfg) package;
+      package = cfg.package.override {
+        # TODO: Remove after INFINITY deploy
+        extraPrefs = ''
+          clearPref("gfx.webrender.all");
+          clearPref("widget.dmabuf.force-enabled");
+          clearPref("media.hardware-video-decoding.force-enabled");
+          clearPref("nglayout.initialpaint.delay");
+          clearPref("nglayout.initialpaint.delay_in_oopif");
+          clearPref("javascript.options.use_fdlibm_for_sin_cos_tan");
+          clearPref("accessibility.force_disabled");
+          clearPref("network.trr.custom_uri");
+          clearPref("network.dns.echconfig.enabled");
+        '';
+      };
 
       languagePacks = [
         "ru"
@@ -62,15 +88,11 @@ in
         OverrideFirstRunPage = "";
         OverridePostUpdatePage = "";
 
-        HttpsOnlyMode = "enabled";
+        HttpsOnlyMode = "force_enabled";
 
         EnableTrackingProtection = {
-          Value = false;
-          # Cryptomining = true;
-          # Fingerprinting = true;
-          # EmailTracking = true;
-          # SuspectedFingerprinting = true;
-          # Category = "strict";
+          Locked = true;
+          Category = "strict";
         };
 
         GenerativeAI = {
@@ -117,27 +139,31 @@ in
         settings = {
           "browser.tabs.fadeOutUnloadedTabs" = true;
           "browser.tabs.unloadOnLowMemory" = true;
-          "browser.tabs.min_inactive_duration_before_unload" = 14400;
-
-          # GPU acceleration
-          "widget.dmabuf.force-enabled" = true;
-          "media.hardware-video-decoding.force-enabled" = true;
-          # Rendering performance
-          "nglayout.initialpaint.delay" = 0;
-          "nglayout.initialpaint.delay_in_oopif" = 0;
+          "browser.tabs.min_inactive_duration_before_unload" = 14400000;
+          "browser.low_commit_space_threshold_percent" = 20;
 
           # ECH via local dnscrypt-proxy DoH
-          "network.trr.mode" = 2;
+          "network.trr.mode" = 3;
           "network.trr.uri" = "https://127.0.0.1:3000/dns-query";
-          "network.trr.custom_uri" = "https://127.0.0.1:3000/dns-query";
-          "network.dns.echconfig.enabled" = true;
-          "network.dns.use_https_rr_as_alts" = true;
 
-          # Accessibility — disable if not using screen readers
-          "accessibility.force_disabled" = 1;
+          "gfx.webrender.layer-compositor" = true;
+          "gfx.content.skia-font-cache-size" = 32;
+          "webgl.max-size" = 16384;
 
-          # Faster math — uses platform libm instead of fdlibm
-          "javascript.options.use_fdlibm_for_sin_cos_tan" = false;
+          "browser.cache.disk.metadata_memory_limit" = 16384;
+          "browser.cache.jsbc_compression_level" = 3;
+          "browser.cache.memory.max_entry_size" = 20480;
+
+          "image.mem.decode_bytes_at_a_time" = 65536;
+
+          "network.buffer.cache.size" = 65535;
+          "network.buffer.cache.count" = 48;
+          "network.ssl_tokens_cache_capacity" = 10240;
+
+          "browser.cache.memory.capacity" = ramMiB * 4;
+        }
+        // optionalAttrs (ramMiB * 16 > 524288) {
+          "media.memory_caches_combined_limit_kb" = ramMiB * 16;
         }
         // cfg.settings;
 
