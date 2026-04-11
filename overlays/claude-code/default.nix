@@ -8,23 +8,7 @@ let
 
   # https://gist.github.com/roman01la/483d1db15043018096ac3babf5688881
   patches = [
-    # PATCH 1: Output Efficiency — the single biggest offender
-    {
-      old = "IMPORTANT: Go straight to the point. Try the simplest approach first without going in circles. Do not overdo it. Be extra concise.";
-      new = "IMPORTANT: Go straight to the point without going in circles. Choose the approach that correctly and completely solves the problem. Do not add unnecessary complexity, but do not sacrifice correctness or completeness for the sake of simplicity either.";
-    }
-
-    # PATCH 2: Decouple communication brevity from work quality
-    {
-      old = "Keep your text output brief and direct. Lead with the answer or action, not the reasoning. Skip filler words, preamble, and unnecessary transitions. Do not restate what the user said — just do it. When explaining, include only what is necessary for the user to understand.";
-      new = "Keep your text output brief and direct. Skip filler words, preamble, and unnecessary transitions. Do not restate what the user said — just do it. When explaining, include what is necessary for the user to understand. Note: these communication guidelines apply to your messages to the user, NOT to the thoroughness of your code changes or investigation depth.";
-    }
-
-    # PATCH 3: Remove "one sentence" brevity hammer
-    {
-      old = "If you can say it in one sentence, don't use three. Prefer short, direct sentences over long explanations. This does not apply to code or tool calls.";
-      new = "Prefer short, direct sentences over long explanations in your messages. This does not apply to code, tool calls, or the thoroughness of your implementation work.";
-    }
+    # PATCH 1-3: https://gist.github.com/roman01la/483d1db15043018096ac3babf5688881?permalink_comment_id=6090443#gistcomment-6090443
 
     # PATCH 4: Anti-gold-plating — allow necessary related work
     {
