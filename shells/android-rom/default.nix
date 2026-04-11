@@ -89,7 +89,7 @@ let
       export ALLOW_NINJA_ENV=true
       export USE_CCACHE=1
       export CCACHE_EXEC=/usr/bin/ccache
-      export ANDROID_JAVA_HOME=${pkgs.jdk11.home}
+      export ANDROID_JAVA_HOME=${pkgs.jdk.home}
       # Building involves a phase of unzipping large files into a temporary directory
       export TMPDIR=/tmp
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.ncurses5}/lib
