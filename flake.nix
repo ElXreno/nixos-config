@@ -72,7 +72,8 @@
     };
 
     nixflix = {
-      url = "github:kiriwalawren/nixflix";
+      # TEMP: PR #162 pending merge
+      url = "github:ElXreno/nixflix/recyclarr-v8";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
