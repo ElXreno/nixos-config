@@ -15,6 +15,7 @@ in
 
     modules.pam-rssh = ../clanServices/pam-rssh;
     modules.crowdsec = ../clanServices/crowdsec;
+    modules.tailscale = ../clanServices/tailscale;
 
     specialArgs = {
       inherit inputs;

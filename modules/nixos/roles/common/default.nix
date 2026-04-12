@@ -23,7 +23,6 @@ in
         dnscrypt-proxy.enable = true;
         irqbalance.enable = true;
         openssh.enable = true;
-        tailscale.enable = true;
       };
 
       programs = {

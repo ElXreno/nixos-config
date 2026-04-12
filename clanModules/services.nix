@@ -1,3 +1,6 @@
+let
+  tailscaleDomain = "angora-ide.ts.net";
+in
 {
   inventory.instances = {
     nixosModules = {
@@ -11,6 +14,21 @@
       module.input = "self";
       roles.server.tags = [ "server" ];
       roles.client.tags = [ "laptop" ];
+    };
+
+    tailscale = {
+      module.name = "tailscale";
+      module.input = "self";
+      roles.node = {
+        tags = [ "all" ];
+        settings.domain = tailscaleDomain;
+      };
+      roles.exit-node.machines = {
+        BIMBA = { };
+        DESTROYER = { };
+        GRATE = { };
+        STARY = { };
+      };
     };
 
     crowdsec = {
