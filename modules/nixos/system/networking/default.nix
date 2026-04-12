@@ -8,6 +8,7 @@
 let
   inherit (lib)
     mkIf
+    mkForce
     mkEnableOption
     optionals
     ;
@@ -86,5 +87,11 @@ in
     };
 
     systemd.services.NetworkManager-wait-online.enable = false;
+
+    systemd.network.wait-online = {
+      # Override clan-core behavior
+      enable = mkForce config.${namespace}.roles.server.enable;
+      timeout = 30;
+    };
   };
 }
