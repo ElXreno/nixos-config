@@ -82,8 +82,8 @@ in
           pkgs.python3
         ];
         script = ''
-                  openssl rand -base64 32 > "$out/password"
-                  python3 -c "
+          openssl rand -base64 32 > "$out/password"
+          python3 -c "
           import hashlib, os, base64
           password = open('$out/password').read().strip().encode()
           salt = os.urandom(16)
@@ -202,7 +202,28 @@ in
         };
       };
 
-      recyclarr.enable = true;
+      recyclarr = {
+        enable = true;
+        cleanupUnmanagedProfiles = {
+          enable = true;
+          managedProfiles = [
+            "[SQP] SQP-2"
+            "WEB-2160p (Alternative)"
+          ];
+        };
+        config.radarr.radarr.quality_profiles = [
+          {
+            trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
+            reset_unmatched_scores.enabled = true;
+          }
+        ];
+        config.sonarr.sonarr.quality_profiles = [
+          {
+            trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
+            reset_unmatched_scores.enabled = true;
+          }
+        ];
+      };
 
       jellyfin = {
         enable = true;
