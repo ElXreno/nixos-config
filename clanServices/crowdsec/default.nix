@@ -223,11 +223,18 @@ in
               crowdsec = {
                 after = lib.optional config.${namespace}.services.dnscrypt-proxy.enable "dnscrypt-proxy.service";
                 wants = lib.optional config.${namespace}.services.dnscrypt-proxy.enable "dnscrypt-proxy.service";
-                serviceConfig.LoadCredential =
-                  lib.optional (!isServer)
-                    "lapi-credentials.yaml:${
-                      config.clan.core.vars.generators."crowdsec-machine-${hostName}".files."lapi-credentials.yaml".path
-                    }";
+                serviceConfig = {
+                  LoadCredential =
+                    lib.optional (!isServer)
+                      "lapi-credentials.yaml:${
+                        config.clan.core.vars.generators."crowdsec-machine-${hostName}".files."lapi-credentials.yaml".path
+                      }";
+                  # nixpkgs runs `crowdsec -t -error` as pre-start, which does
+                  # the same full initialization (regex compile, GeoIP load) as
+                  # the daemon itself. On slow CPUs this doubles startup time.
+                  ExecStartPre = lib.mkForce [ ];
+                  TimeoutStartSec = 300;
+                };
               };
 
               crowdsec-setup = lib.mkIf config.${namespace}.services.dnscrypt-proxy.enable {
