@@ -39,11 +39,6 @@
 
       zswap.createSwapfile = false;
     };
-
-    services = {
-      nixflix.enable = true;
-      postgresql.enable = true;
-    };
   };
 
   boot = {

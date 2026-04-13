@@ -5,6 +5,17 @@
   ...
 }:
 {
+  # TODO: Move to the proper location
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver
+      intel-compute-runtime
+    ];
+  };
+
+  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
+
   ${namespace} = {
     roles.server.enable = true;
 
@@ -19,6 +30,7 @@
     };
 
     services = {
+      nixflix.enable = true;
       ripe-atlas.enable = true;
       thermald.enable = true;
       thermald.configFile = ./thermal-conf.xml;

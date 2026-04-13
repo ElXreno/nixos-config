@@ -211,18 +211,44 @@ in
             "WEB-2160p (Alternative)"
           ];
         };
-        config.radarr.radarr.quality_profiles = [
-          {
-            trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
-            reset_unmatched_scores.enabled = true;
-          }
-        ];
-        config.sonarr.sonarr.quality_profiles = [
-          {
-            trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
-            reset_unmatched_scores.enabled = true;
-          }
-        ];
+        config.radarr.radarr = {
+          quality_profiles = [
+            {
+              trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
+              reset_unmatched_scores.enabled = true;
+            }
+          ];
+          custom_formats = [
+            {
+              trash_ids = [ "4b900e171accbfb172729b63323ea8ca" ]; # MULTi
+              assign_scores_to = [
+                {
+                  trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
+                  score = 100;
+                }
+              ];
+            }
+          ];
+        };
+        config.sonarr.sonarr = {
+          quality_profiles = [
+            {
+              trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
+              reset_unmatched_scores.enabled = true;
+            }
+          ];
+          custom_formats = [
+            {
+              trash_ids = [ "7ba05c6e0e14e793538174c679126996" ]; # MULTi
+              assign_scores_to = [
+                {
+                  trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
+                  score = 100;
+                }
+              ];
+            }
+          ];
+        };
       };
 
       jellyfin = {
@@ -241,7 +267,7 @@ in
         encoding = {
           hardwareAccelerationType = "vaapi";
           allowHevcEncoding = true;
-          allowAv1Encoding = true;
+          allowAv1Encoding = false;
           enableTonemapping = true;
           enableThrottling = true;
           enableSegmentDeletion = true;
@@ -250,8 +276,8 @@ in
             "hevc"
             "mpeg2video"
             "vc1"
+            "vp8"
             "vp9"
-            "av1"
           ];
         };
       };
