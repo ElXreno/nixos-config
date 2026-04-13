@@ -122,6 +122,16 @@ in
     }
 
     {
+      services.udev.extraRules = ''
+        # Samsung 9100 PRO
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x010802", ATTR{power/control}="auto"
+
+        # Realtek RTL8111 GbE
+        ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x020000", ATTR{power/control}="auto"
+      '';
+    }
+
+    {
       hardware.graphics = {
         package = overrideMesa pkgs.mesa;
         package32 = overrideMesa pkgs.pkgsi686Linux.mesa;
