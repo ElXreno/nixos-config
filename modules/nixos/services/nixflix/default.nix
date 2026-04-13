@@ -11,6 +11,8 @@ let
   cfg = config.${namespace}.services.nixflix;
   vars = config.clan.core.vars.generators;
   impermanenceCfg = config.${namespace}.system.impermanence;
+
+  basePath = if impermanenceCfg.enable then impermanenceCfg.defaultPersistentPath else "";
 in
 {
   options.${namespace}.services.nixflix = {
@@ -153,9 +155,9 @@ in
 
     nixflix = {
       enable = true;
-      mediaDir = "${impermanenceCfg.defaultPersistentPath}/var/lib/nixflix/media";
-      downloadsDir = "${impermanenceCfg.defaultPersistentPath}/var/lib/nixflix/downloads";
-      stateDir = "${impermanenceCfg.defaultPersistentPath}/var/lib/nixflix/.state";
+      mediaDir = "${basePath}/var/lib/nixflix/media";
+      downloadsDir = "${basePath}/var/lib/nixflix/downloads";
+      stateDir = "${basePath}/var/lib/nixflix/.state";
 
       postgres.enable = true;
 
