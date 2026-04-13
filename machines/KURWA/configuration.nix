@@ -114,7 +114,7 @@
     "tsc=reliable"
     "clocksource=tsc"
 
-    "amdgpu.dcdebugmask=0x10"
+    "amdgpu.dcdebugmask=0x400"
 
     "pcie_aspm.policy=powersupersave"
   ];
