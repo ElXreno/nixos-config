@@ -160,6 +160,9 @@ in
           "net.ipv4.tcp_synack_retries" = 3;
           "net.ipv4.tcp_syn_retries" = 3;
         })
+        (mkIf isLaptop {
+          "vm.dirty_writeback_centisecs" = 1500;
+        })
       ];
       supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
 
