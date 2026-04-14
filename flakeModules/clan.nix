@@ -17,6 +17,8 @@ in
     modules.crowdsec = ../clanServices/crowdsec;
     modules.tailscale = ../clanServices/tailscale;
 
+    vars.settings.age.postQuantum = true;
+
     specialArgs = {
       inherit inputs;
       lib' = import ../lib { inherit inputs; };
