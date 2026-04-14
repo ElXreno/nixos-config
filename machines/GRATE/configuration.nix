@@ -39,11 +39,7 @@
     home-manager.syncthing.randomPortIncrement = 23;
   };
 
-  boot.extraModulePackages = [
-    (pkgs.callPackage ../../packages/mmio-fan {
-      inherit (config.boot.kernelPackages) kernel;
-    })
-  ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.mmio-fan ];
 
   boot.kernelModules = [ "mmio_fan" ];
 }
