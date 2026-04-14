@@ -800,16 +800,15 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1775989367,
-        "narHash": "sha256-36vtg4aP9tIzSTzAbyiWniEtUPVMgOIvczwFBzKrJpY=",
-        "owner": "ElXreno",
+        "lastModified": 1776100711,
+        "narHash": "sha256-uerMyclfpxtk0tsQNiQiQR7rFQoI2464hhMehZ/qczk=",
+        "owner": "kiriwalawren",
         "repo": "nixflix",
-        "rev": "fc0fdf5ef0e8dcfff9908b61b83c81c7efa0e0e2",
+        "rev": "92233b53b6bfb982934da6a23f0f1180ed377016",
         "type": "github"
       },
       "original": {
-        "owner": "ElXreno",
-        "ref": "recyclarr-v8",
+        "owner": "kiriwalawren",
         "repo": "nixflix",
         "type": "github"
       }
