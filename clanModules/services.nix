@@ -25,7 +25,6 @@ in
       };
       roles.exit-node.machines = {
         BIMBA = { };
-        DESTROYER = { };
         GRATE = { };
         STARY = { };
       };
