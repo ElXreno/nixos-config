@@ -2,3 +2,12 @@ result*
 .direnv/
 .claude
 .pre-commit-config.yaml
+
+# terraform
+.terraform
+*.tfstate.backup
+*.tfstate.lock.info
+.terraform.lock.hcl
+
+# terranix
+config.tf.json

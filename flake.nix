@@ -82,6 +82,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    terranix.url = "github:terranix/terranix";
+    terranix.inputs.nixpkgs.follows = "nixpkgs";
+
     git-hooks-nix.url = "github:cachix/git-hooks.nix";
     git-hooks-nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -99,6 +102,7 @@
 
       imports = [
         inputs.clan-core.flakeModules.default
+        inputs.terranix.flakeModule
         ./flakeModules
       ];
     };
