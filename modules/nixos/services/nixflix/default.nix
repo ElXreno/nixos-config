@@ -140,6 +140,18 @@ in
     };
 
     ${namespace} = {
+      tailscale.serve = {
+        "svc:radarr".endpoints."tcp:443" =
+          "http://localhost:${toString config.nixflix.radarr.config.hostConfig.port}";
+        "svc:sonarr".endpoints."tcp:443" =
+          "http://localhost:${toString config.nixflix.sonarr.config.hostConfig.port}";
+        "svc:prowlarr".endpoints."tcp:443" =
+          "http://localhost:${toString config.nixflix.prowlarr.config.hostConfig.port}";
+        "svc:jellyfin".endpoints."tcp:443" =
+          "http://localhost:${toString config.nixflix.jellyfin.network.internalHttpPort}";
+        "svc:qbittorrent".endpoints."tcp:443" =
+          "http://localhost:${toString config.nixflix.torrentClients.qbittorrent.webuiPort}";
+      };
       services.postgresql.enable = true;
       system.impermanence.directories = [
         "/var/cache/jellyfin"
