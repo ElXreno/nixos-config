@@ -23,9 +23,6 @@ in
           serverAliveCountMax = 3;
           setEnv.TERM = "xterm-256color";
         };
-        "desktop" = {
-          hostname = "100.107.189.129";
-        };
         "biba" = {
           hostname = "109.171.24.112";
         };

@@ -12,7 +12,6 @@ let
   inherit (config.${namespace}) roles;
 
   isServer = roles.server.enable;
-  isDesktop = roles.desktop.enable;
   isLaptop = roles.laptop.enable;
 in
 {
@@ -74,14 +73,8 @@ in
       kernelParams = [
         "nohibernate"
       ]
-      ++ lib.optionals (isDesktop || isLaptop) [
-        "preempt=full"
-      ]
-      ++ lib.optionals isDesktop [
-        "systemd.gpt_auto=0"
-        "mitigations=off"
-      ]
       ++ lib.optionals isLaptop [
+        "preempt=full"
         "threadirqs"
         "nowatchdog"
         "nmi_watchdog=0"
@@ -111,7 +104,6 @@ in
           "kernel.sysrq" = 1;
           "vm.compaction_proactiveness" = 0;
         })
-        (lib.mkIf isDesktop { "vm.swappiness" = lib.mkForce 200; })
         (lib.mkIf (!isServer) {
           # Network
           "net.core.netdev_max_backlog" = 5000;
