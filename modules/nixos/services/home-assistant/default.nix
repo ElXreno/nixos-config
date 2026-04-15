@@ -19,10 +19,22 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.services = {
-      zigbee2mqtt.enable = cfg.zigbee2mqtt.enable;
-      postgresql.enable = true;
+    ${namespace} = {
+      services = {
+        zigbee2mqtt.enable = cfg.zigbee2mqtt.enable;
+        postgresql.enable = true;
+      };
+      tailscale.serve."svc:hass".endpoints."tcp:443" = "http://localhost:8123";
     };
+
+    networking.firewall.allowedTCPPorts = [ 8123 ];
+
+    systemd.tmpfiles.rules = [
+      "f /var/lib/hass/automations.yaml 0644 hass hass - []"
+      "f /var/lib/hass/scripts.yaml 0644 hass hass - {}"
+      "f /var/lib/hass/scenes.yaml 0644 hass hass - []"
+      "f /var/lib/hass/templates.yaml 0644 hass hass - []"
+    ];
 
     # TODO: move to ${namespace}.services.postgresql
     services.postgresql = {
@@ -51,79 +63,41 @@ in
         "zha"
         "isal"
         "bthome"
+        "xiaomi_ble"
+        "keenetic_ndms2"
+        "ibeacon"
+
+        "syncthing"
+        "jellyfin"
+        "upnp"
+        "seventeentrack"
       ];
-      customComponents =
-        with pkgs.home-assistant-custom-components;
-        [
-          yandex-station
-        ]
-        ++ (with pkgs.${namespace}; [
-          hass-yandex-smart-home
-        ]);
       extraPackages =
         python3Packages: with python3Packages; [
           psycopg2
           zlib-ng
         ];
 
+      customComponents = with pkgs.${namespace}; [
+        hass-dreame-vacuum
+      ];
+
       config = {
         # https://www.home-assistant.io/integrations/default_config/
         default_config = { };
         homeassistant = { };
-        yandex_smart_home = {
-          entity_config = {
-            "sensor.zal_temperature" = {
-              name = "Температура в зале";
-              properties = [
-                {
-                  type = "temperature";
-                  entity = "sensor.zal_temperature";
-                }
-                {
-                  type = "humidity";
-                  entity = "sensor.zal_humidity";
-                }
-                {
-                  type = "battery_level";
-                  entity = "sensor.zal_battery";
-                }
-              ];
-            };
-            "sensor.kukhnia_temperature" = {
-              name = "Температура на кухне";
-              properties = [
-                {
-                  type = "temperature";
-                  entity = "sensor.kukhnia_temperature";
-                }
-                {
-                  type = "humidity";
-                  entity = "sensor.kukhnia_humidity";
-                }
-                {
-                  type = "battery_level";
-                  entity = "sensor.kukhnia_battery";
-                }
-              ];
-            };
-            "sensor.spalnia_temperature" = {
-              name = "Температура в спальне";
-              properties = [
-                {
-                  type = "temperature";
-                  entity = "sensor.spalnia_temperature";
-                }
-                {
-                  type = "humidity";
-                  entity = "sensor.spalnia_humidity";
-                }
-                {
-                  type = "battery_level";
-                  entity = "sensor.spalnia_battery";
-                }
-              ];
-            };
-          };
+
+        automation = "!include automations.yaml";
+        script = "!include scripts.yaml";
+        scene = "!include scenes.yaml";
+        template = "!include templates.yaml";
+
+        http = {
+          use_x_forwarded_for = true;
+          trusted_proxies = [
+            "127.0.0.1"
+            "::1"
+          ];
         };
 
         recorder.db_url = "postgresql://@/hass";

@@ -68,6 +68,20 @@ in
       ports = [ "tcp:443" ];
       tags = [ "tag:nixflix" ];
     };
+
+    hass = {
+      name = "svc:hass";
+      comment = "Home Assistant";
+      ports = [ "tcp:443" ];
+      tags = [ "tag:hass" ];
+    };
+
+    z2m = {
+      name = "svc:z2m";
+      comment = "Zigbee2MQTT frontend";
+      ports = [ "tcp:443" ];
+      tags = [ "tag:hass" ];
+    };
   };
 
   output = {
@@ -76,5 +90,7 @@ in
     qbittorrent_addrs.value = "\${tailscale_service.qbittorrent.addrs}";
     jellyfin_addrs.value = "\${tailscale_service.jellyfin.addrs}";
     prowlarr_addrs.value = "\${tailscale_service.prowlarr.addrs}";
+    hass_addrs.value = "\${tailscale_service.hass.addrs}";
+    z2m_addrs.value = "\${tailscale_service.z2m.addrs}";
   };
 }

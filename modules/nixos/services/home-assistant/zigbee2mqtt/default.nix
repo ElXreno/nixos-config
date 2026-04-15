@@ -16,7 +16,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.services.mosquitto.enable = true;
+    ${namespace} = {
+      services.mosquitto.enable = true;
+      tailscale.serve."svc:z2m".endpoints."tcp:443" = "http://localhost:8083";
+    };
 
     services.zigbee2mqtt = {
       enable = true;
@@ -32,6 +35,11 @@ in
         };
         homeassistant.enabled = config.${namespace}.services.home-assistant.enable;
         permit_join = true;
+        devices = {
+          "0xa4c138b5be94eddd" = {
+            friendly_name = "plug_ceiling_lamp";
+          };
+        };
         serial = {
           port = "/dev/serial/by-id/usb-Itead_Sonoff_Zigbee_3.0_USB_Dongle_Plus_V2_1e7774bc0674ef11828de21e313510fd-if00-port0";
           adapter = "ember";

@@ -34,6 +34,8 @@
       ripe-atlas.enable = true;
       thermald.enable = true;
       thermald.configFile = ./thermal-conf.xml;
+
+      home-assistant.enable = true;
     };
 
     home-manager.syncthing.randomPortIncrement = 23;

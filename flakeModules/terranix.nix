@@ -5,10 +5,10 @@ _: {
       # https://github.com/tailscale/terraform-provider-tailscale
       # TODO: Drop when tailscale_service resource lands in a released version
       tailscaleProvider = pkgs.terraform-providers.tailscale_tailscale.override {
-        rev = "957d72053ef841e87ab0a17754f5d107e97f52db";
+        rev = "d8848da4e737e49138683d4feaba6259d75b0de0";
         version = "0.29.0";
-        hash = "sha256-nKJXwmFKrivWHOCga8o3fYstmr+fYs1uaZ+YpRTk+AM=";
-        vendorHash = "sha256-DkIl2KcDlztjKoMWPdV4WzTpraVJgfXftyM9IIGNTxE=";
+        hash = "sha256-XITwEn9XdRXkVvOiAsoHm2Lhj5/JI0N52Njl4Lgs+V8=";
+        vendorHash = "sha256-nSxQYOvAF4FeLX1Qz8dT24F72Zm7dtskfcFg68dq/c4=";
       };
 
       terraformPackage = pkgs.opentofu.withPlugins (p: [
