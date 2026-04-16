@@ -10,11 +10,20 @@ let
     mkIf
     mkEnableOption
     mkOption
+    mkForce
     types
     literalExpression
     optionals
     ;
   cfg = config.${namespace}.system.boot.kernel;
+
+  llvm = pkgs.llvmPackages_21;
+
+  clangLLVMStdenv = pkgs.stdenvAdapters.overrideCC llvm.stdenv (
+    llvm.stdenv.cc.override {
+      bintools = pkgs.wrapBintoolsWith { bintools = llvm.bintools-unwrapped; };
+    }
+  );
 
   optimizedStdenv =
     with cfg.optimizations;
@@ -31,13 +40,19 @@ let
   applyOptimizations =
     kernelPackages:
     kernelPackages.extend (
-      _self: super: {
-        stdenv = optimizedStdenv super.stdenv;
-        kernel = super.kernel.overrideAttrs (
-          _finalAttrs: prevAttrs: {
-            pname = "${prevAttrs.pname}-x86-64-v${toString cfg.optimizations.isa}";
-          }
-        );
+      self: super: {
+        kernel =
+          (super.kernel.override {
+            stdenv = optimizedStdenv clangLLVMStdenv;
+          }).overrideAttrs
+            (prevAttrs: {
+              pname = "${prevAttrs.pname}-x86-64-v${toString cfg.optimizations.isa}";
+            });
+
+        # TODO: Upstream to nixpkgs
+        zenpower = super.zenpower.overrideAttrs (prev: {
+          makeFlags = (prev.makeFlags or [ ]) ++ self.kernelModuleMakeFlags;
+        });
       }
     );
 
@@ -118,8 +133,15 @@ in
         {
           name = "x86_64-version";
           patch = null;
-          structuredExtraConfig = {
-            X86_64_VERSION = lib.kernel.freeform "${toString cfg.optimizations.isa}";
+          structuredExtraConfig = with lib.kernel; {
+            X86_64_VERSION = freeform "${toString cfg.optimizations.isa}";
+            LTO_NONE = mkForce unset;
+            LTO_CLANG_THIN = yes;
+
+            RUST = mkForce unset;
+            DRM_PANIC_SCREEN_QR_CODE = mkForce unset;
+            NOVA_CORE = mkForce unset;
+            DRM_NOVA = mkForce unset;
           };
         }
       ];
