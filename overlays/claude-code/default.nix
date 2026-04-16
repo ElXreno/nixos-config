@@ -11,10 +11,10 @@ let
     # PATCH 1-3: https://gist.github.com/roman01la/483d1db15043018096ac3babf5688881?permalink_comment_id=6090443#gistcomment-6090443
 
     # PATCH 4: Anti-gold-plating — allow necessary related work
-    {
-      old = ''Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.'';
-      new = "Don't add unrelated features or speculative improvements. However, if adjacent code is broken, fragile, or directly contributes to the problem being solved, fix it as part of the task. A bug fix should address related issues discovered during investigation. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.";
-    }
+    # {
+    #   old = ''Don't add features, refactor code, or make "improvements" beyond what was asked. A bug fix doesn't need surrounding code cleaned up. A simple feature doesn't need extra configurability. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.'';
+    #   new = "Don't add unrelated features or speculative improvements. However, if adjacent code is broken, fragile, or directly contributes to the problem being solved, fix it as part of the task. A bug fix should address related issues discovered during investigation. Don't add docstrings, comments, or type annotations to code you didn't change. Only add comments where the logic isn't self-evident.";
+    # }
 
     # PATCH 5: Error handling — stop telling the model to skip it
     {
@@ -24,7 +24,7 @@ let
 
     # PATCH 6: Remove "three lines better than abstraction" rule
     {
-      old = "Three similar lines of code is better than a premature abstraction.";
+      old = "Three similar lines is better than a premature abstraction.";
       new = "Use judgment about when to extract shared logic. Avoid premature abstractions for hypothetical reuse, but do extract when duplication causes real maintenance risk.";
     }
 
