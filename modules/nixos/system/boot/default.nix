@@ -75,7 +75,6 @@ in
       ]
       ++ lib.optionals isLaptop [
         "preempt=full"
-        "threadirqs"
         "nowatchdog"
         "nmi_watchdog=0"
       ];
