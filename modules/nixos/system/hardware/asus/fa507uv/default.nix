@@ -18,8 +18,8 @@ let
   patchesSrc = pkgs.fetchFromGitHub {
     owner = "CachyOS";
     repo = "kernel-patches";
-    rev = "d60f37176775b87d3300b333b39ae974adbda381";
-    hash = "sha256-qsniqHnVIZdhGO6tYyugtWpOtdYofnUcpJAj6YAAvM4=";
+    rev = "b5e029226df5cc30c103651072d49a7af2878202";
+    hash = "sha256-b9Hc0sTxjEzDbphzS9yQqxVha/7bsPIs2cQQQvaG45E=";
   };
 
   majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
@@ -55,21 +55,21 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
+      ${namespace}.system.boot.kernel.packages = pkgs.linuxPackages_xanmod_edge;
       boot = {
         kernelPatches = [
           {
-            name = "cachy-fixes";
-            patch = pkgs.runCommand "0004-fixes-filtered.patch" { nativeBuildInputs = [ pkgs.patchutils ]; } ''
-              filterdiff -x '*/drivers/acpi/processor_driver.c' -x '*/sound/hda/codecs/realtek/alc269.c' -x '*/drivers/usb/core/quirks.c' -x '*/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c' ${patchesSrc}/${majorMinor}/0004-fixes.patch > $out
+            name = "clang-polly";
+            patch = "${patchesSrc}/${majorMinor}/misc/0001-clang-polly.patch";
+          }
+          {
+            name = "sched-bore";
+            patch = pkgs.runCommand "0001-bore-xanmod-${majorMinor}.patch" { } ''
+              substitute ${patchesSrc}/${majorMinor}/sched/0001-bore.patch $out \
+                --replace-fail \
+                " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;" \
+                " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;"
             '';
-          }
-          {
-            name = "hdmi";
-            patch = "${patchesSrc}/${majorMinor}/0005-hdmi.patch";
-          }
-          {
-            name = "vesa-dsc-bpp";
-            patch = "${patchesSrc}/${majorMinor}/0007-vesa-dsc-bpp.patch";
           }
           {
             name = "asus-armoury-crate-fa507uv";
@@ -89,6 +89,8 @@ in
               ASUS_ARMOURY = module;
 
               NTSYNC = module;
+
+              DEBUG_LIST = mkForce no;
             };
           }
         ];
