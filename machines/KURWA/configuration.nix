@@ -65,10 +65,6 @@
     };
 
     services = {
-      sing-box.client = {
-        enable = true;
-        autostart = true;
-      };
       scx.enable = true;
       postgresql.enable = true;
       bitmagnet.enable = true;

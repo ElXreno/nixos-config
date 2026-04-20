@@ -37,6 +37,14 @@ in
       roles.client.tags = [ "all" ];
     };
 
+    sing-box = {
+      module.name = "sing-box";
+      module.input = "self";
+      roles.server.machines.BIMBA = { };
+      roles.client.machines.GRATE = { };
+      roles.client.machines.KURWA.settings.enableSocks = true;
+    };
+
     sshd = {
       roles.server.tags = [ "all" ];
       roles.server.settings.authorizedKeys = {

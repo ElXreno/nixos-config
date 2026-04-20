@@ -15,6 +15,7 @@ in
 
     modules.pam-rssh = ../clanServices/pam-rssh;
     modules.crowdsec = ../clanServices/crowdsec;
+    modules.sing-box = ../clanServices/sing-box;
     modules.tailscale = ../clanServices/tailscale;
 
     vars.settings.age.postQuantum = true;

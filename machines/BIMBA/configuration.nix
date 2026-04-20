@@ -35,8 +35,6 @@
       };
 
       ripe-atlas.enable = true;
-
-      sing-box.server.enable = true;
     };
   };
 
