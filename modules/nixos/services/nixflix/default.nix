@@ -202,16 +202,6 @@ in
               password._secret = vars.nixflix-rutracker.files."password".path;
               "torrentBaseSettings.seedRatio" = 5;
             }
-            {
-              name = "Knaben";
-              enable = true;
-              "torrentBaseSettings.seedRatio" = 2;
-            }
-            {
-              name = "TorrentsCSV";
-              enable = true;
-              "torrentBaseSettings.seedRatio" = 2;
-            }
           ];
         };
       };
