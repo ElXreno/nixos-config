@@ -1,6 +1,5 @@
 {
   namespace,
-  pkgs,
   ...
 }:
 
@@ -11,10 +10,6 @@
     system = {
       boot = {
         uefi.enable = true;
-
-        kernel = {
-          packages = pkgs.linuxPackages_xanmod_latest;
-        };
       };
 
       hardware = {
