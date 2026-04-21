@@ -110,7 +110,14 @@ in
           experimental-features = [
             "nix-command"
             "flakes"
+
+            "auto-allocate-uids"
+            "cgroups"
           ]; # TODO: Something adds extra-experimental-features, find who
+
+          system-features = [ "uid-range" ];
+
+          auto-allocate-uids = true;
 
           substituters = [
             "https://cache.elxreno.com/common?priority=11"
