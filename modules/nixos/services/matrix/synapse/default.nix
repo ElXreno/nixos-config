@@ -49,13 +49,7 @@ let
   wellKnownLocation = body: {
     extraConfig = ''
       default_type application/json;
-      add_header Alt-Svc 'h3=":443"; ma=86400';
-      add_header X-Frame-Options DENY;
-      add_header X-Content-Type-Options nosniff;
-      add_header X-XSS-Protection "1; mode=block";
-      add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
-      add_header Access-Control-Allow-Origin '*';
-      add_header Access-Control-Allow-Methods 'GET, OPTIONS';
+      add_header Access-Control-Allow-Origin '*' always;
       return 200 '${body}';
     '';
   };

@@ -26,8 +26,6 @@ let
   };
 
   commonHttpConfig = ''
-    # 0-RTT: Enable TLS 1.3 early data
-    ssl_early_data on;
     # Enables sending in optimized batch mode using segmentation offloading.
     quic_gso on;
     # Enables the QUIC Address Validation feature. This includes sending a new
@@ -35,17 +33,15 @@ let
     # received in the initial packet.
     quic_retry on;
 
-    # Advertise http3, not done by NixOS option http3=true yet
-    add_header Alt-Svc 'h3=":443"; ma=86400';
-
     # Other stuff
     set_real_ip_from 127.0.0.1;
     real_ip_header proxy_protocol;
 
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload";
+    more_set_headers 'Alt-Svc: h3=":443"; ma=86400';
+    more_set_headers 'X-Frame-Options: DENY';
+    more_set_headers 'X-Content-Type-Options: nosniff';
+    more_set_headers 'Referrer-Policy: strict-origin-when-cross-origin';
+    more_set_headers 'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload';
   '';
 in
 {
@@ -77,8 +73,10 @@ in
         enableQuicBPF = true;
 
         inherit (cfg) package;
+        additionalModules = [ pkgs.nginxModules.moreheaders ];
 
         recommendedTlsSettings = true;
+        sslProtocols = "TLSv1.3";
 
         recommendedGzipSettings = true;
         recommendedBrotliSettings = true;
