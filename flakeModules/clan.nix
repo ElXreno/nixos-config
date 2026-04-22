@@ -18,8 +18,6 @@ in
     modules.sing-box = ../clanServices/sing-box;
     modules.tailscale = ../clanServices/tailscale;
 
-    vars.settings.age.postQuantum = true;
-
     specialArgs = {
       inherit inputs;
       lib' = import ../lib { inherit inputs; };
