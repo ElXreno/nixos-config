@@ -1,6 +1,5 @@
 {
   config,
-  lib',
   namespace,
   virtual,
   lib,
@@ -81,7 +80,7 @@ in
       runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
 
       # Rotate monthly.
-      validation = lib'.mkRotationBucket 30;
+      rotateDays = 30;
 
       script = ''
         token=$(attic-mint-token "$in/attic-jwt-key/key-base64" \

@@ -1,6 +1,5 @@
 {
   config,
-  lib',
   namespace,
   lib,
   pkgs,
@@ -50,7 +49,7 @@ in
       };
 
       # Rotate weekly.
-      validation = lib'.mkRotationBucket 7;
+      rotateDays = 7;
 
       runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
 

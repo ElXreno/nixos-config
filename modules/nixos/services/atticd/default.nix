@@ -1,6 +1,5 @@
 {
   config,
-  lib',
   namespace,
   lib,
   pkgs,
@@ -93,7 +92,7 @@ in
         };
 
         # Rotate every 180 days; cascades to all dependents.
-        validation = lib'.mkRotationBucket 180;
+        rotateDays = 180;
 
         script = ''
           openssl genrsa -traditional 4096 | base64 -w0 > "$out/key-base64"
@@ -113,7 +112,7 @@ in
         };
 
         # Rotate with the JWT key — old tokens are useless once it changes.
-        validation = lib'.mkRotationBucket 180;
+        rotateDays = 180;
 
         runtimeInputs = [ mintToken ];
 

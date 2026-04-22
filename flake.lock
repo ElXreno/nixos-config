@@ -149,11 +149,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776803156,
-        "narHash": "sha256-JJoey4niIIs4TVhdZqCm1ZQ6MV8NE5gNmeWQJ4/06G0=",
+        "lastModified": 1776896192,
+        "narHash": "sha256-jhO+8bG7Mw1wMa2ARlLSzK5Sn0fICVeCPLvjpsGrcSA=",
         "owner": "ElXreno",
         "repo": "clan-core",
-        "rev": "291472b342d38e5764a6cf646e67b480bd3e4f5e",
+        "rev": "e3f550b798bb3bbd6bd5ac90b25fd8411f42f204",
         "type": "github"
       },
       "original": {
