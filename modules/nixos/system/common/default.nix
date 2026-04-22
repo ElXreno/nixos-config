@@ -32,5 +32,12 @@ in
       speechd.enable = false;
       orca.enable = false;
     };
+
+    security.sudo = {
+      execWheelOnly = true;
+      extraConfig = ''
+        Defaults lecture = never
+      '';
+    };
   };
 }
