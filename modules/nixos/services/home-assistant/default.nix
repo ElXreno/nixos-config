@@ -66,6 +66,8 @@ in
         "xiaomi_ble"
         "keenetic_ndms2"
         "ibeacon"
+        "ffmpeg"
+        "homekit"
 
         "syncthing"
         "jellyfin"
@@ -78,8 +80,16 @@ in
           zlib-ng
         ];
 
-      customComponents = with pkgs.${namespace}; [
-        hass-dreame-vacuum
+      customComponents =
+        (with pkgs.${namespace}; [
+          hass-dreame-vacuum
+        ])
+        ++ (with pkgs.home-assistant-custom-components; [
+          xiaomi_miot
+        ]);
+
+      customLovelaceModules = with pkgs.${namespace}; [
+        hass-lovelace-xiaomi-vacuum-map-card
       ];
 
       config = {
