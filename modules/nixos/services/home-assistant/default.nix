@@ -129,7 +129,6 @@ in
         "ffmpeg"
         "homekit"
 
-        "syncthing"
         "jellyfin"
         "upnp"
         "seventeentrack"
