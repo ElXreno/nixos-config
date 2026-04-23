@@ -123,6 +123,7 @@ in
         "zha"
         "isal"
         "bthome"
+        "kegtron"
         "xiaomi_ble"
         "keenetic_ndms2"
         "ibeacon"
