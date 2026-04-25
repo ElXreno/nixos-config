@@ -272,6 +272,8 @@ in
       };
     };
 
+    systemd.user.services.pipewire.serviceConfig.LimitNICE = 31;
+
     # Real-time audio processing
     security.pam.loginLimits = [
       {
