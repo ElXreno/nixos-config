@@ -78,11 +78,14 @@ in
           (
             {
               lib,
+              namespace,
               ...
             }:
             {
               services.ncps.cache = {
                 maxSize = "300G";
+
+                databaseURL = "postgresql:///ncps?host=/run/postgresql";
 
                 allowDeleteVerb = lib.mkForce false;
                 allowPutVerb = lib.mkForce false;
@@ -90,6 +93,17 @@ in
                 cdc = {
                   enabled = true;
                 };
+              };
+
+              ${namespace}.services.postgresql.enable = true;
+              services.postgresql = {
+                ensureDatabases = [ "ncps" ];
+                ensureUsers = [
+                  {
+                    name = "ncps";
+                    ensureDBOwnership = true;
+                  }
+                ];
               };
             }
           )

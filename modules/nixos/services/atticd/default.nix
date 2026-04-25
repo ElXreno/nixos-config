@@ -24,7 +24,7 @@ let
 
     api-endpoint = "https://cache.elxreno.com:443/";
 
-    database.url = "postgresql://atticd?host=/run/postgresql";
+    database.url = "postgresql:///atticd?host=/run/postgresql";
 
     storage = {
       type = "local";
