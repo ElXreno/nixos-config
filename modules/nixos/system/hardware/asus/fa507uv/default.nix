@@ -9,20 +9,9 @@ let
   inherit (lib)
     mkIf
     mkEnableOption
-    mkForce
-    kernel
     mkMerge
     ;
   cfg = config.${namespace}.system.hardware.asus.fa507uv;
-
-  patchesSrc = pkgs.fetchFromGitHub {
-    owner = "CachyOS";
-    repo = "kernel-patches";
-    rev = "b5e029226df5cc30c103651072d49a7af2878202";
-    hash = "sha256-b9Hc0sTxjEzDbphzS9yQqxVha/7bsPIs2cQQQvaG45E=";
-  };
-
-  majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
 
   overrideMesa =
     mesa:
@@ -55,46 +44,7 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
-      ${namespace}.system.boot.kernel.packages = pkgs.linuxPackages_xanmod_edge;
       boot = {
-        kernelPatches = [
-          {
-            name = "clang-polly";
-            patch = "${patchesSrc}/${majorMinor}/misc/0001-clang-polly.patch";
-          }
-          {
-            name = "sched-bore";
-            patch = pkgs.runCommand "0001-bore-xanmod-${majorMinor}.patch" { } ''
-              substitute ${patchesSrc}/${majorMinor}/sched/0001-bore.patch $out \
-                --replace-fail \
-                " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;" \
-                " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;"
-            '';
-          }
-          {
-            name = "asus-armoury-crate-fa507uv";
-            patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
-          }
-          {
-            name = "iwlwifi-lar_disable";
-            patch = ./kernel-patches/iwlwifi-lar_disable.patch;
-          }
-          {
-            name = "fa507uv-tunables";
-            patch = null;
-            structuredExtraConfig = with kernel; {
-              X86_64_VERSION = mkForce unset;
-              MZEN4 = yes;
-
-              ASUS_ARMOURY = module;
-
-              NTSYNC = module;
-
-              DEBUG_LIST = mkForce no;
-            };
-          }
-        ];
-
         initrd.prepend = [
           # Fix D3cold power state loop (D0 -> D3cold -> D0), thanks ASUS
           # For reference: Remove Notify (\_SB.NPCF, 0xC0) in the `_OFF` method of \_SB.PCI0.GPP0 scope

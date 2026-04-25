@@ -19,7 +19,7 @@
         };
         kernel.optimizations = {
           enable = true;
-          isa = 3;
+          znver = 4;
         };
       };
 

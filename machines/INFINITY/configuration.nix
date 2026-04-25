@@ -10,7 +10,10 @@
     };
 
     system = {
-      boot.uefi.enable = true;
+      boot = {
+        uefi.enable = true;
+        kernel.optimizations.enable = true;
+      };
       impermanence.enable = true;
       hardware = {
         cpu.manufacturer = "amd";

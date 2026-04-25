@@ -17,6 +17,14 @@ let
     ;
   cfg = config.${namespace}.system.boot.kernel;
 
+  patchesSrc = pkgs.fetchFromGitHub {
+    owner = "CachyOS";
+    repo = "kernel-patches";
+    rev = "b5e029226df5cc30c103651072d49a7af2878202";
+    hash = "sha256-b9Hc0sTxjEzDbphzS9yQqxVha/7bsPIs2cQQQvaG45E=";
+  };
+
+  majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
   llvm = pkgs.llvmPackages_21;
 
   clangLLVMStdenv = pkgs.stdenvAdapters.overrideCC llvm.stdenv (
@@ -31,7 +39,7 @@ let
     pkgs.withCFlags (
       additionalFlags
       ++ [
-        "-march=x86-64-v${toString isa}"
+        "-march=znver${toString znver}"
         # Disabled due -Werror=format-truncation=
         # "-O${optLevel}"
       ]
@@ -46,7 +54,7 @@ let
             stdenv = optimizedStdenv clangLLVMStdenv;
           }).overrideAttrs
             (prevAttrs: {
-              pname = "${prevAttrs.pname}-x86-64-v${toString cfg.optimizations.isa}";
+              pname = "${prevAttrs.pname}-znver${toString cfg.optimizations.znver}";
             });
 
         # TODO: Upstream to nixpkgs
@@ -68,23 +76,17 @@ in
       type = types.raw;
       default =
         if config.${namespace}.roles.laptop.enable then
-          pkgs.linuxPackages_xanmod_latest
+          pkgs.linuxPackages_xanmod_edge
         else
           pkgs.linuxPackages_latest;
       defaultText = literalExpression "pkgs.linuxPackages_latest";
     };
     optimizations = {
       enable = mkEnableOption "Whether to build optimized kernel.";
-      isa = mkOption {
-        type = with types; nullOr (enum (lib.lists.range 1 3));
-        default = null;
+      znver = mkOption {
+        type = with types; enum (lib.lists.range 1 4);
+        default = 2;
         example = 4;
-        description = ''
-          For x86-64 watch this: https://en.opensuse.org/X86-64_microarchitecture_levels
-          Fast check: `ld.so --help | grep x86-64` or `, inxi -aCz | grep level`
-
-          x86-64-v4 is not included since the kernel does not use AVX512 instructions.
-        '';
       };
       optLevel = mkOption {
         type = types.enum [
@@ -117,13 +119,6 @@ in
           supported only on x86_64-linux systems. Your system is ${pkgs.stdenv.hostPlatform.system}.
         '';
       }
-      {
-        assertion = cfg.optimizations.isa != null;
-        message = ''
-          When ${namespace}.system.boot.kernel.optimizations.enable is true,
-          ${namespace}.system.boot.kernel.optimizations.isa must be set.
-        '';
-      }
     ];
 
     boot = {
@@ -131,10 +126,31 @@ in
 
       kernelPatches = optionals cfg.optimizations.enable [
         {
+          name = "clang-polly";
+          patch = "${patchesSrc}/${majorMinor}/misc/0001-clang-polly.patch";
+        }
+        {
+          name = "sched-bore";
+          patch = pkgs.runCommand "0001-bore-xanmod-${majorMinor}.patch" { } ''
+            substitute ${patchesSrc}/${majorMinor}/sched/0001-bore.patch $out \
+              --replace-fail \
+              " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;" \
+              " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;"
+          '';
+        }
+        {
+          name = "asus-armoury-crate-fa507uv";
+          patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
+        }
+        {
+          name = "iwlwifi-lar_disable";
+          patch = ./kernel-patches/iwlwifi-lar_disable.patch;
+        }
+        {
           name = "x86_64-version";
           patch = null;
           structuredExtraConfig = with lib.kernel; {
-            X86_64_VERSION = freeform "${toString cfg.optimizations.isa}";
+            "MZEN${toString cfg.optimizations.znver}" = yes;
             LTO_NONE = mkForce unset;
             LTO_CLANG_THIN = yes;
 
@@ -142,6 +158,11 @@ in
             DRM_PANIC_SCREEN_QR_CODE = mkForce unset;
             NOVA_CORE = mkForce unset;
             DRM_NOVA = mkForce unset;
+
+            ASUS_ARMOURY = module;
+            NTSYNC = module;
+
+            DEBUG_LIST = mkForce no;
           };
         }
       ];
