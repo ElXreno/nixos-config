@@ -32,7 +32,6 @@ in
 
     services = {
       network-manager-applet.enable = true;
-      blueman-applet.enable = true;
       playerctld.enable = true;
       cliphist.enable = true;
     };
