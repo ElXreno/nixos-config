@@ -6,6 +6,11 @@
       url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
     };
 
+    flake-input-patcher = {
+      url = "github:jfly/flake-input-patcher";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -119,7 +124,22 @@
   };
 
   outputs =
-    { flake-parts, ... }@inputs:
+    { flake-parts, ... }@unpatchedInputs:
+    let
+      system = "x86_64-linux";
+
+      patcher = unpatchedInputs.flake-input-patcher.lib.${system};
+      inputs = patcher.patch unpatchedInputs {
+        firefox-addons.patches = [
+          (patcher.fetchpatch {
+            name = "fix-eval-after-license-refactor";
+            # https://github.com/petrkozorezov/firefox-addons-nix/pull/2
+            url = "https://github.com/xddxdd/firefox-addons-nix/commit/48b574572e98f60cd52c28b1a0161f827c3be1ae.patch";
+            hash = "sha256-trqcjgn7Yn1zXiNnhGbN6yJJfM6IYX3qIFmRqGyHxCI=";
+          })
+        ];
+      };
+    in
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [
         "x86_64-linux"

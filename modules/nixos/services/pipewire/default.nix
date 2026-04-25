@@ -72,6 +72,12 @@ in
 
       extraLv2Packages = [ pkgs.lsp-plugins ];
 
+      extraLadspaPackages = [
+        pkgs.ladspaPlugins
+        pkgs.deepfilternet
+        pkgs.rnnoise-plugin
+      ];
+
       extraConfig = {
         client."80-resample"."stream.properties"."resample.quality" = 14;
         pipewire-pulse."80-resample"."stream.properties"."resample.quality" = 14;
@@ -101,7 +107,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "rnnoise";
-                        "plugin" = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                        "plugin" = "librnnoise_ladspa";
                         "label" = "noise_suppressor_mono";
                         "control" = {
                           "VAD Threshold (%)" = 90.0;
@@ -112,7 +118,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "comp";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4m_1916.so";
+                        "plugin" = "sc4m_1916";
                         "label" = "sc4m";
                         "control" = {
                           "Attack time (ms)" = 20.0;

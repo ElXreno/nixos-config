@@ -88,7 +88,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "hpf";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/butterworth_1902.so";
+                        "plugin" = "butterworth_1902";
                         "label" = "butthigh_iir";
                         "control" = {
                           "Cutoff Frequency (Hz)" = 120.0;
@@ -98,7 +98,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "gate";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/gate_1410.so";
+                        "plugin" = "gate_1410";
                         "label" = "gate";
                         "control" = {
                           "LF key filter (Hz)" = 120.0;
@@ -114,7 +114,7 @@ in
                       {
                         type = "ladspa";
                         name = "deepfilternet";
-                        plugin = "${pkgs.deepfilternet}/lib/ladspa/libdeep_filter_ladspa.so";
+                        plugin = "libdeep_filter_ladspa";
                         label = "deep_filter_mono";
                         control = {
                           "Attenuation Limit (dB)" = 100;
@@ -123,7 +123,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "comp";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/sc4m_1916.so";
+                        "plugin" = "sc4m_1916";
                         "label" = "sc4m";
                         "control" = {
                           "Attack time (ms)" = 5.0;
@@ -137,7 +137,7 @@ in
                       {
                         "type" = "ladspa";
                         "name" = "final_gate";
-                        "plugin" = "${pkgs.ladspaPlugins}/lib/ladspa/gate_1410.so";
+                        "plugin" = "gate_1410";
                         "label" = "gate";
                         "control" = {
                           "LF key filter (Hz)" = 100.0;
