@@ -272,8 +272,6 @@ in
       };
     };
 
-    systemd.user.services.pipewire.serviceConfig.LimitNICE = 31;
-
     # Real-time audio processing
     security.pam.loginLimits = [
       {
@@ -287,6 +285,12 @@ in
         item = "rtprio";
         type = "-";
         value = "99";
+      }
+      {
+        domain = "@audio";
+        item = "nice";
+        type = "-";
+        value = "-11";
       }
       {
         domain = "@audio";
