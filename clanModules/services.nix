@@ -89,10 +89,6 @@ in
 
                 allowDeleteVerb = lib.mkForce false;
                 allowPutVerb = lib.mkForce false;
-
-                cdc = {
-                  enabled = true;
-                };
               };
 
               ${namespace}.services.postgresql.enable = true;
