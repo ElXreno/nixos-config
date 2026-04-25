@@ -138,6 +138,15 @@
             hash = "sha256-trqcjgn7Yn1zXiNnhGbN6yJJfM6IYX3qIFmRqGyHxCI=";
           })
         ];
+
+        llm-agents.patches = [
+          (patcher.fetchpatch {
+            name = "revert-claude-code-2.1.120";
+            url = "https://github.com/numtide/llm-agents.nix/commit/f630f11fa6a4881475608aee735b09dbac55aa2c.patch";
+            revert = true;
+            hash = "sha256-yvbcgkEiBya6MzUG2zn4Zs3CsYwrWNXI+nYbcPQ3Hn4=";
+          })
+        ];
       };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
