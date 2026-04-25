@@ -19,11 +19,13 @@ jobs:
 
       - name: Generate Jobs
         id: generate-jobs
+        shell: bash
         run: |
-          nix eval --read-only --json .#ciMatrix | jq -c '[.[]]' > matrix.json
+          set -euo pipefail
+          nix eval --json .#ciMatrix | jq -c '[.[]]' > matrix.json
 
           echo "Collected $(jq length matrix.json) jobs"
-          echo "matrix=$(cat matrix.json)" >> $GITHUB_OUTPUT
+          echo "matrix=$(cat matrix.json)" >> "$GITHUB_OUTPUT"
 
   build:
     needs: discover_jobs
