@@ -75,7 +75,7 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.niri-stable.url = "github:YaLTeR/niri/v25.11";
+      inputs.niri-stable.url = "github:niri-wm/niri/v26.04";
     };
 
     stylix = {
@@ -147,6 +147,10 @@
             hash = "sha256-yvbcgkEiBya6MzUG2zn4Zs3CsYwrWNXI+nYbcPQ3Hn4=";
           })
         ];
+
+        # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
+        # and removes the replace-service-with-usr-bin parameter.
+        niri.patches = [ ./patches/niri-flake-stable-v26.patch ];
       };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {

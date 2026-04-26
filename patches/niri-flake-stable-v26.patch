@@ -1,0 +1,13 @@
+diff --git a/flake.nix b/flake.nix
+index 5179ae0..15fcd5d 100644
+--- a/flake.nix
++++ b/flake.nix
+@@ -306,7 +306,7 @@
+       make-package-set = pkgs: {
+         niri-stable = pkgs.callPackage make-niri {
+           src = inputs.niri-stable;
+-          replace-service-with-usr-bin = true;
++          replace-service-with-usr-bin = false;
+         };
+         niri-unstable = pkgs.callPackage make-niri {
+           src = inputs.niri-unstable;
