@@ -82,6 +82,7 @@ in
               ...
             }:
             {
+              services.ncps.logLevel = "debug";
               services.ncps.cache = {
                 maxSize = "300G";
 
@@ -89,6 +90,8 @@ in
 
                 allowDeleteVerb = lib.mkForce false;
                 allowPutVerb = lib.mkForce false;
+
+                cdc.enabled = true;
               };
 
               ${namespace}.services.postgresql.enable = true;
