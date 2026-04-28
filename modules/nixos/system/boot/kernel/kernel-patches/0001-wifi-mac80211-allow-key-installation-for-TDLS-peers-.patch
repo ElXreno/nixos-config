@@ -1,0 +1,67 @@
+From ca943cf34dd7afbe4cbcf1ad8658b7b50e965fd7 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Tue, 28 Apr 2026 16:52:07 +0300
+Subject: [PATCH] wifi: mac80211: allow key installation for TDLS peers before
+ association
+
+Stations added with NL80211_STA_FLAG_TDLS_PEER deliberately do not
+transition through WLAN_STA_ASSOC in sta_apply_parameters(): the
+existing comment states 'auth flags will be set later for TDLS, and
+for unassociated stations that move to associated'. However,
+ieee80211_add_key() rejects key installation for stations that are
+not yet in WLAN_STA_ASSOC, unless they are Enhanced Privacy
+Protection (EPP) peers.
+
+When wpa_supplicant completes the 802.11z TPK handshake and issues
+NL80211_CMD_NEW_KEY to install the TDLS pairwise key, the kernel
+returns -ENOENT because the peer is still at state NONE. wpa_supplicant
+logs 'nl80211: kernel reports: key addition failed' followed by
+'TDLS: Failed to set TPK to the driver' and does not retry. mac80211
+then moves the TDLS peer through AUTHENTICATED / ASSOCIATED /
+AUTHORIZED without a working pairwise key, leaving a zombie peer
+entry.
+
+On some drivers the zombie entry corrupts BSS state. On MediaTek
+MT7925 (mt76), repeated attempts progressively degrade firmware
+state until userspace traffic on the main BSS link stops flowing
+entirely and the only recovery is manual Wi-Fi reconnection. The
+same symptom was filed against MT7922 as kernel.org bug 216421
+and closed UNREPRODUCIBLE without investigation.
+
+The WLAN_STA_ASSOC check was introduced by commit 1626e0fa740d
+("mac80211: fix FT roaming") to preserve legacy behavior where
+drivers expected key installation to occur after association. TDLS
+peers are mutually authenticated by the 802.11z TPK handshake before
+key installation is requested, so there is no integrity concern with
+accepting the key for a TDLS peer at state NONE. The TODO directly
+above the guard (present since 2013) describes exactly this scenario:
+'accept the key if we have a station entry and add it to the device
+after the station associates.'
+
+Add sta->sta.tdls to the exemption list alongside sta->sta.epp_peer,
+mirroring the exemption pattern introduced by commit 63e7e3b6433f
+("wifi: mac80211: allow key installation before association") for
+EPP peers.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216421
+Signed-off-by: ElXreno <elxreno@gmail.com>
+---
+ net/mac80211/cfg.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/net/mac80211/cfg.c b/net/mac80211/cfg.c
+index 00261bd6674b..0f9500039b31 100644
+--- a/net/mac80211/cfg.c
++++ b/net/mac80211/cfg.c
+@@ -684,7 +684,8 @@ static int ieee80211_add_key(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 		 * TODO: accept the key if we have a station entry and
+ 		 *	 add it to the device after the station associates.
+ 		 */
+-		if (!sta || (!sta->sta.epp_peer &&
++		if (!sta || (!sta->sta.tdls &&
++			     !sta->sta.epp_peer &&
+ 			     !test_sta_flag(sta, WLAN_STA_ASSOC))) {
+ 			ieee80211_key_free_unused(key);
+ 			return -ENOENT;
+-- 
+2.53.0

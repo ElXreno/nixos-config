@@ -147,6 +147,10 @@ in
           patch = ./kernel-patches/iwlwifi-lar_disable.patch;
         }
         {
+          name = "mac80211-tdls-allow-key-install-before-assoc";
+          patch = ./kernel-patches/0001-wifi-mac80211-allow-key-installation-for-TDLS-peers-.patch;
+        }
+        {
           name = "x86_64-version";
           patch = null;
           structuredExtraConfig = with lib.kernel; {
