@@ -1,0 +1,14 @@
+diff --git a/Modules/Bar/Widgets/Workspace.qml b/Modules/Bar/Widgets/Workspace.qml
+index c9610362..91c218af 100644
+--- a/Modules/Bar/Widgets/Workspace.qml
++++ b/Modules/Bar/Widgets/Workspace.qml
+@@ -399,8 +399,7 @@ Item {
+   }
+ 
+   function triggerUnifiedWave() {
+-    effectColor = Color.mPrimary;
+-    masterAnimation.restart();
++    // Patched: workspace-switch wave effect disabled.
+   }
+ 
+   function updateWorkspaceFocus() {

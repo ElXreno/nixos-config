@@ -1,0 +1,16 @@
+diff --git a/hassio/BarWidget.qml b/hassio/BarWidget.qml
+index d655b18..6ec80d3 100644
+--- a/hassio/BarWidget.qml
++++ b/hassio/BarWidget.qml
+@@ -57,9 +57,9 @@ NIconButton {
+     colorFg: {
+         switch (root._status) {
+         case "Connected":
+-            return Color.mPrimary;
++            return Color.mOnSurface;
+         case "Connecting":
+-            return Color.mOnError;
++            return Color.mPrimary;
+         case "Disconnected":
+             return Color.mError;
+         case "AuthFailed":

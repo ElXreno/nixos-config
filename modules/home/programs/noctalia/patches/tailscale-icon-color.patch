@@ -1,0 +1,12 @@
+diff --git a/tailscale/BarWidget.qml b/tailscale/BarWidget.qml
+index 3a232a9..9c1efbd 100644
+--- a/tailscale/BarWidget.qml
++++ b/tailscale/BarWidget.qml
+@@ -52,7 +52,6 @@ Item {
+         applyUiScale: false
+         crossed: !(mainInstance?.tailscaleRunning ?? false)
+         color: {
+-          if (mainInstance?.tailscaleRunning ?? false) return Color.mOnPrimary
+           return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+         }
+         opacity: 1.0

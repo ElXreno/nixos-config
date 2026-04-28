@@ -10,6 +10,14 @@ let
   cfg = config.${namespace}.desktop-environments.niri;
 
   uwsm = "${lib.getExe pkgs.uwsm} app --";
+
+  inherit (config.lib.stylix.colors.withHashtag)
+    base00
+    base04
+    base03
+    base08
+    base0D
+    ;
 in
 {
   options.${namespace}.desktop-environments.niri = {
@@ -19,21 +27,14 @@ in
   config = mkIf cfg.enable {
     ${namespace} = {
       programs = {
-        anyrun.enable = true;
-        waybar.enable = true;
-        hyprlock.enable = true;
         kitty.enable = true;
-      };
-      services = {
-        hypridle.enable = true;
-        mako.enable = true;
+        noctalia.enable = true;
       };
     };
 
     services = {
       network-manager-applet.enable = true;
       playerctld.enable = true;
-      cliphist.enable = true;
     };
 
     home = {
@@ -120,7 +121,26 @@ in
 
       layout = {
         gaps = 12;
-        border.width = 1;
+        border = {
+          width = 2;
+          active.gradient = {
+            from = base03;
+            to = base04;
+            angle = 45;
+            relative-to = "workspace-view";
+          };
+        };
+
+        tab-indicator = {
+          place-within-column = true;
+          position = "top";
+          width = 4;
+          gap = 4;
+          corner-radius = 2.0;
+          active.color = base0D;
+          inactive.color = base03;
+          urgent.color = base08;
+        };
 
         shadow = {
           enable = true;
@@ -134,6 +154,21 @@ in
         };
       };
 
+      overview = {
+        backdrop-color = base00;
+        workspace-shadow = {
+          softness = 40.0;
+          spread = 10;
+          offset = {
+            x = 0;
+            y = 10;
+          };
+          color = "#00000060";
+        };
+      };
+
+      cursor.hide-when-typing = true;
+
       binds = {
         "Mod+Shift+Slash".action.show-hotkey-overlay = [ ];
 
@@ -146,8 +181,12 @@ in
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
         "Mod+D" = {
-          action.spawn-sh = "${uwsm} anyrun";
-          hotkey-overlay.title = "Run an Application: anyrun";
+          action.spawn-sh = "noctalia-shell ipc call launcher toggle";
+          hotkey-overlay.title = "Open Application Launcher (Noctalia)";
+        };
+        "Mod+Shift+C" = {
+          action.spawn-sh = "noctalia-shell ipc call launcher clipboard";
+          hotkey-overlay.title = "Open Clipboard History (Noctalia)";
         };
         "Mod+E" = {
           action.spawn-sh = "${uwsm} thunar";
@@ -158,24 +197,24 @@ in
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
         "Mod+Shift+L" = {
-          action.spawn-sh = "${uwsm} hyprlock";
-          hotkey-overlay.title = "Lock the Screen: hyprlock";
+          action.spawn-sh = "noctalia-shell ipc call lockScreen lock";
+          hotkey-overlay.title = "Lock the Screen (Noctalia)";
         };
 
         "XF86AudioRaiseVolume" = {
-          action.spawn-sh = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1";
+          action.spawn-sh = "noctalia-shell ipc call volume increase";
           allow-when-locked = true;
         };
         "XF86AudioLowerVolume" = {
-          action.spawn-sh = "wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- -l 1";
+          action.spawn-sh = "noctalia-shell ipc call volume decrease";
           allow-when-locked = true;
         };
         "XF86AudioMute" = {
-          action.spawn-sh = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
+          action.spawn-sh = "noctalia-shell ipc call volume muteOutput";
           allow-when-locked = true;
         };
         "XF86AudioMicMute" = {
-          action.spawn-sh = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+          action.spawn-sh = "noctalia-shell ipc call volume muteInput";
           allow-when-locked = true;
         };
 
@@ -201,21 +240,11 @@ in
         };
 
         "XF86MonBrightnessUp" = {
-          action.spawn = [
-            "brightnessctl"
-            "--class=backlight"
-            "set"
-            "+10%"
-          ];
+          action.spawn-sh = "noctalia-shell ipc call brightness increase";
           allow-when-locked = true;
         };
         "XF86MonBrightnessDown" = {
-          action.spawn = [
-            "brightnessctl"
-            "--class=backlight"
-            "set"
-            "10%-"
-          ];
+          action.spawn-sh = "noctalia-shell ipc call brightness decrease";
           allow-when-locked = true;
         };
 
@@ -335,6 +364,11 @@ in
         "Ctrl+Alt+Delete".action.quit = [ ];
 
         "Mod+Shift+P".action.power-off-monitors = [ ];
+
+        "Mod+Ctrl+Shift+Print" = {
+          action.spawn-sh = ''noctalia-shell ipc call "plugin:screen-recorder" toggle'';
+          hotkey-overlay.title = "Toggle Screen Recording (Noctalia)";
+        };
       };
 
       window-rules = [
@@ -396,10 +430,10 @@ in
             draw-behind-window = true;
           };
           geometry-corner-radius = {
-            top-left = 6.0;
-            top-right = 6.0;
-            bottom-left = 6.0;
-            bottom-right = 6.0;
+            top-left = 8.0;
+            top-right = 8.0;
+            bottom-left = 8.0;
+            bottom-right = 8.0;
           };
           clip-to-geometry = true;
         }
@@ -407,34 +441,27 @@ in
 
       layer-rules = [
         {
-          matches = [ { namespace = "^notifications$"; } ];
+          matches = [
+            { namespace = "^noctalia-notifications"; }
+            { namespace = "^noctalia-toast"; }
+          ];
           block-out-from = "screen-capture";
         }
         {
-          matches = [ { namespace = "^backdrop$"; } ];
+          matches = [ { namespace = "^noctalia-overview"; } ];
           place-within-backdrop = true;
         }
       ];
 
       spawn-at-startup = [
-        # {
-        #   command = [
-        #     (lib.getExe pkgs.something)
-        #   ];
-        # }
+        { command = [ "noctalia-shell" ]; }
       ];
 
       hotkey-overlay.skip-at-startup = true;
       prefer-no-csd = true;
     };
 
-    gtk = {
-      enable = true;
-      iconTheme = {
-        package = pkgs.papirus-icon-theme;
-        name = "Papirus-Dark";
-      };
-    };
+    gtk.enable = true;
 
     xdg.portal = {
       enable = true;
@@ -455,35 +482,5 @@ in
         };
       };
     };
-
-    systemd.user.services =
-      let
-        wallpaper = pkgs.${namespace}.custom-wallpaper;
-        blurredWallpaper = pkgs.runCommand "blurred-wallpaper" { } ''
-          ${lib.getExe' pkgs.imagemagick "magick"} ${wallpaper} -blur 0x30 -fill black -colorize 20% -attenuate 0.1 +noise Gaussian $out
-        '';
-
-        mkSwaybg = ns: wallpaper: {
-          Install = {
-            WantedBy = [ config.wayland.systemd.target ];
-          };
-
-          Unit = {
-            Description = "swaybg-${ns}";
-            ConditionEnvironment = "WAYLAND_DISPLAY";
-            After = [ config.wayland.systemd.target ];
-            PartOf = [ config.wayland.systemd.target ];
-          };
-
-          Service = {
-            ExecStart = "${lib.getExe' pkgs.swaybg "swaybg"} --namespace ${ns} --mode fill --image ${wallpaper}";
-            Restart = "on-failure";
-          };
-        };
-      in
-      {
-        swaybg-backdrop = mkSwaybg "backdrop" blurredWallpaper;
-        swaybg-wallpaper = mkSwaybg "wallpaper" wallpaper;
-      };
   };
 }

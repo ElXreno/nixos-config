@@ -22,6 +22,14 @@ in
 
       base16Scheme = "${pkgs.base16-schemes}/share/themes/ayu-mirage.yaml";
       polarity = "dark";
+      image = pkgs.${namespace}.custom-wallpaper;
+
+      icons = {
+        enable = true;
+        package = pkgs.papirus-icon-theme;
+        dark = "Papirus-Dark";
+        light = "Papirus-Light";
+      };
     };
   };
 }

@@ -32,6 +32,7 @@ let
     plasma-manager.homeModules.plasma-manager
     stylix.homeModules.default
     niri.homeModules.stylix
+    noctalia.homeModules.default
   ];
 
 in

@@ -101,6 +101,16 @@
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
 
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    noctalia-plugins = {
+      url = "github:noctalia-dev/noctalia-plugins";
+      flake = false;
+    };
+
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -151,6 +161,8 @@
         # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
         # and removes the replace-service-with-usr-bin parameter.
         niri.patches = [ ./patches/niri-flake-stable-v26.patch ];
+
+        noctalia.patches = [ ./patches/noctalia-no-workspace-wave.patch ];
       };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
