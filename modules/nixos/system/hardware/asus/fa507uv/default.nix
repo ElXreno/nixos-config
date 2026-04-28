@@ -7,6 +7,7 @@
 }:
 let
   inherit (lib)
+    concatStringsSep
     mkIf
     mkEnableOption
     mkMerge
@@ -91,15 +92,31 @@ in
 
       environment.sessionVariables = {
         # Prevent some apps from waking the NVIDIA dGPU unnecessarily
-        VK_DRIVER_FILES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
-        __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
+        VK_DRIVER_FILES = concatStringsSep ":" [
+          "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json"
+          "/run/opengl-driver-32/share/vulkan/icd.d/radeon_icd.i686.json"
+        ];
+        __EGL_VENDOR_LIBRARY_FILENAMES = concatStringsSep ":" [
+          "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json"
+          "/run/opengl-driver-32/share/glvnd/egl_vendor.d/50_mesa.json"
+        ];
       };
 
       ${namespace}.system.hardware.gpu.nvidia.prime.offload.enableOffloadCmd = false; # Handled manually
       environment.systemPackages = [
         (pkgs.writeShellScriptBin config.hardware.nvidia.prime.offload.offloadCmdMainProgram ''
-          export VK_DRIVER_FILES=/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json
-          export __EGL_VENDOR_LIBRARY_FILENAMES=/run/opengl-driver/share/glvnd/egl_vendor.d/10_nvidia.json
+          export VK_DRIVER_FILES=${
+            concatStringsSep ":" [
+              "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json"
+              "/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json"
+            ]
+          }
+          export __EGL_VENDOR_LIBRARY_FILENAMES=${
+            concatStringsSep ":" [
+              "/run/opengl-driver/share/glvnd/egl_vendor.d/10_nvidia.json"
+              "/run/opengl-driver-32/share/glvnd/egl_vendor.d/10_nvidia.json"
+            ]
+          }
           export __NV_PRIME_RENDER_OFFLOAD=1
           export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
           export __GLX_VENDOR_LIBRARY_NAME=nvidia

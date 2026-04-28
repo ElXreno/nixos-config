@@ -65,7 +65,7 @@ in
 
         QT_QPA_PLATFORM = "wayland;xcb";
         CLUTTER_BACKEND = "wayland";
-        SDL_VIDEODRIVER = "wayland";
+        SDL_VIDEODRIVER = "wayland,x11";
 
         NIXOS_OZONE_WL = 1;
         ELECTRON_OZONE_PLATFORM_HINT = "wayland"; # Fallback for NIXOS_OZONE_WL, non-nix packaged software
