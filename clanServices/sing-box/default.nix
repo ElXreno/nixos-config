@@ -370,6 +370,7 @@ in
 
                         # etc
                         "deepl.com"
+                        "terraform.io"
                       ];
                       outbound = "datalake";
                     }
