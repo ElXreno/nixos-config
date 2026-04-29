@@ -103,6 +103,10 @@ in
       };
 
       settings = {
+        verbose = true;
+        includeCoAuthoredBy = false;
+        gitAttribution = false;
+
         hooks = {
           PostToolUse = [
             {
@@ -143,7 +147,6 @@ in
         env = {
           BASH_MAX_TIMEOUT_MS = "900000";
           CLAUDE_AUTO_BACKGROUND_TASKS = "1";
-          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
           CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL = "1";
           CLAUDE_CODE_EFFORT_LEVEL = "max";
           CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
