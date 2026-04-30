@@ -2,7 +2,6 @@
   config,
   namespace,
   lib,
-  virtual,
   osConfig,
   ...
 }:
@@ -27,7 +26,7 @@ in
     showAdvancedCPUStats =
       mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
       // {
-        default = !virtual && !config.${namespace}.roles.server.enable;
+        default = !osConfig.${namespace}.facts.system.virtualised;
       };
   };
 
