@@ -13,7 +13,10 @@ let
 in
 {
   options.${namespace}.system.hardware.gpu.amd = {
-    enable = mkEnableOption "Whether or not to manage amdgpu stuff.";
+    enable = mkEnableOption "Whether or not to manage amdgpu stuff." // {
+      default = config.${namespace}.facts.gpu.amd.exists;
+      defaultText = "Auto-detected from facter report.";
+    };
   };
 
   config = mkIf cfg.enable {

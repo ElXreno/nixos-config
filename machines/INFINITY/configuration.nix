@@ -16,8 +16,6 @@
       };
       impermanence.enable = true;
       hardware = {
-        cpu.manufacturer = "amd";
-        gpu.amd.enable = true;
 
         huawei-wmi.enable = true;
       };

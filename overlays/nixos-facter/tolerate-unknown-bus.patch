@@ -1,0 +1,37 @@
+From 6831724f780325591378d8ed4efabb8dab0c6758 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 1 May 2026 01:30:48 +0300
+Subject: [PATCH] fix(udev): tolerate unknown ID_BUS values instead of erroring
+
+---
+ pkg/udev/udev.go | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/pkg/udev/udev.go b/pkg/udev/udev.go
+index a1b1852..e033bc0 100644
+--- a/pkg/udev/udev.go
++++ b/pkg/udev/udev.go
+@@ -49,6 +49,7 @@ import "C"
+ import (
+ 	"errors"
+ 	"fmt"
++	"log/slog"
+ 	"os/exec"
+ 	"strconv"
+ 	"strings"
+@@ -219,7 +220,11 @@ func NewUdev(env map[string]string) (*Udev, error) {
+ 
+ 	if bus, ok := env["ID_BUS"]; ok {
+ 		if err := result.Bus.UnmarshalText([]byte(bus)); err != nil {
+-			return nil, fmt.Errorf("failed to parse bus: %w", err)
++			// Tolerate unknown bus values (e.g. "platform" for ACPI sleep
++			// buttons exposed via PNP0C0E, "acpi" for LNXVIDEO inputs).
++			// The downstream switch on result.Bus only acts on USB/PCI,
++			// so leaving Bus at its zero value is a safe no-op.
++			slog.Warn("unknown udev bus, leaving Bus unset", "bus", bus, "err", err)
+ 		}
+ 	}
+ 
+-- 
+2.53.0
+

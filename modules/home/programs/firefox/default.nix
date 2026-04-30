@@ -17,16 +17,7 @@ let
     ;
   cfg = config.${namespace}.programs.firefox;
 
-  # TODO: Move this to the system config
-  ramMiB =
-    with builtins;
-    (head (
-      filter (elem: elem.type == "phys_mem")
-        (head (filter (elem: elem.model == "Main Memory") osConfig.hardware.facter.report.hardware.memory))
-        .resources
-    )).range
-    / 1024
-    / 1024;
+  ramMiB = osConfig.${namespace}.facts.memory.totalMiB;
 in
 {
   options.${namespace}.programs.firefox = {

@@ -15,9 +15,6 @@ in
 {
   options.${namespace}.system.networking.wireless = {
     enable = mkEnableOption "Whether or not to manage wireless networking.";
-    disablePowerSave = mkEnableOption "Whether to disable Wi-Fi power save." // {
-      default = true;
-    };
   };
 
   config = mkIf cfg.enable {
@@ -73,9 +70,5 @@ in
         config.clan.core.vars.generators.wireless-aps.files."wpa_supplicant.conf".path
       ];
     };
-
-    boot.extraModprobeConfig = mkIf cfg.disablePowerSave ''
-      options iwlmvm power_scheme=1
-    '';
   };
 }

@@ -7,12 +7,16 @@
 }:
 let
   inherit (lib)
+    elem
     mkIf
     mkForce
     mkEnableOption
     optionals
+    optionalString
     ;
   cfg = config.${namespace}.system.networking;
+  wifiDrivers = config.${namespace}.facts.network.wifi.drivers;
+  modprobeForDriver = driver: opts: optionalString (elem driver wifiDrivers) opts;
 in
 {
   options.${namespace}.system.networking = {
@@ -92,6 +96,28 @@ in
       # Override clan-core behavior
       enable = mkForce config.${namespace}.roles.server.enable;
       timeout = 30;
+    };
+
+    boot = {
+      extraModulePackages = optionals (builtins.elem "iwlwifi"
+        config.${namespace}.facts.network.wifi.drivers
+      ) [ config.boot.kernelPackages.iwlwifi-lar ];
+
+      extraModprobeConfig = ''
+        options cfg80211 ieee80211_regdom=US
+      ''
+      + modprobeForDriver "iwlwifi" ''
+        options iwlwifi amsdu_size=3
+        options iwlwifi lar_disable=1
+        options iwlmvm power_scheme=1
+        options iwldvm force_cam=Y
+      ''
+      + modprobeForDriver "mt7925e" ''
+        options mt7925e disable_aspm=1
+      ''
+      + modprobeForDriver "mt7921e" ''
+        options mt7921e disable_aspm=1
+      '';
     };
   };
 }

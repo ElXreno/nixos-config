@@ -27,11 +27,7 @@
 
       hardware = {
         asus.fa507uv.enable = true;
-        cpu.manufacturer = "amd";
-        cpu.amd.zenpower.enable = false;
-        gpu.amd.enable = true;
         gpu.nvidia = {
-          enable = true;
           dynamicBoost.enable = true;
           overclock.enable = true;
           powerManagement.finegrained = true;

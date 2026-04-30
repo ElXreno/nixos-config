@@ -19,7 +19,10 @@ let
 in
 {
   options.${namespace}.system.hardware.gpu.nvidia = {
-    enable = mkEnableOption "Whether or not to manage nvidia stuff.";
+    enable = mkEnableOption "Whether or not to manage nvidia stuff." // {
+      default = config.${namespace}.facts.gpu.nvidia.exists;
+      defaultText = "Auto-detected from facter report.";
+    };
     enableBatterySaverSpecialisation = mkEnableOption "Whether to enable battery saver specialisation.";
     package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "beta" { };
 

@@ -22,10 +22,6 @@
     system = {
       boot.uefi.enable = true;
 
-      hardware = {
-        cpu.manufacturer = "intel";
-      };
-
       networking.wireless.enable = true;
     };
 

@@ -12,10 +12,6 @@
         uefi.enable = true;
       };
 
-      hardware = {
-        cpu.manufacturer = "amd";
-      };
-
       virtualisation.containers.minecraft.atm10 = {
         enable = true;
       };

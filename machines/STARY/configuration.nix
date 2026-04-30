@@ -18,13 +18,7 @@
       };
 
       hardware = {
-        cpu = {
-          manufacturer = "amd";
-          amd.zenpower.enable = false;
-        };
-
         gpu.nvidia = {
-          enable = true;
           package = config.boot.kernelPackages.nvidiaPackages.legacy_470;
           modesetting.enable = true;
         };
