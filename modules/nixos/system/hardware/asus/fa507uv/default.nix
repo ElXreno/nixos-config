@@ -69,9 +69,6 @@ in
       services.udev.extraRules = ''
         # Samsung 9100 PRO
         ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x010802", ATTR{power/control}="auto"
-
-        # Realtek RTL8111 GbE
-        ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x020000", ATTR{power/control}="auto"
       '';
     }
 
