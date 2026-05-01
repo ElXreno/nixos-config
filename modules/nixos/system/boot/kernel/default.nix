@@ -76,7 +76,7 @@ in
       type = types.raw;
       default =
         if config.${namespace}.roles.laptop.enable then
-          pkgs.linuxPackages_xanmod_edge
+          pkgs.linuxPackages_xanmod_latest
         else
           pkgs.linuxPackages_latest;
       defaultText = literalExpression "pkgs.linuxPackages_latest";
