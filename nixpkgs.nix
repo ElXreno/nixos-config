@@ -17,7 +17,7 @@ let
   mkPackagesOverlay =
     final: _prev:
     let
-      callPackage = lib.callPackageWith (final // { inherit inputs; });
+      callPackage = lib.callPackageWith (final // { inherit inputs namespace; });
       mkPackage = dir: lib.nameValuePair (baseNameOf dir) (callPackage dir { });
     in
     {
