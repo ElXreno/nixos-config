@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -14,9 +15,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    home.packages = with pkgs; [ b4 ];
+
     programs.git = {
       enable = true;
       lfs.enable = true;
+      package = pkgs.gitFull;
+
       settings = {
         alias = {
           cp = "cherry-pick";
