@@ -1,0 +1,190 @@
+From 9a8ce599558f9eaa28a22ae2129db5e280e7775d Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sat, 2 May 2026 04:44:18 +0300
+Subject: [PATCH 1/2] wifi: mt76: mt7925: add chip_addr/chip_mem debugfs for
+ MCU SRAM dump
+
+Add a pair of debugfs files that allow reading raw chip memory through
+the existing __mt7925_reg_addr() PCIe BAR + L1/L2 remap path:
+
+  chip_addr - u32, the chip address to read from
+  chip_mem  - read returns up to 64 KiB of memory starting at chip_addr
+
+The MCU REG_ACCESS command refuses to expose firmware code/data SRAM,
+which makes it impossible to inspect plaintext firmware regions
+(R1/R3) or running peripheral CSR state from userspace. Going through
+the bus->rr() callback hits the same PCIe windows the driver itself
+uses for register access, which does work for those ranges.
+
+The fixed_map / L1 / L2 remap tables in __mt7925_reg_addr() are not
+range-checked: a chip address that maps to a BAR offset past the end
+of the 2 MiB BAR will cause an unmapped readl() and oops the kernel
+in IRQs-disabled context (sysrq dies with it). Refuse any chip
+address outside an explicit allow-list of ranges that have been
+verified to translate to BAR offsets within pci_resource_len(pdev, 0).
+
+The current allow-list covers:
+  - WF_MCU_SYSRAM, WF_UMAC_SYSRAM (fixed_map)
+  - RAM_R1, RAM_R3 plaintext firmware regions (L2 remap)
+  - selected WF_TOP / WF_LMAC / CONN_INFRA peripheral CSR ranges
+  - speculative MCU TCM aliases (R0/R2/PATCH_S0); these are
+    BAR-bounded by the L2 remap, so they fail safe to 0/0xff/
+    0xdeadadde if the bus fabric does not honour them.
+
+To extend the allow-list, first verify the new range yields valid BAR
+offsets via __mt7925_reg_addr's fixed_map / L1 / L2 path AND that
+those offsets are within pci_resource_len(pdev, 0).
+
+NOT FOR MERGE - diagnostic aid for firmware reverse engineering.
+---
+ .../wireless/mediatek/mt76/mt7925/debugfs.c   | 127 ++++++++++++++++++
+ 1 file changed, 127 insertions(+)
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+index e2498659c884..6069ee34875d 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+@@ -35,6 +35,130 @@ mt7925_reg_get(void *data, u64 *val)
+ 
+ DEFINE_DEBUGFS_ATTRIBUTE(fops_regval, mt7925_reg_get, mt7925_reg_set,
+ 			 "0x%08llx\n");
++
++/* chip-memory dump via direct BAR + L1/L2 PCIe remap (wrapped in bus->rr).
++ * Use this to read MCU SRAM that the MCU REG_ACCESS command refuses to expose.
++ *
++ * SAFETY: __mt7925_reg_addr's "remap" fixed_map entry returns BAR offsets
++ * that can be past the end of the 2 MiB BAR, which crashes the kernel via
++ * an unmapped readl(). We refuse any chip address outside an explicit
++ * allow-list of ranges that are known to translate to valid BAR offsets.
++ *
++ * To extend the allow-list, first verify the range yields valid BAR
++ * offsets via __mt7925_reg_addr's fixed_map / L1 / L2 path AND that those
++ * offsets are within pci_resource_len(pdev, 0).
++ */
++struct mt7925_chip_safe_range {
++	u32 start;
++	u32 len;
++	const char *name;
++};
++
++static const struct mt7925_chip_safe_range mt7925_chip_safe_ranges[] = {
++	/* MCU/UMAC SRAMs (PCIe-visible via fixed_map) */
++	{ 0x00400000, 0x00020000, "WF_MCU_SYSRAM" },
++	{ 0x40000000, 0x00010000, "WF_UMAC_SYSRAM" },
++	/* Confirmed PCIe-visible plaintext FW regions (via L2 remap) */
++	{ 0x02212800, 0x00060000, "RAM_R1" },
++	{ 0xe0029400, 0x00100000, "RAM_R3" },
++	/* Selected peripheral CSR ranges (mapped via fixed_map / L1) */
++	{ 0x70010000, 0x00001000, "TOP_CSR" },
++	{ 0x80020000, 0x00010000, "WF_TOP_MISC_OFF" },
++	{ 0x81020000, 0x00010000, "WF_TOP_MISC_ON" },
++	{ 0x820e0000, 0x00010000, "WF_LMAC_TOP_BN0" },
++	{ 0x820cf000, 0x00001000, "WF_LMAC_TOP_WF_PF" },
++	{ 0x820c0000, 0x00010000, "WF_LMAC_TOP_WCID_TBL" }, /* peer/WCID table area */
++	{ 0x820d0000, 0x00010000, "WF_LMAC_TOP_BN1" },
++	{ 0x830c0000, 0x00001000, "WF_MCU_BUS_CR_REMAP" },
++	{ 0x7c000000, 0x00400000, "CONN_INFRA" },
++	/* Speculative aliases for MCU TCM (R0/R2/PATCH_S0).
++	 * If the chip's bus fabric doesn't honor them they just return
++	 * 0 / 0xff / 0xdeadadde via L2 remap (still BAR-bounded, safe).
++	 */
++	{ 0x80400000, 0x00020000, "MCU_SYSRAM_alias_80" },
++	{ 0xa0400000, 0x00020000, "MCU_SYSRAM_alias_a0" },
++	{ 0x00900000, 0x00020000, "MCU_IRAM_phys" },
++	{ 0x80900000, 0x00020000, "MCU_IRAM_alias_80" },
++	{ 0xa0900000, 0x00020000, "MCU_IRAM_alias_a0" },
++	{ 0x40900000, 0x00020000, "MCU_IRAM_alias_40" },
++};
++
++static u32 mt7925_chip_dump_addr;
++
++#define MT7925_CHIP_DUMP_MAX_LEN	(64 * 1024)
++
++static bool mt7925_chip_range_is_safe(u32 base, size_t len)
++{
++	int i;
++
++	if (!len)
++		return true;
++	if (base + len < base)
++		return false;
++	for (i = 0; i < ARRAY_SIZE(mt7925_chip_safe_ranges); i++) {
++		const struct mt7925_chip_safe_range *r =
++			&mt7925_chip_safe_ranges[i];
++
++		if (base >= r->start && (base + len) <= (r->start + r->len))
++			return true;
++	}
++	return false;
++}
++
++static ssize_t mt7925_chip_mem_read(struct file *file, char __user *user_buf,
++				    size_t count, loff_t *ppos)
++{
++	struct mt792x_dev *dev = file->private_data;
++	struct mt76_dev *mdev = &dev->mt76;
++	u32 base, off, *buf;
++	size_t len;
++	ssize_t ret;
++
++	if (*ppos < 0)
++		return -EINVAL;
++	if (*ppos > UINT_MAX)
++		return -EINVAL;
++	if (count == 0)
++		return 0;
++
++	len = min_t(size_t, count, MT7925_CHIP_DUMP_MAX_LEN);
++	len &= ~3UL;
++	if (!len)
++		return 0;
++
++	base = mt7925_chip_dump_addr + (u32)*ppos;
++	if (!mt7925_chip_range_is_safe(base, len))
++		return -EPERM;
++
++	buf = kmalloc(len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	mt792x_mutex_acquire(dev);
++	for (off = 0; off < len; off += 4) {
++		buf[off / 4] = mdev->bus->rr(mdev, base + off);
++		if ((off & 0xfff) == 0xffc)
++			cond_resched();
++	}
++	mt792x_mutex_release(dev);
++
++	if (copy_to_user(user_buf, buf, len))
++		ret = -EFAULT;
++	else
++		ret = len;
++	kfree(buf);
++	if (ret > 0)
++		*ppos += ret;
++	return ret;
++}
++
++static const struct file_operations fops_chip_mem = {
++	.owner = THIS_MODULE,
++	.open = simple_open,
++	.read = mt7925_chip_mem_read,
++	.llseek = default_llseek,
++};
++
+ static int
+ mt7925_fw_debug_set(void *data, u64 val)
+ {
+@@ -294,6 +418,9 @@ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ 	if (!dir)
+ 		return -ENOMEM;
+ 
++	debugfs_create_u32("chip_addr", 0600, dir, &mt7925_chip_dump_addr);
++	debugfs_create_file_unsafe("chip_mem", 0400, dir, dev, &fops_chip_mem);
++
+ 	if (mt76_is_mmio(&dev->mt76))
+ 		debugfs_create_devm_seqfile(dev->mt76.dev, "xmit-queues",
+ 					    dir, mt792x_queues_read);
+-- 
+2.53.0
+

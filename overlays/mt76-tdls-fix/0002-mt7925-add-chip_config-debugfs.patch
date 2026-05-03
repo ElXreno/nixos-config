@@ -1,0 +1,88 @@
+From 6cf9656621c16867972cae1f16ce28d25fb1fee7 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sat, 2 May 2026 04:45:09 +0300
+Subject: [PATCH 2/2] wifi: mt76: mt7925: add chip_config debugfs for raw
+ firmware string commands
+
+Add a debugfs file that writes arbitrary string commands to the firmware
+via the existing mt7925_mcu_chip_config() helper (UNI_CHIP_CONFIG_CHIP_CFG
+sub-command). Each write is forwarded verbatim to the firmware with the
+trailing newline stripped, and the firmware return code is logged via
+dev_info().
+
+The firmware ships a string table containing tokens like "tdls", "p2p",
+and "cmm" that have no driver-side caller. This debugfs entry lets us
+poke each token to enumerate which subsystems respond, what return codes
+they emit, and what side effects (if any) show up in the fw_log stream
+or in MCU CSRs - all from userspace, without rebuilding the driver.
+
+Mode is 0200 (write-only by root) and the file does not consume any
+firmware resources unless written to.
+
+NOT FOR MERGE - diagnostic aid for firmware reverse engineering.
+---
+ .../wireless/mediatek/mt76/mt7925/debugfs.c   | 41 +++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+index 6069ee34875d..37bd1f0369fa 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+@@ -410,6 +410,46 @@ static int mt7925_chip_reset(void *data, u64 val)
+ 
+ DEFINE_DEBUGFS_ATTRIBUTE(fops_reset, NULL, mt7925_chip_reset, "%lld\n");
+ 
++/* Arbitrary chip_config command sender. Each write is forwarded verbatim to
++ * the firmware via mt7925_mcu_chip_config() / UNI_CHIP_CONFIG_CHIP_CFG, with
++ * the trailing newline stripped and the firmware return code logged via
++ * dev_info(). Used to probe for hidden firmware debug subsystems whose
++ * command tokens (e.g. "tdls", "p2p", "cmm") only appear in the firmware
++ * string table and have no driver-side caller.
++ */
++static ssize_t mt7925_chip_config_write(struct file *file, const char __user *ubuf,
++					size_t count, loff_t *ppos)
++{
++	struct mt792x_dev *dev = file->private_data;
++	char buf[128];
++	size_t len = count;
++	int ret;
++
++	if (len >= sizeof(buf))
++		return -EINVAL;
++	if (copy_from_user(buf, ubuf, len))
++		return -EFAULT;
++	buf[len] = '\0';
++	while (len > 0 && (buf[len - 1] == '\n' || buf[len - 1] == '\r'))
++		buf[--len] = '\0';
++	if (len == 0)
++		return count;
++
++	mt792x_mutex_acquire(dev);
++	ret = mt7925_mcu_chip_config(dev, buf);
++	mt792x_mutex_release(dev);
++
++	dev_info(dev->mt76.dev, "chip_config(\"%s\") = %d\n", buf, ret);
++	return count;
++}
++
++static const struct file_operations fops_chip_config = {
++	.open = simple_open,
++	.write = mt7925_chip_config_write,
++	.llseek = noop_llseek,
++	.owner = THIS_MODULE,
++};
++
+ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ {
+ 	struct dentry *dir;
+@@ -438,6 +478,7 @@ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ 	debugfs_create_file("idle-timeout", 0600, dir, dev,
+ 			    &fops_pm_idle_timeout);
+ 	debugfs_create_file("chip_reset", 0600, dir, dev, &fops_reset);
++	debugfs_create_file("chip_config", 0200, dir, dev, &fops_chip_config);
+ 	debugfs_create_devm_seqfile(dev->mt76.dev, "runtime_pm_stats", dir,
+ 				    mt792x_pm_stats);
+ 	debugfs_create_file("deep-sleep", 0600, dir, dev, &fops_ds);
+-- 
+2.53.0
+

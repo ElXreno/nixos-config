@@ -99,9 +99,19 @@ in
     };
 
     boot = {
-      extraModulePackages = optionals (builtins.elem "iwlwifi"
-        config.${namespace}.facts.network.wifi.drivers
-      ) [ config.boot.kernelPackages.iwlwifi-lar ];
+      extraModulePackages =
+        optionals (builtins.elem "iwlwifi" config.${namespace}.facts.network.wifi.drivers) [
+          config.boot.kernelPackages.iwlwifi-lar
+        ]
+        ++
+          optionals
+            (builtins.any (d: builtins.elem d config.${namespace}.facts.network.wifi.drivers) [
+              "mt7925e"
+              "mt7921e"
+            ])
+            [
+              config.boot.kernelPackages.mt76-tdls-fix
+            ];
 
       extraModprobeConfig = ''
         options cfg80211 ieee80211_regdom=US
