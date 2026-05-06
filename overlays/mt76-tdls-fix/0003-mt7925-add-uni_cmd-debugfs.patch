@@ -1,0 +1,129 @@
+From 34dda0a5e38533786e261265bc9ccf7c9fa5286c Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 6 May 2026 00:57:44 +0300
+Subject: [PATCH] wifi: mt76: mt7925: add uni_cmd debugfs for raw UNI command
+ probing
+
+The MT6639 vendor source (Connac3, same firmware family as mt7925)
+defines UNI_CMD_ID_TDLS = 0x1B and UNI_CMD_ID_P2P = 0x20, but neither
+is sent by the proprietary driver and neither is defined in mt76's
+MCU_UNI_CMD enum. Reverse engineering of the mt7925 firmware dispatch
+table at R1+0x09558 shows handlers exist for both: 0x1B at 0xe003f088
+and 0x20 at 0xe004b0b0.
+
+Add a write-only debugfs entry that lets userspace fire arbitrary UNI
+commands at the firmware:
+
+  echo 1B               > uni_cmd  -> UNI cmd 0x1B, empty payload
+  echo "1B 00010203"    > uni_cmd  -> UNI cmd 0x1B, payload 00 01 02 03
+
+The firmware return code is logged via dev_info(). MCU timeouts trigger
+the usual chip-reset path so a malformed probe payload can hard-reset
+the radio - this is intentional, the entry exists to map the firmware
+side without depending on what the proprietary driver does.
+
+NOT FOR MERGE - diagnostic aid for firmware reverse engineering.
+
+Assisted-by: Claude:claude-opus-4-7
+---
+ .../wireless/mediatek/mt76/mt7925/debugfs.c   | 77 +++++++++++++++++++
+ 1 file changed, 77 insertions(+)
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+index 37bd1f0369fa..99d521a39281 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+@@ -450,6 +450,82 @@ static const struct file_operations fops_chip_config = {
+ 	.owner = THIS_MODULE,
+ };
+ 
++/* Send a raw MCU UNI command from userspace. Input format:
++ *
++ *   <cmd_id_hex> [payload_hex_bytes...]
++ *
++ * Examples:
++ *   echo 1B               > uni_cmd  -> UNI cmd 0x1B, empty payload
++ *   echo "1B 00010203"    > uni_cmd  -> UNI cmd 0x1B, payload 00 01 02 03
++ *   echo "20 deadbeef"    > uni_cmd  -> UNI cmd 0x20 (P2P), payload de ad be ef
++ *
++ * Used to probe firmware for UNI command handlers that the in-tree driver
++ * does not exercise (UNI_CMD_ID_TDLS = 0x1B is the immediate motivation).
++ * The firmware return code is logged via dev_info(); MCU timeouts trigger
++ * the usual chip-reset path so this can hard-reset the radio if a probe
++ * payload is malformed.
++ */
++static ssize_t mt7925_uni_cmd_write(struct file *file, const char __user *ubuf,
++				    size_t count, loff_t *ppos)
++{
++	struct mt792x_dev *dev = file->private_data;
++	char buf[256], *p;
++	u8 payload[128];
++	int payload_len = 0;
++	unsigned long cmd_id;
++	u32 cmd_val;
++	int ret;
++
++	if (count >= sizeof(buf))
++		return -EINVAL;
++	if (copy_from_user(buf, ubuf, count))
++		return -EFAULT;
++	buf[count] = '\0';
++
++	p = strpbrk(buf, "\r\n");
++	if (p)
++		*p = '\0';
++
++	cmd_id = simple_strtoul(buf, &p, 16);
++	if (cmd_id > 0xFF)
++		return -EINVAL;
++
++	while (*p == ' ' || *p == '\t')
++		p++;
++
++	while (*p && payload_len < (int)sizeof(payload)) {
++		char hex[3] = { p[0], p[1], '\0' };
++
++		if (!isxdigit(p[0]) || !isxdigit(p[1]))
++			break;
++		payload[payload_len++] = simple_strtoul(hex, NULL, 16);
++		p += 2;
++		while (*p == ' ' || *p == '\t')
++			p++;
++	}
++
++	cmd_val = __MCU_CMD_FIELD_UNI |
++		  FIELD_PREP(__MCU_CMD_FIELD_ID, cmd_id);
++
++	mt792x_mutex_acquire(dev);
++	ret = mt76_mcu_send_msg(&dev->mt76, cmd_val,
++				payload_len ? payload : NULL,
++				payload_len, true);
++	mt792x_mutex_release(dev);
++
++	dev_info(dev->mt76.dev, "uni_cmd(0x%02lx, %d bytes) = %d\n",
++		 cmd_id, payload_len, ret);
++
++	return count;
++}
++
++static const struct file_operations fops_uni_cmd = {
++	.open = simple_open,
++	.write = mt7925_uni_cmd_write,
++	.llseek = noop_llseek,
++	.owner = THIS_MODULE,
++};
++
+ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ {
+ 	struct dentry *dir;
+@@ -479,6 +555,7 @@ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ 			    &fops_pm_idle_timeout);
+ 	debugfs_create_file("chip_reset", 0600, dir, dev, &fops_reset);
+ 	debugfs_create_file("chip_config", 0200, dir, dev, &fops_chip_config);
++	debugfs_create_file("uni_cmd", 0200, dir, dev, &fops_uni_cmd);
+ 	debugfs_create_devm_seqfile(dev->mt76.dev, "runtime_pm_stats", dir,
+ 				    mt792x_pm_stats);
+ 	debugfs_create_file("deep-sleep", 0600, dir, dev, &fops_ds);
+-- 
+2.53.0
+

@@ -17,14 +17,15 @@ _: _final: prev: {
           patches = [
             ./0001-mt76-mt7925-add-chip-mem-debugfs-for-mcu-sram-dump.patch
             ./0002-mt7925-add-chip_config-debugfs.patch
+            ./0003-mt7925-add-uni_cmd-debugfs.patch
 
             (prev.fetchpatch {
-              url = "https://github.com/ElXreno/linux/commit/57508f1e6ab29efc4083a7cd71bd86018a55876f.patch";
-              hash = "sha256-eBL554a4dGPhYWSZSdLaMcC2FgTo7bkfkXtLWFIjKqY=";
+              url = "https://github.com/ElXreno/linux/commit/3d910f174bdee76b4b40cb091d4dbe751b9a795a.patch";
+              hash = "sha256-RiBngBTdm5VPddK8/DxGNTx8+sIiSGO/Ak6YTtepDQc=";
             })
             (prev.fetchpatch {
-              url = "https://github.com/ElXreno/linux/commit/cdf4bc267f64c98b496e4b4f71349bcf5f0ad910.patch";
-              hash = "sha256-qNdzNLqY1wSPxWRgDwYy+WwE4hXe/XunbP7HKv7GVaI=";
+              url = "https://github.com/ElXreno/linux/commit/6757598c72e711b647476afa7e0efc567e9ae6f0.patch";
+              hash = "sha256-r/V9NblvKDehhmWj/Xz51lg+5Ob35U7rY16UNM5uBNY=";
             })
           ];
 
