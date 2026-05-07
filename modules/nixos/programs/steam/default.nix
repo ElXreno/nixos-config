@@ -27,6 +27,7 @@ in
 
     environment.systemPackages = with pkgs; [
       protonup-qt
+      vulkan-tools
     ];
 
     # last checked with https://steamdeck-packages.steamos.cloud/archlinux-mirror/jupiter-main/os/x86_64/steamos-customizations-jupiter-20251229.1-1-any.pkg.tar.zst
