@@ -129,5 +129,9 @@ in
         options mt7921e disable_aspm=1
       '';
     };
+
+    services.udev.extraRules = optionalString (elem "mt7925e" wifiDrivers) ''
+      ACTION=="add|bind", SUBSYSTEM=="pci", DRIVER=="mt7925e", ATTR{link/l1_aspm}="0", ATTR{link/l1_1_aspm}="0", ATTR{link/l1_2_aspm}="0", ATTR{link/l1_1_pcipm}="0", ATTR{link/l1_2_pcipm}="0"
+    '';
   };
 }
