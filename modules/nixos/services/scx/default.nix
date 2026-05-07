@@ -19,7 +19,7 @@ in
     enable = mkEnableOption "Whether or not to manage scx.";
     scheduler = mkOption {
       type = with types; str;
-      default = "scx_bpfland";
+      default = "scx_lavd";
     };
     schedulerExtraArgs = mkOption {
       type = with types; listOf str;
