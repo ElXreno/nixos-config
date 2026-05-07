@@ -154,6 +154,9 @@ in
         })
         (mkIf isLaptop {
           "vm.dirty_writeback_centisecs" = 1500;
+
+          "net.core.busy_poll" = 50;
+          "net.core.busy_read" = 50;
         })
       ];
       supportedFilesystems = lib.mkIf (!isServer) [ "ntfs" ];
