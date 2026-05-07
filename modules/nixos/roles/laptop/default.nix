@@ -22,6 +22,7 @@ in
 
       services = {
         pipewire.enable = true;
+        scx.enable = true;
       };
 
       programs = {

@@ -62,7 +62,6 @@
     };
 
     services = {
-      scx.enable = true;
       postgresql.enable = true;
       bitmagnet.enable = true;
       restic.enable = !virtual;
