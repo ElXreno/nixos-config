@@ -19,6 +19,7 @@
 - **Home-manager program modules**: `modules/home/programs/<name>/default.nix` — wrap upstream HM options behind `${namespace}.programs.<name>.enable`
 - **Roles** (`modules/home/roles/`) aggregate program enables; per-host configs live in `homes/<user>@<host>/default.nix`
 - **NixOS service modules**: `modules/nixos/services/<name>/default.nix`
+- **Facts module** (`modules/nixos/facts/default.nix`): derives `${namespace}.facts.{cpu,gpu,network,memory,system}` from `hardware.facter.report` (per-machine `machines/<NAME>/facter.json`). Use these as defaults to avoid hand-coding `mkIf hostname == "X"` checks. Home-manager modules read via `osConfig.${namespace}.facts.*`. Don't reintroduce manual hardware enables in `machines/*/configuration.nix` — extend the facts module instead
 
 ## MCP Servers
 
