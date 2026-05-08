@@ -75,7 +75,7 @@ in
     packages = mkOption {
       type = types.raw;
       default =
-        if config.${namespace}.roles.laptop.enable then
+        if (config.${namespace}.roles.laptop.enable || cfg.optimizations.enable) then
           pkgs.linuxPackages_xanmod_latest
         else
           pkgs.linuxPackages_latest;
