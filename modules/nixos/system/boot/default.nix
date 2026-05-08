@@ -72,12 +72,12 @@ in
 
       kernelParams = [
         "nohibernate"
+        "mitigations=off"
       ]
       ++ lib.optionals isLaptop [
         "preempt=full"
         "nowatchdog"
         "nmi_watchdog=0"
-        "mitigations=off"
       ];
 
       kernel.sysctl = lib.mkMerge [
