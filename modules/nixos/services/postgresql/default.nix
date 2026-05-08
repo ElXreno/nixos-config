@@ -9,6 +9,17 @@
 let
   inherit (lib) mkIf mkEnableOption mkPackageOption;
   cfg = config.${namespace}.services.postgresql;
+  inherit (config.${namespace}) facts;
+
+  inherit (facts.memory) totalMiB;
+  inherit (facts.cpu) threads;
+
+  # Conservative ratios for shared-tenant hosts (e.g. BIMBA also runs Minecraft).
+  # Override per-host via services.postgresql.settings if a dedicated DB host
+  # wants more aggressive tuning.
+  sharedBuffersMiB = lib.max 128 (totalMiB / 16);
+  effectiveCacheSizeMiB = totalMiB * 3 / 16;
+  parallelWorkersPerGather = lib.min 4 (lib.max 1 (threads / 3));
 in
 {
   options.${namespace}.services.postgresql = {
@@ -30,10 +41,16 @@ in
         local all all trust
       '';
       settings = {
-        shared_buffers = "1536MB";
-        effective_cache_size = "4GB";
+        shared_buffers = "${toString sharedBuffersMiB}MB";
+        effective_cache_size = "${toString effectiveCacheSizeMiB}MB";
         maintenance_work_mem = "512MB";
         work_mem = "16MB";
+
+        max_worker_processes = threads;
+        max_parallel_workers = threads;
+        max_parallel_workers_per_gather = parallelWorkersPerGather;
+
+        effective_io_concurrency = 200;
 
         random_page_cost = 1.1;
         max_wal_size = "2GB";
@@ -43,6 +60,10 @@ in
 
         commit_delay = 1000;
         commit_siblings = 5;
+
+        wal_compression = "zstd";
+        default_toast_compression = "lz4";
+        track_io_timing = true;
       };
     };
 
