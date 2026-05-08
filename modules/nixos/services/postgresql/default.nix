@@ -17,9 +17,10 @@ in
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.system.impermanence.directories = [
-      "/var/lib/postgresql"
-    ];
+    ${namespace}.system = {
+      impermanence.directories = [ "/var/lib/postgresql" ];
+      fs.btrfs.nocowPaths = [ "/var/lib/postgresql" ];
+    };
 
     services.postgresql = {
       enable = true;

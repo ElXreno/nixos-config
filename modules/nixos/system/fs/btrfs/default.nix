@@ -9,8 +9,46 @@ let
   inherit (lib)
     mkIf
     mkEnableOption
+    mkOption
+    types
     ;
   cfg = config.${namespace}.system.fs.btrfs;
+
+  pathOnMount =
+    path: mount:
+    let
+      m = if mount == "/" then "/" else mount + "/";
+      p = path + "/";
+    in
+    lib.hasPrefix m p;
+
+  mountFor =
+    path:
+    lib.foldl' (a: b: if lib.stringLength b > lib.stringLength a then b else a) "/" (
+      lib.filter (m: pathOnMount path m) (lib.attrNames config.fileSystems)
+    );
+
+  impCfg = config.${namespace}.system.impermanence;
+
+  isImpermanenceBound =
+    path:
+    impCfg.enable && lib.any (d: (if lib.isAttrs d then d.directory else d) == path) impCfg.directories;
+
+  effectiveMountFor =
+    path: if isImpermanenceBound path then mountFor impCfg.defaultPersistentPath else mountFor path;
+
+  isBtrfsPath = path: (config.fileSystems.${effectiveMountFor path}.fsType or null) == "btrfs";
+
+  # Target the persist-root source for impermanence binds; chattr operates on inodes.
+  canonicalPathFor =
+    path: if isImpermanenceBound path then "${impCfg.defaultPersistentPath}${path}" else path;
+
+  effectiveNocowPaths = lib.filter (
+    path:
+    lib.warnIf (!isBtrfsPath path) "btrfs.nocowPaths: ${path} is not on btrfs, skipping" (
+      isBtrfsPath path
+    )
+  ) cfg.nocowPaths;
 
   btrfsReclaimSetupScript = pkgs.writeShellScriptBin "btrfs-reclaim-setup.sh" ''
     set -ex
@@ -66,9 +104,16 @@ in
     enable = mkEnableOption "Whether or not to manage btrfs." // {
       default = lib.any (x: x.fsType == "btrfs") config.system.build.fileSystems;
     };
+    nocowPaths = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      description = "Paths to mark NoCoW (`chattr +C`) via tmpfiles. Only fires for btrfs paths. New files inherit; existing files need a manual mv+cp dance.";
+    };
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = map (path: "h ${canonicalPathFor path} - - - - +C") effectiveNocowPaths;
+
     systemd.services."btrfs-balance-auto" = {
       wantedBy = [ "sysinit.target" ];
       script = ''
