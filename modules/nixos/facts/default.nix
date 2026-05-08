@@ -11,6 +11,7 @@ let
     elem
     filter
     findFirst
+    foldl'
     hasPrefix
     head
     mkOption
@@ -103,6 +104,20 @@ in
           (Zen 1/2/3) and Family 19h Model < 0x60 (Zen 3, excluding Zen 4
           Raphael/Phoenix/Hawk Point). Family 1Ah (Zen 5) is not supported.
         '';
+      };
+
+      cores = mkOption {
+        type = types.int;
+        default = foldl' (a: c: a + (c.cores or 0)) 0 cpus;
+        defaultText = "Derived from facter report (sum of cpus[].cores).";
+        description = "Total physical CPU cores across all sockets.";
+      };
+
+      threads = mkOption {
+        type = types.int;
+        default = foldl' (a: c: a + (c.siblings or c.cores or 0)) 0 cpus;
+        defaultText = "Derived from facter report (sum of cpus[].siblings).";
+        description = "Total logical processors (cores × SMT threads) across all sockets.";
       };
     };
 
