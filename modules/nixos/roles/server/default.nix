@@ -18,6 +18,12 @@ in
     ${namespace} = {
       roles.common.enable = true;
 
+      services.scx = {
+        enable = true;
+        scheduler = "scx_p2dq";
+        schedulerExtraArgs = [ "--keep-running" ];
+      };
+
       system = {
         nix = {
           auto-optimise.enable = true;
