@@ -20,7 +20,10 @@ in
       servers = {
         nixos.command = "${lib.getExe pkgs.mcp-nixos}";
         ghidra-mcp.command = "${lib.getExe pkgs.${namespace}.ghidra-mcp}";
-        playwright.command = "${lib.getExe pkgs.playwright-mcp}";
+        playwright = {
+          command = "${lib.getExe pkgs.playwright-mcp}";
+          args = [ "--isolated" ];
+        };
       };
     };
   };
