@@ -10,6 +10,13 @@
     system = {
       boot = {
         uefi.enable = true;
+
+        kernel = {
+          optimizations = {
+            enable = true;
+            znver = 4;
+          };
+        };
       };
 
       virtualisation.containers.minecraft.atm10 = {
