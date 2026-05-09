@@ -7,7 +7,7 @@
     };
 
     flake-input-patcher = {
-      url = "github:jfly/flake-input-patcher";
+      url = "github:ElXreno/flake-input-patcher/support-non-flake-inputs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -75,7 +75,10 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.niri-stable.url = "github:niri-wm/niri/v26.04";
+      inputs.niri-stable = {
+        url = "github:niri-wm/niri/v26.04";
+        flake = false;
+      };
     };
 
     stylix = {
@@ -149,9 +152,13 @@
           })
         ];
 
-        # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
-        # and removes the replace-service-with-usr-bin parameter.
-        niri.patches = [ ./patches/niri-flake-stable-v26.patch ];
+        niri = {
+          # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
+          # and removes the replace-service-with-usr-bin parameter.
+          patches = [ ./patches/niri-flake-stable-v26.patch ];
+
+          inputs.niri-stable.patches = [ ./patches/niri-stable-bpc-pr3158.patch ];
+        };
 
         noctalia.patches = [ ./patches/noctalia-no-workspace-wave.patch ];
       };

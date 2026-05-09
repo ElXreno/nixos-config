@@ -338,15 +338,16 @@
         "systems": "systems_4"
       },
       "locked": {
-        "lastModified": 1777233007,
-        "narHash": "sha256-Jiis/solTrHkALcodLMl4rlBb75Xpom7AMvlKyPGzc4=",
-        "owner": "jfly",
+        "lastModified": 1778292902,
+        "narHash": "sha256-Ycm+l3XTgFLKyzQ1MyBeiOUNlYosVduOhZTfTx8xF/I=",
+        "owner": "ElXreno",
         "repo": "flake-input-patcher",
-        "rev": "d4442d7274b5afeaa17423865e41dc4bd59fa706",
+        "rev": "14b8650f05daea7ead6b67d6a6b313a50f2280ee",
         "type": "github"
       },
       "original": {
-        "owner": "jfly",
+        "owner": "ElXreno",
+        "ref": "support-non-flake-inputs",
         "repo": "flake-input-patcher",
         "type": "github"
       }
