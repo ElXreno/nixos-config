@@ -112,6 +112,7 @@ in
           };
           focus-at-startup = true;
           variable-refresh-rate = true;
+          bpc = 10;
         };
       };
 

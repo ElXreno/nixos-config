@@ -1,0 +1,32 @@
+diff --git a/settings.nix b/settings.nix
+index 1f5d333..572dbb4 100644
+--- a/settings.nix
++++ b/settings.nix
+@@ -1905,6 +1905,19 @@
+                   '';
+                 };
+ 
++              bpc =
++                nullable (enum [
++                  8
++                  10
++                ])
++                // {
++                  description = ''
++                    Bits per colour (BPC) for this output.
++
++                    When this is null, niri does not change the existing ${fmt.code "max bpc"} connector property.
++                  '';
++                };
++
+               focus-at-startup = optional types.bool false // {
+                 description = ''
+                   Focus this output by default when niri starts.
+@@ -3614,6 +3627,7 @@
+               (optional-node (cfg.variable-refresh-rate != false) (
+                 leaf "variable-refresh-rate" { on-demand = cfg.variable-refresh-rate == "on-demand"; }
+               ))
++              (nullable leaf "bpc" cfg.bpc)
+             ])
+           ])
+         ]))

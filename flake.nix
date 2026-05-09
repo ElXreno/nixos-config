@@ -153,9 +153,13 @@
         ];
 
         niri = {
-          # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
-          # and removes the replace-service-with-usr-bin parameter.
-          patches = [ ./patches/niri-flake-stable-v26.patch ];
+          patches = [
+            # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
+            # and removes the replace-service-with-usr-bin parameter.
+            ./patches/niri-flake-stable-v26.patch
+
+            ./patches/niri-flake-output-bpc.patch
+          ];
 
           inputs.niri-stable.patches = [ ./patches/niri-stable-bpc-pr3158.patch ];
         };
