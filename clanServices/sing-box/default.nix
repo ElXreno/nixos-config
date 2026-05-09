@@ -371,6 +371,7 @@ in
                         # etc
                         "deepl.com"
                         "terraform.io"
+                        "grafana.com"
                       ];
                       outbound = "datalake";
                     }
