@@ -19,6 +19,7 @@ let
     lanzaboote.nixosModules.lanzaboote
     rk-m87-sync.nixosModules.default
     nixflix.nixosModules.default
+    nix-minecraft.nixosModules.minecraft-servers
 
     niri.nixosModules.niri
     {

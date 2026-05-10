@@ -18,15 +18,12 @@
           };
         };
       };
-
-      virtualisation.containers.minecraft.atm10 = {
-        enable = true;
-      };
     };
 
     services = {
       atticd.enable = true;
       matrix.synapse.enable = true;
+      minecraft.atm10.enable = true;
       nginx = {
         enable = true;
         enableDefaultVhost = true;

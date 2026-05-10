@@ -33,6 +33,7 @@ rec {
       with inputs;
       [
         firefox-addons.overlays.default
+        nix-minecraft.overlays.default
         mkPackagesOverlay
       ]
       ++ mkOverlays;

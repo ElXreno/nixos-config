@@ -104,6 +104,11 @@
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
 
+    nix-minecraft = {
+      url = "github:ElXreno/nix-minecraft/feat/fetchCurseForgeModpack";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     noctalia = {
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
