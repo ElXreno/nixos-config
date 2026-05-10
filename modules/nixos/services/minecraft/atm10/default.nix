@@ -133,6 +133,7 @@ in
             };
             "config/c2me.toml" = pkgs.writeText "c2me.toml" ''
               version = 3
+              globalExecutorParallelism = 6
 
               [vanillaWorldGenOptimizations]
               useDensityFunctionCompiler = true
@@ -140,6 +141,9 @@ in
               [vanillaWorldGenOptimizations.nativeAcceleration]
               enabled = true
             '';
+            "config/lootr-common.toml" = pkgs.writeText "lootr-common.toml" (
+              builtins.readFile ./configs/lootr-common.toml
+            );
           };
       };
     };
@@ -164,6 +168,134 @@ in
           mode = "0750";
         }
       ];
+
+      services.scx.layered.layers = {
+        atm10-server-thread = {
+          name = "atm10-server-thread";
+          priority = 10;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "Server thread"; }
+            ]
+          ];
+          kind.Grouped = {
+            util_range = [
+              0.4
+              0.95
+            ];
+            cpus_range = [
+              1
+              2
+            ];
+            idle_confined = true;
+            protected = true;
+            preempt = true;
+            preempt_first = true;
+          };
+        };
+        atm10-gc = {
+          name = "atm10-gc";
+          priority = 20;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "GC Thread#"; }
+            ]
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "G1 "; }
+            ]
+          ];
+          kind.Grouped = {
+            util_range = [
+              0.05
+              0.95
+            ];
+            cpus_range_frac = [
+              0.0
+              1.0
+            ];
+            preempt = true;
+          };
+        };
+        atm10-c2me = {
+          name = "atm10-c2me";
+          priority = 30;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "c2me-"; }
+            ]
+          ];
+          kind.Grouped = {
+            util_range = [
+              0.0
+              0.9
+            ];
+            cpus_range_frac = [
+              0.3
+              0.7
+            ];
+            idle_confined = true;
+          };
+        };
+        atm10-interactive = {
+          name = "atm10-interactive";
+          priority = 25;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "AE Crafting Cal"; }
+            ]
+          ];
+          kind.Grouped = {
+            util_range = [
+              0.0
+              0.95
+            ];
+            cpus_range_frac = [
+              0.0
+              0.5
+            ];
+            preempt = true;
+          };
+        };
+        atm10-bluemap = {
+          name = "atm10-bluemap";
+          priority = 100;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "BlueMap-"; }
+            ]
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "RenderManager-"; }
+            ]
+          ];
+          kind.Open = {
+            weight = 1;
+          };
+        };
+        atm10-jit = {
+          name = "atm10-jit";
+          priority = 110;
+          matches = [
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "JVMCI-native"; }
+            ]
+            [
+              { CgroupContains = "minecraft-server-atm10"; }
+              { CommPrefix = "C1 Compiler"; }
+            ]
+          ];
+          kind.Open = {
+            weight = 10;
+          };
+        };
+      };
     };
 
     systemd.services.minecraft-server-atm10.serviceConfig = {
