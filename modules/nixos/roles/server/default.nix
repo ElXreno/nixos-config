@@ -20,8 +20,7 @@ in
 
       services.scx = {
         enable = true;
-        scheduler = "scx_p2dq";
-        schedulerExtraArgs = [ "--keep-running" ];
+        scheduler = "scx_layered";
       };
 
       system = {
