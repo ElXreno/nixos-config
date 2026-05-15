@@ -50,7 +50,6 @@ in
 
     ${namespace} = {
       programs.gamescope.enable = true;
-      services.ananicy.enable = true;
       system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
     };
     hardware.xpadneo.enable = cfg.xboxSupport;
