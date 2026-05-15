@@ -12,13 +12,13 @@
 
 let
   pname = "ghidra-mcp";
-  version = "4.3.0";
+  version = "5.10.0";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
     rev = "v${version}";
-    hash = "sha256-+37kC6Iji0Vb3NMVNdxsPbZMd6AWUX5vNqru9yooUvs=";
+    hash = "sha256-khqvuzjNB3X0SfTqbUlKFxTPRIaUeb8Vi4FPSbABdK4=";
   };
 
   ghidraHome = "${ghidra}/lib/ghidra";
@@ -27,11 +27,16 @@ let
 
   ghidraJars = {
     Base = "Ghidra/Features/Base/lib/Base.jar";
+    DB = "Ghidra/Framework/DB/lib/DB.jar";
+    Debugger-api = "Ghidra/Debug/Debugger-api/lib/Debugger-api.jar";
+    Debugger-rmi-trace = "Ghidra/Debug/Debugger-rmi-trace/lib/Debugger-rmi-trace.jar";
     Decompiler = "Ghidra/Features/Decompiler/lib/Decompiler.jar";
     Docking = "Ghidra/Framework/Docking/lib/Docking.jar";
+    Emulation = "Ghidra/Framework/Emulation/lib/Emulation.jar";
+    FileSystem = "Ghidra/Framework/FileSystem/lib/FileSystem.jar";
+    Framework-TraceModeling = "Ghidra/Debug/Framework-TraceModeling/lib/Framework-TraceModeling.jar";
     Generic = "Ghidra/Framework/Generic/lib/Generic.jar";
     Gui = "Ghidra/Framework/Gui/lib/Gui.jar";
-    FileSystem = "Ghidra/Framework/FileSystem/lib/FileSystem.jar";
     Help = "Ghidra/Framework/Help/lib/Help.jar";
     Project = "Ghidra/Framework/Project/lib/Project.jar";
     SoftwareModeling = "Ghidra/Framework/SoftwareModeling/lib/SoftwareModeling.jar";
@@ -87,7 +92,7 @@ let
     dontFixup = true;
     outputHashAlgo = "sha256";
     outputHashMode = "recursive";
-    outputHash = "sha256-xoNH22gn/YZiBo8vxJIwQjuhHhrCyGprfyS3x7cLWMo=";
+    outputHash = "sha256-zUj1NaS4R2JA7SCffcM2OcBNwFcLcp926KuIWoR5ZQg=";
   };
 
   pythonEnv = python3.withPackages (
