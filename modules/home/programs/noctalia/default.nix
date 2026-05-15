@@ -39,6 +39,7 @@ in
 
         bar.widgets = {
           left = [
+            { id = "KeepAwake"; }
             {
               id = "Workspace";
               focusedColor = "primary";
@@ -55,7 +56,10 @@ in
               id = "ActiveWindow";
               maxWidth = 400;
             }
-            { id = "MediaMini"; }
+            {
+              id = "MediaMini";
+              maxWidth = 400;
+            }
           ];
           center = [
             { id = "Clock"; }
@@ -78,7 +82,6 @@ in
             { id = "Volume"; }
             { id = "Brightness"; }
             { id = "ControlCenter"; }
-            { id = "KeepAwake"; }
           ];
         };
 
