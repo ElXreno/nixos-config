@@ -1,12 +1,13 @@
 diff --git a/tailscale/BarWidget.qml b/tailscale/BarWidget.qml
-index 3a232a9..9c1efbd 100644
+index 46e33952..a66ead68 100644
 --- a/tailscale/BarWidget.qml
 +++ b/tailscale/BarWidget.qml
-@@ -52,7 +52,6 @@ Item {
-         applyUiScale: false
-         crossed: !(mainInstance?.tailscaleRunning ?? false)
-         color: {
--          if (mainInstance?.tailscaleRunning ?? false) return Color.mOnPrimary
-           return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-         }
-         opacity: 1.0
+@@ -55,7 +55,7 @@ Item {
+         connected: root.tailscaleConnected
+         connecting: root.tailscaleConnecting
+         hovered: mouseArea.containsMouse
+-        litColor: Color.mPrimary
++        litColor: root.tailscaleConnected ? Color.mOnSurface : Color.mPrimary
+       }
+ 
+       // Show details when not in compact mode and there's something to show

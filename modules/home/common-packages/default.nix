@@ -82,10 +82,6 @@ in
               # MEGA
               megasync
 
-              # Office and language packs
-              libreoffice
-              hunspellDicts.ru-ru
-
               # Photos
               # darktable
               # rawtherapee

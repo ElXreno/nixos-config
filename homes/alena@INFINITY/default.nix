@@ -13,10 +13,6 @@
   home = {
     packages = with pkgs; [
       telegram-desktop
-
-      # Office and language packs
-      libreoffice
-      hunspellDicts.ru-ru
     ];
   };
 }
