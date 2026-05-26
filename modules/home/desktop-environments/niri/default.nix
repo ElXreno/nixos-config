@@ -9,7 +9,7 @@ let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.niri;
 
-  uwsm = "${lib.getExe pkgs.uwsm} app --";
+  uwsm-app = "${pkgs.uwsm}/bin/uwsm-app --";
 
   inherit (config.lib.stylix.colors.withHashtag)
     base00
@@ -35,6 +35,21 @@ in
     services = {
       network-manager-applet.enable = true;
       playerctld.enable = true;
+    };
+
+    systemd.user.services.wayland-wm-app-daemon = {
+      Unit = {
+        Description = "Fast application argument generator (uwsm)";
+        PartOf = "graphical-session.target";
+        After = "graphical-session.target";
+      };
+      Service = {
+        Type = "exec";
+        ExecStart = "${pkgs.uwsm}/bin/uwsm aux app-daemon";
+        Restart = "on-failure";
+        Slice = "session.slice";
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
     };
 
     home = {
@@ -174,11 +189,11 @@ in
         "Mod+Shift+Slash".action.show-hotkey-overlay = [ ];
 
         "Mod+B" = {
-          action.spawn-sh = "${uwsm} firefox";
+          action.spawn-sh = "${uwsm-app} firefox";
           hotkey-overlay.title = "Open a Browser: firefox";
         };
         "Mod+Return" = {
-          action.spawn-sh = "${uwsm} kitty";
+          action.spawn-sh = "${uwsm-app} kitty";
           hotkey-overlay.title = "Open a Terminal: kitty";
         };
         "Mod+D" = {
@@ -190,11 +205,11 @@ in
           hotkey-overlay.title = "Open Clipboard History (Noctalia)";
         };
         "Mod+E" = {
-          action.spawn-sh = "${uwsm} thunar";
+          action.spawn-sh = "${uwsm-app} thunar";
           hotkey-overlay.title = "Run an File Manager: thunar";
         };
         "Mod+Shift+D" = {
-          action.spawn-sh = "${uwsm} zeditor";
+          action.spawn-sh = "${uwsm-app} zeditor";
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
         "Mod+Shift+L" = {

@@ -158,7 +158,7 @@ in
           terminalCommand = "kitty -e";
           enableClipboardHistory = true;
           customLaunchPrefixEnabled = true;
-          customLaunchPrefix = "${lib.getExe pkgs.uwsm} app --";
+          customLaunchPrefix = "${pkgs.uwsm}/bin/uwsm-app --";
         };
         wallpaper.overviewEnabled = true;
         location.autoLocate = true;
