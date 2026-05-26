@@ -17,14 +17,6 @@ let
     ;
   cfg = config.${namespace}.system.boot.kernel;
 
-  patchesSrc = pkgs.fetchFromGitHub {
-    owner = "CachyOS";
-    repo = "kernel-patches";
-    rev = "b5e029226df5cc30c103651072d49a7af2878202";
-    hash = "sha256-b9Hc0sTxjEzDbphzS9yQqxVha/7bsPIs2cQQQvaG45E=";
-  };
-
-  majorMinor = lib.versions.majorMinor config.${namespace}.system.boot.kernel.packages.kernel.version;
   llvm = pkgs.llvmPackages_21;
 
   clangLLVMStdenv = pkgs.stdenvAdapters.overrideCC llvm.stdenv (
@@ -125,19 +117,6 @@ in
       kernelPackages = finalKernelPackages;
 
       kernelPatches = optionals cfg.optimizations.enable [
-        {
-          name = "clang-polly";
-          patch = "${patchesSrc}/${majorMinor}/misc/0001-clang-polly.patch";
-        }
-        {
-          name = "sched-bore";
-          patch = pkgs.runCommand "0001-bore-xanmod-${majorMinor}.patch" { } ''
-            substitute ${patchesSrc}/${majorMinor}/sched/0001-bore.patch $out \
-              --replace-fail \
-              " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;" \
-              " unsigned int sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;"
-          '';
-        }
         {
           name = "asus-armoury-crate-fa507uv";
           patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
