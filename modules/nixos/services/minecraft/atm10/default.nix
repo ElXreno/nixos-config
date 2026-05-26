@@ -171,7 +171,6 @@ in
 
       services.scx.layered.layers = {
         atm10-server-thread = {
-          name = "atm10-server-thread";
           priority = 10;
           matches = [
             [
@@ -195,7 +194,6 @@ in
           };
         };
         atm10-gc = {
-          name = "atm10-gc";
           priority = 20;
           matches = [
             [
@@ -220,7 +218,6 @@ in
           };
         };
         atm10-c2me = {
-          name = "atm10-c2me";
           priority = 30;
           matches = [
             [
@@ -241,7 +238,6 @@ in
           };
         };
         atm10-interactive = {
-          name = "atm10-interactive";
           priority = 25;
           matches = [
             [
@@ -262,7 +258,6 @@ in
           };
         };
         atm10-bluemap = {
-          name = "atm10-bluemap";
           priority = 100;
           matches = [
             [
@@ -279,7 +274,6 @@ in
           };
         };
         atm10-jit = {
-          name = "atm10-jit";
           priority = 110;
           matches = [
             [
