@@ -24,6 +24,7 @@
 
     services = {
       gpg-agent.enable = true;
+      github-watch.enable = true;
       syncthing = {
         enable = true;
         settings = {
