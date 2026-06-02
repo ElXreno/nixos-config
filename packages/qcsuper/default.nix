@@ -6,12 +6,12 @@
 let
   pycrate = python3Packages.buildPythonPackage rec {
     pname = "pycrate";
-    version = "0.7.11";
+    version = "0.8.1";
     format = "setuptools";
 
     src = fetchPypi {
       inherit pname version;
-      hash = "sha256-I9wcGbFIoXY3/qcxZrgBx2euc4zEyz2LH3SinkadfAI=";
+      hash = "sha256-pAjJQtIZxkalqBBzuANvSKgcRUDdHyX9ovi73gYH25g=";
     };
 
     meta = with lib; {
@@ -25,13 +25,17 @@ let
 in
 python3Packages.buildPythonPackage rec {
   pname = "qcsuper";
-  version = "2.0.1";
-  format = "setuptools";
+  version = "2.1.1";
+  format = "pyproject";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-4L6MZpqhtfTUj20A5cBSW+AqzbW3rIUtlZIEdDgjdjw=";
+    hash = "sha256-J8rfEqJosVAJwcluzTPU6Bbs2RrtG4LvZSZ16rLfh1A=";
   };
+
+  nativeBuildInputs = with python3Packages; [
+    poetry-core
+  ];
 
   propagatedBuildInputs = with python3Packages; [
     pyserial
