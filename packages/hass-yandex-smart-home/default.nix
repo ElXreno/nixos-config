@@ -16,7 +16,7 @@ buildHomeAssistantComponent rec {
     hash = "sha256-ZlVrAK7NXvRiVN1mGHovSy9Szj+uqH6cETQKPRBFmR8=";
   };
 
-  dependencies = with home-assistant.python.pkgs; [
+  dependencies = with home-assistant.python3Packages; [
     pydantic
   ];
 

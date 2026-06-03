@@ -8,7 +8,7 @@
   home-assistant,
 }:
 let
-  mini-racer = home-assistant.python.pkgs.buildPythonPackage rec {
+  mini-racer = home-assistant.python3Packages.buildPythonPackage rec {
     pname = "mini-racer";
     version = "0.14.1";
     format = "wheel";
@@ -65,7 +65,7 @@ buildHomeAssistantComponent rec {
   dependencies = [
     mini-racer
   ]
-  ++ (with home-assistant.python.pkgs; [
+  ++ (with home-assistant.python3Packages; [
     pillow
     numpy
     pybase64
