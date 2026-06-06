@@ -31,6 +31,7 @@
           dynamicBoost.enable = true;
           overclock.enable = true;
           powerManagement.finegrained = true;
+          acpiNotifyRtd3Guard.enable = true;
 
           prime = {
             enable = true;

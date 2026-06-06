@@ -45,20 +45,6 @@ in
 
   config = mkIf cfg.enable (mkMerge [
     {
-      boot = {
-        initrd.prepend = [
-          # Fix D3cold power state loop (D0 -> D3cold -> D0), thanks ASUS
-          # For reference: Remove Notify (\_SB.NPCF, 0xC0) in the `_OFF` method of \_SB.PCI0.GPP0 scope
-          "${pkgs.runCommand "acpi-overrides" { buildInputs = with pkgs; [ cpio ]; } ''
-            mkdir -p kernel/firmware/acpi
-            cp ${./acpi/ssdt4.aml} kernel/firmware/acpi/ssdt4.aml
-            find kernel | cpio -H newc -o > $out
-          ''}"
-        ];
-      };
-    }
-
-    {
       ${namespace}.services = {
         asusd.enable = true;
         supergfxd.enable = true;

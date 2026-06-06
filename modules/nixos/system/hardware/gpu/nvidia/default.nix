@@ -16,6 +16,20 @@ let
   cfg = config.${namespace}.system.hardware.gpu.nvidia;
 
   busIDType = lib.types.strMatching "([[:print:]]+:[0-9]{1,3}(@[0-9]{1,10})?:[0-9]{1,2}:[0-9])?";
+
+  usesOpenModule = cfg.package ? open && cfg.package ? firmware;
+
+  nvidiaPackage =
+    if cfg.acpiNotifyRtd3Guard.enable && usesOpenModule then
+      cfg.package.overrideAttrs (old: {
+        passthru = (old.passthru or { }) // {
+          open = cfg.package.open.overrideAttrs (o: {
+            patches = (o.patches or [ ]) ++ [ ./patches/nvidia-dgpu-rtd3-acpi-notify-guards.patch ];
+          });
+        };
+      })
+    else
+      cfg.package;
 in
 {
   options.${namespace}.system.hardware.gpu.nvidia = {
@@ -24,7 +38,7 @@ in
       defaultText = "Auto-detected from facter report.";
     };
     enableBatterySaverSpecialisation = mkEnableOption "Whether to enable battery saver specialisation.";
-    package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "beta" { };
+    package = mkPackageOption config.boot.kernelPackages.nvidiaPackages "latest" { };
 
     modesetting.enable = mkEnableOption "Whether to enable kernel modesetting.";
 
@@ -37,6 +51,7 @@ in
 
     dynamicBoost.enable = mkEnableOption "Whether to enable nvidia-powerd.";
     overclock.enable = mkEnableOption "Whether to overclock NVIDIA GPU.";
+    acpiNotifyRtd3Guard.enable = mkEnableOption "Whether to stop ACPI notifies waking a D3cold dGPU (open module).";
 
     prime = {
       enable = mkEnableOption "Whether to enable Prime support.";
@@ -73,8 +88,8 @@ in
 
     hardware = {
       nvidia = {
-        inherit (cfg) package;
-        open = cfg.package ? open && cfg.package ? firmware;
+        package = nvidiaPackage;
+        open = usesOpenModule;
         modesetting.enable = cfg.modesetting.enable;
         dynamicBoost.enable = cfg.dynamicBoost.enable;
         powerManagement = {
