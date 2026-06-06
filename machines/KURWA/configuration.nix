@@ -88,11 +88,6 @@
     home-manager.syncthing.randomPortIncrement = 42;
   };
 
-  # sops.secrets."yandex-license" = {
-  #   group = "users";
-  #   mode = "0440";
-  # };
-
   # I'll manage it manually
   # Nvidia kernel module too big for `/boot` partition
   hardware.facter.detected.graphics.enable = false;

@@ -34,15 +34,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = !(cfg.enable && config.${namespace}.system.zram.enable);
-        message = ''
-          Disallowed use of `${namespace}.system.zswap.enable` and `${namespace}.system.zram.enable` simultaneously.
-        '';
-      }
-    ];
-
     swapDevices = mkIf cfg.createSwapfile [
       {
         device = cfg.swapfilePath;

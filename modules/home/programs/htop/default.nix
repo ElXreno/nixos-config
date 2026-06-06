@@ -21,7 +21,7 @@ in
       default = osConfig.boot.zfs.enabled;
     };
     zramSupport = mkEnableOption "Whether to enable ZRAM support." // {
-      default = osConfig.${namespace}.system.zram.enable;
+      default = osConfig.zramSwap.enable;
     };
     showAdvancedCPUStats =
       mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
