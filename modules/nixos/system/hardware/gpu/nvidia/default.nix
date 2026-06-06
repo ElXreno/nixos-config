@@ -12,6 +12,11 @@ let
     mkPackageOption
     mkOption
     mkForce
+    filter
+    splitString
+    concatStringsSep
+    hasInfix
+    optionalAttrs
     ;
   cfg = config.${namespace}.system.hardware.gpu.nvidia;
 
@@ -19,9 +24,24 @@ let
 
   usesOpenModule = cfg.package ? open && cfg.package ? firmware;
 
+  dropClangFromRpath =
+    s: concatStringsSep ":" (filter (p: !hasInfix "-clang-" p) (splitString ":" s));
+
+  stripClangRpath =
+    pkg:
+    pkg.overrideAttrs (
+      old:
+      optionalAttrs (old ? libPath) { libPath = dropClangFromRpath old.libPath; }
+      // optionalAttrs (old ? libPath32 && old.libPath32 != "") {
+        libPath32 = dropClangFromRpath old.libPath32;
+      }
+    );
+
+  basePackage = stripClangRpath cfg.package;
+
   nvidiaPackage =
     if cfg.acpiNotifyRtd3Guard.enable && usesOpenModule then
-      cfg.package.overrideAttrs (old: {
+      basePackage.overrideAttrs (old: {
         passthru = (old.passthru or { }) // {
           open = cfg.package.open.overrideAttrs (o: {
             patches = (o.patches or [ ]) ++ [ ./patches/nvidia-dgpu-rtd3-acpi-notify-guards.patch ];
@@ -29,7 +49,7 @@ let
         };
       })
     else
-      cfg.package;
+      basePackage;
 in
 {
   options.${namespace}.system.hardware.gpu.nvidia = {
