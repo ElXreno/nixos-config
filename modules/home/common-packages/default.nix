@@ -102,7 +102,6 @@ in
 
               ## etc
               sony-headphones-client
-              (hashcat.override { cudaSupport = true; })
             ]
             ++ (with pkgs.${namespace}; [
               # K8s
