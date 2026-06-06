@@ -17,6 +17,8 @@
       ssh.enable = true;
       mangohud.enable = true;
 
+      linux-wallpaperengine.enable = true;
+
       # Integrated graphics is more power efficient
       # See `mpv --vulkan-device=help`
       mpv.vulkanDevice = "AMD Radeon 780M Graphics (RADV PHOENIX)";

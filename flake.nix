@@ -171,7 +171,14 @@
             ./patches/niri-flake-output-bpc.patch
           ];
 
-          inputs.niri-stable.patches = [ ./patches/niri-stable-bpc-pr3158.patch ];
+          inputs.niri-stable.patches = [
+            ./patches/niri-stable-bpc-pr3158.patch
+
+            # Adds read-only `niri msg pointer` (global cursor, like hyprctl cursorpos)
+            # so linux-wallpaperengine can drive mouse interaction. Upstream refuses
+            # this (niri-wm/niri#1924); picked from bczhc/niri@6e2b79f.
+            ./patches/niri-stable-msg-pointer.patch
+          ];
         };
 
         noctalia.patches = [ ./patches/noctalia-no-workspace-wave.patch ];

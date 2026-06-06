@@ -212,6 +212,10 @@ in
           action.spawn-sh = "${uwsm-app} zeditor";
           hotkey-overlay.title = "Run an Text Editor: zeditor";
         };
+        "Mod+Shift+W" = {
+          action.spawn-sh = ''noctalia-shell ipc call "plugin:linux-wallpaperengine-controller" toggle'';
+          hotkey-overlay.title = "Wallpaper Engine (Noctalia)";
+        };
         "Mod+Shift+L" = {
           action.spawn-sh = "noctalia-shell ipc call lockScreen lock";
           hotkey-overlay.title = "Lock the Screen (Noctalia)";

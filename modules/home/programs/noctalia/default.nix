@@ -199,6 +199,10 @@ in
             enabled = true;
             sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
           };
+          linux-wallpaperengine-controller = {
+            enabled = true;
+            sourceUrl = "https://github.com/noctalia-dev/noctalia-plugins";
+          };
         };
       };
 
@@ -249,6 +253,11 @@ in
           patches = [ ./patches/hassio-icon-color.patch ];
           patchFlags = [ "-p2" ];
         };
+        recursive = true;
+      };
+
+      "noctalia/plugins/linux-wallpaperengine-controller" = {
+        source = inputs.noctalia-plugins + "/linux-wallpaperengine-controller";
         recursive = true;
       };
     };
