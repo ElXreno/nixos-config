@@ -35,6 +35,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    xdg.mimeApps.defaultApplicationPackages = [ package ];
+
     programs.mpv = {
       inherit package;
 

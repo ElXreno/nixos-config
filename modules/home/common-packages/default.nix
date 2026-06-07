@@ -117,12 +117,6 @@ in
     programs.chromium.enable = config.${namespace}.roles.laptop.enable;
 
     xdg.mimeApps = {
-      defaultApplications = {
-        "x-scheme-handler/lens" = "lens-desktop.desktop";
-        "video/x-matroska" = "mpv.desktop";
-        "video/mpeg" = "mpv.desktop";
-      };
-
       associations.removed = {
         "application/zip" = "org.prismlauncher.PrismLauncher.desktop";
         "application/x-modrinth-modpack+zip" = "org.prismlauncher.PrismLauncher.desktop";

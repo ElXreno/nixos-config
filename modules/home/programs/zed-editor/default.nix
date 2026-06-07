@@ -141,5 +141,22 @@ in
         };
       };
     };
+
+    xdg.mimeApps.defaultApplications = {
+      "text/plain" = "dev.zed.Zed.desktop";
+      "application/x-zerosize" = "dev.zed.Zed.desktop";
+      "text/markdown" = "dev.zed.Zed.desktop";
+      "text/csv" = "dev.zed.Zed.desktop";
+      "text/xml" = "dev.zed.Zed.desktop";
+      "text/x-python" = "dev.zed.Zed.desktop";
+      "text/x-shellscript" = "dev.zed.Zed.desktop";
+      "application/json" = "dev.zed.Zed.desktop";
+      "application/xml" = "dev.zed.Zed.desktop";
+      "application/yaml" = "dev.zed.Zed.desktop";
+      "application/x-yaml" = "dev.zed.Zed.desktop";
+      "application/toml" = "dev.zed.Zed.desktop";
+      "application/x-sh" = "dev.zed.Zed.desktop";
+      "application/x-shellscript" = "dev.zed.Zed.desktop";
+    };
   };
 }

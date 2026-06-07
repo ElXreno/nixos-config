@@ -502,5 +502,23 @@ in
         };
       };
     };
+
+    xdg.mimeApps.defaultApplications = {
+      "inode/directory" = "thunar.desktop";
+
+      "image/jpeg" = "qimgv.desktop";
+      "image/png" = "qimgv.desktop";
+      "image/gif" = "qimgv.desktop";
+      "image/bmp" = "qimgv.desktop";
+      "image/webp" = "qimgv.desktop";
+      "image/tiff" = "qimgv.desktop";
+      "image/avif" = "qimgv.desktop";
+      "image/heif" = "qimgv.desktop";
+      "image/heic" = "qimgv.desktop";
+      "image/x-icon" = "qimgv.desktop";
+      "image/vnd.microsoft.icon" = "qimgv.desktop";
+      "image/x-tga" = "qimgv.desktop";
+      "image/jp2" = "qimgv.desktop";
+    };
   };
 }
