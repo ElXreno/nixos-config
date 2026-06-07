@@ -145,11 +145,7 @@ in
         };
 
         env = {
-          BASH_MAX_TIMEOUT_MS = "900000";
-          CLAUDE_AUTO_BACKGROUND_TASKS = "1";
           CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL = "1";
-          CLAUDE_CODE_EFFORT_LEVEL = "max";
-          CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
           CLAUDE_CODE_RESUME_INTERRUPTED_TURN = "1";
           # Breaks stuff: bwrap: Can't create file at /home/elxreno/.bash_profile: No such file or directory
           # CLAUDE_CODE_SUBPROCESS_ENV_SCRUB = "1";
