@@ -3,7 +3,10 @@
     BIMBA.tags = [ "server" ];
     GRATE.tags = [ "server" ];
     STARY.tags = [ "server" ];
-    KURWA.tags = [ "laptop" ];
+    KURWA.tags = [
+      "laptop"
+      "cuda"
+    ];
     INFINITY.tags = [
       "alena"
       "laptop"

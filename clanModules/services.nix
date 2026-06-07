@@ -9,6 +9,31 @@ in
       roles.default.extraModules = [ ../modules ];
     };
 
+    cuda = {
+      module.name = "importer";
+      roles.default.tags = [ "cuda" ];
+      roles.default.extraModules = [
+        (
+          {
+            inputs,
+            namespace,
+            config,
+            ...
+          }:
+          {
+            nixpkgs.pkgs =
+              (
+                (import ../nixpkgs.nix {
+                  inherit inputs namespace;
+                  cudaSupport = true;
+                })
+                config.nixpkgs.hostPlatform.system
+              ).pkgs;
+          }
+        )
+      ];
+    };
+
     pam-rssh = {
       module.name = "pam-rssh";
       module.input = "self";

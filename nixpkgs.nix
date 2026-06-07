@@ -1,6 +1,7 @@
 {
   inputs,
   namespace,
+  cudaSupport ? false,
   ...
 }:
 system:
@@ -40,6 +41,7 @@ rec {
 
     config = {
       allowUnfree = true;
+      inherit cudaSupport;
       nvidia.acceptLicense = true;
     };
   };
