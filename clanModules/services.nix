@@ -48,11 +48,7 @@ in
         tags = [ "all" ];
         settings.domain = tailscaleDomain;
       };
-      roles.exit-node.machines = {
-        BIMBA = { };
-        GRATE = { };
-        STARY = { };
-      };
+      roles.exit-node.tags = [ "server" ];
     };
 
     crowdsec = {
