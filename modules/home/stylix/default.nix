@@ -18,6 +18,7 @@ in
   config = {
     stylix = {
       inherit (cfg) enable;
+      enableReleaseChecks = false;
       overlays.enable = false;
 
       base16Scheme = "${pkgs.base16-schemes}/share/themes/ayu-mirage.yaml";
