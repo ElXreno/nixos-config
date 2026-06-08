@@ -33,7 +33,6 @@ in
     };
 
     services = {
-      network-manager-applet.enable = true;
       playerctld.enable = true;
     };
 
