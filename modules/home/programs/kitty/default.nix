@@ -16,6 +16,7 @@ in
   config = mkIf cfg.enable {
     programs.kitty = {
       enable = true;
+      settings.auto_reload_config = -1;
     };
   };
 }
