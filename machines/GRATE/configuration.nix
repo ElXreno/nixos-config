@@ -32,6 +32,11 @@
       thermald.configFile = ./thermal-conf.xml;
 
       home-assistant.enable = true;
+
+      dns-sinkhole = {
+        enable = true;
+        interface = "wlp1s0";
+      };
     };
 
     home-manager.syncthing.randomPortIncrement = 23;
