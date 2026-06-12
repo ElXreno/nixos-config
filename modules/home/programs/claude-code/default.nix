@@ -1,6 +1,7 @@
 {
   config,
   namespace,
+  inputs,
   lib,
   pkgs,
   ...
@@ -21,6 +22,8 @@ in
 
       context = ./CLAUDE.md;
       commandsDir = ./commands;
+
+      plugins = [ inputs.caveman ];
 
       lspServers = {
         bash = {
@@ -106,6 +109,20 @@ in
         verbose = true;
         includeCoAuthoredBy = false;
         gitAttribution = false;
+
+        statusLine = {
+          type = "command";
+          command = "${pkgs.writeShellScript "claude-statusline" (
+            builtins.replaceStrings
+              [ "@jq@" "@git@" ]
+              [
+                (lib.getExe pkgs.jq)
+                "${pkgs.git}/bin/git"
+              ]
+              (builtins.readFile ./statusline.sh)
+          )}";
+          refreshInterval = 30;
+        };
 
         hooks = {
           PostToolUse = [

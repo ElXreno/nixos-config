@@ -126,6 +126,22 @@
         "type": "github"
       }
     },
+    "caveman": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781272264,
+        "narHash": "sha256-FbmfhFaPs/SnSZdfNdErdIUHXt1FfBzErpPpLy8kdIc=",
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "rev": "25d22f864ad68cc447a4cb93aefde918aa4aec9f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "JuliusBrussee",
+        "repo": "caveman",
+        "type": "github"
+      }
+    },
     "clan-core": {
       "inputs": {
         "data-mesher": "data-mesher",
@@ -1122,6 +1138,7 @@
     },
     "root": {
       "inputs": {
+        "caveman": "caveman",
         "clan-core": "clan-core",
         "deploy-rs": "deploy-rs",
         "disko": "disko",

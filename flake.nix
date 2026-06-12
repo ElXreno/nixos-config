@@ -119,6 +119,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    caveman = {
+      url = "github:JuliusBrussee/caveman";
+      flake = false;
+    };
+
     terranix = {
       url = "github:terranix/terranix";
       inputs.nixpkgs.follows = "nixpkgs";
