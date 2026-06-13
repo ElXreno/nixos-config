@@ -116,7 +116,7 @@ in
             x = 0;
             y = 360;
           };
-          variable-refresh-rate = true;
+          variable-refresh-rate = false;
         };
         "Xiaomi Corporation Mi monitor 5392700044842" = {
           mode = {
