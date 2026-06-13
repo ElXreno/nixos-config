@@ -12,6 +12,7 @@
 
     programs = {
       claude-code.enable = true;
+      opencode.enable = true;
       mcp.enable = true;
       gpg.enable = true;
       ssh.enable = true;
