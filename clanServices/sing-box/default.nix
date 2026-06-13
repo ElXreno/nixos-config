@@ -345,6 +345,7 @@ in
                   ]
                   ++ lib.optional settings.enableSocks {
                     domain_suffix = [
+                      # Anthropic stuff
                       "anthropic.com"
                       "clau.de"
                       "claude.ai"
@@ -356,6 +357,16 @@ in
                       "statsig.com"
                       "stripe.com"
                       "usefathom.com"
+
+                      # ChatGPT stuff
+                      "chat.com"
+                      "chatgpt.com"
+                      "crixet.com"
+                      "oaistatic.com"
+                      "oaistatsig.com"
+                      "oaiusercontent.com"
+                      "openai.com"
+                      "sora.com"
                     ];
                     outbound = "proxy-seller";
                   }
