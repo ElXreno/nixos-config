@@ -105,7 +105,7 @@
     };
 
     noctalia = {
-      url = "github:noctalia-dev/noctalia-shell";
+      url = "github:noctalia-dev/noctalia-shell/legacy-v4";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -153,15 +153,6 @@
 
       patcher = unpatchedInputs.flake-input-patcher.lib.${system};
       inputs = patcher.patch unpatchedInputs {
-        firefox-addons.patches = [
-          (patcher.fetchpatch {
-            name = "fix-eval-after-license-refactor";
-            # https://github.com/petrkozorezov/firefox-addons-nix/pull/2
-            url = "https://github.com/xddxdd/firefox-addons-nix/commit/48b574572e98f60cd52c28b1a0161f827c3be1ae.patch";
-            hash = "sha256-trqcjgn7Yn1zXiNnhGbN6yJJfM6IYX3qIFmRqGyHxCI=";
-          })
-        ];
-
         niri = {
           patches = [
             # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
