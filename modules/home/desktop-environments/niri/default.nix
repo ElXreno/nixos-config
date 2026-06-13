@@ -219,6 +219,10 @@ in
           action.spawn-sh = "noctalia-shell ipc call lockScreen lock";
           hotkey-overlay.title = "Lock the Screen (Noctalia)";
         };
+        "Mod+Shift+I" = {
+          action.spawn-sh = "noctalia-shell ipc call idleInhibitor toggle";
+          hotkey-overlay.title = "Toggle Idle Inhibitor (Noctalia)";
+        };
 
         "XF86AudioRaiseVolume" = {
           action.spawn-sh = "noctalia-shell ipc call volume increase";
@@ -379,7 +383,6 @@ in
           allow-inhibiting = false;
         };
 
-        "Mod+Shift+E".action.quit = [ ];
         "Ctrl+Alt+Delete".action.quit = [ ];
 
         "Mod+Shift+P".action.power-off-monitors = [ ];
