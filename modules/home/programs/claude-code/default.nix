@@ -125,6 +125,41 @@ in
         };
 
         hooks = {
+          SubagentStart = [
+            {
+              hooks = [
+                {
+                  type = "command";
+                  command = "${pkgs.writeShellScript "caveman-subagent-inject" ''
+                    set -eu
+
+                    flag="''${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"
+                    [ -f "$flag" ] || exit 0
+
+                    mode=$(${pkgs.coreutils}/bin/tr -d '[:space:]' <"$flag" 2>/dev/null || true)
+                    case "$mode" in
+                      lite | full | ultra | wenyan-lite | wenyan | wenyan-full | wenyan-ultra) ;;
+                      *) exit 0 ;;
+                    esac
+
+                    body=$(${pkgs.gnused}/bin/sed '1,/^---$/d' "${inputs.caveman}/skills/caveman/SKILL.md")
+
+                    rules="CAVEMAN MODE ACTIVE — level: $mode
+
+                    $body
+
+                    ## Subagent context
+
+                    Your final returned message IS the deliverable — apply caveman to it. Structured or schema output the parent parses: write fields normal."
+
+                    printf '%s' "$rules" | ${lib.getExe pkgs.jq} -Rsc \
+                      '{hookSpecificOutput: {hookEventName: "SubagentStart", additionalContext: .}}'
+                  ''}";
+                }
+              ];
+            }
+          ];
+
           PostToolUse = [
             {
               matcher = "Edit|MultiEdit|Write";
@@ -162,6 +197,7 @@ in
         };
 
         env = {
+          CAVEMAN_DEFAULT_MODE = "ultra";
           CLAUDE_CODE_DISABLE_OFFICIAL_MARKETPLACE_AUTOINSTALL = "1";
           CLAUDE_CODE_RESUME_INTERRUPTED_TURN = "1";
           # Breaks stuff: bwrap: Can't create file at /home/elxreno/.bash_profile: No such file or directory
