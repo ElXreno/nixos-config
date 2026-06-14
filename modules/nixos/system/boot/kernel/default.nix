@@ -118,10 +118,6 @@ in
 
       kernelPatches = optionals cfg.optimizations.enable [
         {
-          name = "asus-armoury-crate-fa507uv";
-          patch = ./kernel-patches/0001-platform-x86-asus-armoury-Add-tunings-for-FA507UV-bo.patch;
-        }
-        {
           name = "x86_64-version";
           patch = null;
           structuredExtraConfig = with lib.kernel; {
