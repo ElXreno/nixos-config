@@ -25,6 +25,11 @@ in
       polarity = "dark";
       image = pkgs.${namespace}.custom-wallpaper;
 
+      fonts.monospace = {
+        package = pkgs.nerd-fonts.jetbrains-mono;
+        name = "JetBrainsMono Nerd Font";
+      };
+
       icons = {
         enable = true;
         package = pkgs.papirus-icon-theme;
