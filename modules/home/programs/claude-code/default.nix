@@ -16,6 +16,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    home.packages = [ pkgs.rtk ];
+
     programs.claude-code = {
       enable = true;
       enableMcpIntegration = true;
@@ -125,6 +127,41 @@ in
         };
 
         hooks = {
+          PreToolUse = [
+            {
+              matcher = "Bash";
+              hooks = [
+                {
+                  type = "command";
+                  command = "${pkgs.writeShellScript "rtk-rewrite" ''
+                    set -uo pipefail
+
+                    input=$(cat)
+                    cmd=$(${lib.getExe pkgs.jq} -r '.tool_input.command // empty' <<<"$input")
+                    [ -z "$cmd" ] && exit 0
+
+                    rewritten=$(${lib.getExe pkgs.rtk} rewrite "$cmd" 2>/dev/null)
+                    rc=$?
+
+                    case $rc in
+                      0) [ "$cmd" = "$rewritten" ] && exit 0 ;;
+                      3) ;;
+                      *) exit 0 ;;
+                    esac
+
+                    if [ "$rc" -eq 3 ]; then
+                      ${lib.getExe pkgs.jq} -c --arg cmd "$rewritten" \
+                        '.tool_input.command = $cmd | {hookSpecificOutput: {hookEventName: "PreToolUse", updatedInput: .tool_input}}' <<<"$input"
+                    else
+                      ${lib.getExe pkgs.jq} -c --arg cmd "$rewritten" \
+                        '.tool_input.command = $cmd | {hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "allow", permissionDecisionReason: "RTK auto-rewrite", updatedInput: .tool_input}}' <<<"$input"
+                    fi
+                  ''}";
+                }
+              ];
+            }
+          ];
+
           SubagentStart = [
             {
               hooks = [

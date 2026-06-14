@@ -3,7 +3,7 @@ let
   llm-agents = prev: inputs.llm-agents.packages.${prev.stdenv.hostPlatform.system};
 in
 _final: prev: {
-  inherit (llm-agents prev) codex opencode;
+  inherit (llm-agents prev) codex opencode rtk;
   claude-code =
     ((llm-agents prev).claude-code.override {
       disableTelemetry = true;
