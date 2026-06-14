@@ -882,11 +882,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1781395218,
-        "narHash": "sha256-kIG9Oeg/6PhuqJ2uqjeuc84ZMViuPgmBpd9YHDIb5IE=",
+        "lastModified": 1781407200,
+        "narHash": "sha256-TRuEsORLi/lq/5MiISOaAMD6bSl+ntQTTZgdcG45/Cw=",
         "owner": "ElXreno",
         "repo": "nixpkgs",
-        "rev": "8c3b5dba1417471ecfe435b7290105b903a8e6cc",
+        "rev": "0af2ec63c7e029d5a592becbbad45dc2221c3576",
         "type": "github"
       },
       "original": {
