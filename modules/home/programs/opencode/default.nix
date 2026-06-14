@@ -15,6 +15,8 @@ in
   };
 
   config = mkIf cfg.enable {
+    home.packages = [ pkgs.rtk ];
+
     programs.opencode = {
       enable = true;
       enableMcpIntegration = true;
@@ -25,6 +27,8 @@ in
       settings.plugin = with pkgs.${namespace}; [
         "file://${opencode-dcp.pluginDir}"
         "file://${opencode-working-memory.pluginDir}"
+
+        "file://${pkgs.rtk.src}/hooks/opencode/rtk.ts"
       ];
       tui.plugin = with pkgs.${namespace}; [
         "file://${opencode-working-memory.pluginDir}"
