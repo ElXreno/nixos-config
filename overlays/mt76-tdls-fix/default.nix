@@ -59,7 +59,7 @@ _: _final: prev: {
           '';
 
           meta = {
-            description = "mt76 modules with TDLS direct-link fix for mt7921/mt7922/mt7925 (HW encap offload disabled to bypass broken firmware path)";
+            description = "mt76 modules with TDLS direct-link fix for mt7915/mt7921/mt7922/mt7925/mt7996";
             inherit (kernel.meta) license;
             platforms = [ "x86_64-linux" ];
           };
