@@ -16,7 +16,7 @@
         Performance: (
             enabled: true,
             group: {
-                PptPl1Spl: 65,
+                PptPl1Spl: 60,
                 PptPl2Sppt: 80,
                 PptPl3Fppt: 80,
             },
@@ -24,7 +24,7 @@
         Balanced: (
             enabled: true,
             group: {
-                PptPl1Spl: 60,
+                PptPl1Spl: 45,
                 PptPl2Sppt: 75,
                 PptPl3Fppt: 80,
             },
@@ -32,9 +32,9 @@
         Quiet: (
             enabled: true,
             group: {
-                PptPl1Spl: 50,
-                PptPl2Sppt: 60,
-                PptPl3Fppt: 70,
+                PptPl1Spl: 30,
+                PptPl2Sppt: 50,
+                PptPl3Fppt: 60,
             },
         ),
     },
@@ -50,17 +50,17 @@
         Balanced: (
             enabled: true,
             group: {
-                PptPl1Spl: 35,
-                PptPl2Sppt: 45,
-                PptPl3Fppt: 55,
+                PptPl1Spl: 30,
+                PptPl2Sppt: 50,
+                PptPl3Fppt: 60,
             },
         ),
         Quiet: (
             enabled: true,
             group: {
-                PptPl1Spl: 25,
-                PptPl2Sppt: 35,
-                PptPl3Fppt: 45,
+                PptPl1Spl: 20,
+                PptPl2Sppt: 40,
+                PptPl3Fppt: 50,
             },
         ),
     },
