@@ -17,9 +17,12 @@
         uefi = {
           enable = true;
         };
-        kernel.optimizations = {
-          enable = true;
-          znver = 4;
+        kernel = {
+          amdPstateForceCppc = true;
+          optimizations = {
+            enable = true;
+            znver = 4;
+          };
         };
       };
 
@@ -87,6 +90,8 @@
 
     home-manager.syncthing.randomPortIncrement = 42;
   };
+
+  hardware.cpu.amd.ryzen-smu.enable = true;
 
   # I'll manage it manually
   # Nvidia kernel module too big for `/boot` partition

@@ -1,0 +1,22 @@
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -1021,6 +1021,19 @@
+ 		clear_cpu_cap(c, X86_FEATURE_V_VMSAVE_VMLOAD);
+ 		break;
+ 	}
++
++	/*
++	 * Some Phoenix / Hawk Point laptop BIOSes (e.g. ASUS FA507UV) leave
++	 * the MSR CPPC interface disabled and never advertise the CPUID CPPC
++	 * bit, so amd-pstate falls back to the slower shared-memory path and
++	 * logs a spurious "CPPC disabled by BIOS" warning. The enable bit is
++	 * write-once and still clear this early in boot; enable the MSR
++	 * interface and, if that succeeds, expose the feature so amd-pstate
++	 * selects native MSR mode.
++	 */
++	if (!cpu_has(c, X86_FEATURE_CPPC) &&
++	    !wrmsrq_safe(MSR_AMD_CPPC_ENABLE, 1))
++		setup_force_cpu_cap(X86_FEATURE_CPPC);
+ }
+ 
+ static const struct x86_cpu_id zen5_rdseed_microcode[] = {

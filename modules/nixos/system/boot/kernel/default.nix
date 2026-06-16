@@ -53,6 +53,10 @@ let
         zenpower = super.zenpower.overrideAttrs (prev: {
           makeFlags = (prev.makeFlags or [ ]) ++ self.kernelModuleMakeFlags;
         });
+
+        ryzen-smu = super.ryzen-smu.overrideAttrs (prev: {
+          makeFlags = (prev.makeFlags or [ ]) ++ self.kernelModuleMakeFlags;
+        });
       }
     );
 
@@ -64,6 +68,7 @@ in
     enable = mkEnableOption "Whether or not to manage kernel." // {
       default = true;
     };
+    amdPstateForceCppc = mkEnableOption "Whether to force amd-pstate native MSR CPPC mode.";
     packages = mkOption {
       type = types.raw;
       default =
@@ -116,27 +121,34 @@ in
     boot = {
       kernelPackages = finalKernelPackages;
 
-      kernelPatches = optionals cfg.optimizations.enable [
-        {
-          name = "x86_64-version";
-          patch = null;
-          structuredExtraConfig = with lib.kernel; {
-            "MZEN${toString cfg.optimizations.znver}" = yes;
-            LTO_NONE = mkForce unset;
-            LTO_CLANG_THIN = yes;
+      kernelPatches =
+        optionals cfg.optimizations.enable [
+          {
+            name = "x86_64-version";
+            patch = null;
+            structuredExtraConfig = with lib.kernel; {
+              "MZEN${toString cfg.optimizations.znver}" = yes;
+              LTO_NONE = mkForce unset;
+              LTO_CLANG_THIN = yes;
 
-            RUST = mkForce unset;
-            DRM_PANIC_SCREEN_QR_CODE = mkForce unset;
-            NOVA_CORE = mkForce unset;
-            DRM_NOVA = mkForce unset;
+              RUST = mkForce unset;
+              DRM_PANIC_SCREEN_QR_CODE = mkForce unset;
+              NOVA_CORE = mkForce unset;
+              DRM_NOVA = mkForce unset;
 
-            ASUS_ARMOURY = module;
-            NTSYNC = module;
+              ASUS_ARMOURY = module;
+              NTSYNC = module;
 
-            DEBUG_LIST = mkForce no;
-          };
-        }
-      ];
+              DEBUG_LIST = mkForce no;
+            };
+          }
+        ]
+        ++ optionals cfg.amdPstateForceCppc [
+          {
+            name = "amd-pstate-force-cppc-msr";
+            patch = ./patches/amd-pstate-force-cppc.patch;
+          }
+        ];
     };
   };
 }
