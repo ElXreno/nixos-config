@@ -21,6 +21,12 @@ I use NixOS. There is no conventional apt/yum/brew/pip here.
 - Python deps go in `nix-shell` or a flake `devShell`, never `pip install`
 - Node deps for tooling go in a flake `devShell`, never `npm -g`
 
+### Secrets — never leak
+- **NEVER print, echo, or `cat` a decrypted secret** anywhere: not to the terminal, tool output, commit, comment, PR, or any external service. The transcript is logged to disk and counts as a leak.
+- **Never run `sops -d`, `clan vars get`, `pass show`, or any decrypt command that writes plaintext to stdout.** To inspect a secret's *shape*, pipe to `wc -c`, `sha256sum`, or `head -c 0` — never reveal the value.
+- Wire secrets by **reference only** (var path / env name / sops file path). Builds and modules read them at runtime; I never need the plaintext.
+- If a secret does end up exposed, **stop, tell the user immediately, and advise rotation** — don't keep going.
+
 ## Configuration
 - System config: declarative via `configuration.nix` or NixOS modules
 - User config: Home Manager modules (`home.nix`)
