@@ -1,0 +1,2925 @@
+{
+  "minecraft": "1.21.1",
+  "loader": {
+    "type": "neoforge",
+    "version": "21.1.221"
+  },
+  "files": [
+    {
+      "pid": 938643,
+      "fid": 5453382,
+      "slug": "melody",
+      "filename": "melody_neoforge_1.0.10_MC_1.21.jar",
+      "sha1": "e83052a92c4ca0016bcfe7f0207273983dc84698",
+      "url": "https://edge.forgecdn.net/files/5453/382/melody_neoforge_1.0.10_MC_1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 410295,
+      "fid": 5453385,
+      "slug": "konkrete",
+      "filename": "konkrete_neoforge_1.9.9_MC_1.21.jar",
+      "sha1": "97771eb287d5ac7fe667d1df9493d5e54c8ca1fa",
+      "url": "https://edge.forgecdn.net/files/5453/385/konkrete_neoforge_1.9.9_MC_1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 638508,
+      "fid": 5491721,
+      "slug": "edivadlib",
+      "filename": "EdivadLib-1.21-3.0.0.jar",
+      "sha1": "99de3c473aa0120514a27d5a959a81c058e3fbb9",
+      "url": "https://edge.forgecdn.net/files/5491/721/EdivadLib-1.21-3.0.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 438332,
+      "fid": 5546996,
+      "slug": "supermartijn642s-config-lib",
+      "filename": "supermartijn642configlib-1.1.8-neoforge-mc1.21.jar",
+      "sha1": "07452242e389975e8a88b97066f4bae6a4ebe574",
+      "url": "https://edge.forgecdn.net/files/5546/996/supermartijn642configlib-1.1.8-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 395620,
+      "fid": 5550187,
+      "slug": "item-collectors",
+      "filename": "itemcollectors-1.1.10-neoforge-mc1.21.jar",
+      "sha1": "2019bdbb89da0f61ce40448164bdd9a5b13cb2d7",
+      "url": "https://edge.forgecdn.net/files/5550/187/itemcollectors-1.1.10-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 267602,
+      "fid": 5587515,
+      "slug": "ctm",
+      "filename": "CTM-1.21-1.2.1+3.jar",
+      "sha1": "284232c08d3b999f05417761a3efba9b08ba20a7",
+      "url": "https://edge.forgecdn.net/files/5587/515/CTM-1.21-1.2.1%2b3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 237307,
+      "fid": 5610814,
+      "slug": "cosmetic-armor-reworked",
+      "filename": "cosmeticarmorreworked-1.21.1-v1-neoforge.jar",
+      "sha1": "5f1e699cd0888b857ec63f01adaeb3571848bfea",
+      "url": "https://edge.forgecdn.net/files/5610/814/cosmeticarmorreworked-1.21.1-v1-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 399757,
+      "fid": 5615790,
+      "slug": "charging-gadgets",
+      "filename": "charginggadgets-1.14.1.jar",
+      "sha1": "3208ea2ca10d786895d03c2cd3a124d14393b357",
+      "url": "https://edge.forgecdn.net/files/5615/790/charginggadgets-1.14.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 616555,
+      "fid": 5623665,
+      "slug": "smooth-font",
+      "filename": "SmoothFont_1.21.zip",
+      "sha1": "1cc21ed48f53014dd5b48741cafc373ce81ad1ef",
+      "url": "https://www.curseforge.com/api/v1/mods/616555/files/5623665/download",
+      "side": "both"
+    },
+    {
+      "pid": 256717,
+      "fid": 5623731,
+      "slug": "clumps",
+      "filename": "Clumps-neoforge-1.21.1-19.0.0.1.jar",
+      "sha1": "fa2576297c7bd12b28aa7070e8141792bd66da4c",
+      "url": "https://edge.forgecdn.net/files/5623/731/Clumps-neoforge-1.21.1-19.0.0.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 609977,
+      "fid": 5637783,
+      "slug": "ae2-things-forge",
+      "filename": "AE2-Things-1.4.2-beta.jar",
+      "sha1": "593ad26ae4143f529a63cc63b96c6430ebba67c3",
+      "url": "https://edge.forgecdn.net/files/5637/783/AE2-Things-1.4.2-beta.jar",
+      "side": "both"
+    },
+    {
+      "pid": 60089,
+      "fid": 5637846,
+      "slug": "mouse-tweaks",
+      "filename": "MouseTweaks-neoforge-mc1.21-2.26.1.jar",
+      "sha1": "6dae57f4f50f7808d2ed9a18f6cd1c0d4640c6bc",
+      "url": "https://edge.forgecdn.net/files/5637/846/MouseTweaks-neoforge-mc1.21-2.26.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 438116,
+      "fid": 5681187,
+      "slug": "macaws-paintings",
+      "filename": "mcw-paintings-1.0.5-1.21.1neoforge.jar",
+      "sha1": "d52d16e1b9712e74907d78f5849765c3c9008788",
+      "url": "https://edge.forgecdn.net/files/5681/187/mcw-paintings-1.0.5-1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 308989,
+      "fid": 5694215,
+      "slug": "caelus",
+      "filename": "caelus-neoforge-7.0.1+1.21.1.jar",
+      "sha1": "e4c2e1af4e3082d68f7df75f7c8ce30116d71515",
+      "url": "https://edge.forgecdn.net/files/5694/215/caelus-neoforge-7.0.1%2b1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 252848,
+      "fid": 5696042,
+      "slug": "natures-compass",
+      "filename": "NaturesCompass-1.21.1-3.0.3-neoforge.jar",
+      "sha1": "4a91af947622a2bb2c0381db249cc6f06c1f1843",
+      "url": "https://edge.forgecdn.net/files/5696/42/NaturesCompass-1.21.1-3.0.3-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 400514,
+      "fid": 5724571,
+      "slug": "easy-villagers",
+      "filename": "easy-villagers-neoforge-1.21.1-1.1.23.jar",
+      "sha1": "504c7858d82e5049b67b9c7d8e1343cfd07fd547",
+      "url": "https://edge.forgecdn.net/files/5724/571/easy-villagers-neoforge-1.21.1-1.1.23.jar",
+      "side": "both"
+    },
+    {
+      "pid": 348521,
+      "fid": 5729127,
+      "slug": "cloth-config",
+      "filename": "cloth-config-15.0.140-neoforge.jar",
+      "sha1": "c3e5733ba4503b102589a026000fd5ce0212f6f2",
+      "url": "https://edge.forgecdn.net/files/5729/127/cloth-config-15.0.140-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 626839,
+      "fid": 5730007,
+      "slug": "laserio",
+      "filename": "laserio-1.9.11.jar",
+      "sha1": "0545bff65926346c9663fe3c397029561a87400f",
+      "url": "https://edge.forgecdn.net/files/5730/7/laserio-1.9.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 358700,
+      "fid": 5746086,
+      "slug": "more-dragon-eggs",
+      "filename": "moredragoneggs-5.0.jar",
+      "sha1": "c9b26ad977aaa6c2d1bd1ad681edd77cf466537d",
+      "url": "https://edge.forgecdn.net/files/5746/86/moredragoneggs-5.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 491794,
+      "fid": 5756947,
+      "slug": "explorers-compass",
+      "filename": "ExplorersCompass-1.21.1-3.0.3-neoforge.jar",
+      "sha1": "79f4ca411c406222868c60f8f8951a404c403017",
+      "url": "https://edge.forgecdn.net/files/5756/947/ExplorersCompass-1.21.1-3.0.3-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 443900,
+      "fid": 5757713,
+      "slug": "pipez",
+      "filename": "pipez-neoforge-1.21.1-1.2.19.jar",
+      "sha1": "760c1cd20e6e47ef86bd48ece413873cccddc972",
+      "url": "https://edge.forgecdn.net/files/5757/713/pipez-neoforge-1.21.1-1.2.19.jar",
+      "side": "both"
+    },
+    {
+      "pid": 387638,
+      "fid": 5763286,
+      "slug": "more-red",
+      "filename": "morered-1.21.1-6.0.0.3.jar",
+      "sha1": "a69f18365301470c0fc2b07125c9ba3c10f270f6",
+      "url": "https://edge.forgecdn.net/files/5763/286/morered-1.21.1-6.0.0.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 317716,
+      "fid": 5778461,
+      "slug": "elytra-slot",
+      "filename": "elytraslot-neoforge-9.0.2+1.21.1.jar",
+      "sha1": "8ac6cf959fe66399aa7e86b6e6f933e07d155b7e",
+      "url": "https://edge.forgecdn.net/files/5778/461/elytraslot-neoforge-9.0.2%2b1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 419699,
+      "fid": 5786327,
+      "slug": "architectury-api",
+      "filename": "architectury-13.0.8-neoforge.jar",
+      "sha1": "6ca11d3cc136bf69bb8f4d56982481eb85b5100b",
+      "url": "https://edge.forgecdn.net/files/5786/327/architectury-13.0.8-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 451682,
+      "fid": 5812197,
+      "slug": "no-villager-death-messages",
+      "filename": "novillagerdm-1.21.1-6.0.0.jar",
+      "sha1": "284694712ae9c5a17dfff4c0830048574996a229",
+      "url": "https://edge.forgecdn.net/files/5812/197/novillagerdm-1.21.1-6.0.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 456956,
+      "fid": 5813117,
+      "slug": "chipped",
+      "filename": "chipped-neoforge-1.21.1-4.0.2.jar",
+      "sha1": "6f5395f58139802edfde7cb9170279f92f291971",
+      "url": "https://edge.forgecdn.net/files/5813/117/chipped-neoforge-1.21.1-4.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 957920,
+      "fid": 5821676,
+      "slug": "glodium",
+      "filename": "Glodium-1.21-2.2-neoforge.jar",
+      "sha1": "9f61a3162665ad0b37f6f268339ac98097af1a87",
+      "url": "https://edge.forgecdn.net/files/5821/676/Glodium-1.21-2.2-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 858542,
+      "fid": 5831692,
+      "slug": "searchables",
+      "filename": "Searchables-neoforge-1.21.1-1.0.2.jar",
+      "sha1": "5b8a0b43a474c066371b2e16f9bfb88622552a74",
+      "url": "https://edge.forgecdn.net/files/5831/692/Searchables-neoforge-1.21.1-1.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 230976,
+      "fid": 5849090,
+      "slug": "fast-leaf-decay",
+      "filename": "fastleafdecay-35.jar",
+      "sha1": "589f05dcd58d3708cee9046b23fe11fb81a25d2e",
+      "url": "https://edge.forgecdn.net/files/5849/90/fastleafdecay-35.jar",
+      "side": "both"
+    },
+    {
+      "pid": 299045,
+      "fid": 5863210,
+      "slug": "mystical-agriculture-tiered-crystals",
+      "filename": "matc-1.7.1.jar",
+      "sha1": "ca1227efed35a55414ca03159e1e31ec70288d3a",
+      "url": "https://edge.forgecdn.net/files/5863/210/matc-1.7.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 235595,
+      "fid": 5884272,
+      "slug": "not-enough-wands",
+      "filename": "notenoughwands-1.21-7.0.3.jar",
+      "sha1": "ee2eda8201f57e1cb4858dad03db52062e304488",
+      "url": "https://edge.forgecdn.net/files/5884/272/notenoughwands-1.21-7.0.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 634062,
+      "fid": 5885735,
+      "slug": "no-chat-reports",
+      "filename": "NoChatReports-NEOFORGE-1.21.1-v2.9.1.jar",
+      "sha1": "9edfc7861277ff661141304dc8216f83eacdd9af",
+      "url": "https://edge.forgecdn.net/files/5885/735/NoChatReports-NEOFORGE-1.21.1-v2.9.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 394535,
+      "fid": 5891067,
+      "slug": "trash-cans",
+      "filename": "trashcans-1.0.18c-neoforge-mc1.21.jar",
+      "sha1": "8e853e0784b01b36b4503ef5599be2724be74b07",
+      "url": "https://edge.forgecdn.net/files/5891/67/trashcans-1.0.18c-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 570073,
+      "fid": 5973188,
+      "slug": "resourceful-lib",
+      "filename": "resourcefullib-neoforge-1.21-3.0.12.jar",
+      "sha1": "24389c8e48ff0e8594e4686b750c494c66a5f8df",
+      "url": "https://edge.forgecdn.net/files/5973/188/resourcefullib-neoforge-1.21-3.0.12.jar",
+      "side": "both"
+    },
+    {
+      "pid": 371813,
+      "fid": 5993450,
+      "slug": "crash-utilities",
+      "filename": "crashutilities-9.0.4.jar",
+      "sha1": "5117a448b0611f60fbe743a4a631e431dd31740e",
+      "url": "https://edge.forgecdn.net/files/5993/450/crashutilities-9.0.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 659090,
+      "fid": 6003423,
+      "slug": "fuelgoeshere",
+      "filename": "fuelgoeshere-1.21.1-1.2.0.jar",
+      "sha1": "8b5f1c77adb52641189961896e10aa47399eccde",
+      "url": "https://edge.forgecdn.net/files/6003/423/fuelgoeshere-1.21.1-1.2.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 248020,
+      "fid": 6089446,
+      "slug": "flux-networks",
+      "filename": "FluxNetworks-1.21.1-8.0.0.jar",
+      "sha1": "183342f454428084748f2784c8efd748664a9f9c",
+      "url": "https://edge.forgecdn.net/files/6089/446/FluxNetworks-1.21.1-8.0.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 526901,
+      "fid": 6120516,
+      "slug": "memory-settings",
+      "filename": "memorysettings-1.21-5.9.jar",
+      "sha1": "46358f0310ea43fb23de2f831ddba6628dcb5f94",
+      "url": "https://edge.forgecdn.net/files/6120/516/memorysettings-1.21-5.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 915308,
+      "fid": 6153780,
+      "slug": "clean-swing-through-grass",
+      "filename": "cleanswing-1.9.jar",
+      "sha1": "c4746d331a9a73158da1c330f0d46ce8714ce5d8",
+      "url": "https://edge.forgecdn.net/files/6153/780/cleanswing-1.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 245174,
+      "fid": 6159037,
+      "slug": "ender-storage-1-8",
+      "filename": "EnderStorage-1.21.1-2.13.0.191.jar",
+      "sha1": "5b5fc717242a9eb2d8b4a5e57ea1a38446722864",
+      "url": "https://edge.forgecdn.net/files/6159/37/EnderStorage-1.21.1-2.13.0.191.jar",
+      "side": "both"
+    },
+    {
+      "pid": 261251,
+      "fid": 6172735,
+      "slug": "bad-wither-no-cookie-reloaded",
+      "filename": "bwncr-neoforge-1.21.1-3.20.3.jar",
+      "sha1": "ece7a31501bc3080e1c4263689c26e9154809b2d",
+      "url": "https://www.curseforge.com/api/v1/mods/261251/files/6172735/download",
+      "side": "client"
+    },
+    {
+      "pid": 821651,
+      "fid": 6172865,
+      "slug": "ars-caelum",
+      "filename": "ars_caelum-1.21.1-3.0.0.jar",
+      "sha1": "219663581a9a5bf75f25e39511d09dac859fae97",
+      "url": "https://edge.forgecdn.net/files/6172/865/ars_caelum-1.21.1-3.0.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 426386,
+      "fid": 6194054,
+      "slug": "shrink_",
+      "filename": "shrink-2.0.1.47-neoforge.jar",
+      "sha1": "17407b525c0c70a0f6f03a08024a14058f645d01",
+      "url": "https://edge.forgecdn.net/files/6194/54/shrink-2.0.1.47-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 250832,
+      "fid": 6199696,
+      "slug": "openblocks-elevator",
+      "filename": "elevatorid-neoforge-1.21.1-1.11.4.jar",
+      "sha1": "87a5504efcd51de55cd4215a103cbfcf717fa022",
+      "url": "https://edge.forgecdn.net/files/6199/696/elevatorid-neoforge-1.21.1-1.11.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 905641,
+      "fid": 6203425,
+      "slug": "ars-energistique",
+      "filename": "arseng-2.1.1-beta.jar",
+      "sha1": "e46e7cf5c4fc5f48d1b1ea025eb59c484811b2c6",
+      "url": "https://edge.forgecdn.net/files/6203/425/arseng-2.1.1-beta.jar",
+      "side": "both"
+    },
+    {
+      "pid": 300331,
+      "fid": 6219029,
+      "slug": "simply-light",
+      "filename": "simplylight-1.5.3+1.21.1-b4.jar",
+      "sha1": "d85bfed3824cb66d258acf11c73edaf11d583223",
+      "url": "https://edge.forgecdn.net/files/6219/29/simplylight-1.5.3%2b1.21.1-b4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 361579,
+      "fid": 6225208,
+      "slug": "spark",
+      "filename": "spark-1.10.124-neoforge.jar",
+      "sha1": "9430cc2ab64ff89d698be593769fb9f9ee4efae6",
+      "url": "https://edge.forgecdn.net/files/6225/208/spark-1.10.124-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 417645,
+      "fid": 6231254,
+      "slug": "just-enough-professions-jep",
+      "filename": "JustEnoughProfessions-neoforge-1.21.1-4.0.4.jar",
+      "sha1": "e10a6b56bf838c457706be43e0ebe33745b68784",
+      "url": "https://edge.forgecdn.net/files/6231/254/JustEnoughProfessions-neoforge-1.21.1-4.0.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 969602,
+      "fid": 6264798,
+      "slug": "nolijium",
+      "filename": "nolijium-0.5.6.jar",
+      "sha1": "7074fda15f70440eb1e30f74a7dc70feadd49592",
+      "url": "https://edge.forgecdn.net/files/6264/798/nolijium-0.5.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 551763,
+      "fid": 6266285,
+      "slug": "chisel-reborn",
+      "filename": "chisel-neoforge-2.0.0+mc1.21.1.jar",
+      "sha1": "44e432ddc1f6fa9cf05201a9aef3ae4c5784cc9d",
+      "url": "https://edge.forgecdn.net/files/6266/285/chisel-neoforge-2.0.0%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 533942,
+      "fid": 6269728,
+      "slug": "bridging-mod",
+      "filename": "BridgingMod-2.6.2+1.21.1.neoforge-release.jar",
+      "sha1": "18c4fdadf7d1b4632ae0e0914e4075847306b52f",
+      "url": "https://edge.forgecdn.net/files/6269/728/BridgingMod-2.6.2%2b1.21.1.neoforge-release.jar",
+      "side": "both"
+    },
+    {
+      "pid": 417702,
+      "fid": 6282838,
+      "slug": "useful-slime",
+      "filename": "UsefulSlime-neoforge-1.21-1.12.1.jar",
+      "sha1": "c28c5cd46ef337bb49fb1defacc1209341268d19",
+      "url": "https://www.curseforge.com/api/v1/mods/417702/files/6282838/download",
+      "side": "both"
+    },
+    {
+      "pid": 1086142,
+      "fid": 6288756,
+      "slug": "mifa",
+      "filename": "mifa-neoforge-1.21.x-2.1.0.jar",
+      "sha1": "b59f8679cae16ee38254cd30c2fa4977e4830661",
+      "url": "https://edge.forgecdn.net/files/6288/756/mifa-neoforge-1.21.x-2.1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 416935,
+      "fid": 6296775,
+      "slug": "valhelsia-core",
+      "filename": "valhelsia_core-neoforge-1.21.1-1.1.5.jar",
+      "sha1": "e7498e89bd7347c6d0f4411f55bd312490dfe814",
+      "url": "https://edge.forgecdn.net/files/6296/775/valhelsia_core-neoforge-1.21.1-1.1.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 583345,
+      "fid": 6315149,
+      "slug": "jade-addons",
+      "filename": "JadeAddons-1.21.1-NeoForge-6.1.0.jar",
+      "sha1": "d0aef07e67f9e2dd7ae68f9f27d845511d8eaff3",
+      "url": "https://edge.forgecdn.net/files/6315/149/JadeAddons-1.21.1-NeoForge-6.1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 394140,
+      "fid": 6316527,
+      "slug": "simple-magnets",
+      "filename": "simplemagnets-1.1.12c-neoforge-mc1.21.jar",
+      "sha1": "abba7efcee3ae31bd3512147053279422e866ebf",
+      "url": "https://edge.forgecdn.net/files/6316/527/simplemagnets-1.1.12c-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 538214,
+      "fid": 6330030,
+      "slug": "handcrafted",
+      "filename": "handcrafted-neoforge-1.21.1-4.0.3.jar",
+      "sha1": "8ecd27f1d66f9b742cfae3c8ffa773765f574b52",
+      "url": "https://edge.forgecdn.net/files/6330/30/handcrafted-neoforge-1.21.1-4.0.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 551523,
+      "fid": 6331055,
+      "slug": "creeperhost-presents-soul-shards",
+      "filename": "soulshards-1.21-1.3.15-neoforge.jar",
+      "sha1": "bac45d3f6e9690d73f2e7ace234dd8b7cf187c3e",
+      "url": "https://edge.forgecdn.net/files/6331/55/soulshards-1.21-1.3.15-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 345779,
+      "fid": 6343120,
+      "slug": "plonk",
+      "filename": "plonk-1.21.1-10.0.6-neo.jar",
+      "sha1": "6dc6134a0dffc6339ae6525d2c0437a03dcbb39b",
+      "url": "https://edge.forgecdn.net/files/6343/120/plonk-1.21.1-10.0.6-neo.jar",
+      "side": "both"
+    },
+    {
+      "pid": 250398,
+      "fid": 6368976,
+      "slug": "controlling",
+      "filename": "Controlling-neoforge-1.21.1-19.0.5.jar",
+      "sha1": "8a34424fc1428778be2fdbfa4da67b21b70bcbfe",
+      "url": "https://edge.forgecdn.net/files/6368/976/Controlling-neoforge-1.21.1-19.0.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1028778,
+      "fid": 6375836,
+      "slug": "classic-mekanism-textures",
+      "filename": "ClassicMekTextures.zip",
+      "sha1": "23cf9c46a4399eb04b152e4bccecca87ce04f911",
+      "url": "https://edge.forgecdn.net/files/6375/836/ClassicMekTextures.zip",
+      "side": "both"
+    },
+    {
+      "pid": 394468,
+      "fid": 6382651,
+      "slug": "sodium",
+      "filename": "sodium-neoforge-0.6.13+mc1.21.1.jar",
+      "sha1": "38af70fa4dc4b2aaac636e92fdba3bedd5a025e1",
+      "url": "https://edge.forgecdn.net/files/6382/651/sodium-neoforge-0.6.13%2bmc1.21.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 976858,
+      "fid": 6407807,
+      "slug": "inventory-tweaks-refoxed",
+      "filename": "invtweaks-1.21.1-1.3.2.jar",
+      "sha1": "76969e26520ab060d51515757db25282bed71b10",
+      "url": "https://edge.forgecdn.net/files/6407/807/invtweaks-1.21.1-1.3.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 945479,
+      "fid": 6418577,
+      "slug": "what-are-they-up-to",
+      "filename": "watut-neoforge-1.21.0-1.2.7.jar",
+      "sha1": "07cfb8fb1269f1eae1056492912e3544be979f62",
+      "url": "https://edge.forgecdn.net/files/6418/577/watut-neoforge-1.21.0-1.2.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 314905,
+      "fid": 6431744,
+      "slug": "ftb-ranks-forge",
+      "filename": "ftb-ranks-neoforge-2101.1.3.jar",
+      "sha1": "07fdfa3a75c3481770ce0118090a347d89e3a560",
+      "url": "https://edge.forgecdn.net/files/6431/744/ftb-ranks-neoforge-2101.1.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 291936,
+      "fid": 6464161,
+      "slug": "findme",
+      "filename": "findme-3.3.3-neoforge.jar",
+      "sha1": "096121af0007724cc8666994d5b5df669475a145",
+      "url": "https://edge.forgecdn.net/files/6464/161/findme-3.3.3-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 574123,
+      "fid": 6470153,
+      "slug": "dark-mode-everywhere",
+      "filename": "darkmodeeverywhere-1.21-1.3.5.jar",
+      "sha1": "db5a7066cf14dbd1867c1afe6c91a6041009c8c2",
+      "url": "https://edge.forgecdn.net/files/6470/153/darkmodeeverywhere-1.21-1.3.5.jar",
+      "side": "client"
+    },
+    {
+      "pid": 352039,
+      "fid": 6494399,
+      "slug": "macaws-roofs",
+      "filename": "mcw-roofs-2.3.2-mc1.21.1neoforge.jar",
+      "sha1": "05806ff152fab56f7c1b4b215d772ea73611283d",
+      "url": "https://edge.forgecdn.net/files/6494/399/mcw-roofs-2.3.2-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 240630,
+      "fid": 6506298,
+      "slug": "just-enough-resources-jer",
+      "filename": "JustEnoughResources-NeoForge-1.21.1-1.6.0.17.jar",
+      "sha1": "e739d69b2de31ca8c0cb4691ab08e823f153bc44",
+      "url": "https://edge.forgecdn.net/files/6506/298/JustEnoughResources-NeoForge-1.21.1-1.6.0.17.jar",
+      "side": "both"
+    },
+    {
+      "pid": 309927,
+      "fid": 6529130,
+      "slug": "curios",
+      "filename": "curios-neoforge-9.5.1+1.21.1.jar",
+      "sha1": "418fcd42e3a7844c9bdc71c9b6401fdb3894e0c4",
+      "url": "https://edge.forgecdn.net/files/6529/130/curios-neoforge-9.5.1%2b1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 260912,
+      "fid": 6563957,
+      "slug": "xnet",
+      "filename": "xnet-1.21-7.0.6.jar",
+      "sha1": "a4f91c5652955bdf60a0c377448a275eeccdb841",
+      "url": "https://edge.forgecdn.net/files/6563/957/xnet-1.21-7.0.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 242998,
+      "fid": 6565251,
+      "slug": "silent-lib",
+      "filename": "silent-lib-1.21.1-neoforge-10.5.1.jar",
+      "sha1": "b08b639706ce8cbc426045501b7f2da59eceb14f",
+      "url": "https://edge.forgecdn.net/files/6565/251/silent-lib-1.21.1-neoforge-10.5.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 455508,
+      "fid": 6661598,
+      "slug": "irisshaders",
+      "filename": "iris-neoforge-1.8.12+mc1.21.1.jar",
+      "sha1": "a3e6355915c7d3b2bc392724795113e51d289378",
+      "url": "https://edge.forgecdn.net/files/6661/598/iris-neoforge-1.8.12%2bmc1.21.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 841890,
+      "fid": 6669522,
+      "slug": "athena",
+      "filename": "athena-neoforge-1.21-4.0.2.jar",
+      "sha1": "069f397f1b3a30b3d5f5a98cac76304dfe345d76",
+      "url": "https://edge.forgecdn.net/files/6669/522/athena-neoforge-1.21-4.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 971089,
+      "fid": 6693853,
+      "slug": "chisel-chipped-integration",
+      "filename": "chisel_chipped_integration-v1.3.9-1.21.1.jar",
+      "sha1": "8a7b23797cf5ecd9db0cc1cced108d5fbdb876b9",
+      "url": "https://edge.forgecdn.net/files/6693/853/chisel_chipped_integration-v1.3.9-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1103259,
+      "fid": 6695679,
+      "slug": "ftb-jei-extras",
+      "filename": "ftb-jei-extras-21.1.7.jar",
+      "sha1": "ef01126201a805991bbfe5351cff7d0a9e3a077b",
+      "url": "https://edge.forgecdn.net/files/6695/679/ftb-jei-extras-21.1.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 509575,
+      "fid": 6697124,
+      "slug": "observable",
+      "filename": "observable-5.4.4.jar",
+      "sha1": "e17417eee213aac8291ff8bad1c6a5f710636b72",
+      "url": "https://edge.forgecdn.net/files/6697/124/observable-5.4.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 231951,
+      "fid": 6733669,
+      "slug": "immersive-engineering",
+      "filename": "ImmersiveEngineering-1.21.1-12.4.2-194.jar",
+      "sha1": "a4e90c2df8009040f6d022433c5d76635944dd59",
+      "url": "https://edge.forgecdn.net/files/6733/669/ImmersiveEngineering-1.21.1-12.4.2-194.jar",
+      "side": "both"
+    },
+    {
+      "pid": 255902,
+      "fid": 6751432,
+      "slug": "wither-skeleton-tweaks",
+      "filename": "WitherSkeletonTweaks-1.21.1-10.1.1.jar",
+      "sha1": "eda07efc2f5e47492abe205295b182c219c6199f",
+      "url": "https://edge.forgecdn.net/files/6751/432/WitherSkeletonTweaks-1.21.1-10.1.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 271740,
+      "fid": 6751464,
+      "slug": "toast-control",
+      "filename": "ToastControl-1.21.1-9.0.1.jar",
+      "sha1": "33477c2db0479c9be33d1ca3b2fa47cf6c97988c",
+      "url": "https://edge.forgecdn.net/files/6751/464/ToastControl-1.21.1-9.0.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 552574,
+      "fid": 6751495,
+      "slug": "hostile-neural-networks",
+      "filename": "HostileNeuralNetworks-1.21.1-6.3.0.jar",
+      "sha1": "7e026e8d78bb40bc52ff0857d25ebb5b1a05714b",
+      "url": "https://edge.forgecdn.net/files/6751/495/HostileNeuralNetworks-1.21.1-6.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 288885,
+      "fid": 6751534,
+      "slug": "fastworkbench",
+      "filename": "FastWorkbench-1.21.1-9.1.3.jar",
+      "sha1": "7343b63ded70c0546811c768118d16d3a86418ee",
+      "url": "https://edge.forgecdn.net/files/6751/534/FastWorkbench-1.21.1-9.1.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 299540,
+      "fid": 6751551,
+      "slug": "fastfurnace",
+      "filename": "FastFurnace-1.21.1-9.0.1.jar",
+      "sha1": "acdcdc7c61b49b3b04490fce9843dcf8b531dfc3",
+      "url": "https://edge.forgecdn.net/files/6751/551/FastFurnace-1.21.1-9.0.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 298275,
+      "fid": 6751569,
+      "slug": "click-machine",
+      "filename": "ClickMachine-1.21.1-9.0.1.jar",
+      "sha1": "336cd6baaf1d9de113fc1b5780db790a549ac466",
+      "url": "https://edge.forgecdn.net/files/6751/569/ClickMachine-1.21.1-9.0.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 532610,
+      "fid": 6785734,
+      "slug": "owo-lib",
+      "filename": "owo-lib-neoforge-0.12.15.5-beta.1+1.21.jar",
+      "sha1": "48dda11a6710591cf162bdbedf982ea21dd1f2ed",
+      "url": "https://edge.forgecdn.net/files/6785/734/owo-lib-neoforge-0.12.15.5-beta.1%2b1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 552758,
+      "fid": 6787236,
+      "slug": "modern-dynamics",
+      "filename": "Modern-Dynamics-0.9.6.jar",
+      "sha1": "3f206d55dc002f217a2a4e5b1cce9327fd67bfa6",
+      "url": "https://edge.forgecdn.net/files/6787/236/Modern-Dynamics-0.9.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 691049,
+      "fid": 6799851,
+      "slug": "generatorgalore",
+      "filename": "generatorgalore-1.21.1-1.6.3.jar",
+      "sha1": "31418972d718190c6f13d8a34f434b266af317e0",
+      "url": "https://edge.forgecdn.net/files/6799/851/generatorgalore-1.21.1-1.6.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 254241,
+      "fid": 6804869,
+      "slug": "mob-grinding-utils",
+      "filename": "mob_grinding_utils-1.1.10+mc1.21.1.jar",
+      "sha1": "3dffde016ec61eb3961453e7142c85d11a4f4127",
+      "url": "https://edge.forgecdn.net/files/6804/869/mob_grinding_utils-1.1.10%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 383129,
+      "fid": 6811960,
+      "slug": "connected-glass",
+      "filename": "connectedglass-1.1.14-neoforge-mc1.21.jar",
+      "sha1": "0a44c13d6744e0eeec5bf38f58756a8e86e96f55",
+      "url": "https://edge.forgecdn.net/files/6811/960/connectedglass-1.1.14-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 550678,
+      "fid": 6819714,
+      "slug": "too-fast",
+      "filename": "toofast-1.21.0-0.4.3.6.jar",
+      "sha1": "4a1f4307fc8dea95667fe88c8d39f87e2b370643",
+      "url": "https://edge.forgecdn.net/files/6819/714/toofast-1.21.0-0.4.3.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 854213,
+      "fid": 6830399,
+      "slug": "colorful-hearts",
+      "filename": "colorfulhearts-neoforge-1.21.1-10.5.9.jar",
+      "sha1": "ec63110d126cf95dabe220116bd394e701265de7",
+      "url": "https://edge.forgecdn.net/files/6830/399/colorfulhearts-neoforge-1.21.1-10.5.9.jar",
+      "side": "client"
+    },
+    {
+      "pid": 367734,
+      "fid": 6834323,
+      "slug": "pocket-storage",
+      "filename": "pocketstorage-1.2.5+1.21.1-b3.jar",
+      "sha1": "5240b7df92f0ec542947acf17a0bfc6b10bbe0f3",
+      "url": "https://edge.forgecdn.net/files/6834/323/pocketstorage-1.2.5%2b1.21.1-b3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 633823,
+      "fid": 6847936,
+      "slug": "almostunified",
+      "filename": "almostunified-neoforge-1.21.1-1.3.0.jar",
+      "sha1": "d4d4e89eeec0693433dd16f5cf8dbd0181ae6fe6",
+      "url": "https://edge.forgecdn.net/files/6847/936/almostunified-neoforge-1.21.1-1.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 298187,
+      "fid": 6850515,
+      "slug": "building-gadgets",
+      "filename": "buildinggadgets2-1.3.9.jar",
+      "sha1": "666a155981e3cd231f67809b9e2a0238377bbbfc",
+      "url": "https://edge.forgecdn.net/files/6850/515/buildinggadgets2-1.3.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1214396,
+      "fid": 6868778,
+      "slug": "camol",
+      "filename": "camol-1.21.1-0.3.0.jar",
+      "sha1": "d87f56e5722b39ba1a20b968e5104feaaec9690f",
+      "url": "https://edge.forgecdn.net/files/6868/778/camol-1.21.1-0.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 653786,
+      "fid": 6872525,
+      "slug": "xycraft",
+      "filename": "xycraft_core-0.7.53-all.jar",
+      "sha1": "c734345c9c5eff8f50551a344fff6b5f1c14c6e7",
+      "url": "https://edge.forgecdn.net/files/6872/525/xycraft_core-0.7.53-all.jar",
+      "side": "both"
+    },
+    {
+      "pid": 653791,
+      "fid": 6872530,
+      "slug": "xycraft-machines",
+      "filename": "xycraft_machines-0.7.53.jar",
+      "sha1": "db40db00830c67a33ac48c1dd9617f67069b22b4",
+      "url": "https://edge.forgecdn.net/files/6872/530/xycraft_machines-0.7.53.jar",
+      "side": "both"
+    },
+    {
+      "pid": 653790,
+      "fid": 6872531,
+      "slug": "xycraft-override",
+      "filename": "xycraft_override-0.7.53.jar",
+      "sha1": "0fe04397966d3a6a04fd65b6d55a8e6b5623b7be",
+      "url": "https://edge.forgecdn.net/files/6872/531/xycraft_override-0.7.53.jar",
+      "side": "both"
+    },
+    {
+      "pid": 653789,
+      "fid": 6872532,
+      "slug": "xycraft-world",
+      "filename": "xycraft_world-0.7.53.jar",
+      "sha1": "100aed4d7cc9f10aa21f3571d9c367a4bd44cf6f",
+      "url": "https://edge.forgecdn.net/files/6872/532/xycraft_world-0.7.53.jar",
+      "side": "both"
+    },
+    {
+      "pid": 309858,
+      "fid": 6875895,
+      "slug": "forbidden-arcanus",
+      "filename": "forbidden_arcanus-2.6.1.jar",
+      "sha1": "1de105be68b88de87a5e6749f320c790d550c120",
+      "url": "https://edge.forgecdn.net/files/6875/895/forbidden_arcanus-2.6.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 738663,
+      "fid": 6880047,
+      "slug": "notenoughrecipebook",
+      "filename": "Not Enough Recipe Book-NEOFORGE-0.4.3+1.21.jar",
+      "sha1": "e0c36cd85d3d31cc2afb1bfc6b885f505245252f",
+      "url": "https://edge.forgecdn.net/files/6880/47/Not%20Enough%20Recipe%20Book-NEOFORGE-0.4.3%2b1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 656136,
+      "fid": 6895172,
+      "slug": "gravitational-modulating-additional-unit",
+      "filename": "GravitationalModulatingAdditionalUnit-1.21.1-6.4.jar",
+      "sha1": "244d8b57aa7d34e247f3dd09cacf647a9ba1cfab",
+      "url": "https://edge.forgecdn.net/files/6895/172/GravitationalModulatingAdditionalUnit-1.21.1-6.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1213351,
+      "fid": 6910849,
+      "slug": "expanded-ae",
+      "filename": "expandedae-2.1.1.jar",
+      "sha1": "c4db013f83e569b016da329b3ddc9c14acc75d7d",
+      "url": "https://edge.forgecdn.net/files/6910/849/expandedae-2.1.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1165932,
+      "fid": 6924618,
+      "slug": "luminax",
+      "filename": "luminax-1.3.1_neoforge_1.21.1.jar",
+      "sha1": "8ec996b9783d05d4c107a3ea727ff9c7d52ce452",
+      "url": "https://edge.forgecdn.net/files/6924/618/luminax-1.3.1_neoforge_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 283644,
+      "fid": 6926281,
+      "slug": "placebo",
+      "filename": "Placebo-1.21.1-9.9.1.jar",
+      "sha1": "1c2b8c38066d6f36209c5dadee25c184ef65202e",
+      "url": "https://edge.forgecdn.net/files/6926/281/Placebo-1.21.1-9.9.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 417802,
+      "fid": 6926284,
+      "slug": "gateways-to-eternity",
+      "filename": "GatewaysToEternity-1.21.1-5.1.0.jar",
+      "sha1": "f91a593378209f527fe81e731ca60fe8f8da2319",
+      "url": "https://edge.forgecdn.net/files/6926/284/GatewaysToEternity-1.21.1-5.1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 666944,
+      "fid": 6926581,
+      "slug": "spiky-spikes",
+      "filename": "SpikySpikes-v21.1.2-1.21.1-NeoForge.jar",
+      "sha1": "14e64fd5a162e9d4ed193d1e8f2355fce3105499",
+      "url": "https://edge.forgecdn.net/files/6926/581/SpikySpikes-v21.1.2-1.21.1-NeoForge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1094032,
+      "fid": 6928639,
+      "slug": "all-the-arcanist-gear",
+      "filename": "allthearcanistgear-1.21.1-21.3.2.jar",
+      "sha1": "00298152fb92d382e1659e9c21235ecc44a03433",
+      "url": "https://edge.forgecdn.net/files/6928/639/allthearcanistgear-1.21.1-21.3.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 980111,
+      "fid": 6928840,
+      "slug": "ex-machinis-divitiae-deorum",
+      "filename": "exmachinis-deorum-1.21.1-4.0.2.jar",
+      "sha1": "5314932c613b2df10a59edc6594af7d0c2f50ba7",
+      "url": "https://edge.forgecdn.net/files/6928/840/exmachinis-deorum-1.21.1-4.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 688367,
+      "fid": 6935673,
+      "slug": "merequester",
+      "filename": "merequester-neoforge-1.21.1-1.4.1.jar",
+      "sha1": "44eb03cdc526dc4233d6d9ad02a7cb48ef2eb008",
+      "url": "https://edge.forgecdn.net/files/6935/673/merequester-neoforge-1.21.1-1.4.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1023259,
+      "fid": 6961457,
+      "slug": "prickle",
+      "filename": "prickle-neoforge-1.21.1-21.1.11.jar",
+      "sha1": "5174059ecf97340a0de5ef211b938de26c4eaa36",
+      "url": "https://edge.forgecdn.net/files/6961/457/prickle-neoforge-1.21.1-21.1.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1326856,
+      "fid": 6975768,
+      "slug": "ftb-quests-lang-splitter",
+      "filename": "ftbquestslangsplitter-1.0.5.jar",
+      "sha1": "74652f1f845c7a31f12b50163164eba06beebbd7",
+      "url": "https://edge.forgecdn.net/files/6975/768/ftbquestslangsplitter-1.0.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 391382,
+      "fid": 6981252,
+      "slug": "more-overlays-updated",
+      "filename": "moreoverlays-1.24.2-mc1.21.1-neoforge.jar",
+      "sha1": "21e8bd61c5e146a9574266015d3f64621c2d9e18",
+      "url": "https://www.curseforge.com/api/v1/mods/391382/files/6981252/download",
+      "side": "client"
+    },
+    {
+      "pid": 223794,
+      "fid": 7027323,
+      "slug": "applied-energistics-2",
+      "filename": "appliedenergistics2-19.2.17.jar",
+      "sha1": "49c18d6a4af487957d7e5a6ad5dcbf71090b8e14",
+      "url": "https://edge.forgecdn.net/files/7027/323/appliedenergistics2-19.2.17.jar",
+      "side": "both"
+    },
+    {
+      "pid": 405593,
+      "fid": 7027340,
+      "slug": "ato",
+      "filename": "alltheores-3.1.8_neoforge_1.21.1.jar",
+      "sha1": "3185b3c8c5853797ca0e33d8b0837d67122d1f8a",
+      "url": "https://edge.forgecdn.net/files/7027/340/alltheores-3.1.8_neoforge_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 629153,
+      "fid": 7029451,
+      "slug": "macaws-paths-and-pavings",
+      "filename": "mcw-mcwpaths-1.1.1-mc1.21.1neoforge.jar",
+      "sha1": "4bb7e1d28eef19f87438881b0f582a15297b95ae",
+      "url": "https://edge.forgecdn.net/files/7029/451/mcw-mcwpaths-1.1.1-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 535489,
+      "fid": 7032247,
+      "slug": "sound-physics-remastered",
+      "filename": "sound-physics-remastered-neoforge-1.21.1-1.5.1.jar",
+      "sha1": "31cf754f9e5f62d1ca257f297e5dce394024696c",
+      "url": "https://edge.forgecdn.net/files/7032/247/sound-physics-remastered-neoforge-1.21.1-1.5.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 694231,
+      "fid": 7032490,
+      "slug": "xtones-reworked",
+      "filename": "xtonesreworked-1.1.1-1.21.1.jar",
+      "sha1": "2daa001d39b43ba379991b944e022ab365c74cfd",
+      "url": "https://edge.forgecdn.net/files/7032/490/xtonesreworked-1.1.1-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 237664,
+      "fid": 7034259,
+      "slug": "iron-furnaces",
+      "filename": "ironfurnaces-neoforge-1.21.1-4.3.2.jar",
+      "sha1": "9a40f949ec9794cdef79bdabb61a12a918613194",
+      "url": "https://edge.forgecdn.net/files/7034/259/ironfurnaces-neoforge-1.21.1-4.3.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 250419,
+      "fid": 7039849,
+      "slug": "enchantment-descriptions",
+      "filename": "enchdesc-neoforge-1.21.1-21.1.9.jar",
+      "sha1": "e4fa515c5deab3165f250f2a1297ac836d496064",
+      "url": "https://edge.forgecdn.net/files/7039/849/enchdesc-neoforge-1.21.1-21.1.9.jar",
+      "side": "client"
+    },
+    {
+      "pid": 1316631,
+      "fid": 7045712,
+      "slug": "almost-unified-ie",
+      "filename": "almostunified_ie-neoforge-1.21.1-1.0.1.jar",
+      "sha1": "0940f4ac40f87ba12e6978ad80eb8eb756822aba",
+      "url": "https://edge.forgecdn.net/files/7045/712/almostunified_ie-neoforge-1.21.1-1.0.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 661293,
+      "fid": 7055149,
+      "slug": "smartbrainlib",
+      "filename": "SmartBrainLib-neoforge-1.21.1-1.16.11.jar",
+      "sha1": "0310135a01eeceefbc7f1ab017498a65f3ad6836",
+      "url": "https://edge.forgecdn.net/files/7055/149/SmartBrainLib-neoforge-1.21.1-1.16.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1184406,
+      "fid": 7057233,
+      "slug": "transfer-labels",
+      "filename": "transfer_labels-0.1.7.jar",
+      "sha1": "c1561ca14e685742b2e28d83c2ba473f767d4f80",
+      "url": "https://edge.forgecdn.net/files/7057/233/transfer_labels-0.1.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 556861,
+      "fid": 7061714,
+      "slug": "functional-storage",
+      "filename": "functionalstorage-1.21.1-1.5.5.jar",
+      "sha1": "52ce3f093bb069eb551e47377b328b612b2f18c2",
+      "url": "https://edge.forgecdn.net/files/7061/714/functionalstorage-1.21.1-1.5.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1140741,
+      "fid": 7069504,
+      "slug": "neoauth",
+      "filename": "NeoAuth-1.21.1-1.0.1.jar",
+      "sha1": "1eeb2aad79e2d9bac1b1d793768eb0d3483358fe",
+      "url": "https://edge.forgecdn.net/files/7069/504/NeoAuth-1.21.1-1.0.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 570354,
+      "fid": 7078265,
+      "slug": "nullscape",
+      "filename": "Nullscape_1.21.x_v1.2.14.jar",
+      "sha1": "ae8e1cbd5de6cf6f450bb44cd69cd284dad690dd",
+      "url": "https://edge.forgecdn.net/files/7078/265/Nullscape_1.21.x_v1.2.14.jar",
+      "side": "both"
+    },
+    {
+      "pid": 656346,
+      "fid": 7084444,
+      "slug": "lmft",
+      "filename": "lmft-1.1.1+1.21.9-neoforge.jar",
+      "sha1": "492d597ca216f9d099be112e77a9a5c7ed138770",
+      "url": "https://edge.forgecdn.net/files/7084/444/lmft-1.1.1%2b1.21.9-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1316818,
+      "fid": 7092792,
+      "slug": "growth-accelerator-tiers",
+      "filename": "growthacceleratortiers-1.0.4_neoforge_1.21.1.jar",
+      "sha1": "c1b449c50b755204b120cce44e885868da85d80d",
+      "url": "https://edge.forgecdn.net/files/7092/792/growthacceleratortiers-1.0.4_neoforge_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 574300,
+      "fid": 7096962,
+      "slug": "applied-mekanistics",
+      "filename": "Applied-Mekanistics-1.6.3.jar",
+      "sha1": "bec4a47269ec23bca2329742e13409bfde69c5c3",
+      "url": "https://edge.forgecdn.net/files/7096/962/Applied-Mekanistics-1.6.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 416294,
+      "fid": 7104526,
+      "slug": "rhino",
+      "filename": "rhino-2101.2.7-build.81.jar",
+      "sha1": "5dcc80079095706645d567353095297948a41eea",
+      "url": "https://edge.forgecdn.net/files/7104/526/rhino-2101.2.7-build.81.jar",
+      "side": "both"
+    },
+    {
+      "pid": 284497,
+      "fid": 7105279,
+      "slug": "iron-jetpacks",
+      "filename": "IronJetpacks-1.21.1-8.0.11.jar",
+      "sha1": "96bdaf7fa57b73a3c157edfc5d1afbfc2e23a65d",
+      "url": "https://edge.forgecdn.net/files/7105/279/IronJetpacks-1.21.1-8.0.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 353928,
+      "fid": 7115287,
+      "slug": "botany-pots",
+      "filename": "botanypots-neoforge-1.21.1-21.1.41.jar",
+      "sha1": "4f216887a3b95d6abde0f2458a94487523531a1c",
+      "url": "https://edge.forgecdn.net/files/7115/287/botanypots-neoforge-1.21.1-21.1.41.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1173950,
+      "fid": 7127444,
+      "slug": "guideme",
+      "filename": "guideme-21.1.15.jar",
+      "sha1": "924c6bca566ee83789a4fd1ce72ea3ddfdf0f5e5",
+      "url": "https://edge.forgecdn.net/files/7127/444/guideme-21.1.15.jar",
+      "side": "both"
+    },
+    {
+      "pid": 231382,
+      "fid": 7130990,
+      "slug": "brandons-core",
+      "filename": "BrandonsCore-1.21.1-3.2.1.309.jar",
+      "sha1": "ef00bdaaca4e469cc3925d573434d2f84b9d8a14",
+      "url": "https://edge.forgecdn.net/files/7130/990/BrandonsCore-1.21.1-3.2.1.309.jar",
+      "side": "both"
+    },
+    {
+      "pid": 634571,
+      "fid": 7131196,
+      "slug": "just-enough-immersive-multiblocks",
+      "filename": "jeimultiblocks-1.21.1-1.0.6.jar",
+      "sha1": "3c0a8b4823083151572656c702e5a2b45720ab4f",
+      "url": "https://edge.forgecdn.net/files/7131/196/jeimultiblocks-1.21.1-1.0.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1345066,
+      "fid": 7136179,
+      "slug": "dyson-cube-project",
+      "filename": "dysoncubeproject-1.0.2.jar",
+      "sha1": "6ab001bcad7c02178c4e04e51e8ebaeb544a779a",
+      "url": "https://edge.forgecdn.net/files/7136/179/dysoncubeproject-1.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 509276,
+      "fid": 7138991,
+      "slug": "dyenamics",
+      "filename": "dyenamics-1.21.1-3.4.2.jar",
+      "sha1": "dc3ef3ca37de6c287180ae81d0328f575698c107",
+      "url": "https://edge.forgecdn.net/files/7138/991/dyenamics-1.21.1-3.4.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 495476,
+      "fid": 7140307,
+      "slug": "puzzles-lib",
+      "filename": "PuzzlesLib-v21.1.39-1.21.1-NeoForge.jar",
+      "sha1": "bcc0900fbbf6d6fc5ca05039cd5725e6145225f2",
+      "url": "https://edge.forgecdn.net/files/7140/307/PuzzlesLib-v21.1.39-1.21.1-NeoForge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 576589,
+      "fid": 7140477,
+      "slug": "polylib",
+      "filename": "polylib-2100.1.0-build.183-neoforge.jar",
+      "sha1": "2e77cd8a795c3171d8327e6b1f1b6413565c8da1",
+      "url": "https://edge.forgecdn.net/files/7140/477/polylib-2100.1.0-build.183-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 64760,
+      "fid": 7148568,
+      "slug": "security-craft",
+      "filename": "[1.21.1] SecurityCraft v1.10.1.jar",
+      "sha1": "692f81f4fdcd0d1298db96a9582eea41baeae252",
+      "url": "https://edge.forgecdn.net/files/7148/568/%5b1.21.1%5d%20SecurityCraft%20v1.10.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 583228,
+      "fid": 7151913,
+      "slug": "simple-backups",
+      "filename": "SimpleBackups-1.21-4.0.21.jar",
+      "sha1": "35bb3b98f330e0f6d08466860157a578a1ecfca2",
+      "url": "https://edge.forgecdn.net/files/7151/913/SimpleBackups-1.21-4.0.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 901420,
+      "fid": 7160864,
+      "slug": "ex-deorum",
+      "filename": "exdeorum-3.10.jar",
+      "sha1": "8363d527262192aaba8973b78d8fce6c8a5ce102",
+      "url": "https://edge.forgecdn.net/files/7160/864/exdeorum-3.10.jar",
+      "side": "both"
+    },
+    {
+      "pid": 515698,
+      "fid": 7170688,
+      "slug": "squat-grow",
+      "filename": "squatgrow-neoforge-21.1.2+mc1.21.1.jar",
+      "sha1": "0af904d853becad997edf56d802b034dc2ca127a",
+      "url": "https://edge.forgecdn.net/files/7170/688/squatgrow-neoforge-21.1.2%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 272335,
+      "fid": 7180790,
+      "slug": "cucumber",
+      "filename": "Cucumber-1.21.1-8.0.15.jar",
+      "sha1": "e2928961f305d0a48e43a03b0a668ee123270f69",
+      "url": "https://edge.forgecdn.net/files/7180/790/Cucumber-1.21.1-8.0.15.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1086241,
+      "fid": 7182163,
+      "slug": "ae2-crafting-tree",
+      "filename": "ae2ct-1.21.1-1.1.1.jar",
+      "sha1": "2e425a9dc8891bdcd3b2914506d1bc33414b61be",
+      "url": "https://edge.forgecdn.net/files/7182/163/ae2ct-1.21.1-1.1.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 254268,
+      "fid": 7197218,
+      "slug": "torchmaster",
+      "filename": "torchmaster-neoforge-1.21.1-21.1.9.jar",
+      "sha1": "3f565ecc8560eba3ae3e15ff6542a3025d7377a2",
+      "url": "https://edge.forgecdn.net/files/7197/218/torchmaster-neoforge-1.21.1-21.1.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 709617,
+      "fid": 7204108,
+      "slug": "dyenamicsandfriends",
+      "filename": "dyenamicsandfriends-1.21.1-2.2.2.jar",
+      "sha1": "cc43cabf3d36c33d51bc923f21f819766d3ce75d",
+      "url": "https://edge.forgecdn.net/files/7204/108/dyenamicsandfriends-1.21.1-2.2.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1329409,
+      "fid": 7208646,
+      "slug": "botany-pots-mystical-agriculture-compat",
+      "filename": "botanypotsmystical-neoforge-1.21.1-21.1.11.jar",
+      "sha1": "c9f09d5194b3aa36bc55eb6fd621f6527ef046fc",
+      "url": "https://edge.forgecdn.net/files/7208/646/botanypotsmystical-neoforge-1.21.1-21.1.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 511770,
+      "fid": 7248439,
+      "slug": "drippy-loading-screen",
+      "filename": "drippyloadingscreen_neoforge_3.1.0_MC_1.21.1.jar",
+      "sha1": "907f43294b63cd845bf2fdad1ea5fe5c52552508",
+      "url": "https://edge.forgecdn.net/files/7248/439/drippyloadingscreen_neoforge_3.1.0_MC_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 610844,
+      "fid": 7251787,
+      "slug": "bliss-shader",
+      "filename": "Bliss_v2.1.2_(Chocapic13_Shaders_edit).zip",
+      "sha1": "ded6c8a98305f8aff90ef781e7585b33b8452cfd",
+      "url": "https://edge.forgecdn.net/files/7251/787/Bliss_v2.1.2_(Chocapic13_Shaders_edit).zip",
+      "side": "both"
+    },
+    {
+      "pid": 359540,
+      "fid": 7255584,
+      "slug": "macaws-furniture",
+      "filename": "mcw-furniture-3.4.1-mc1.21.1neoforge.jar",
+      "sha1": "3dccc819f14bcc60b3683edd82ca8c5e64964229",
+      "url": "https://edge.forgecdn.net/files/7255/584/mcw-furniture-3.4.1-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 400933,
+      "fid": 7256148,
+      "slug": "macaws-trapdoors",
+      "filename": "mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar",
+      "sha1": "1f8b59e31f889f53b6296b42ee09d447e7e56620",
+      "url": "https://edge.forgecdn.net/files/7256/148/mcw-trapdoors-1.1.5-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 367706,
+      "fid": 7256741,
+      "slug": "fancymenu",
+      "filename": "fancymenu_neoforge_3.8.1_MC_1.21.1.jar",
+      "sha1": "061a2c1ae0563d9d433928c243c58ee9b45f630f",
+      "url": "https://edge.forgecdn.net/files/7256/741/fancymenu_neoforge_3.8.1_MC_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 326041,
+      "fid": 7263404,
+      "slug": "rftools-base",
+      "filename": "rftoolsbase-1.21-6.0.10.jar",
+      "sha1": "5c801c592a97ad7a4a0c33f186881d719eb06b9c",
+      "url": "https://edge.forgecdn.net/files/7263/404/rftoolsbase-1.21-6.0.10.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1108467,
+      "fid": 7268812,
+      "slug": "cobblegen-galore",
+      "filename": "cobblegengalore-1.21.1-0.2.8.jar",
+      "sha1": "a799bf9d4818020bc41c009503f6d77f78eec247",
+      "url": "https://edge.forgecdn.net/files/7268/812/cobblegengalore-1.21.1-0.2.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1199188,
+      "fid": 7270331,
+      "slug": "silent-gear-metalworks",
+      "filename": "sgearmetalworks-1.21.1-1.4.6.jar",
+      "sha1": "1951c74de72370cc3fc69f9bbb5248562a855d7b",
+      "url": "https://edge.forgecdn.net/files/7270/331/sgearmetalworks-1.21.1-1.4.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 457570,
+      "fid": 7276577,
+      "slug": "configured",
+      "filename": "configured-neoforge-1.21.1-2.6.3.jar",
+      "sha1": "e977d86eec39d49295df4e2c4265d6710ae065e8",
+      "url": "https://edge.forgecdn.net/files/7276/577/configured-neoforge-1.21.1-2.6.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 238086,
+      "fid": 7278501,
+      "slug": "kubejs",
+      "filename": "kubejs-neoforge-2101.7.2-build.348.jar",
+      "sha1": "75f96b2e4157c0efdbfd9f6271d080fb6921aaf4",
+      "url": "https://edge.forgecdn.net/files/7278/501/kubejs-neoforge-2101.7.2-build.348.jar",
+      "side": "both"
+    },
+    {
+      "pid": 258426,
+      "fid": 7280616,
+      "slug": "cb-multipart",
+      "filename": "CBMultipart-1.21.1-3.5.0.155.jar",
+      "sha1": "754cefc13802393862a05142f55d71669e76bc3d",
+      "url": "https://edge.forgecdn.net/files/7280/616/CBMultipart-1.21.1-3.5.0.155.jar",
+      "side": "both"
+    },
+    {
+      "pid": 242818,
+      "fid": 7281427,
+      "slug": "codechicken-lib-1-8",
+      "filename": "CodeChickenLib-1.21.1-4.6.1.526.jar",
+      "sha1": "6a278b5a2788c2fee7ae52d17f24187332d436b2",
+      "url": "https://edge.forgecdn.net/files/7281/427/CodeChickenLib-1.21.1-4.6.1.526.jar",
+      "side": "both"
+    },
+    {
+      "pid": 557696,
+      "fid": 7282783,
+      "slug": "sky-guis",
+      "filename": "SkyGUIs-21.1.8.jar",
+      "sha1": "b88a127fdbc4c6d508640a384f7a13f23f7a3fcc",
+      "url": "https://edge.forgecdn.net/files/7282/783/SkyGUIs-21.1.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 347706,
+      "fid": 7284650,
+      "slug": "rftools-builder",
+      "filename": "rftoolsbuilder-1.21-7.0.4.jar",
+      "sha1": "91e5121ce193b3df2203a0b3fecd1c272e4a28f1",
+      "url": "https://edge.forgecdn.net/files/7284/650/rftoolsbuilder-1.21-7.0.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 233105,
+      "fid": 7299488,
+      "slug": "mcjtylib",
+      "filename": "mcjtylib-1.21-9.0.20.jar",
+      "sha1": "3a42bcacd5b886ab0ce3076b64f1177b1dcd300a",
+      "url": "https://edge.forgecdn.net/files/7299/488/mcjtylib-1.21-9.0.20.jar",
+      "side": "both"
+    },
+    {
+      "pid": 502372,
+      "fid": 7304075,
+      "slug": "macaws-lights-and-lamps",
+      "filename": "mcw-lights-1.1.5-mc1.21.1neoforge.jar",
+      "sha1": "13c1107caf26b2c60d8626b3658b26cc7f634b38",
+      "url": "https://edge.forgecdn.net/files/7304/75/mcw-lights-1.1.5-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 453925,
+      "fid": 7308338,
+      "slug": "macaws-fences-and-walls",
+      "filename": "mcw-mcwfences-1.2.1-mc1.21.1neoforge.jar",
+      "sha1": "b5580c3fc521ed8bf4db3e407bd590efc317f74d",
+      "url": "https://edge.forgecdn.net/files/7308/338/mcw-mcwfences-1.2.1-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 363569,
+      "fid": 7317672,
+      "slug": "macaws-windows",
+      "filename": "mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar",
+      "sha1": "eb1d3c118acb450cc2fe14c2ce7ce247a1bca60c",
+      "url": "https://edge.forgecdn.net/files/7317/672/mcw-mcwwindows-2.4.2-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 910125,
+      "fid": 7319383,
+      "slug": "modern-industrialization-sound-addon",
+      "filename": "mi_sound_addon-1.2.0-1.21.1.jar",
+      "sha1": "66f6c30dbe11bfa71918ea23e032196cabfe5f67",
+      "url": "https://edge.forgecdn.net/files/7319/383/mi_sound_addon-1.2.0-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1184570,
+      "fid": 7331897,
+      "slug": "productive-metalworks",
+      "filename": "productivemetalworks-1.21.1-1.14.0.jar",
+      "sha1": "f7932c00912155561ccfc4fce41876d9f1d930a1",
+      "url": "https://edge.forgecdn.net/files/7331/897/productivemetalworks-1.21.1-1.14.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1208896,
+      "fid": 7344729,
+      "slug": "cryonicconfig",
+      "filename": "cryonicconfig-neoforge-1.0.0+mc1.21.11.jar",
+      "sha1": "45b7240ad5cd561511ae3f80eea4cbfc110dae70",
+      "url": "https://edge.forgecdn.net/files/7344/729/cryonicconfig-neoforge-1.0.0%2bmc1.21.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 247921,
+      "fid": 7344742,
+      "slug": "zerocore",
+      "filename": "ZeroCore2-1.21.1-2.4.21.jar",
+      "sha1": "7df2558f45c3e41bebe86a5ee2b28d56007bdbda",
+      "url": "https://edge.forgecdn.net/files/7344/742/ZeroCore2-1.21.1-2.4.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 250277,
+      "fid": 7344744,
+      "slug": "extreme-reactors",
+      "filename": "ExtremeReactors2-1.21.1-2.4.28.jar",
+      "sha1": "b017d5d0cf5d5ab5ad5826e3e89f2d861f31d15a",
+      "url": "https://edge.forgecdn.net/files/7344/744/ExtremeReactors2-1.21.1-2.4.28.jar",
+      "side": "both"
+    },
+    {
+      "pid": 927564,
+      "fid": 7351339,
+      "slug": "zume",
+      "filename": "zume-1.2.1.jar",
+      "sha1": "433406987269d89cf4fc0170a1f1d1c9b8ddd504",
+      "url": "https://edge.forgecdn.net/files/7351/339/zume-1.2.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 514045,
+      "fid": 7361502,
+      "slug": "allthecompressed",
+      "filename": "allthecompressed-1.21.1-4.4.0.jar",
+      "sha1": "265ef9d825d217e4dd6bf9b0c0824da982cc5c22",
+      "url": "https://edge.forgecdn.net/files/7361/502/allthecompressed-1.21.1-4.4.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 470193,
+      "fid": 7367221,
+      "slug": "connectivity",
+      "filename": "connectivity-1.21.1-7.6.jar",
+      "sha1": "6adebe84f745dec8fa33bc3982383bc1cc24d49e",
+      "url": "https://edge.forgecdn.net/files/7367/221/connectivity-1.21.1-7.6.jar",
+      "side": "server"
+    },
+    {
+      "pid": 551524,
+      "fid": 7368915,
+      "slug": "creeperhost-presents-steves-carts",
+      "filename": "stevescarts-1.21-1.2.18-neoforge.jar",
+      "sha1": "c613e2a17f012fd735ca72e8c726c5b9f108fb09",
+      "url": "https://edge.forgecdn.net/files/7368/915/stevescarts-1.21-1.2.18-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 404468,
+      "fid": 7369021,
+      "slug": "ftb-teams-forge",
+      "filename": "ftb-teams-neoforge-2101.1.9.jar",
+      "sha1": "328e04bf1a445870aacea8fe7637670f84272a8f",
+      "url": "https://edge.forgecdn.net/files/7369/21/ftb-teams-neoforge-2101.1.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 658587,
+      "fid": 7389814,
+      "slug": "playeranimator",
+      "filename": "player-animation-lib-forge-2.0.4+1.21.1.jar",
+      "sha1": "05be8ddcc78532b9a5520c718edc6c971cd0057c",
+      "url": "https://edge.forgecdn.net/files/7389/814/player-animation-lib-forge-2.0.4%2b1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 901491,
+      "fid": 7393678,
+      "slug": "railcraft-reborn",
+      "filename": "railcraft-reborn-1.21.1-1.2.10.jar",
+      "sha1": "e6bad517eed5d60923b2a0b28d9f7f83d7299f10",
+      "url": "https://edge.forgecdn.net/files/7393/678/railcraft-reborn-1.21.1-1.2.10.jar",
+      "side": "both"
+    },
+    {
+      "pid": 577850,
+      "fid": 7394335,
+      "slug": "crafting-on-a-stick",
+      "filename": "crafting_on_a_stick-1.21.0.4.jar",
+      "sha1": "9ea4bcce2d468b13e20871789dde525d49454076",
+      "url": "https://edge.forgecdn.net/files/7394/335/crafting_on_a_stick-1.21.0.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 238761,
+      "fid": 7397743,
+      "slug": "pickle-tweaks",
+      "filename": "PickleTweaks-1.21.1-9.0.6.jar",
+      "sha1": "fdd5a8ff83215b03b72abb0a27ec255809fd45ad",
+      "url": "https://edge.forgecdn.net/files/7397/743/PickleTweaks-1.21.1-9.0.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 559313,
+      "fid": 7402808,
+      "slug": "aeinfinitybooster",
+      "filename": "aeinfinitybooster-neoforge-1.21.1-1.0.0.54.jar",
+      "sha1": "d00daf281a852358022b936a21ae272578f00afd",
+      "url": "https://edge.forgecdn.net/files/7402/808/aeinfinitybooster-neoforge-1.21.1-1.0.0.54.jar",
+      "side": "both"
+    },
+    {
+      "pid": 551894,
+      "fid": 7404415,
+      "slug": "better-compatibility-checker",
+      "filename": "better-compatability-checker-neoforge-21.1.8.jar",
+      "sha1": "186ba3fbacacb0ce93b9c5a5ddca28799c1577cb",
+      "url": "https://edge.forgecdn.net/files/7404/415/better-compatability-checker-neoforge-21.1.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 570630,
+      "fid": 7408387,
+      "slug": "lootjs",
+      "filename": "lootjs-neoforge-1.21.1-3.6.1.jar",
+      "sha1": "a5b8019795de70fde065dc938bf4750aacf9f935",
+      "url": "https://edge.forgecdn.net/files/7408/387/lootjs-neoforge-1.21.1-3.6.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 328085,
+      "fid": 7408951,
+      "slug": "create",
+      "filename": "create-1.21.1-6.0.9.jar",
+      "sha1": "bf08bf8980c080f42d6f644f4f44a725cf7c3be9",
+      "url": "https://edge.forgecdn.net/files/7408/951/create-1.21.1-6.0.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 431430,
+      "fid": 7413025,
+      "slug": "flickerfix",
+      "filename": "flickerfix-1.21.1-6.1.0.jar",
+      "sha1": "3eadf069d9eeb7fb4e2295828a8aaefe6691d96d",
+      "url": "https://edge.forgecdn.net/files/7413/25/flickerfix-1.21.1-6.1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 238222,
+      "fid": 7420587,
+      "slug": "jei",
+      "filename": "jei-1.21.1-neoforge-19.27.0.340.jar",
+      "sha1": "27d0d85e7e32e926fc3664ab6815df5cdabb7941",
+      "url": "https://edge.forgecdn.net/files/7420/587/jei-1.21.1-neoforge-19.27.0.340.jar",
+      "side": "both"
+    },
+    {
+      "pid": 531761,
+      "fid": 7420963,
+      "slug": "balm",
+      "filename": "balm-neoforge-1.21.1-21.0.56.jar",
+      "sha1": "c1c1d4859c7943c7d1c181c07fa7273a1d56df15",
+      "url": "https://edge.forgecdn.net/files/7420/963/balm-neoforge-1.21.1-21.0.56.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1334500,
+      "fid": 7424692,
+      "slug": "bbl-routers",
+      "filename": "routers-1.21.1-1.1.6.jar",
+      "sha1": "348e0b25e53a2b2d36d5033d176412c3663ee954",
+      "url": "https://edge.forgecdn.net/files/7424/692/routers-1.21.1-1.1.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 943925,
+      "fid": 7429011,
+      "slug": "ftb-filter-system",
+      "filename": "ftb-filter-system-neoforge-21.1.4.jar",
+      "sha1": "a48e54edeacc59aaba29a1b627799c052112ee0b",
+      "url": "https://edge.forgecdn.net/files/7429/11/ftb-filter-system-neoforge-21.1.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 965012,
+      "fid": 7429565,
+      "slug": "applied-flux",
+      "filename": "AppliedFlux-1.21-2.1.4-neoforge.jar",
+      "sha1": "741e856b0c928fc15b59e92d98ea75ef98541ee8",
+      "url": "https://edge.forgecdn.net/files/7429/565/AppliedFlux-1.21-2.1.4-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 983390,
+      "fid": 7436830,
+      "slug": "simple-weather",
+      "filename": "simple_weather-1.0.13-hotfix.jar",
+      "sha1": "45ee8e8bb49c599bb3d7db7cdf6c91f90d13bb0c",
+      "url": "https://edge.forgecdn.net/files/7436/830/simple_weather-1.0.13-hotfix.jar",
+      "side": "client"
+    },
+    {
+      "pid": 667299,
+      "fid": 7437845,
+      "slug": "yacl",
+      "filename": "yet_another_config_lib_v3-3.8.2+1.21.1-neoforge.jar",
+      "sha1": "fe270c9f6e0a8142cf316944087f5109cef08bbb",
+      "url": "https://edge.forgecdn.net/files/7437/845/yet_another_config_lib_v3-3.8.2%2b1.21.1-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 898963,
+      "fid": 7445079,
+      "slug": "apothic-attributes",
+      "filename": "ApothicAttributes-1.21.1-2.9.1.jar",
+      "sha1": "e7f669e1b45d75076200436f37c40a6dd3b6a6ff",
+      "url": "https://edge.forgecdn.net/files/7445/79/ApothicAttributes-1.21.1-2.9.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 412525,
+      "fid": 7446147,
+      "slug": "libx",
+      "filename": "LibX-1.21.1-6.0.9.jar",
+      "sha1": "06a144a41aa7affca17f30a28c0e9effdddc3f4e",
+      "url": "https://edge.forgecdn.net/files/7446/147/LibX-1.21.1-6.0.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 241895,
+      "fid": 7458862,
+      "slug": "kleeslabs",
+      "filename": "kleeslabs-neoforge-1.21.1-21.1.9.jar",
+      "sha1": "eba7e93865bd6205611f645c79339de981938bd0",
+      "url": "https://edge.forgecdn.net/files/7458/862/kleeslabs-neoforge-1.21.1-21.1.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 271009,
+      "fid": 7458886,
+      "slug": "forgiving-void",
+      "filename": "forgivingvoid-neoforge-1.21.1-21.1.6.jar",
+      "sha1": "92b53e71689f29d1d6448dfc86f6e06d2f9a85a9",
+      "url": "https://edge.forgecdn.net/files/7458/886/forgivingvoid-neoforge-1.21.1-21.1.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1002348,
+      "fid": 7463040,
+      "slug": "just-dire-things",
+      "filename": "justdirethings-1.5.7.jar",
+      "sha1": "f0327d7d2f389020063849200a4128ac9dcb52da",
+      "url": "https://edge.forgecdn.net/files/7463/40/justdirethings-1.5.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 364466,
+      "fid": 7468993,
+      "slug": "allthemodium",
+      "filename": "allthemodium-3.0.0_mc_1.21.1.jar",
+      "sha1": "2956e0e6055c21e4b7fc1fc407dbeae30d7bb949",
+      "url": "https://edge.forgecdn.net/files/7468/993/allthemodium-3.0.0_mc_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 351264,
+      "fid": 7471280,
+      "slug": "kotlin-for-forge",
+      "filename": "kotlinforforge-5.11.0-all.jar",
+      "sha1": "a8b9f1233336ca9fe4702bc2cc5a6f97ad5e3b65",
+      "url": "https://edge.forgecdn.net/files/7471/280/kotlinforforge-5.11.0-all.jar",
+      "side": "both"
+    },
+    {
+      "pid": 854949,
+      "fid": 7471474,
+      "slug": "fusion-connected-textures",
+      "filename": "fusion-1.2.12-neoforge-mc1.21.1.jar",
+      "sha1": "d86f641b67d4b01d99da8424ba2a3edc0e6690b6",
+      "url": "https://edge.forgecdn.net/files/7471/474/fusion-1.2.12-neoforge-mc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 525693,
+      "fid": 7472859,
+      "slug": "occultism-kubejs",
+      "filename": "occultism_kubejs-1.21.1-neoforge-1.11.0.jar",
+      "sha1": "d48b97b0cc58c9c75292a1d8eab2b7c1469ed8f7",
+      "url": "https://edge.forgecdn.net/files/7472/859/occultism_kubejs-1.21.1-neoforge-1.11.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 622112,
+      "fid": 7489211,
+      "slug": "mega-cells",
+      "filename": "megacells-4.10.2.jar",
+      "sha1": "ae82f2784d1c620db31e651ac03259eec0a6765c",
+      "url": "https://edge.forgecdn.net/files/7489/211/megacells-4.10.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 986583,
+      "fid": 7492121,
+      "slug": "apothic-spawners",
+      "filename": "ApothicSpawners-1.21.1-1.3.4.jar",
+      "sha1": "26d701238bdb76a497a64f588409419ad067e557",
+      "url": "https://edge.forgecdn.net/files/7492/121/ApothicSpawners-1.21.1-1.3.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 633483,
+      "fid": 7503293,
+      "slug": "powah-rearchitected",
+      "filename": "Powah-6.2.8.jar",
+      "sha1": "cddbf8d2a6adfbcd8f73c13515af0da9c8139179",
+      "url": "https://edge.forgecdn.net/files/7503/293/Powah-6.2.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1172594,
+      "fid": 7508312,
+      "slug": "keybind-bundles",
+      "filename": "keybindbundles-1.4.0.jar",
+      "sha1": "02a9c2a3faf06eb46a0ec56cc2df7302e568ce27",
+      "url": "https://edge.forgecdn.net/files/7508/312/keybindbundles-1.4.0.jar",
+      "side": "client"
+    },
+    {
+      "pid": 790626,
+      "fid": 7509726,
+      "slug": "modernfix",
+      "filename": "modernfix-neoforge-5.26.1+mc1.21.1.jar",
+      "sha1": "50abc7ff4ef2fcbc3baf4c6b96e2a7141cbd1b8a",
+      "url": "https://edge.forgecdn.net/files/7509/726/modernfix-neoforge-5.26.1%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 220311,
+      "fid": 7512691,
+      "slug": "silents-gems",
+      "filename": "silentgems-1.21.1-neoforge-5.1.3.jar",
+      "sha1": "a296507e45f2a71cfc1e6cfcc6692340c4c4d913",
+      "url": "https://edge.forgecdn.net/files/7512/691/silentgems-1.21.1-neoforge-5.1.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1306367,
+      "fid": 7516288,
+      "slug": "kubejs-tweaks",
+      "filename": "kubejstweaks-1.0.6.jar",
+      "sha1": "6548ec47aa6b0498c3018cde40d9d0a203b67446",
+      "url": "https://edge.forgecdn.net/files/7516/288/kubejstweaks-1.0.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 248787,
+      "fid": 7517379,
+      "slug": "appleskin",
+      "filename": "appleskin-neoforge-mc1.21-3.0.8.jar",
+      "sha1": "32be58815905e472016b6413175a27e6cbf05b90",
+      "url": "https://edge.forgecdn.net/files/7517/379/appleskin-neoforge-mc1.21-3.0.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 439890,
+      "fid": 7518252,
+      "slug": "createaddition",
+      "filename": "createaddition-1.5.10.jar",
+      "sha1": "2bd194da923dd38239ef49df30ecf1a720d38997",
+      "url": "https://edge.forgecdn.net/files/7518/252/createaddition-1.5.10.jar",
+      "side": "both"
+    },
+    {
+      "pid": 429235,
+      "fid": 7524151,
+      "slug": "ferritecore",
+      "filename": "ferritecore-7.0.3-neoforge.jar",
+      "sha1": "9563692efb708b6b568df27a01ec52f6311928ef",
+      "url": "https://edge.forgecdn.net/files/7524/151/ferritecore-7.0.3-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1007578,
+      "fid": 7524185,
+      "slug": "rechiseled-chipped",
+      "filename": "rechiseled_chipped-2.0-1.21.1.jar",
+      "sha1": "bed4eb5415d67251ba6b0eca5d56eb0f5963a265",
+      "url": "https://edge.forgecdn.net/files/7524/185/rechiseled_chipped-2.0-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 250294,
+      "fid": 7525002,
+      "slug": "modular-routers",
+      "filename": "modular-routers-13.2.4+mc1.21.1.jar",
+      "sha1": "f4d535579462dc6436e4896daac4d2dd4ce8e428",
+      "url": "https://edge.forgecdn.net/files/7525/2/modular-routers-13.2.4%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 475117,
+      "fid": 7527945,
+      "slug": "fastsuite",
+      "filename": "FastSuite-1.21.1-6.0.7.jar",
+      "sha1": "664e62684311f727f1fac18f0de28e5317874b7e",
+      "url": "https://edge.forgecdn.net/files/7527/945/FastSuite-1.21.1-6.0.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 233071,
+      "fid": 7530379,
+      "slug": "crafting-tweaks",
+      "filename": "craftingtweaks-neoforge-1.21.1-21.1.7.jar",
+      "sha1": "54379f303f3fba8a1026e3f18e88ec4d6e042f8b",
+      "url": "https://edge.forgecdn.net/files/7530/379/craftingtweaks-neoforge-1.21.1-21.1.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1061812,
+      "fid": 7534518,
+      "slug": "ars-controle",
+      "filename": "ars_controle-1.21.1-1.6.15.jar",
+      "sha1": "fdf381d5733698abe336354c7541299ab495ecae",
+      "url": "https://edge.forgecdn.net/files/7534/518/ars_controle-1.21.1-1.6.15.jar",
+      "side": "both"
+    },
+    {
+      "pid": 945149,
+      "fid": 7534929,
+      "slug": "glassential-renewed",
+      "filename": "Glassential-renewed-1.21.1-3.4.1.jar",
+      "sha1": "53a9af8a6b540f8b09b2bc5af9c1b65620a2c886",
+      "url": "https://edge.forgecdn.net/files/7534/929/Glassential-renewed-1.21.1-3.4.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1446489,
+      "fid": 7536788,
+      "slug": "pipez-lag-fix",
+      "filename": "pipezlagfix-1.0.jar",
+      "sha1": "32d26f4e279d5059e358853ba0a567cf74e1d96e",
+      "url": "https://edge.forgecdn.net/files/7536/788/pipezlagfix-1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 324717,
+      "fid": 7545219,
+      "slug": "jade",
+      "filename": "Jade-1.21.1-NeoForge-15.10.5.jar",
+      "sha1": "d5bf134b3dbde9f5258666823900e21341dc0a50",
+      "url": "https://edge.forgecdn.net/files/7545/219/Jade-1.21.1-NeoForge-15.10.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 895919,
+      "fid": 7555622,
+      "slug": "time-in-a-bottle",
+      "filename": "tiab-neoforge-6.5.4.jar",
+      "sha1": "3e6beaac5dbc48627263fee0a864db16eda53529",
+      "url": "https://edge.forgecdn.net/files/7555/622/tiab-neoforge-6.5.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 530544,
+      "fid": 7563411,
+      "slug": "geore",
+      "filename": "GeOre-1.21.1-6.2.2.jar",
+      "sha1": "b69a23cd4ffb1bce2697fec358ca913ff085da36",
+      "url": "https://edge.forgecdn.net/files/7563/411/GeOre-1.21.1-6.2.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1005914,
+      "fid": 7568897,
+      "slug": "fzzy-config",
+      "filename": "fzzy_config-0.7.6+1.21+neoforge.jar",
+      "sha1": "c0910f9b975aaab8545ce950539748fb33d704d1",
+      "url": "https://edge.forgecdn.net/files/7568/897/fzzy_config-0.7.6%2b1.21%2bneoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 386134,
+      "fid": 7570482,
+      "slug": "ftb-ultimine-forge",
+      "filename": "ftb-ultimine-neoforge-2101.1.13.jar",
+      "sha1": "c6ca0360843e5dbac57f3c01aa80fba5a0518553",
+      "url": "https://edge.forgecdn.net/files/7570/482/ftb-ultimine-neoforge-2101.1.13.jar",
+      "side": "both"
+    },
+    {
+      "pid": 627557,
+      "fid": 7574259,
+      "slug": "complementary-reimagined",
+      "filename": "ComplementaryReimagined_r5.7.1.zip",
+      "sha1": "b560f646a124d5204b1fb7321fec373b9c346fa5",
+      "url": "https://edge.forgecdn.net/files/7574/259/ComplementaryReimagined_r5.7.1.zip",
+      "side": "both"
+    },
+    {
+      "pid": 385587,
+      "fid": 7574260,
+      "slug": "complementary-unbound",
+      "filename": "ComplementaryUnbound_r5.7.1.zip",
+      "sha1": "95883b516298ff4cf1a67ff512086eb67aeedd98",
+      "url": "https://edge.forgecdn.net/files/7574/260/ComplementaryUnbound_r5.7.1.zip",
+      "side": "both"
+    },
+    {
+      "pid": 982512,
+      "fid": 7579936,
+      "slug": "ae2-import-export-card",
+      "filename": "ae2importexportcard-1.21.1-1.4.3.jar",
+      "sha1": "a64daebce42a609e2a4786393fc4398448a0aa35",
+      "url": "https://edge.forgecdn.net/files/7579/936/ae2importexportcard-1.21.1-1.4.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 411357,
+      "fid": 7581615,
+      "slug": "botany-trees",
+      "filename": "botanytrees-neoforge-1.21.1-21.1.3.jar",
+      "sha1": "a15237bff8e914c50a271ee498d7e2ee55ff017f",
+      "url": "https://edge.forgecdn.net/files/7581/615/botanytrees-neoforge-1.21.1-21.1.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 441647,
+      "fid": 7584453,
+      "slug": "framedblocks",
+      "filename": "FramedBlocks-10.5.3.jar",
+      "sha1": "bbbd02f99ab559bc68a72e3441e821c5cf81d8f1",
+      "url": "https://edge.forgecdn.net/files/7584/453/FramedBlocks-10.5.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 223565,
+      "fid": 7584459,
+      "slug": "draconic-evolution",
+      "filename": "Draconic-Evolution-1.21.1-3.1.4.632.jar",
+      "sha1": "77ed9323c815433ca99c35b9d0f653d1efc36af5",
+      "url": "https://edge.forgecdn.net/files/7584/459/Draconic-Evolution-1.21.1-3.1.4.632.jar",
+      "side": "both"
+    },
+    {
+      "pid": 518211,
+      "fid": 7589396,
+      "slug": "pylons",
+      "filename": "pylons-1.21.1-5.4.2.jar",
+      "sha1": "7a17b8fda2557c9466bc871403ba3b6ea5990e58",
+      "url": "https://edge.forgecdn.net/files/7589/396/pylons-1.21.1-5.4.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 266515,
+      "fid": 7600395,
+      "slug": "industrial-foregoing",
+      "filename": "industrialforegoing-1.21-3.6.38.jar",
+      "sha1": "79019a59c8023f5883d7a6c2f2308c995f828aa3",
+      "url": "https://edge.forgecdn.net/files/7600/395/industrialforegoing-1.21-3.6.38.jar",
+      "side": "both"
+    },
+    {
+      "pid": 247695,
+      "fid": 7603533,
+      "slug": "translocators-1-8",
+      "filename": "Translocators-1.21.1-2.8.0.89.jar",
+      "sha1": "4ce2a31e125ec29a83c83c03c8a19be062816375",
+      "url": "https://edge.forgecdn.net/files/7603/533/Translocators-1.21.1-2.8.0.89.jar",
+      "side": "both"
+    },
+    {
+      "pid": 378979,
+      "fid": 7604034,
+      "slug": "borderless",
+      "filename": "borderless-neoforge-1.21.1-1.7.5_1-all.jar",
+      "sha1": "7a5bf5a47b4587cc24e9eedef0964bfdddc0679f",
+      "url": "https://edge.forgecdn.net/files/7604/34/borderless-neoforge-1.21.1-1.7.5_1-all.jar",
+      "side": "client"
+    },
+    {
+      "pid": 228525,
+      "fid": 7606240,
+      "slug": "bookshelf",
+      "filename": "bookshelf-neoforge-1.21.1-21.1.81.jar",
+      "sha1": "efc4cda6da4dd879f24d057ed0a6413764c9ba40",
+      "url": "https://edge.forgecdn.net/files/7606/240/bookshelf-neoforge-1.21.1-21.1.81.jar",
+      "side": "both"
+    },
+    {
+      "pid": 314906,
+      "fid": 7608681,
+      "slug": "ftb-chunks-forge",
+      "filename": "ftb-chunks-neoforge-2101.1.14.jar",
+      "sha1": "908b63b11d0e00ae6c9557d3fe6440bdbcf21bb7",
+      "url": "https://edge.forgecdn.net/files/7608/681/ftb-chunks-neoforge-2101.1.14.jar",
+      "side": "both"
+    },
+    {
+      "pid": 410811,
+      "fid": 7608733,
+      "slug": "ftb-essentials",
+      "filename": "ftb-essentials-neoforge-2101.1.9.jar",
+      "sha1": "7d6f274b38d767215549ec066246390c49ac7ad8",
+      "url": "https://edge.forgecdn.net/files/7608/733/ftb-essentials-neoforge-2101.1.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1325482,
+      "fid": 7610541,
+      "slug": "epitaphs",
+      "filename": "epitaphs-1.0.14_neoforge_1.21.1.jar",
+      "sha1": "862a4e13cf4bb7f2dc5e5bc168a1635b7c1af52c",
+      "url": "https://edge.forgecdn.net/files/7610/541/epitaphs-1.0.14_neoforge_1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 944463,
+      "fid": 7612556,
+      "slug": "productivefarming",
+      "filename": "productivefarming-1.21.1-0.5.2.jar",
+      "sha1": "8277bd447b89589c54eea1a91c76a689dcbecf12",
+      "url": "https://edge.forgecdn.net/files/7612/556/productivefarming-1.21.1-0.5.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 378646,
+      "fid": 7618651,
+      "slug": "macaws-doors",
+      "filename": "mcw-doors-1.1.5-mc1.21.1neoforge.jar",
+      "sha1": "c127904f23db1a641dd9e065ec51c5c177cb4cd7",
+      "url": "https://edge.forgecdn.net/files/7618/651/mcw-doors-1.1.5-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 224218,
+      "fid": 7621553,
+      "slug": "compact-machines",
+      "filename": "compactmachines-neoforge-7.0.81.jar",
+      "sha1": "dcffc21e62a82c5d870ab13dc5c92687430d65b5",
+      "url": "https://edge.forgecdn.net/files/7621/553/compactmachines-neoforge-7.0.81.jar",
+      "side": "both"
+    },
+    {
+      "pid": 268560,
+      "fid": 7621971,
+      "slug": "mekanism",
+      "filename": "Mekanism-1.21.1-10.7.18.84.jar",
+      "sha1": "2c48df86350bb733e4285437e136b271a70f4cbc",
+      "url": "https://edge.forgecdn.net/files/7621/971/Mekanism-1.21.1-10.7.18.84.jar",
+      "side": "both"
+    },
+    {
+      "pid": 268566,
+      "fid": 7621974,
+      "slug": "mekanism-generators",
+      "filename": "MekanismGenerators-1.21.1-10.7.18.84.jar",
+      "sha1": "9849756f8258367638df3a34261cfcc9b1a7e236",
+      "url": "https://edge.forgecdn.net/files/7621/974/MekanismGenerators-1.21.1-10.7.18.84.jar",
+      "side": "both"
+    },
+    {
+      "pid": 268567,
+      "fid": 7621975,
+      "slug": "mekanism-tools",
+      "filename": "MekanismTools-1.21.1-10.7.18.84.jar",
+      "sha1": "4d38e616afeb6d6be0ec7bcd6a23d45f351b6b3d",
+      "url": "https://edge.forgecdn.net/files/7621/975/MekanismTools-1.21.1-10.7.18.84.jar",
+      "side": "both"
+    },
+    {
+      "pid": 915902,
+      "fid": 7624100,
+      "slug": "euphoria-patches",
+      "filename": "EuphoriaPatcher-1.8.6-r5.7.1-neoforge.jar",
+      "sha1": "48e7c3aa59315069b79025f09bc2f291569c8a2a",
+      "url": "https://edge.forgecdn.net/files/7624/100/EuphoriaPatcher-1.8.6-r5.7.1-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 351725,
+      "fid": 7627896,
+      "slug": "macaws-bridges",
+      "filename": "mcw-bridges-3.1.2-mc1.21.1neoforge.jar",
+      "sha1": "71ece28129789a2123cf07e79938f488d8675bb2",
+      "url": "https://edge.forgecdn.net/files/7627/896/mcw-bridges-3.1.2-mc1.21.1neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 232758,
+      "fid": 7637998,
+      "slug": "cyclops-core",
+      "filename": "cyclopscore-1.21.1-neoforge-1.29.0.jar",
+      "sha1": "1e5584a3815371078c555dccf096f3397265ef93",
+      "url": "https://edge.forgecdn.net/files/7637/998/cyclopscore-1.21.1-neoforge-1.29.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 667803,
+      "fid": 7645732,
+      "slug": "geore-nouveau",
+      "filename": "GeOre_Nouveau-1.21.1-0.5.8.jar",
+      "sha1": "b2b496f9500e3a60b85ab7a096aac9c2309710f8",
+      "url": "https://edge.forgecdn.net/files/7645/732/GeOre_Nouveau-1.21.1-0.5.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 974408,
+      "fid": 7646325,
+      "slug": "ars-additions",
+      "filename": "ars_additions-1.21.1-21.3.0.jar",
+      "sha1": "ce2440b606acb20b79a42bf7c6c24d163c93241f",
+      "url": "https://edge.forgecdn.net/files/7646/325/ars_additions-1.21.1-21.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 261924,
+      "fid": 7652500,
+      "slug": "farming-for-blockheads",
+      "filename": "farmingforblockheads-neoforge-1.21.1-21.1.12.jar",
+      "sha1": "989f3c19c9a185dcffcf03f2b2b8d1d763cce2df",
+      "url": "https://edge.forgecdn.net/files/7652/500/farmingforblockheads-neoforge-1.21.1-21.1.12.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1216624,
+      "fid": 7653475,
+      "slug": "create-dragons-plus",
+      "filename": "create-dragons-plus-1.8.7.jar",
+      "sha1": "3e53b26e850f9d2a995868b0d7c012ba8e9d373b",
+      "url": "https://edge.forgecdn.net/files/7653/475/create-dragons-plus-1.8.7.jar",
+      "side": "both"
+    },
+    {
+      "pid": 688768,
+      "fid": 7656384,
+      "slug": "create-enchantment-industry",
+      "filename": "create-enchantment-industry-2.3.0.jar",
+      "sha1": "d9cef051c5318d27c634184bfb1ef35550b96789",
+      "url": "https://edge.forgecdn.net/files/7656/384/create-enchantment-industry-2.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1063926,
+      "fid": 7659120,
+      "slug": "apothic-enchanting",
+      "filename": "ApothicEnchanting-1.21.1-1.5.2.jar",
+      "sha1": "aad9bb6b4e5ba7ea85af4d143467b99f0ed022fc",
+      "url": "https://edge.forgecdn.net/files/7659/120/ApothicEnchanting-1.21.1-1.5.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 287342,
+      "fid": 7662843,
+      "slug": "titanium",
+      "filename": "titanium-1.21-4.0.42.jar",
+      "sha1": "aa71953b17a0a3618c6a44be428cf98e6885665b",
+      "url": "https://edge.forgecdn.net/files/7662/843/titanium-1.21-4.0.42.jar",
+      "side": "both"
+    },
+    {
+      "pid": 280441,
+      "fid": 7666340,
+      "slug": "mystical-customization",
+      "filename": "MysticalCustomization-1.21.1-6.0.2.jar",
+      "sha1": "483c44e51b8f4c8dd24c239f945a819da766d219",
+      "url": "https://edge.forgecdn.net/files/7666/340/MysticalCustomization-1.21.1-6.0.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1084104,
+      "fid": 7668664,
+      "slug": "advancedae",
+      "filename": "AdvancedAE-1.6.10-1.21.1.jar",
+      "sha1": "1b2269a2e2c9fbe465295f9cc50d1cefbd7b1414",
+      "url": "https://edge.forgecdn.net/files/7668/664/AdvancedAE-1.6.10-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 228404,
+      "fid": 7676502,
+      "slug": "actually-additions",
+      "filename": "actuallyadditions-1.3.25+mc1.21.1.jar",
+      "sha1": "6b82d694f873c0bae4a9757654ee4c719b3d7354",
+      "url": "https://edge.forgecdn.net/files/7676/502/actuallyadditions-1.3.25%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 558998,
+      "fid": 7687594,
+      "slug": "rechiseled",
+      "filename": "rechiseled-1.2.4-neoforge-mc1.21.jar",
+      "sha1": "bd8ac0c82a04179c649f40b3333ff0648f444086",
+      "url": "https://edge.forgecdn.net/files/7687/594/rechiseled-1.2.4-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 867074,
+      "fid": 7687856,
+      "slug": "productivetrees",
+      "filename": "productivetrees-1.21.1-0.8.1.jar",
+      "sha1": "35e6e55dac1f1497068a71346c74aa3cfa0204a6",
+      "url": "https://edge.forgecdn.net/files/7687/856/productivetrees-1.21.1-0.8.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1156098,
+      "fid": 7687867,
+      "slug": "construction-sticks",
+      "filename": "ConstructionSticks-1.21.1-1.3.0.jar",
+      "sha1": "c73da674b08848c835ff45eadf47fdc8584fef82",
+      "url": "https://edge.forgecdn.net/files/7687/867/ConstructionSticks-1.21.1-1.3.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 363363,
+      "fid": 7690930,
+      "slug": "extreme-sound-muffler",
+      "filename": "ExtremeSoundMuffler-3.55_NeoForge-1.21.jar",
+      "sha1": "b17090ea6a7c302c648f7bab12b37bbb3dd786f0",
+      "url": "https://edge.forgecdn.net/files/7690/930/ExtremeSoundMuffler-3.55_NeoForge-1.21.jar",
+      "side": "client"
+    },
+    {
+      "pid": 459929,
+      "fid": 7693114,
+      "slug": "applied-energistics-2-wireless-terminals",
+      "filename": "ae2wtlib-19.4.1.jar",
+      "sha1": "e5ac6b8ec0851d9fb23d92281842f1880f0979b7",
+      "url": "https://edge.forgecdn.net/files/7693/114/ae2wtlib-19.4.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 907843,
+      "fid": 7693347,
+      "slug": "ars-ocultas",
+      "filename": "ars_ocultas-1.21.1-2.4.0.jar",
+      "sha1": "c9eacfed1170c07bd1bd239548a034a7a4256011",
+      "url": "https://edge.forgecdn.net/files/7693/347/ars_ocultas-1.21.1-2.4.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 313970,
+      "fid": 7703848,
+      "slug": "apotheosis",
+      "filename": "Apotheosis-1.21.1-8.5.2.jar",
+      "sha1": "eb484177b383dc397bfa37d06ef09ec39053bb50",
+      "url": "https://edge.forgecdn.net/files/7703/848/Apotheosis-1.21.1-8.5.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1284144,
+      "fid": 7705732,
+      "slug": "utility-vest",
+      "filename": "utilityvest-1.2.5.jar",
+      "sha1": "d070584d34f0f612f3f8f2a8a4b3be8369313dc1",
+      "url": "https://edge.forgecdn.net/files/7705/732/utilityvest-1.2.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 388172,
+      "fid": 7707149,
+      "slug": "geckolib",
+      "filename": "geckolib-neoforge-1.21.1-4.8.4.jar",
+      "sha1": "eb854c8ec53ef922a5f3877a1aa4c1ce1352e0ce",
+      "url": "https://edge.forgecdn.net/files/7707/149/geckolib-neoforge-1.21.1-4.8.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 561470,
+      "fid": 7710618,
+      "slug": "ars-elemental",
+      "filename": "ars_elemental-1.21.1-0.7.8.6.jar",
+      "sha1": "3d0aaed63c870d64e062d8d11a4303c2dd588ac7",
+      "url": "https://edge.forgecdn.net/files/7710/618/ars_elemental-1.21.1-0.7.8.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 268387,
+      "fid": 7713533,
+      "slug": "extended-crafting",
+      "filename": "ExtendedCrafting-1.21.1-7.0.8.jar",
+      "sha1": "cd6c70ecdbd8d1ce127a89413b5f1f167ab08ff8",
+      "url": "https://edge.forgecdn.net/files/7713/533/ExtendedCrafting-1.21.1-7.0.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 889915,
+      "fid": 7715134,
+      "slug": "ftb-xmod-compat",
+      "filename": "ftb-xmod-compat-neoforge-21.1.8.jar",
+      "sha1": "0c25fc1a43c99eaa68c883dc77e3ebf4539629e6",
+      "url": "https://edge.forgecdn.net/files/7715/134/ftb-xmod-compat-neoforge-21.1.8.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1091339,
+      "fid": 7719009,
+      "slug": "alltheleaks",
+      "filename": "alltheleaks-1.1.7+1.21.1-neoforge.jar",
+      "sha1": "a36da3b274d7612f3696788434cb5a717e065d70",
+      "url": "https://edge.forgecdn.net/files/7719/9/alltheleaks-1.1.7%2b1.21.1-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1187033,
+      "fid": 7719690,
+      "slug": "crystalix",
+      "filename": "crystalix-2.4.1.jar",
+      "sha1": "ca5b9650f28628c668cbdeb6a40378fa0af14c52",
+      "url": "https://edge.forgecdn.net/files/7719/690/crystalix-2.4.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 846168,
+      "fid": 7720552,
+      "slug": "pipe-connector",
+      "filename": "pipe_connector-neoforge-0.5.26.jar",
+      "sha1": "7b020966c87af7ee93bbd6c7fc8c56a555612ae2",
+      "url": "https://edge.forgecdn.net/files/7720/552/pipe_connector-neoforge-0.5.26.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1068418,
+      "fid": 7722451,
+      "slug": "extended-industrialization",
+      "filename": "extended-industrialization-1.15.33-1.21.1.jar",
+      "sha1": "fd154838c37cd01908caba60faf9fca94c1b39f5",
+      "url": "https://edge.forgecdn.net/files/7722/451/extended-industrialization-1.15.33-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 916747,
+      "fid": 7724006,
+      "slug": "shatterbyte-lib",
+      "filename": "OctoLib-NEOFORGE-0.6.1+1.21.jar",
+      "sha1": "052b71b4897b3a76b4b10afda4d9342e66fb19f1",
+      "url": "https://edge.forgecdn.net/files/7724/6/OctoLib-NEOFORGE-0.6.1%2b1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1074338,
+      "fid": 7727898,
+      "slug": "ae2-jei-integration",
+      "filename": "ae2jeiintegration-1.2.1.jar",
+      "sha1": "e99898b3e9c32bf6ac757e7ad50247746622cdfc",
+      "url": "https://edge.forgecdn.net/files/7727/898/ae2jeiintegration-1.2.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 892005,
+      "fid": 7727948,
+      "slug": "ex-pattern-provider",
+      "filename": "ExtendedAE-1.21-2.2.30-neoforge.jar",
+      "sha1": "f1f6a705a97bf0f42eb323c43428b5a46ff2eea8",
+      "url": "https://edge.forgecdn.net/files/7727/948/ExtendedAE-1.21-2.2.30-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1350380,
+      "fid": 7728768,
+      "slug": "modular-bees",
+      "filename": "ModularBees-1.21.1-2.10-neoforge.jar",
+      "sha1": "fac1d0fafa9161a13ea3b28d09e947ea644e035e",
+      "url": "https://edge.forgecdn.net/files/7728/768/ModularBees-1.21.1-2.10-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 306770,
+      "fid": 7730942,
+      "slug": "patchouli",
+      "filename": "Patchouli-1.21.1-93-NEOFORGE.jar",
+      "sha1": "5413bb9b8fc35ebe46b06b48bf9afafbd8471140",
+      "url": "https://edge.forgecdn.net/files/7730/942/Patchouli-1.21.1-93-NEOFORGE.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1099143,
+      "fid": 7733186,
+      "slug": "keybindspurger",
+      "filename": "KeybindsPurger-1.4.0-neoforge-1.21.1.jar",
+      "sha1": "8e1baa9ab8aa4b2efaefd39df54b241bd64533df",
+      "url": "https://edge.forgecdn.net/files/7733/186/KeybindsPurger-1.4.0-neoforge-1.21.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 251389,
+      "fid": 7733990,
+      "slug": "integrated-tunnels",
+      "filename": "integratedtunnels-1.21.1-neoforge-1.9.4.jar",
+      "sha1": "c969257ae38e1a776e06771777bbcd1e4c8f0b98",
+      "url": "https://edge.forgecdn.net/files/7733/990/integratedtunnels-1.21.1-neoforge-1.9.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 287357,
+      "fid": 7734015,
+      "slug": "integrated-crafting",
+      "filename": "integratedcrafting-1.21.1-neoforge-1.4.5.jar",
+      "sha1": "265431d81c7bca074c9a3f7d29b757b54e04b09d",
+      "url": "https://edge.forgecdn.net/files/7734/15/integratedcrafting-1.21.1-neoforge-1.4.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 306935,
+      "fid": 7736527,
+      "slug": "super-factory-manager",
+      "filename": "Super Factory Manager (SFM)-MC1.21.1-4.32.0.jar",
+      "sha1": "5f2ea7f8cd33e5a99829155f392fdc4bad33fbc9",
+      "url": "https://edge.forgecdn.net/files/7736/527/Super%20Factory%20Manager%20(SFM)-MC1.21.1-4.32.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 361026,
+      "fid": 7737734,
+      "slug": "occultism",
+      "filename": "occultism-1.21.1-neoforge-1.206.0.jar",
+      "sha1": "e332a2aa4a22262de9704551e32e0b23d4796eb3",
+      "url": "https://edge.forgecdn.net/files/7737/734/occultism-1.21.1-neoforge-1.206.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 295910,
+      "fid": 7738429,
+      "slug": "integrated-terminals",
+      "filename": "integratedterminals-1.21.1-neoforge-1.6.28.jar",
+      "sha1": "ba54de74b9e40630b40343c6e29625af0977c47f",
+      "url": "https://edge.forgecdn.net/files/7738/429/integratedterminals-1.21.1-neoforge-1.6.28.jar",
+      "side": "both"
+    },
+    {
+      "pid": 360438,
+      "fid": 7740400,
+      "slug": "lithium",
+      "filename": "lithium-neoforge-0.15.3+mc1.21.1.jar",
+      "sha1": "9fd5fa9076044180ae7f51672de74669196ec72e",
+      "url": "https://edge.forgecdn.net/files/7740/400/lithium-neoforge-0.15.3%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 241319,
+      "fid": 7740641,
+      "slug": "reliquary-reincarnations",
+      "filename": "reliquary-1.21.1-2.0.66.1363.jar",
+      "sha1": "7ed5611cd15685d30bc9c54a56636cda24998736",
+      "url": "https://edge.forgecdn.net/files/7740/641/reliquary-1.21.1-2.0.66.1363.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1122260,
+      "fid": 7740866,
+      "slug": "bibliocraft-legacy",
+      "filename": "bibliocraft-1.21.1-1.6.5.jar",
+      "sha1": "efb35984af1950ead43dc3d2827b3817df277725",
+      "url": "https://edge.forgecdn.net/files/7740/866/bibliocraft-1.21.1-1.6.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 412082,
+      "fid": 7743918,
+      "slug": "supplementaries",
+      "filename": "supplementaries-1.21-3.5.29-neoforge.jar",
+      "sha1": "85517bf29e0b9ad977278869b1348f21a53c6ad2",
+      "url": "https://edge.forgecdn.net/files/7743/918/supplementaries-1.21-3.5.29-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 342466,
+      "fid": 7745889,
+      "slug": "rftools-utility",
+      "filename": "rftoolsutility-1.21-7.0.11.jar",
+      "sha1": "c3a619f70429e2c0849b6f9cf8cb76cc152efea3",
+      "url": "https://edge.forgecdn.net/files/7745/889/rftoolsutility-1.21-7.0.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 326652,
+      "fid": 7746488,
+      "slug": "cupboard",
+      "filename": "cupboard-1.21-3.5.jar",
+      "sha1": "e5f55c8f9d172048fe6f8b919cda1dbe3cbfbc70",
+      "url": "https://edge.forgecdn.net/files/7746/488/cupboard-1.21-3.5.jar",
+      "side": "both"
+    },
+    {
+      "pid": 404465,
+      "fid": 7746959,
+      "slug": "ftb-library-forge",
+      "filename": "ftb-library-neoforge-2101.1.31.jar",
+      "sha1": "686d4e784c28c14f7760cc22b2de6a8573b56b74",
+      "url": "https://edge.forgecdn.net/files/7746/959/ftb-library-neoforge-2101.1.31.jar",
+      "side": "both"
+    },
+    {
+      "pid": 231484,
+      "fid": 7750238,
+      "slug": "cooking-for-blockheads",
+      "filename": "cookingforblockheads-neoforge-1.21.1-21.1.18.jar",
+      "sha1": "59919dfcb8edca24235b5c5469cfbddf03f91fbd",
+      "url": "https://edge.forgecdn.net/files/7750/238/cookingforblockheads-neoforge-1.21.1-21.1.18.jar",
+      "side": "both"
+    },
+    {
+      "pid": 245755,
+      "fid": 7750240,
+      "slug": "waystones",
+      "filename": "waystones-neoforge-1.21.1-21.1.29.jar",
+      "sha1": "40f15e97d79e01ce65fe2fe752bef43689b32bff",
+      "url": "https://edge.forgecdn.net/files/7750/240/waystones-neoforge-1.21.1-21.1.29.jar",
+      "side": "both"
+    },
+    {
+      "pid": 281849,
+      "fid": 7755211,
+      "slug": "pneumaticcraft-repressurized",
+      "filename": "pneumaticcraft-repressurized-8.2.18+mc1.21.1.jar",
+      "sha1": "02779b44b64e633cef2b9936c93fc9cc65a0a851",
+      "url": "https://edge.forgecdn.net/files/7755/211/pneumaticcraft-repressurized-8.2.18%2bmc1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 247007,
+      "fid": 7756804,
+      "slug": "common-capabilities",
+      "filename": "commoncapabilities-1.21.1-neoforge-2.11.4.jar",
+      "sha1": "8bd6ecb1649ba4b2a50b10b70a0d85a1e43a0d5f",
+      "url": "https://edge.forgecdn.net/files/7756/804/commoncapabilities-1.21.1-neoforge-2.11.4.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1180560,
+      "fid": 7757085,
+      "slug": "little-big-redstone",
+      "filename": "little-big-redstone-1.5.2-beta-1.21.1.jar",
+      "sha1": "17139b4409e1ff0cb0a354f2819acbd7914d7a68",
+      "url": "https://edge.forgecdn.net/files/7757/85/little-big-redstone-1.5.2-beta-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 401955,
+      "fid": 7764018,
+      "slug": "ars-nouveau",
+      "filename": "ars_nouveau-1.21.1-5.11.3.jar",
+      "sha1": "0af12dd7fda63a4261ceb302c9bb57fc235641c6",
+      "url": "https://edge.forgecdn.net/files/7764/18/ars_nouveau-1.21.1-5.11.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 929559,
+      "fid": 7768242,
+      "slug": "utilitarian",
+      "filename": "utilitarian-1.21.1-0.18.2.jar",
+      "sha1": "2971724a557a3a10fefd1649809b0c5d678a5f61",
+      "url": "https://edge.forgecdn.net/files/7768/242/utilitarian-1.21.1-0.18.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 361276,
+      "fid": 7769881,
+      "slug": "lootr",
+      "filename": "lootr-neoforge-1.21.1-1.11.37.118.jar",
+      "sha1": "95058da06c16441211619ce46950502fd5ac1f64",
+      "url": "https://edge.forgecdn.net/files/7769/881/lootr-neoforge-1.21.1-1.11.37.118.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1154099,
+      "fid": 7770074,
+      "slug": "crash-assistant",
+      "filename": "CrashAssistant-neoforge-1.20.6-1.21.4-1.11.3.jar",
+      "sha1": "066f8a15b88d37380fe76c58b57c1b041e152d10",
+      "url": "https://edge.forgecdn.net/files/7770/74/CrashAssistant-neoforge-1.20.6-1.21.4-1.11.3.jar",
+      "side": "both"
+    },
+    {
+      "pid": 538392,
+      "fid": 7771524,
+      "slug": "modonomicon",
+      "filename": "modonomicon-1.21.1-neoforge-1.120.1.jar",
+      "sha1": "e127c8ba3d194678e11a00af6422394a7ed476b1",
+      "url": "https://edge.forgecdn.net/files/7771/524/modonomicon-1.21.1-neoforge-1.120.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 235577,
+      "fid": 7772379,
+      "slug": "trashslot",
+      "filename": "trashslot-neoforge-1.21.1-21.1.6.jar",
+      "sha1": "b977a4df7de826ac7a56aeb10fbd4185394e6ae7",
+      "url": "https://edge.forgecdn.net/files/7772/379/trashslot-neoforge-1.21.1-21.1.6.jar",
+      "side": "both"
+    },
+    {
+      "pid": 446691,
+      "fid": 7772814,
+      "slug": "skyblock-builder",
+      "filename": "SkyblockBuilder-21.1.26.jar",
+      "sha1": "8e2ddb926af820c34844158af776c05f5238dedb",
+      "url": "https://edge.forgecdn.net/files/7772/814/SkyblockBuilder-21.1.26.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1206582,
+      "fid": 7773037,
+      "slug": "oracle-index",
+      "filename": "oracle_index-neoforge-1.1.1.jar",
+      "sha1": "49c7c260aae8b3478621174ad83115c59d58ef5b",
+      "url": "https://edge.forgecdn.net/files/7773/37/oracle_index-neoforge-1.1.1.jar",
+      "side": "client"
+    },
+    {
+      "pid": 282947,
+      "fid": 7773889,
+      "slug": "baubley-heart-canisters",
+      "filename": "baubley-heart-canisters-1.21.1-1.4.0.jar",
+      "sha1": "ccaae33c804d4897039b55a98e9da608b15fee8b",
+      "url": "https://edge.forgecdn.net/files/7773/889/baubley-heart-canisters-1.21.1-1.4.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 289412,
+      "fid": 7775452,
+      "slug": "ftb-quests-forge",
+      "filename": "ftb-quests-neoforge-2101.1.23.jar",
+      "sha1": "49ead4db72ab59c129021f0f0b532263650f819e",
+      "url": "https://edge.forgecdn.net/files/7775/452/ftb-quests-neoforge-2101.1.23.jar",
+      "side": "both"
+    },
+    {
+      "pid": 364120,
+      "fid": 7776883,
+      "slug": "all-the-tweaks",
+      "filename": "allthetweaks-1.21.1-2.9.1.jar",
+      "sha1": "d0fcebdb449840c020671a10eb4e51fd7346c28b",
+      "url": "https://edge.forgecdn.net/files/7776/883/allthetweaks-1.21.1-2.9.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 297039,
+      "fid": 7777521,
+      "slug": "silent-gear",
+      "filename": "silent-gear-1.21.1-neoforge-4.1.3.1.jar",
+      "sha1": "34b1178aa4a4ffe89fd8f3c0e4ee933be67dab1f",
+      "url": "https://edge.forgecdn.net/files/7777/521/silent-gear-1.21.1-neoforge-4.1.3.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1130473,
+      "fid": 7779707,
+      "slug": "mamas-herbs-and-harvest",
+      "filename": "herbsandharvest-1.21.1-10.jar",
+      "sha1": "eb17e9ca15c3c62d14411052b3a2083e96539ae3",
+      "url": "https://edge.forgecdn.net/files/7779/707/herbsandharvest-1.21.1-10.jar",
+      "side": "both"
+    },
+    {
+      "pid": 454372,
+      "fid": 7783425,
+      "slug": "supermartijn642s-core-lib",
+      "filename": "supermartijn642corelib-1.1.21-neoforge-mc1.21.jar",
+      "sha1": "84802fbe1645de8caf61ccb07db6cf451e614f68",
+      "url": "https://edge.forgecdn.net/files/7783/425/supermartijn642corelib-1.1.21-neoforge-mc1.21.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1030830,
+      "fid": 7786123,
+      "slug": "oritech",
+      "filename": "oritech-neoforge-1.21.1-1.1.0.jar",
+      "sha1": "fe04966ff230c307dd2ea2259f90468b77147e8d",
+      "url": "https://edge.forgecdn.net/files/7786/123/oritech-neoforge-1.21.1-1.1.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 236307,
+      "fid": 7786223,
+      "slug": "integrated-dynamics",
+      "filename": "integrateddynamics-1.21.1-neoforge-1.32.2.jar",
+      "sha1": "1590e49b00a53c0bdcad72b2068864a21b6939eb",
+      "url": "https://edge.forgecdn.net/files/7786/223/integrateddynamics-1.21.1-neoforge-1.32.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 64578,
+      "fid": 7795630,
+      "slug": "ender-io",
+      "filename": "enderio-8.2.3-beta.jar",
+      "sha1": "1bbca21faa06f921309dbc57ee5dc5cc23369773",
+      "url": "https://edge.forgecdn.net/files/7795/630/enderio-8.2.3-beta.jar",
+      "side": "both"
+    },
+    {
+      "pid": 237749,
+      "fid": 7796187,
+      "slug": "coroutil",
+      "filename": "coroutil-neoforge-1.21.0-1.3.9.jar",
+      "sha1": "0f5a6309ce8394721b97740e6f3e45665f13b8de",
+      "url": "https://edge.forgecdn.net/files/7796/187/coroutil-neoforge-1.21.0-1.3.9.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1067672,
+      "fid": 7796728,
+      "slug": "tesseract-api-neoforge",
+      "filename": "tesseract-api-neoforge-1.11.10-1.21.1.jar",
+      "sha1": "250d7fa9cb3ee7211404c44a7f21d59b54f33b17",
+      "url": "https://edge.forgecdn.net/files/7796/728/tesseract-api-neoforge-1.11.10-1.21.1.jar",
+      "side": "both"
+    },
+    {
+      "pid": 405388,
+      "fid": 7796816,
+      "slug": "modern-industrialization",
+      "filename": "Modern-Industrialization-2.4.2.jar",
+      "sha1": "2c4bf83dab1ea907d0bbcdaae99a0e54447841fc",
+      "url": "https://edge.forgecdn.net/files/7796/816/Modern-Industrialization-2.4.2.jar",
+      "side": "both"
+    },
+    {
+      "pid": 422301,
+      "fid": 7801087,
+      "slug": "sophisticated-backpacks",
+      "filename": "sophisticatedbackpacks-1.21.1-3.25.34.1604.jar",
+      "sha1": "9194951ecef88547370f050b6caf17a0986412a4",
+      "url": "https://edge.forgecdn.net/files/7801/87/sophisticatedbackpacks-1.21.1-3.25.34.1604.jar",
+      "side": "both"
+    },
+    {
+      "pid": 619320,
+      "fid": 7801383,
+      "slug": "sophisticated-storage",
+      "filename": "sophisticatedstorage-1.21.1-1.5.30.1535.jar",
+      "sha1": "73a3a1e550f846eb987961cf430939528596ad3f",
+      "url": "https://edge.forgecdn.net/files/7801/383/sophisticatedstorage-1.21.1-1.5.30.1535.jar",
+      "side": "both"
+    },
+    {
+      "pid": 398521,
+      "fid": 7801529,
+      "slug": "farmers-delight",
+      "filename": "FarmersDelight-1.21.1-1.2.11.jar",
+      "sha1": "2415b91d6437977e676985b4a2ef877208d202e1",
+      "url": "https://edge.forgecdn.net/files/7801/529/FarmersDelight-1.21.1-1.2.11.jar",
+      "side": "both"
+    },
+    {
+      "pid": 246640,
+      "fid": 7802024,
+      "slug": "mystical-agriculture",
+      "filename": "MysticalAgriculture-1.21.1-8.0.24.jar",
+      "sha1": "3084737e2ff780dd2847e40df5fe8bc709ee7261",
+      "url": "https://edge.forgecdn.net/files/7802/24/MysticalAgriculture-1.21.1-8.0.24.jar",
+      "side": "both"
+    },
+    {
+      "pid": 256247,
+      "fid": 7802027,
+      "slug": "mystical-agradditions",
+      "filename": "MysticalAgradditions-1.21.1-8.0.13.jar",
+      "sha1": "19bcd0011e8ab46de3093672bf2704fbb5443cfe",
+      "url": "https://edge.forgecdn.net/files/7802/27/MysticalAgradditions-1.21.1-8.0.13.jar",
+      "side": "both"
+    },
+    {
+      "pid": 618298,
+      "fid": 7806398,
+      "slug": "sophisticated-core",
+      "filename": "sophisticatedcore-1.21.1-1.4.11.1559.jar",
+      "sha1": "8aec7a6ce4df8aba144aef3967204cf295dbf441",
+      "url": "https://edge.forgecdn.net/files/7806/398/sophisticatedcore-1.21.1-1.4.11.1559.jar",
+      "side": "both"
+    },
+    {
+      "pid": 1448257,
+      "fid": 7811401,
+      "slug": "logistics-network",
+      "filename": "logisticsnetworks-1.21.1-1.6.0.jar",
+      "sha1": "4184200d1296eb855f67a18b6c02684537be9f10",
+      "url": "https://edge.forgecdn.net/files/7811/401/logisticsnetworks-1.21.1-1.6.0.jar",
+      "side": "both"
+    },
+    {
+      "pid": 499980,
+      "fid": 7815717,
+      "slug": "selene",
+      "filename": "moonlight-1.21-2.29.23-neoforge.jar",
+      "sha1": "0425f3f15ba59d1bbd48fff8dfddda645543c79d",
+      "url": "https://edge.forgecdn.net/files/7815/717/moonlight-1.21-2.29.23-neoforge.jar",
+      "side": "both"
+    },
+    {
+      "pid": 377897,
+      "fid": 7852443,
+      "slug": "productivebees",
+      "filename": "productivebees-1.21.1-13.13.2.jar",
+      "sha1": "f22b66bcb52a5f073a559bb1edc85174a958862c",
+      "url": "https://edge.forgecdn.net/files/7852/443/productivebees-1.21.1-13.13.2.jar",
+      "side": "both"
+    }
+  ]
+}

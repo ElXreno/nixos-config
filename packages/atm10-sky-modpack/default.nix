@@ -4,15 +4,14 @@
 }:
 let
   modpack = pkgs.fetchCurseForgeModpack {
-    pname = "All-the-Mods-10";
-    version = "6.6";
+    pname = "ATM10-To-the-Sky";
+    version = "2.0.2";
     src = fetchurl {
-      name = "All-the-Mods-10-6.6.zip";
-      url = "https://edge.forgecdn.net/files/7892/974/All%20the%20Mods%2010-6.6.zip";
-      sha256 = "sha256-G+pEftXVDYWnxjLqTaEf9k8esiItUl/tCmtBnqZY5e8=";
+      name = "ATM10-To-the-Sky-2.0.2.zip";
+      url = "https://mediafilez.forgecdn.net/files/7854/204/ATM10%20To%20the%20Sky-2.0.2.zip";
+      sha256 = "sha256-4/YPJMIVWyWh7PB8DV1k/SXnsyC2BCoHtgMYMdpYrYA=";
     };
     locks = ./locks.json;
-    extraExcludes = [ "relics-mod" ];
   };
 in
 modpack.addFiles {
@@ -27,14 +26,6 @@ modpack.addFiles {
   "mods/c2me-neoforge-0.3.0.jar" = fetchurl {
     url = "https://cdn.modrinth.com/data/COlSi5iR/versions/KmfiVd28/c2me-neoforge-mc1.21.1-0.3.0%2Balpha.0.93.jar";
     sha256 = "sha256-JzWxbhNuUcA8moIR++yvnVcaKEdZgSI8YGYkZWZPUyI=";
-  };
-  "mods/relics-1.21.1-0.11.16.jar" = fetchurl {
-    url = "https://cdn.modrinth.com/data/OCJRPujW/versions/m7HHr31k/relics-1.21.1-0.11.16.jar";
-    sha256 = "sha256-YoTdJMrM0QQdBP939gpkg55awI8VrwHW4tBto0DKoHI=";
-  };
-  "mods/lithium-neoforge-0.15.3.jar" = fetchurl {
-    url = "https://cdn.modrinth.com/data/gvQqBUqZ/versions/RXHf27Wv/lithium-neoforge-0.15.3%2Bmc1.21.1.jar";
-    sha256 = "sha256-plSIYr0T/47qZ0fPYd9QyDdKFqItBnYU5BTtYA7ubYM=";
   };
   "mods/scalablelux-0.1.0.1-neoforge.jar" = fetchurl {
     url = "https://cdn.modrinth.com/data/Ps1zyz6x/versions/j10HNoNf/ScalableLux-0.1.0.1%2Bneoforge.1cb1e91-all.jar";

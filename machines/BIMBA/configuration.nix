@@ -23,7 +23,8 @@
     services = {
       atticd.enable = true;
       matrix.synapse.enable = true;
-      minecraft.atm10.enable = true;
+      minecraft.atm10.enable = false;
+      minecraft.atm10-sky.enable = true;
       nginx = {
         enable = true;
         enableDefaultVhost = true;
