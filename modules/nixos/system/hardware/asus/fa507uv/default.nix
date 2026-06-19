@@ -59,6 +59,31 @@ in
     }
 
     {
+      systemd.services.fa507uv-amdgpu-perf-high = {
+        description = "Pin AMD 780M iGPU performance level to high";
+        after = [
+          "systemd-suspend.service"
+          "systemd-hibernate.service"
+          "systemd-hybrid-sleep.service"
+          "systemd-suspend-then-hibernate.service"
+        ];
+        wantedBy = [
+          "multi-user.target"
+          "systemd-suspend.service"
+          "systemd-hibernate.service"
+          "systemd-hybrid-sleep.service"
+          "systemd-suspend-then-hibernate.service"
+        ];
+        serviceConfig.Type = "oneshot";
+        script = ''
+          for f in /sys/bus/pci/drivers/amdgpu/*/power_dpm_force_performance_level; do
+            [ -w "$f" ] && echo high > "$f" || true
+          done
+        '';
+      };
+    }
+
+    {
       hardware.graphics = {
         package = overrideMesa pkgs.mesa;
         package32 = overrideMesa pkgs.pkgsi686Linux.mesa;
