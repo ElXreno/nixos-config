@@ -141,6 +141,9 @@ in
             "config/lootr-common.toml" = pkgs.writeText "lootr-common.toml" (
               builtins.readFile ../atm10/configs/lootr-common.toml
             );
+            "config/ftbchunks-world.snbt" = pkgs.writeText "ftbchunks-world.snbt" (
+              builtins.readFile ./configs/ftbchunks-world.snbt
+            );
           };
       };
     };
