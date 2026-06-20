@@ -144,6 +144,7 @@ in
             "config/ftbchunks-world.snbt" = pkgs.writeText "ftbchunks-world.snbt" (
               builtins.readFile ./configs/ftbchunks-world.snbt
             );
+            "config/fml.toml" = pkgs.writeText "fml.toml" (builtins.readFile ./configs/fml.toml);
           };
       };
     };
