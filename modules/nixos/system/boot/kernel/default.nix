@@ -73,7 +73,7 @@ in
       type = types.raw;
       default =
         if (config.${namespace}.roles.laptop.enable || cfg.optimizations.enable) then
-          pkgs.linuxPackages_xanmod_latest
+          pkgs.linuxPackages_xanmod_edge
         else
           pkgs.linuxPackages_latest;
       defaultText = literalExpression "pkgs.linuxPackages_latest";
