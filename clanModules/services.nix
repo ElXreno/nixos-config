@@ -118,6 +118,11 @@ in
                 cdc.enabled = true;
               };
 
+              systemd.services.ncps = {
+                after = [ "postgresql.service" ];
+                requires = [ "postgresql.service" ];
+              };
+
               ${namespace}.services.postgresql.enable = true;
               services.postgresql = {
                 ensureDatabases = [ "ncps" ];
