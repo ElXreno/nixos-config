@@ -1093,6 +1093,26 @@
         "type": "github"
       }
     },
+    "proton-cachyos": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782797297,
+        "narHash": "sha256-mscJSstGLRHQ4shBSQOtsElODg+mnRPBDlsA3Mi2A50=",
+        "owner": "powerofthe69",
+        "repo": "proton-cachyos-nix",
+        "rev": "5cf94db45bd823e8a432ba8aae9745a43f32d24d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "powerofthe69",
+        "repo": "proton-cachyos-nix",
+        "type": "github"
+      }
+    },
     "rk-m87-sync": {
       "inputs": {
         "flake-parts": [
@@ -1139,6 +1159,7 @@
         "noctalia": "noctalia",
         "noctalia-plugins": "noctalia-plugins",
         "plasma-manager": "plasma-manager",
+        "proton-cachyos": "proton-cachyos",
         "rk-m87-sync": "rk-m87-sync",
         "stylix": "stylix",
         "terranix": "terranix",
