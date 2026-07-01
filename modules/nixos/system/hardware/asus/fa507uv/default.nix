@@ -110,8 +110,8 @@ in
         (pkgs.writeShellScriptBin config.hardware.nvidia.prime.offload.offloadCmdMainProgram ''
           export VK_DRIVER_FILES=${
             concatStringsSep ":" [
-              "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.x86_64.json"
-              "/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.i686.json"
+              "/run/opengl-driver/share/vulkan/icd.d/nvidia_icd.json"
+              "/run/opengl-driver-32/share/vulkan/icd.d/nvidia_icd.json"
             ]
           }
           export __EGL_VENDOR_LIBRARY_FILENAMES=${
