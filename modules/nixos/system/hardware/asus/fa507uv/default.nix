@@ -59,6 +59,10 @@ in
     }
 
     {
+      boot.kernelParams = [ "amdgpu.dcdebugmask=0x18" ];
+    }
+
+    {
       systemd.services.fa507uv-amdgpu-perf-high = {
         description = "Pin AMD 780M iGPU performance level to high";
         after = [
