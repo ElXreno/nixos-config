@@ -108,6 +108,7 @@ in
       };
 
       settings = {
+        model = "claude-fable-5";
         verbose = true;
         includeCoAuthoredBy = false;
         gitAttribution = false;
