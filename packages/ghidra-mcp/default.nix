@@ -1,28 +1,16 @@
 {
   lib,
-  stdenv,
-  fetchFromGitHub,
   maven,
   ghidra,
   python3,
   makeWrapper,
   unzip,
   jdk21,
+  fetchFromGitHub,
 }:
 
 let
-  pname = "ghidra-mcp";
-  version = "5.10.0";
-
-  src = fetchFromGitHub {
-    owner = "bethington";
-    repo = "ghidra-mcp";
-    rev = "v${version}";
-    hash = "sha256-khqvuzjNB3X0SfTqbUlKFxTPRIaUeb8Vi4FPSbABdK4=";
-  };
-
   ghidraHome = "${ghidra}/lib/ghidra";
-
   ghidraVersion = ghidra.version;
 
   ghidraJars = {
@@ -43,8 +31,9 @@ let
     Utility = "Ghidra/Framework/Utility/lib/Utility.jar";
   };
 
-  installGhidraJars = repoDir: ''
-    ${lib.concatStringsSep "\n" (
+  installGhidraJars =
+    repoDir:
+    lib.concatStringsSep "\n" (
       lib.mapAttrsToList (name: jarPath: ''
         mvn -q install:install-file \
           -Dmaven.repo.local="${repoDir}" \
@@ -55,45 +44,7 @@ let
           -Dpackaging=jar \
           -DgeneratePom=true
       '') ghidraJars
-    )}
-  '';
-
-  patchPomVersion = ''
-    sed -i "s|<ghidra.version>[^<]*</ghidra.version>|<ghidra.version>${ghidraVersion}</ghidra.version>|" pom.xml
-  '';
-
-  mavenDeps = stdenv.mkDerivation {
-    pname = "${pname}-maven-deps";
-    inherit src version;
-    nativeBuildInputs = [
-      maven
-      jdk21
-    ];
-
-    buildPhase = ''
-      runHook preBuild
-      mkdir -p "$out/.m2"
-      ${installGhidraJars "$out/.m2"}
-      ${patchPomVersion}
-      mvn -Dmaven.repo.local="$out/.m2" -DskipTests clean package assembly:single
-      runHook postBuild
-    '';
-
-    installPhase = ''
-      runHook preInstall
-      find "$out" -type f \( \
-        -name \*.lastUpdated \
-        -o -name resolver-status.properties \
-        -o -name _remote.repositories \) \
-        -delete
-      runHook postInstall
-    '';
-
-    dontFixup = true;
-    outputHashAlgo = "sha256";
-    outputHashMode = "recursive";
-    outputHash = "sha256-zUj1NaS4R2JA7SCffcM2OcBNwFcLcp926KuIWoR5ZQg=";
-  };
+    );
 
   pythonEnv = python3.withPackages (
     ps: with ps; [
@@ -101,43 +52,52 @@ let
       requests
     ]
   );
-
 in
-stdenv.mkDerivation {
-  inherit pname version src;
+maven.buildMavenPackage rec {
+  pname = "ghidra-mcp";
+  version = "5.14.2";
+
+  src = fetchFromGitHub {
+    owner = "bethington";
+    repo = "ghidra-mcp";
+    rev = "v${version}";
+    hash = "sha256-2EMETCttJAz53GQaJDHtegb8+T2cHKmHZVMPrV5Cwxc=";
+  };
+
+  mvnJdk = jdk21;
+  mvnParameters = "assembly:single";
+  doCheck = false;
+
+  postPatch = ''
+    sed -i "s|<ghidra.version>[^<]*</ghidra.version>|<ghidra.version>${ghidraVersion}</ghidra.version>|" pom.xml
+  '';
+
+  mvnFetchExtraArgs.preBuild = installGhidraJars "$out/.m2";
+
+  mvnHash = "sha256-MQbUB+EqZXs5jvALmEa/X9cdF/a+Ku5744+JWEQVS18=";
 
   nativeBuildInputs = [
-    maven
-    jdk21
     makeWrapper
     unzip
   ];
 
-  buildPhase = ''
-    runHook preBuild
-    ${patchPomVersion}
-    cp -r "${mavenDeps}/.m2" "$TMPDIR/m2"
-    chmod -R u+w "$TMPDIR/m2"
-    mvn -o -Dmaven.repo.local=$TMPDIR/m2 -DskipTests clean package assembly:single
-    runHook postBuild
-  '';
-
   installPhase = ''
     runHook preInstall
+
     mkdir -p $out/lib/ghidra/Ghidra/Extensions
-    zipFile=$(echo target/*.zip)
-    unzip -d $out/lib/ghidra/Ghidra/Extensions "$zipFile"
+    unzip -d $out/lib/ghidra/Ghidra/Extensions target/*.zip
     install -Dm644 bridge_mcp_ghidra.py $out/share/ghidra-mcp/bridge_mcp_ghidra.py
     makeWrapper ${pythonEnv}/bin/python $out/bin/bridge_mcp_ghidra \
       --add-flags "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
+
     runHook postInstall
   '';
 
-  meta = with lib; {
+  meta = {
     description = "MCP server + Ghidra plugin for AI-powered reverse engineering";
     mainProgram = "bridge_mcp_ghidra";
     homepage = "https://github.com/bethington/ghidra-mcp";
-    license = licenses.asl20;
-    platforms = platforms.unix;
+    license = lib.licenses.asl20;
+    platforms = lib.platforms.unix;
   };
 }
