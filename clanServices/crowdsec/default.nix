@@ -102,7 +102,7 @@ in
           {
             ${namespace}.system.impermanence.directories = [
               {
-                directory = "/var/lib/private/crowdsec";
+                directory = "/var/lib/crowdsec";
                 user = "crowdsec";
                 group = "crowdsec";
                 mode = "0750";
