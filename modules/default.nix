@@ -22,6 +22,7 @@ let
     nix-minecraft.nixosModules.minecraft-servers
     niks3.nixosModules.niks3
     niks3.nixosModules.niks3-auto-upload
+    nixbot.nixosModules.nixbot
 
     niri.nixosModules.niri
     {

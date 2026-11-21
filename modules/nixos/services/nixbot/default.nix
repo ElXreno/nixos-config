@@ -1,0 +1,109 @@
+{
+  config,
+  namespace,
+  lib,
+  ...
+}:
+let
+  inherit (lib)
+    mkEnableOption
+    mkForce
+    mkIf
+    mkOption
+    types
+    ;
+  cfg = config.${namespace}.services.nixbot;
+  niks3 = config.${namespace}.services.niks3;
+  ports = config.${namespace}.ports;
+  vars = config.clan.core.vars.generators;
+in
+{
+  options.${namespace}.services.nixbot = {
+    enable = mkEnableOption "the nixbot CI service, reachable inside the tailnet";
+    repositories = mkOption {
+      type = types.attrsOf (
+        types.submodule {
+          options = {
+            url = mkOption {
+              type = types.str;
+              description = "Git URL polled for new commits.";
+            };
+            branch = mkOption {
+              type = types.str;
+              default = "main";
+              description = "Branch whose head is built.";
+            };
+          };
+        }
+      );
+      default = { };
+      example = {
+        "owner/repo".url = "https://github.com/owner/repo";
+      };
+      description = "Repositories nixbot polls and builds, keyed by project name.";
+    };
+    buildConcurrency = mkOption {
+      type = types.ints.positive;
+      default = 2;
+      description = "Number of flake outputs built at the same time.";
+    };
+  };
+
+  config = mkIf cfg.enable {
+    ${namespace} = {
+      ports.nixbot = 8010;
+      services.postgresql = {
+        enable = true;
+        databases.nixbot = { };
+      };
+      system.impermanence.directories = [
+        {
+          directory = "/var/lib/nixbot";
+          user = "nixbot";
+          group = "nixbot";
+          mode = "0700";
+        }
+      ];
+      tailscale.serve."svc:nixbot" = {
+        comment = "nixbot CI";
+        endpoints."tcp:443" = "http://localhost:${toString ports.nixbot}";
+      };
+    };
+
+    services.nixbot = {
+      enable = true;
+      domain = "nixbot.${config.clan.core.settings.domain}";
+      port = ports.nixbot;
+      useHTTPS = true;
+      nginx.enable = false;
+      allowUnauthenticatedControl = true;
+      buildSystems = [ config.nixpkgs.hostPlatform.system ];
+      inherit (cfg) buildConcurrency;
+      database = {
+        createLocally = false;
+        url = "postgresql://nixbot@/nixbot?host=/run/postgresql";
+      };
+      pullBased = {
+        pollInterval = 300;
+        repositories = lib.mapAttrs (_: repo: {
+          inherit (repo) url;
+          defaultBranch = repo.branch;
+        }) cfg.repositories;
+      };
+      niks3 = {
+        enable = true;
+        serverUrl = niks3.url;
+        authTokenFile = vars.niks3-api-token.files.token.path;
+        inherit (config.services.niks3) package;
+      };
+    };
+
+    systemd = {
+      sockets.nixbot.socketConfig.ListenStream = mkForce "127.0.0.1:${toString ports.nixbot}";
+      services.nixbot = {
+        after = [ "postgresql.target" ];
+        requires = [ "postgresql.target" ];
+      };
+    };
+  };
+}

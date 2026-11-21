@@ -769,6 +769,29 @@
         "url": "https://git.clan.lol/clan/nix-select/archive/main.tar.gz"
       }
     },
+    "nixbot": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "treefmt-nix": [
+          "treefmt-nix"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794475042,
+        "narHash": "sha256-3LONGj1ZR+wtga6LnmL2gfeXntRA9w7LXGssZx9Tfac=",
+        "owner": "Mic92",
+        "repo": "nixbot",
+        "rev": "171a8c77d6e8e2b5b99ce5870c042a2dbc2cda62",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nixbot",
+        "type": "github"
+      }
+    },
     "nixflix": {
       "inputs": {
         "mkdocs-catppuccin": [],
@@ -957,6 +980,7 @@
         "nix-keenetic": "nix-keenetic",
         "nix-minecraft": "nix-minecraft",
         "nix-optimized": "nix-optimized",
+        "nixbot": "nixbot",
         "nixflix": "nixflix",
         "nixpkgs": "nixpkgs_3",
         "plasma-manager": "plasma-manager",

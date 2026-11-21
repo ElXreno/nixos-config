@@ -55,6 +55,10 @@
         enable = true;
         capacity = "500GB";
       };
+      nixbot = {
+        enable = true;
+        repositories."ElXreno/nixos-config".url = "https://github.com/ElXreno/nixos-config";
+      };
       minecraft.atm10.enable = false;
       minecraft.atm10-sky.enable = false;
       minecraft.gtnh.enable = false;
