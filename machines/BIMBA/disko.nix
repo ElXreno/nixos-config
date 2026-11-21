@@ -108,6 +108,10 @@
               recordsize = "1M";
             };
           };
+          "root-persist/ccache" = {
+            type = "zfs_fs";
+            mountpoint = "/var/cache/ccache";
+          };
           "root-persist/postgres" = {
             type = "zfs_fs";
             mountpoint = "/var/lib/postgresql";

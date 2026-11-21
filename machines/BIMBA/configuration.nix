@@ -13,6 +13,11 @@
     tailscale.trusted = false;
 
     system = {
+      ccache = {
+        enable = true;
+        cacheDir = "/var/cache/ccache";
+        aliases = [ "/nix/ccache" ];
+      };
       networking.dns.addresses = {
         v4 = "159.195.56.52";
         v6 = "2a0a:4cc0:c1:e9be::";

@@ -16,9 +16,7 @@ in
 {
   ${namespace}.services.llama-cpp = {
     enable = true;
-    package = (pkgs.llama-cpp.override { blasSupport = false; }).overrideAttrs (old: {
-      patches = (old.patches or [ ]) ++ [ ../../patches/llama-cpp-rerank-prefix-reuse.patch ];
-    });
+    package = pkgs.llama-cpp-rerank.override { blasSupport = false; };
     instances.memory = {
       model = "${cfg.stateDir}/models/v5-small-retrieval-F16.gguf";
       port = 8096;
