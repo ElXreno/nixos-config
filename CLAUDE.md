@@ -43,11 +43,11 @@
 - System platform in modules: `pkgs.stdenv.hostPlatform.system`
 - clan-core source is the fork: `nix flake metadata github:ElXreno/clan-core --json | jq -r .path`
 
-## Nixpkgs Fork Workflow
+## Nixpkgs Patches
 
-- Fork lives at `~/projects/repos/github.com/ElXreno/nixpkgs`, branch `nixos-unstable-cust`
-- To cherry-pick a nixpkgs PR: `git fetch upstream pull/<PR_NUMBER>/head:<branch_name> && git cherry-pick <branch_name>`
-- Then push and run `nix flake update nixpkgs` in this repo to pick up the change
+- The `nixpkgs` input is upstream `nixos-unstable`; local changes are `patches/nixpkgs-<topic>.patch`, listed in `patchSpec.nixpkgs.patches` in `flake.nix` and applied by flake-input-patcher
+- To carry a nixpkgs PR or an own change: make it in the clone `~/projects/repos/github.com/ElXreno/nixpkgs` on top of the locked rev, write `git diff <locked rev> -- <paths>` into a patch file, `git add` it and list it
+- After `nix flake update nixpkgs` run `git apply --check` for every patch on a checkout of the new rev: `patch` accepts fuzz and may apply a moved hunk in the wrong place; drop a patch once upstream has it
 
 ## Networking
 

@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs = {
-      url = "github:ElXreno/nixpkgs/nixos-unstable-cust";
+      url = "github:NixOS/nixpkgs/nixos-unstable";
     };
 
     flake-input-patcher = {
@@ -193,6 +193,19 @@
         inherit unpatchedInputs;
         flakePath = ./.;
         patchSpec = {
+          nixpkgs.patches = [
+            ./patches/nixpkgs-sony-headphones-client.patch
+            ./patches/nixpkgs-plasma6-mobile.patch
+            ./patches/nixpkgs-haskell-test-wrapper.patch
+
+            # NixOS/nixpkgs#578694
+            ./patches/nixpkgs-graalvm-native-image.patch
+
+            ./patches/nixpkgs-nvidia-production.patch
+            ./patches/nixpkgs-zfs-linux-7.3.patch
+            ./patches/nixpkgs-convco-libgit2.patch
+          ];
+
           niri = {
             patches = [
               ./patches/niri-flake-output-max-bpc.patch

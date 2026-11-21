@@ -1,0 +1,517 @@
+diff --git a/pkgs/os-specific/linux/zfs/2_4.nix b/pkgs/os-specific/linux/zfs/2_4.nix
+index b3f4ea1291a5..566769c9578f 100644
+--- a/pkgs/os-specific/linux/zfs/2_4.nix
++++ b/pkgs/os-specific/linux/zfs/2_4.nix
+@@ -12,13 +12,19 @@ callPackage ./generic.nix args {
+   kernelModuleAttribute = "zfs_2_4";
+ 
+   kernelMinSupportedMajorMinor = "4.18";
+-  kernelMaxSupportedMajorMinor = "7.2";
++  kernelMaxSupportedMajorMinor = "7.3";
+ 
+   # this package should point to the latest release.
+   version = "2.4.4";
+ 
+   # if adding a patch here, check if it also needs to be applied to zfs_unstable
+-  extraPatches = [ ];
++  extraPatches = [
++    ./linux-7.3/0001-Linux-7.3-bvec_iter.bi_bvec_done-is-now-bi_offset.patch
++    ./linux-7.3/0002-Linux-use-cpu_feature_enabled-instead-of-static_cpu_.patch
++    ./linux-7.3/0003-Linux-7.3-inode_operations.create-dropped-flag-arg.patch
++    ./linux-7.3/0004-Linux-7.3-make-host-filesystem-available-to-kernel-t.patch
++    ./linux-7.3/0005-Linux-7.3-compat-META.patch
++  ];
+ 
+   tests = {
+     inherit (nixosTests.zfs) series_2_4;
+diff --git a/pkgs/os-specific/linux/zfs/linux-7.3/0001-Linux-7.3-bvec_iter.bi_bvec_done-is-now-bi_offset.patch b/pkgs/os-specific/linux/zfs/linux-7.3/0001-Linux-7.3-bvec_iter.bi_bvec_done-is-now-bi_offset.patch
+new file mode 100644
+index 000000000000..000e997d538e
+--- /dev/null
++++ b/pkgs/os-specific/linux/zfs/linux-7.3/0001-Linux-7.3-bvec_iter.bi_bvec_done-is-now-bi_offset.patch
+@@ -0,0 +1,82 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Rob Norris <rob.norris@truenas.com>
++Date: Sat, 15 Aug 2026 12:58:45 +1000
++Subject: [PATCH 1/5] Linux 7.3: bvec_iter.bi_bvec_done is now bi_offset
++
++Sponsored-by: TrueNAS
++Reviewed-by: Brian Behlendorf <behlendorf1@llnl.gov>
++Reviewed-by: Tony Hutter <hutter2@llnl.gov>
++Co-developed-by: TheAlmightyOgreLord <beardedtechwizard@protonmail.com>
++Signed-off-by: Rob Norris <rob.norris@truenas.com>
++Closes #19082
++(cherry picked from commit d966f3dd8c2e4eb04e52227b7a87f5828924f89c)
++---
++ config/kernel-bio.m4                          | 26 +++++++++++++++++++
++ include/os/linux/kernel/linux/blkdev_compat.h |  4 +++
++ 2 files changed, 30 insertions(+)
++
++diff --git a/config/kernel-bio.m4 b/config/kernel-bio.m4
++index 099b11eff..305d3ccd6 100644
++--- a/config/kernel-bio.m4
+++++ b/config/kernel-bio.m4
++@@ -234,6 +234,30 @@ AC_DEFUN([ZFS_AC_KERNEL_BIO_ALLOC_4ARG], [
++ 	])
++ ])
++ 
+++dnl #
+++dnl # Linux 7.3 API
+++dnl #
+++dnl # bi_iter.bi_bvec_done renamed to bi_iter.bi_offset
+++dnl #
+++AC_DEFUN([ZFS_AC_KERNEL_SRC_BVEC_ITER_OFFSET], [
+++	ZFS_LINUX_TEST_SRC([bvec_iter_offset], [
+++		#include <linux/bio.h>
+++	],[
+++		struct bvec_iter *bi = NULL;
+++		unsigned int __attribute__((unused)) offset = bi->bi_offset;
+++	])
+++])
+++
+++AC_DEFUN([ZFS_AC_KERNEL_BVEC_ITER_OFFSET], [
+++	AC_MSG_CHECKING([if bvec_iter has bi_offset])
+++	ZFS_LINUX_TEST_RESULT([bvec_iter_offset],[
+++		AC_MSG_RESULT(yes)
+++		AC_DEFINE([HAVE_BVEC_ITER_OFFSET], 1, [bvec_iter has bi_offset])
+++	],[
+++		AC_MSG_RESULT(no)
+++	])
+++])
+++
++ AC_DEFUN([ZFS_AC_KERNEL_SRC_BIO], [
++ 	ZFS_AC_KERNEL_SRC_BIO_OPS
++ 	ZFS_AC_KERNEL_SRC_BIO_SET_DEV
++@@ -243,6 +267,7 @@ AC_DEFUN([ZFS_AC_KERNEL_SRC_BIO], [
++ 	ZFS_AC_KERNEL_SRC_BDEV_SUBMIT_BIO_RETURNS_VOID
++ 	ZFS_AC_KERNEL_SRC_BIO_SET_DEV_MACRO
++ 	ZFS_AC_KERNEL_SRC_BIO_ALLOC_4ARG
+++	ZFS_AC_KERNEL_SRC_BVEC_ITER_OFFSET
++ ])
++ 
++ AC_DEFUN([ZFS_AC_KERNEL_BIO], [
++@@ -253,4 +278,5 @@ AC_DEFUN([ZFS_AC_KERNEL_BIO], [
++ 	ZFS_AC_KERNEL_BIO_BDEV_DISK
++ 	ZFS_AC_KERNEL_BDEV_SUBMIT_BIO_RETURNS_VOID
++ 	ZFS_AC_KERNEL_BIO_ALLOC_4ARG
+++	ZFS_AC_KERNEL_BVEC_ITER_OFFSET
++ ])
++diff --git a/include/os/linux/kernel/linux/blkdev_compat.h b/include/os/linux/kernel/linux/blkdev_compat.h
++index 214f3ea0e..10a042e44 100644
++--- a/include/os/linux/kernel/linux/blkdev_compat.h
+++++ b/include/os/linux/kernel/linux/blkdev_compat.h
++@@ -104,7 +104,11 @@ blk_queue_set_read_ahead(struct request_queue *q, unsigned long ra_pages)
++ #define	BIO_BI_SECTOR(bio)	(bio)->bi_iter.bi_sector
++ #define	BIO_BI_SIZE(bio)	(bio)->bi_iter.bi_size
++ #define	BIO_BI_IDX(bio)		(bio)->bi_iter.bi_idx
+++#ifdef HAVE_BVEC_ITER_OFFSET
+++#define	BIO_BI_SKIP(bio)	(bio)->bi_iter.bi_offset
+++#else
++ #define	BIO_BI_SKIP(bio)	(bio)->bi_iter.bi_bvec_done
+++#endif
++ #define	bio_for_each_segment4(bv, bvp, b, i)	\
++ 	bio_for_each_segment((bv), (b), (i))
++ typedef struct bvec_iter bvec_iterator_t;
+diff --git a/pkgs/os-specific/linux/zfs/linux-7.3/0002-Linux-use-cpu_feature_enabled-instead-of-static_cpu_.patch b/pkgs/os-specific/linux/zfs/linux-7.3/0002-Linux-use-cpu_feature_enabled-instead-of-static_cpu_.patch
+new file mode 100644
+index 000000000000..af546856b6eb
+--- /dev/null
++++ b/pkgs/os-specific/linux/zfs/linux-7.3/0002-Linux-use-cpu_feature_enabled-instead-of-static_cpu_.patch
+@@ -0,0 +1,99 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Rob Norris <rob.norris@truenas.com>
++Date: Sat, 15 Aug 2026 13:27:50 +1000
++Subject: [PATCH 2/5] Linux: use cpu_feature_enabled() instead of
++ static_cpu_has()
++
++static_cpu_has() was renamed in 7.3 because since 3.18
++cpu_feature_enabled() has always been the "right" way to do the same
++thing. So we just switch everything over.
++
++Sponsored-by: TrueNAS
++Reviewed-by: Brian Behlendorf <behlendorf1@llnl.gov>
++Reviewed-by: Tony Hutter <hutter2@llnl.gov>
++Co-developed-by: TheAlmightyOgreLord <beardedtechwizard@protonmail.com>
++Signed-off-by: Rob Norris <rob.norris@truenas.com>
++Closes #19082
++(cherry picked from commit 315bc75afc18f548df3b738b69bfaad7cff094ad)
++---
++ include/os/linux/kernel/linux/simd_x86.h | 14 +++++++-------
++ module/zcommon/simd_stat.c               |  8 ++++----
++ 2 files changed, 11 insertions(+), 11 deletions(-)
++
++diff --git a/include/os/linux/kernel/linux/simd_x86.h b/include/os/linux/kernel/linux/simd_x86.h
++index 326f471d7..1d7890f15 100644
++--- a/include/os/linux/kernel/linux/simd_x86.h
+++++ b/include/os/linux/kernel/linux/simd_x86.h
++@@ -315,24 +315,24 @@ kfpu_begin(void)
++ 	 */
++ 	uint8_t *state = zfs_kfpu_fpregs[smp_processor_id()];
++ #if defined(HAVE_XSAVES)
++-	if (static_cpu_has(X86_FEATURE_XSAVES)) {
+++	if (cpu_feature_enabled(X86_FEATURE_XSAVES)) {
++ 		kfpu_do_xsave("xsaves", state, ~XFEATURE_MASK_XTILE);
++ 		return;
++ 	}
++ #endif
++ #if defined(HAVE_XSAVEOPT)
++-	if (static_cpu_has(X86_FEATURE_XSAVEOPT)) {
+++	if (cpu_feature_enabled(X86_FEATURE_XSAVEOPT)) {
++ 		kfpu_do_xsave("xsaveopt", state, ~XFEATURE_MASK_XTILE);
++ 		return;
++ 	}
++ #endif
++ #if defined(HAVE_XSAVE)
++-	if (static_cpu_has(X86_FEATURE_XSAVE)) {
+++	if (cpu_feature_enabled(X86_FEATURE_XSAVE)) {
++ 		kfpu_do_xsave("xsave", state, ~XFEATURE_MASK_XTILE);
++ 		return;
++ 	}
++ #endif
++-	if (static_cpu_has(X86_FEATURE_FXSR)) {
+++	if (cpu_feature_enabled(X86_FEATURE_FXSR)) {
++ 		kfpu_save_fxsr(state);
++ 	} else {
++ 		kfpu_save_fsave(state);
++@@ -380,18 +380,18 @@ kfpu_end(void)
++ {
++ 	uint8_t  *state = zfs_kfpu_fpregs[smp_processor_id()];
++ #if defined(HAVE_XSAVES)
++-	if (static_cpu_has(X86_FEATURE_XSAVES)) {
+++	if (cpu_feature_enabled(X86_FEATURE_XSAVES)) {
++ 		kfpu_do_xrstor("xrstors", state, ~XFEATURE_MASK_XTILE);
++ 		goto out;
++ 	}
++ #endif
++ #if defined(HAVE_XSAVE)
++-	if (static_cpu_has(X86_FEATURE_XSAVE)) {
+++	if (cpu_feature_enabled(X86_FEATURE_XSAVE)) {
++ 		kfpu_do_xrstor("xrstor", state, ~XFEATURE_MASK_XTILE);
++ 		goto out;
++ 	}
++ #endif
++-	if (static_cpu_has(X86_FEATURE_FXSR)) {
+++	if (cpu_feature_enabled(X86_FEATURE_FXSR)) {
++ 		kfpu_restore_fxsr(state);
++ 	} else {
++ 		kfpu_restore_fsave(state);
++diff --git a/module/zcommon/simd_stat.c b/module/zcommon/simd_stat.c
++index 007ae9e4f..1391064ca 100644
++--- a/module/zcommon/simd_stat.c
+++++ b/module/zcommon/simd_stat.c
++@@ -126,13 +126,13 @@ simd_stat_kstat_data(char *buf, size_t size, void *data)
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
++ 		    "osxsave", boot_cpu_has(X86_FEATURE_OSXSAVE));
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
++-		    "xsaves", static_cpu_has(X86_FEATURE_XSAVES));
+++		    "xsaves", cpu_feature_enabled(X86_FEATURE_XSAVES));
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
++-		    "xsaveopt", static_cpu_has(X86_FEATURE_XSAVEOPT));
+++		    "xsaveopt", cpu_feature_enabled(X86_FEATURE_XSAVEOPT));
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
++-		    "xsave", static_cpu_has(X86_FEATURE_XSAVE));
+++		    "xsave", cpu_feature_enabled(X86_FEATURE_XSAVE));
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
++-		    "fxsr", static_cpu_has(X86_FEATURE_FXSR));
+++		    "fxsr", cpu_feature_enabled(X86_FEATURE_FXSR));
++ #endif /* __x86__ */
++ #if defined(__arm__) || defined(__aarch64__)
++ 		off += SIMD_STAT_PRINT(simd_stat_kstat_payload,
+diff --git a/pkgs/os-specific/linux/zfs/linux-7.3/0003-Linux-7.3-inode_operations.create-dropped-flag-arg.patch b/pkgs/os-specific/linux/zfs/linux-7.3/0003-Linux-7.3-inode_operations.create-dropped-flag-arg.patch
+new file mode 100644
+index 000000000000..de2d9e000fff
+--- /dev/null
++++ b/pkgs/os-specific/linux/zfs/linux-7.3/0003-Linux-7.3-inode_operations.create-dropped-flag-arg.patch
+@@ -0,0 +1,107 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Rob Norris <rob.norris@truenas.com>
++Date: Sun, 16 Aug 2026 09:14:34 +1000
++Subject: [PATCH 3/5] Linux 7.3: inode_operations.create dropped flag arg
++
++Sponsored-by: TrueNAS
++Reviewed-by: Brian Behlendorf <behlendorf1@llnl.gov>
++Reviewed-by: Tony Hutter <hutter2@llnl.gov>
++Co-developed-by: TheAlmightyOgreLord <beardedtechwizard@protonmail.com>
++Signed-off-by: Rob Norris <rob.norris@truenas.com>
++Closes #19082
++(cherry picked from commit 6e2fa4bc87c35086ce36a4022cfa2b4212518eab)
++---
++ config/kernel-inode-create.m4   | 47 ++++++++++++++++++++++++++-------
++ module/os/linux/zfs/zpl_inode.c |  3 +++
++ 2 files changed, 41 insertions(+), 9 deletions(-)
++
++diff --git a/config/kernel-inode-create.m4 b/config/kernel-inode-create.m4
++index 65817ca9a..c3d91ebc6 100644
++--- a/config/kernel-inode-create.m4
+++++ b/config/kernel-inode-create.m4
++@@ -1,5 +1,23 @@
++ dnl # SPDX-License-Identifier: CDDL-1.0
++ AC_DEFUN([ZFS_AC_KERNEL_SRC_CREATE], [
+++	dnl #
+++	dnl # 7.3 API change
+++	dnl # The bool flag arg is dropped
+++	dnl #
+++	ZFS_LINUX_TEST_SRC([create_mnt_idmap_no_flag], [
+++		#include <linux/fs.h>
+++		#include <linux/sched.h>
+++
+++		static int inode_create(struct mnt_idmap *idmap,
+++		    struct inode *inode, struct dentry *dentry,
+++		    umode_t umode) { return 0; }
+++
+++		static const struct inode_operations
+++			iops __attribute__ ((unused)) = {
+++			.create         = inode_create,
+++		};
+++	],[])
+++
++ 	dnl #
++ 	dnl # 6.3 API change
++ 	dnl # The first arg is changed to struct mnt_idmap *
++@@ -54,27 +72,38 @@ AC_DEFUN([ZFS_AC_KERNEL_SRC_CREATE], [
++ ])
++ 
++ AC_DEFUN([ZFS_AC_KERNEL_CREATE], [
++-	AC_MSG_CHECKING([whether iops->create() takes struct mnt_idmap*])
++-	ZFS_LINUX_TEST_RESULT([create_mnt_idmap], [
+++	AC_MSG_CHECKING([whether iops->create() takes struct mnt_idmap* without flag])
+++	ZFS_LINUX_TEST_RESULT([create_mnt_idmap_no_flag], [
++ 		AC_MSG_RESULT(yes)
++ 		AC_DEFINE(HAVE_IOPS_CREATE_IDMAP, 1,
++ 		   [iops->create() takes struct mnt_idmap*])
+++		AC_DEFINE(HAVE_IOPS_CREATE_NO_FLAG_ARG, 1,
+++		   [iops->create() does not take a flag arg])
++ 	],[
++ 		AC_MSG_RESULT(no)
++ 
++-		AC_MSG_CHECKING([whether iops->create() takes struct user_namespace*])
++-		ZFS_LINUX_TEST_RESULT([create_userns], [
+++		AC_MSG_CHECKING([whether iops->create() takes struct mnt_idmap*])
+++		ZFS_LINUX_TEST_RESULT([create_mnt_idmap], [
++ 			AC_MSG_RESULT(yes)
++-			AC_DEFINE(HAVE_IOPS_CREATE_USERNS, 1,
++-			   [iops->create() takes struct user_namespace*])
+++			AC_DEFINE(HAVE_IOPS_CREATE_IDMAP, 1,
+++			   [iops->create() takes struct mnt_idmap*])
++ 		],[
++ 			AC_MSG_RESULT(no)
++ 
++-			AC_MSG_CHECKING([whether iops->create() passes flags])
++-			ZFS_LINUX_TEST_RESULT([create_flags], [
+++			AC_MSG_CHECKING([whether iops->create() takes struct user_namespace*])
+++			ZFS_LINUX_TEST_RESULT([create_userns], [
++ 				AC_MSG_RESULT(yes)
+++				AC_DEFINE(HAVE_IOPS_CREATE_USERNS, 1,
+++				   [iops->create() takes struct user_namespace*])
++ 			],[
++-				ZFS_LINUX_TEST_ERROR([iops->create()])
+++				AC_MSG_RESULT(no)
+++
+++				AC_MSG_CHECKING([whether iops->create() passes flags])
+++				ZFS_LINUX_TEST_RESULT([create_flags], [
+++					AC_MSG_RESULT(yes)
+++				],[
+++					ZFS_LINUX_TEST_ERROR([iops->create()])
+++				])
++ 			])
++ 		])
++ 	])
++diff --git a/module/os/linux/zfs/zpl_inode.c b/module/os/linux/zfs/zpl_inode.c
++index 3492f4a03..115737874 100644
++--- a/module/os/linux/zfs/zpl_inode.c
+++++ b/module/os/linux/zfs/zpl_inode.c
++@@ -168,6 +168,9 @@ static int
++ #ifdef HAVE_IOPS_CREATE_USERNS
++ zpl_create(struct user_namespace *user_ns, struct inode *dir,
++     struct dentry *dentry, umode_t mode, bool flag)
+++#elif defined(HAVE_IOPS_CREATE_NO_FLAG_ARG)
+++zpl_create(struct mnt_idmap *user_ns, struct inode *dir,
+++    struct dentry *dentry, umode_t mode)
++ #elif defined(HAVE_IOPS_CREATE_IDMAP)
++ zpl_create(struct mnt_idmap *user_ns, struct inode *dir,
++     struct dentry *dentry, umode_t mode, bool flag)
+diff --git a/pkgs/os-specific/linux/zfs/linux-7.3/0004-Linux-7.3-make-host-filesystem-available-to-kernel-t.patch b/pkgs/os-specific/linux/zfs/linux-7.3/0004-Linux-7.3-make-host-filesystem-available-to-kernel-t.patch
+new file mode 100644
+index 000000000000..c49a51a0fe07
+--- /dev/null
++++ b/pkgs/os-specific/linux/zfs/linux-7.3/0004-Linux-7.3-make-host-filesystem-available-to-kernel-t.patch
+@@ -0,0 +1,145 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: Rob Norris <rob.norris@truenas.com>
++Date: Tue, 8 Sep 2026 10:24:30 +1000
++Subject: [PATCH 4/5] Linux 7.3: make host filesystem available to kernel
++ threads
++
++Every kernel task has a `struct fs_struct *fs` that points to the root
++of the filesystem tree for this task, and is used as the starting point
++for path resolution. This is what is modified by chroot(2),
++pivot_root(2), etc.
++
++Kernel threads (as spawned by kthreadd) used to get a pointer to the
++root filesystem by default. In 7.3 this changed, and kernel threads now
++get a pointer to an internal nullfs; effectively a "no-op" filesystem
++with no path into the true filesystem. An opt-in mechanism is provided
++in the form of `scoped_with_init_fs()`, which swaps in a a pointer to
++the root filesystem for the scoped code, and reverts it at end of scope.
++
++Currently we don't have any good notion of whether or not a given thread
++(including taskq tasks) will require filesystem access, and no good way
++to signal it anyway. For now, to maintain the status quo, we add
++`scoped_with_init_fs()` in the two places where arbitrary code may run
++on a kernel thread: in `thread_generic_wrapper()`, the startup
++trampoline for `thread_create()`, and in `taskq_thread()`, when calling
++a task entry. This ensures all SPL-managed threads and tasks retain
++filesystem access.
++
++For older kernels that do not have `scoped_with_init_fs()`, a compat
++wrapper is provided (a much grander description than it deserves).
++
++Sponsored-by: TrueNAS
++Reviewed-by: Brian Behlendorf <behlendorf1@llnl.gov>
++Reviewed-by: Tony Hutter <hutter2@llnl.gov>
++Co-developed-by: TheAlmightyOgreLord <beardedtechwizard@protonmail.com>
++Signed-off-by: Rob Norris <rob.norris@truenas.com>
++Closes #19082
++(cherry picked from commit cd3699d308e1b37dcdd0d5a9a8c3624deb5fc3e9)
++---
++ include/os/linux/Makefile.am                  |  1 +
++ .../os/linux/kernel/linux/kthread_compat.h    | 35 +++++++++++++++++++
++ module/os/linux/spl/spl-taskq.c               |  4 ++-
++ module/os/linux/spl/spl-thread.c              |  7 ++--
++ 4 files changed, 44 insertions(+), 3 deletions(-)
++ create mode 100644 include/os/linux/kernel/linux/kthread_compat.h
++
++diff --git a/include/os/linux/Makefile.am b/include/os/linux/Makefile.am
++index 083ccd49f..27e8fdf2c 100644
++--- a/include/os/linux/Makefile.am
+++++ b/include/os/linux/Makefile.am
++@@ -6,6 +6,7 @@ kernel_linux_HEADERS = \
++ 	%D%/kernel/linux/compiler_compat.h \
++ 	%D%/kernel/linux/dcache_compat.h \
++ 	%D%/kernel/linux/kmap_compat.h \
+++	%D%/kernel/linux/kthread_compat.h \
++ 	%D%/kernel/linux/mm_compat.h \
++ 	%D%/kernel/linux/mod_compat.h \
++ 	%D%/kernel/linux/page_compat.h \
++diff --git a/include/os/linux/kernel/linux/kthread_compat.h b/include/os/linux/kernel/linux/kthread_compat.h
++new file mode 100644
++index 000000000..f68fc9f09
++--- /dev/null
+++++ b/include/os/linux/kernel/linux/kthread_compat.h
++@@ -0,0 +1,35 @@
+++// SPDX-License-Identifier: CDDL-1.0
+++/*
+++ * This file and its contents are supplied under the terms of the
+++ * Common Development and Distribution License ("CDDL"), version 1.0.
+++ * You may only use this file in accordance with the terms of version
+++ * 1.0 of the CDDL.
+++ *
+++ * A full copy of the text of the CDDL should have accompanied this
+++ * source.  A copy of the CDDL is also available via the Internet at
+++ * https://opensource.org/license/CDDL-1.0.
+++ */
+++
+++/*
+++ * Copyright (c) 2026, TrueNAS.
+++ */
+++
+++#ifndef _ZFS_KTHREAD_COMPAT_H
+++#define	_ZFS_KTHREAD_COMPAT_H
+++
+++#include <linux/fs_struct.h>
+++
+++/*
+++ * Linux 7.3 change. Kernel-internal threads no longer have access to the
+++ * filesystem by default. Callers that need it should wrap the necessary code
+++ * in `scoped_with_init_fs()`, which will make the filesystem availble until
+++ * end of scope.
+++ *
+++ * For older kernels that do not provide this macro, we define it to be a
+++ * no-op.
+++ */
+++#ifndef scoped_with_init_fs
+++#define	scoped_with_init_fs()	if (1)
+++#endif
+++
+++#endif
++diff --git a/module/os/linux/spl/spl-taskq.c b/module/os/linux/spl/spl-taskq.c
++index d583b92e4..d6ba4016a 100644
++--- a/module/os/linux/spl/spl-taskq.c
+++++ b/module/os/linux/spl/spl-taskq.c
++@@ -38,6 +38,7 @@
++ #include <sys/kstat.h>
++ #include <linux/cpuhotplug.h>
++ #include <linux/mod_compat.h>
+++#include <linux/kthread_compat.h>
++ 
++ /* Linux 6.2 renamed timer_delete_sync(); point it at its old name for those. */
++ #ifndef HAVE_TIMER_DELETE_SYNC
++@@ -1107,7 +1108,8 @@ taskq_thread(void *args)
++ 			DTRACE_PROBE1(taskq_ent__start, taskq_ent_t *, t);
++ 
++ 			/* Perform the requested task */
++-			t->tqent_func(t->tqent_arg);
+++			scoped_with_init_fs()
+++			    t->tqent_func(t->tqent_arg);
++ 
++ 			DTRACE_PROBE1(taskq_ent__finish, taskq_ent_t *, t);
++ 
++diff --git a/module/os/linux/spl/spl-thread.c b/module/os/linux/spl/spl-thread.c
++index 8f5c73b13..c63bf4580 100644
++--- a/module/os/linux/spl/spl-thread.c
+++++ b/module/os/linux/spl/spl-thread.c
++@@ -29,6 +29,7 @@
++ #include <sys/tsd.h>
++ #include <sys/string.h>
++ #include <sys/misc.h>
+++#include <linux/kthread_compat.h>
++ 
++ /*
++  * Thread interfaces
++@@ -59,8 +60,10 @@ thread_generic_wrapper(void *arg)
++ 	kmem_free(tp->tp_name, tp->tp_name_size);
++ 	kmem_free(tp, sizeof (thread_priv_t));
++ 
++-	if (func)
++-		func(args);
+++	if (func) {
+++		scoped_with_init_fs()
+++		    func(args);
+++	}
++ 
++ 	return (0);
++ }
+diff --git a/pkgs/os-specific/linux/zfs/linux-7.3/0005-Linux-7.3-compat-META.patch b/pkgs/os-specific/linux/zfs/linux-7.3/0005-Linux-7.3-compat-META.patch
+new file mode 100644
+index 000000000000..5bc7fa2655af
+--- /dev/null
++++ b/pkgs/os-specific/linux/zfs/linux-7.3/0005-Linux-7.3-compat-META.patch
+@@ -0,0 +1,28 @@
++From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
++From: "ooonea.eth" <35407790+ooonea@users.noreply.github.com>
++Date: Mon, 26 Oct 2026 01:28:51 +0100
++Subject: [PATCH 5/5] Linux 7.3 compat: META
++
++Update the META file to reflect compatibility with the 7.3
++kernel.
++
++Assisted-by: OpenAI Codex
++Reviewed-by: Brian Behlendorf <behlendorf1@llnl.gov>
++Signed-off-by: ooonea <35407790+ooonea@users.noreply.github.com>
++Closes #19553
++(cherry picked from commit a128b8a075b5b13c737e56914cd7043bd3e9ebf8)
++---
++ META | 2 +-
++ 1 file changed, 1 insertion(+), 1 deletion(-)
++
++diff --git a/META b/META
++index 8133bf1e3..2ae2e5777 100644
++--- a/META
+++++ b/META
++@@ -6,5 +6,5 @@ Release:       1
++ Release-Tags:  relext
++ License:       CDDL
++ Author:        OpenZFS
++-Linux-Maximum: 7.2
+++Linux-Maximum: 7.3
++ Linux-Minimum: 4.18
