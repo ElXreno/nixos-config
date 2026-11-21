@@ -1,5 +1,5 @@
 diff --git a/niri-config/src/output.rs b/niri-config/src/output.rs
-index e1d47bf..9f0d19a 100644
+index 17d09f70..cf80fb67 100644
 --- a/niri-config/src/output.rs
 +++ b/niri-config/src/output.rs
 @@ -5,6 +5,7 @@ use knuffel::decode::Context;
@@ -19,7 +19,7 @@ index e1d47bf..9f0d19a 100644
      #[knuffel(child)]
      pub mode: Option<Mode>,
      #[knuffel(child)]
-@@ -109,6 +112,7 @@ impl Default for Output {
+@@ -112,6 +115,7 @@ impl Default for Output {
              transform: Transform::Normal,
              position: None,
              max_bpc: None,
@@ -27,7 +27,7 @@ index e1d47bf..9f0d19a 100644
              mode: None,
              modeline: None,
              variable_refresh_rate: None,
-@@ -140,6 +144,49 @@ pub struct Position {
+@@ -143,6 +147,49 @@ pub struct Position {
  #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
  pub struct MaxBpc(pub niri_ipc::MaxBpc);
  
@@ -78,7 +78,7 @@ index e1d47bf..9f0d19a 100644
  pub struct SrgbClamp {
      #[knuffel(child)]
 diff --git a/src/backend/tty.rs b/src/backend/tty.rs
-index 5bd5fe9..ed20c84 100644
+index 0a5319e7..de956edc 100644
 --- a/src/backend/tty.rs
 +++ b/src/backend/tty.rs
 @@ -14,7 +14,7 @@ use anyhow::{anyhow, bail, ensure, Context};
@@ -108,7 +108,7 @@ index 5bd5fe9..ed20c84 100644
                          } else {
                              warn!("failed to get connector properties");
                          }
-@@ -1367,7 +1368,7 @@ impl Tty {
+@@ -1375,7 +1376,7 @@ impl Tty {
  
          let mut orientation = None;
          if let Ok(mut props) = ConnectorProperties::try_new(&device.drm, connector.handle()) {
@@ -117,7 +117,7 @@ index 5bd5fe9..ed20c84 100644
  
              match props.get_panel_orientation() {
                  Ok(x) => orientation = Some(x),
-@@ -2779,7 +2780,7 @@ impl Tty {
+@@ -2818,7 +2819,7 @@ impl Tty {
  
                  if let Ok(mut props) = ConnectorProperties::try_new(&device.drm, surface.connector)
                  {
@@ -126,7 +126,7 @@ index 5bd5fe9..ed20c84 100644
                  } else {
                      warn!("failed to get connector properties");
                  }
-@@ -4025,7 +4026,39 @@ impl<'a> ConnectorProperties<'a> {
+@@ -4101,7 +4102,39 @@ impl<'a> ConnectorProperties<'a> {
          Ok(())
      }
  
@@ -166,7 +166,7 @@ index 5bd5fe9..ed20c84 100644
          let (info, value) = self.find(c"max bpc")?;
  
          let property::ValueType::UnsignedRange(min, max) = info.value_type() else {
-@@ -4068,6 +4101,7 @@ impl<'a> ConnectorProperties<'a> {
+@@ -4144,6 +4177,7 @@ impl<'a> ConnectorProperties<'a> {
  fn set_connector_properties(
      props: &mut ConnectorProperties,
      max_bpc: Option<MaxBpc>,
@@ -174,7 +174,7 @@ index 5bd5fe9..ed20c84 100644
      reset_hdr: bool,
  ) {
      if let Some(max_bpc) = max_bpc {
-@@ -4076,6 +4110,12 @@ fn set_connector_properties(
+@@ -4152,6 +4186,12 @@ fn set_connector_properties(
          }
      }
  

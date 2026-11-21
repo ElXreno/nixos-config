@@ -1,7 +1,8 @@
-diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
+diff --git a/src/backend/tty.rs b/src/backend/tty.rs
+index 6f22bb21..0a5319e7 100644
 --- a/src/backend/tty.rs
 +++ b/src/backend/tty.rs
-@@ -1141,7 +1141,7 @@
+@@ -1142,7 +1142,7 @@ impl Tty {
              let device = self.devices.get(&node).unwrap();
  
              // Follow the logic in on_output_config_changed().
@@ -10,7 +11,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
              let should_disable = |conn: &str| disable_laptop_panels && is_laptop_panel(conn);
  
              let config = self.config.borrow();
-@@ -2508,6 +2508,7 @@
+@@ -2538,6 +2538,7 @@ impl Tty {
  
          if should_connect {
              niri.add_output(built.output, Some(built.refresh_interval), false);
@@ -18,7 +19,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          }
  
          // Ensure IPC reflects the configured mode immediately.
-@@ -2523,7 +2524,9 @@
+@@ -2553,7 +2554,9 @@ impl Tty {
              &mut self.virtual_outputs.outputs,
              name,
              "virtual output",
@@ -29,7 +30,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
      }
  
      #[cfg(feature = "xdp-gnome-screencast")]
-@@ -2654,13 +2657,22 @@
+@@ -2684,13 +2687,22 @@ impl Tty {
          }
      }
  
@@ -54,7 +55,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
              // Check if any external monitor is connected.
              for device in self.devices.values() {
                  for (connector, _crtc) in device.drm_scanner.crtcs() {
-@@ -2685,7 +2697,7 @@
+@@ -2715,7 +2727,7 @@ impl Tty {
          self.update_output_config_on_resume = false;
  
          // Figure out if we should disable laptop panels.

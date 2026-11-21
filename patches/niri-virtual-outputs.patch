@@ -1,7 +1,8 @@
-diff -ruN a/docs/wiki/Configuration:-Outputs.md b/docs/wiki/Configuration:-Outputs.md
+diff --git a/docs/wiki/Configuration:-Outputs.md b/docs/wiki/Configuration:-Outputs.md
+index 9fcd94ce..7db17123 100644
 --- a/docs/wiki/Configuration:-Outputs.md
 +++ b/docs/wiki/Configuration:-Outputs.md
-@@ -8,6 +8,7 @@
+@@ -8,6 +8,7 @@ Here's what it looks like with all properties written out:
  ```kdl
  output "eDP-1" {
      // off
@@ -9,7 +10,7 @@ diff -ruN a/docs/wiki/Configuration:-Outputs.md b/docs/wiki/Configuration:-Outpu
      mode "1920x1080@120.030"
      scale 2.0
      transform "90"
-@@ -64,6 +65,27 @@
+@@ -65,6 +66,27 @@ output "HDMI-A-1" {
  }
  ```
  
@@ -37,19 +38,10 @@ diff -ruN a/docs/wiki/Configuration:-Outputs.md b/docs/wiki/Configuration:-Outpu
  ### `mode`
  
  Set the monitor resolution and refresh rate.
-diff -ruN a/docs/wiki/_Sidebar.md b/docs/wiki/_Sidebar.md
---- a/docs/wiki/_Sidebar.md
-+++ b/docs/wiki/_Sidebar.md
-@@ -26,6 +26,7 @@
- * [Introduction](./Configuration:-Introduction.md)
- * [Input](./Configuration:-Input.md)
- * [Outputs](./Configuration:-Outputs.md)
-+* [Virtual Outputs](./Virtual-Outputs.md)
- * [Key Bindings](./Configuration:-Key-Bindings.md)
- * [Switch Events](./Configuration:-Switch-Events.md)
- * [Layout](./Configuration:-Layout.md)
-diff -ruN a/docs/wiki/Virtual-Outputs.md b/docs/wiki/Virtual-Outputs.md
---- a/docs/wiki/Virtual-Outputs.md
+diff --git a/docs/wiki/Virtual-Outputs.md b/docs/wiki/Virtual-Outputs.md
+new file mode 100644
+index 00000000..0f7eb0b9
+--- /dev/null
 +++ b/docs/wiki/Virtual-Outputs.md
 @@ -0,0 +1,205 @@
 +# Virtual Outputs
@@ -257,10 +249,23 @@ diff -ruN a/docs/wiki/Virtual-Outputs.md b/docs/wiki/Virtual-Outputs.md
 +```bash
 +systemctl --user enable --now niri-headless
 +```
-diff -ruN a/niri-config/src/lib.rs b/niri-config/src/lib.rs
+diff --git a/docs/wiki/_Sidebar.md b/docs/wiki/_Sidebar.md
+index 503256b0..74315858 100644
+--- a/docs/wiki/_Sidebar.md
++++ b/docs/wiki/_Sidebar.md
+@@ -26,6 +26,7 @@
+ * [Introduction](./Configuration:-Introduction.md)
+ * [Input](./Configuration:-Input.md)
+ * [Outputs](./Configuration:-Outputs.md)
++* [Virtual Outputs](./Virtual-Outputs.md)
+ * [Key Bindings](./Configuration:-Key-Bindings.md)
+ * [Switch Events](./Configuration:-Switch-Events.md)
+ * [Layout](./Configuration:-Layout.md)
+diff --git a/niri-config/src/lib.rs b/niri-config/src/lib.rs
+index 07783c84..87b8396f 100644
 --- a/niri-config/src/lib.rs
 +++ b/niri-config/src/lib.rs
-@@ -1655,6 +1655,7 @@
+@@ -1656,6 +1656,7 @@ mod tests {
                  [
                      Output {
                          off: false,
@@ -268,7 +273,7 @@ diff -ruN a/niri-config/src/lib.rs b/niri-config/src/lib.rs
                          name: "eDP-1",
                          scale: Some(
                              FloatOrInt(
-@@ -1714,6 +1715,7 @@
+@@ -1716,6 +1717,7 @@ mod tests {
                      },
                      Output {
                          off: false,
@@ -276,7 +281,7 @@ diff -ruN a/niri-config/src/lib.rs b/niri-config/src/lib.rs
                          name: "eDP-2",
                          scale: None,
                          transform: Normal,
-@@ -1741,6 +1743,7 @@
+@@ -1744,6 +1746,7 @@ mod tests {
                      },
                      Output {
                          off: false,
@@ -284,10 +289,11 @@ diff -ruN a/niri-config/src/lib.rs b/niri-config/src/lib.rs
                          name: "eDP-3",
                          scale: None,
                          transform: Normal,
-diff -ruN a/niri-config/src/output.rs b/niri-config/src/output.rs
+diff --git a/niri-config/src/output.rs b/niri-config/src/output.rs
+index c754a11c..17d09f70 100644
 --- a/niri-config/src/output.rs
 +++ b/niri-config/src/output.rs
-@@ -51,6 +51,8 @@
+@@ -51,6 +51,8 @@ pub struct Modeline {
  pub struct Output {
      #[knuffel(child)]
      pub off: bool,
@@ -296,18 +302,19 @@ diff -ruN a/niri-config/src/output.rs b/niri-config/src/output.rs
      #[knuffel(argument)]
      pub name: String,
      #[knuffel(child, unwrap(argument))]
-@@ -100,6 +102,7 @@
-     fn default() -> Self {
+@@ -103,6 +105,7 @@ impl Default for Output {
          Self {
              off: false,
+             drm_lease: false,
 +            create_virtual: false,
              focus_at_startup: false,
              name: String::new(),
              scale: None,
-diff -ruN a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
+diff --git a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
+index 27abf711..72b9306a 100644
 --- a/niri-ipc/src/lib.rs
 +++ b/niri-ipc/src/lib.rs
-@@ -100,6 +100,25 @@
+@@ -98,6 +98,25 @@ pub enum Request {
          /// Configuration to apply.
          action: OutputAction,
      },
@@ -333,7 +340,7 @@ diff -ruN a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
      /// Start continuously receiving events from the compositor.
      ///
      /// The compositor should reply with `Reply::Ok(Response::Handled)`, then continuously send
-@@ -145,6 +164,8 @@
+@@ -143,6 +162,8 @@ pub enum Response {
      ///
      /// Map from output name to output info.
      Outputs(HashMap<String, Output>),
@@ -342,7 +349,8 @@ diff -ruN a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
      /// Information about workspaces.
      Workspaces(Vec<Workspace>),
      /// Information about open windows.
-diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
+diff --git a/src/backend/headless.rs b/src/backend/headless.rs
+index 53bfe2ee..60bf97c3 100644
 --- a/src/backend/headless.rs
 +++ b/src/backend/headless.rs
 @@ -1,43 +1,174 @@
@@ -530,7 +538,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
  
      pub fn add_renderer(&mut self) -> anyhow::Result<()> {
          if self.renderer.is_some() {
-@@ -48,6 +179,40 @@
+@@ -48,6 +179,40 @@ impl Headless {
          let mut renderer = unsafe {
              let display =
                  EGLDisplay::new(EGLSurfacelessDisplay).context("error creating EGL display")?;
@@ -571,7 +579,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
              let context = EGLContext::new(&display).context("error creating EGL context")?;
              GlesRenderer::new(context).context("error creating renderer")?
          };
-@@ -59,6 +224,8 @@
+@@ -59,6 +224,8 @@ impl Headless {
          Ok(())
      }
  
@@ -580,7 +588,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
      pub fn add_output(&mut self, niri: &mut Niri, n: u8, size: (u16, u16)) {
          let connector = format!("headless-{n}");
          let make = "niri".to_string();
-@@ -90,6 +257,10 @@
+@@ -90,6 +257,10 @@ impl Headless {
              serial: Some(serial),
          });
  
@@ -591,7 +599,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
          let physical_properties = output.physical_properties();
          self.ipc_outputs.lock().unwrap().insert(
              OutputId::next(),
-@@ -117,8 +288,101 @@
+@@ -117,8 +288,101 @@ impl Headless {
          niri.add_output(output, None, false);
      }
  
@@ -694,7 +702,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
      }
  
      pub fn with_primary_renderer<T>(
-@@ -129,14 +393,21 @@
+@@ -129,14 +393,21 @@ impl Headless {
      }
  
      pub fn primary_render_node(&mut self) -> Option<DrmNode> {
@@ -719,7 +727,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
              Refresh::Unknown,
              0,
              wp_presentation_feedback::Kind::empty(),
-@@ -147,19 +418,92 @@
+@@ -147,19 +418,92 @@ impl Headless {
              RedrawState::Idle => unreachable!(),
              RedrawState::Queued => (),
              RedrawState::WaitingForVBlank { .. } => unreachable!(),
@@ -817,7 +825,7 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
      }
  
      pub fn ipc_outputs(&self) -> Arc<Mutex<IpcOutputMap>> {
-@@ -169,6 +513,97 @@
+@@ -169,6 +513,97 @@ impl Headless {
  
  impl Default for Headless {
      fn default() -> Self {
@@ -916,8 +924,10 @@ diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
 +        debug!("headless: failed to insert libinput backend; input will be unavailable");
      }
  }
-diff -ruN a/src/backend/libinput_plugins.rs b/src/backend/libinput_plugins.rs
---- a/src/backend/libinput_plugins.rs
+diff --git a/src/backend/libinput_plugins.rs b/src/backend/libinput_plugins.rs
+new file mode 100644
+index 00000000..e06206f5
+--- /dev/null
 +++ b/src/backend/libinput_plugins.rs
 @@ -0,0 +1,49 @@
 +use smithay::reexports::input::Libinput;
@@ -969,10 +979,11 @@ diff -ruN a/src/backend/libinput_plugins.rs b/src/backend/libinput_plugins.rs
 +    #[cfg(not(have_libinput_plugin_system))]
 +    let _ = libinput;
 +}
-diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
+diff --git a/src/backend/mod.rs b/src/backend/mod.rs
+index 32961f88..7905f51c 100644
 --- a/src/backend/mod.rs
 +++ b/src/backend/mod.rs
-@@ -16,6 +16,9 @@
+@@ -16,6 +16,9 @@ pub mod srgb_clamp;
  pub mod tty;
  pub use tty::Tty;
  
@@ -982,7 +993,7 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
  pub mod winit;
  pub use winit::Winit;
  
-@@ -41,6 +44,20 @@
+@@ -41,6 +44,20 @@ pub enum RenderResult {
  
  pub type IpcOutputMap = HashMap<OutputId, niri_ipc::Output>;
  
@@ -1003,7 +1014,7 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
  static OUTPUT_ID_COUNTER: IdCounter = IdCounter::new();
  
  #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-@@ -106,7 +123,7 @@
+@@ -106,7 +123,7 @@ impl Backend {
          match self {
              Backend::Tty(tty) => tty.render(niri, output, target_presentation_time),
              Backend::Winit(winit) => winit.render(niri, output),
@@ -1012,7 +1023,7 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
          }
      }
  
-@@ -178,7 +195,7 @@
+@@ -178,7 +195,7 @@ impl Backend {
          match self {
              Backend::Tty(tty) => tty.primary_gbm_device(),
              Backend::Winit(winit) => winit.gbm_device(),
@@ -1021,7 +1032,7 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
          }
      }
  
-@@ -210,7 +227,7 @@
+@@ -210,7 +227,7 @@ impl Backend {
          match self {
              Backend::Tty(tty) => tty.on_output_config_changed(niri),
              Backend::Winit(_) => (),
@@ -1030,7 +1041,7 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
          }
      }
  
-@@ -252,4 +269,36 @@
+@@ -252,4 +269,36 @@ impl Backend {
              panic!("backend is not Headless")
          }
      }
@@ -1067,10 +1078,11 @@ diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
 +        }
 +    }
  }
-diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
+diff --git a/src/backend/tty.rs b/src/backend/tty.rs
+index 958865cb..6f22bb21 100644
 --- a/src/backend/tty.rs
 +++ b/src/backend/tty.rs
-@@ -61,8 +61,9 @@
+@@ -62,8 +62,9 @@ use smithay_drm_extras::drm_scanner::{DrmScanEvent, DrmScanner};
  use wayland_protocols::wp::linux_dmabuf::zv1::server::zwp_linux_dmabuf_feedback_v1::TrancheFlags;
  use wayland_protocols::wp::presentation_time::server::wp_presentation_feedback;
  
@@ -1082,7 +1094,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
  use crate::frame_clock::FrameClock;
  use crate::niri::{Niri, RedrawState, State};
  use crate::render_helpers::debug::draw_damage;
-@@ -101,6 +102,16 @@
+@@ -102,6 +103,16 @@ pub struct Tty {
      // Whether the debug tinting is enabled.
      debug_tint: bool,
      ipc_outputs: Arc<Mutex<IpcOutputMap>>,
@@ -1099,7 +1111,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
  }
  
  pub type TtyRenderer<'render> = MultiRenderer<
-@@ -467,7 +478,7 @@
+@@ -468,7 +479,7 @@ impl Tty {
              .unwrap();
  
          let mut libinput = Libinput::new_with_udev(LibinputSessionInterface::from(session.clone()));
@@ -1108,7 +1120,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          {
              let _span = tracy_client::span!("Libinput::udev_assign_seat");
              libinput.udev_assign_seat(&seat_name)
-@@ -542,6 +553,10 @@
+@@ -543,6 +554,10 @@ impl Tty {
              update_output_config_on_resume: false,
              debug_tint: false,
              ipc_outputs: Arc::new(Mutex::new(HashMap::new())),
@@ -1119,7 +1131,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          })
      }
  
-@@ -1668,7 +1683,9 @@
+@@ -1682,7 +1697,9 @@ impl Tty {
              .global_space
              .outputs()
              .find(|output| {
@@ -1130,7 +1142,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                  tty_state.node == node && tty_state.crtc == crtc
              })
              .cloned();
-@@ -1748,7 +1765,9 @@
+@@ -1762,7 +1779,9 @@ impl Tty {
              .global_space
              .outputs()
              .find(|output| {
@@ -1141,7 +1153,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                  tty_state.node == node && tty_state.crtc == crtc
              })
              .cloned()
-@@ -1896,7 +1915,12 @@
+@@ -1926,7 +1945,12 @@ impl Tty {
          if output_state.unfinished_animations_remain {
              niri.queue_redraw(&output);
          } else {
@@ -1155,7 +1167,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          }
      }
  
-@@ -1933,7 +1957,15 @@
+@@ -1963,7 +1987,15 @@ impl Tty {
  
          let mut rv = RenderResult::Skipped;
  
@@ -1172,7 +1184,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          let Some(device) = self.devices.get_mut(&tty_state.node) else {
              error!("missing output device");
              return rv;
-@@ -1974,8 +2006,11 @@
+@@ -2004,8 +2036,11 @@ impl Tty {
  
          // Visualize the damage, if enabled.
          if niri.debug_draw_damage {
@@ -1186,7 +1198,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          }
  
          // Overlay planes are disabled by default as they cause weird performance issues on my
-@@ -2001,9 +2036,12 @@
+@@ -2031,9 +2066,12 @@ impl Tty {
                  flags.remove(FrameFlags::ALLOW_CURSOR_PLANE_SCANOUT);
              }
              if debug.skip_cursor_only_updates_during_vrr {
@@ -1202,7 +1214,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                  }
              }
  
-@@ -2041,7 +2079,10 @@
+@@ -2071,7 +2109,10 @@ impl Tty {
  
                      match drm_compositor.queue_frame(data) {
                          Ok(()) => {
@@ -1214,7 +1226,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                              let new_state = RedrawState::WaitingForVBlank {
                                  redraw_needed: false,
                              };
-@@ -2147,7 +2188,9 @@
+@@ -2177,7 +2218,9 @@ impl Tty {
      }
  
      pub fn get_gamma_size(&self, output: &Output) -> anyhow::Result<u32> {
@@ -1225,7 +1237,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          let crtc = tty_state.crtc;
  
          let device = self
-@@ -2165,7 +2208,9 @@
+@@ -2195,7 +2238,9 @@ impl Tty {
      }
  
      pub fn set_gamma(&mut self, output: &Output, ramp: Option<Vec<u16>>) -> anyhow::Result<()> {
@@ -1236,7 +1248,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          let crtc = tty_state.crtc;
  
          let device = self
-@@ -2264,7 +2309,14 @@
+@@ -2294,7 +2339,14 @@ impl Tty {
                      .global_space
                      .outputs()
                      .find(|output| {
@@ -1252,7 +1264,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                          tty_state.node == *node && tty_state.crtc == crtc
                      })
                      .map(logical_output);
-@@ -2303,6 +2355,46 @@
+@@ -2333,6 +2385,46 @@ impl Tty {
              }
          }
  
@@ -1299,7 +1311,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          let mut guard = self.ipc_outputs.lock().unwrap();
          *guard = ipc_outputs;
          niri.ipc_outputs_changed = true;
-@@ -2312,6 +2404,128 @@
+@@ -2342,6 +2434,128 @@ impl Tty {
          self.ipc_outputs.clone()
      }
  
@@ -1428,7 +1440,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
      #[cfg(feature = "xdp-gnome-screencast")]
      pub fn primary_gbm_device(&self) -> Option<GbmDevice<DeviceFd>> {
          // Try to find a device corresponding to the primary render node.
-@@ -2347,14 +2561,24 @@
+@@ -2377,14 +2591,24 @@ impl Tty {
      pub fn set_output_on_demand_vrr(&mut self, niri: &mut Niri, output: &Output, enable_vrr: bool) {
          let _span = tracy_client::span!("Tty::set_output_on_demand_vrr");
  
@@ -1455,7 +1467,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                  if tty_state.node == node && tty_state.crtc == crtc {
                      let word = if enable_vrr { "enabling" } else { "disabling" };
                      if let Err(err) = surface.compositor.use_vrr(enable_vrr) {
-@@ -2561,7 +2785,9 @@
+@@ -2601,7 +2825,9 @@ impl Tty {
                      .global_space
                      .outputs()
                      .find(|output| {
@@ -1466,7 +1478,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
                          tty_state.node == node && tty_state.crtc == crtc
                      })
                      .cloned();
-@@ -2673,6 +2899,17 @@
+@@ -2750,6 +2976,17 @@ impl Tty {
              }
          }
  
@@ -1484,7 +1496,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
          self.refresh_ipc_outputs(niri);
      }
  
-@@ -3391,7 +3628,13 @@
+@@ -3468,7 +3705,13 @@ fn queue_estimated_vblank_timer(
      output: Output,
      target_presentation_time: Duration,
  ) {
@@ -1499,7 +1511,7 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
      match mem::take(&mut output_state.redraw_state) {
          RedrawState::Idle => unreachable!(),
          RedrawState::Queued => (),
-@@ -3903,50 +4146,6 @@
+@@ -3980,50 +4223,6 @@ fn make_output_name(
      }
  }
  
@@ -1550,8 +1562,10 @@ diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
  #[cfg(test)]
  mod tests {
      use insta::assert_debug_snapshot;
-diff -ruN a/src/backend/virtual_output.rs b/src/backend/virtual_output.rs
---- a/src/backend/virtual_output.rs
+diff --git a/src/backend/virtual_output.rs b/src/backend/virtual_output.rs
+new file mode 100644
+index 00000000..7dcc576d
+--- /dev/null
 +++ b/src/backend/virtual_output.rs
 @@ -0,0 +1,298 @@
 +use std::cell::RefCell;
@@ -1852,10 +1866,11 @@ diff -ruN a/src/backend/virtual_output.rs b/src/backend/virtual_output.rs
 +        }
 +    }
 +}
-diff -ruN a/src/cli.rs b/src/cli.rs
+diff --git a/src/cli.rs b/src/cli.rs
+index df69aa14..8e01ff90 100644
 --- a/src/cli.rs
 +++ b/src/cli.rs
-@@ -104,6 +104,29 @@
+@@ -102,6 +102,29 @@ pub enum Msg {
          #[command(subcommand)]
          action: OutputAction,
      },
@@ -1885,10 +1900,11 @@ diff -ruN a/src/cli.rs b/src/cli.rs
      /// Start continuously receiving events from the compositor.
      EventStream,
      /// Print the version of the running niri instance.
-diff -ruN a/src/ipc/client.rs b/src/ipc/client.rs
+diff --git a/src/ipc/client.rs b/src/ipc/client.rs
+index 10830c92..bbfd04b6 100644
 --- a/src/ipc/client.rs
 +++ b/src/ipc/client.rs
-@@ -42,6 +42,18 @@
+@@ -41,6 +41,18 @@ pub fn handle_msg(mut msg: Msg, json: bool, print_request: bool) -> anyhow::Resu
              output: output.clone(),
              action: action.clone(),
          },
@@ -1907,7 +1923,7 @@ diff -ruN a/src/ipc/client.rs b/src/ipc/client.rs
          Msg::Workspaces => Request::Workspaces,
          Msg::Windows => Request::Windows,
          Msg::Layers => Request::Layers,
-@@ -377,6 +389,31 @@
+@@ -355,6 +367,31 @@ pub fn handle_msg(mut msg: Msg, json: bool, print_request: bool) -> anyhow::Resu
                  println!("The change will apply when it is connected.");
              }
          }
@@ -1939,10 +1955,11 @@ diff -ruN a/src/ipc/client.rs b/src/ipc/client.rs
          Msg::Workspaces => {
              let Response::Workspaces(mut response) = response else {
                  bail!("unexpected response: expected Workspaces, got {response:?}");
-diff -ruN a/src/ipc/server.rs b/src/ipc/server.rs
+diff --git a/src/ipc/server.rs b/src/ipc/server.rs
+index f1655554..e9ce14dd 100644
 --- a/src/ipc/server.rs
 +++ b/src/ipc/server.rs
-@@ -437,6 +437,53 @@
+@@ -422,6 +422,53 @@ async fn process(ctx: &ClientCtx, request: Request) -> Reply {
  
              Response::OutputConfigChanged(response)
          }
@@ -1996,10 +2013,11 @@ diff -ruN a/src/ipc/server.rs b/src/ipc/server.rs
          Request::FocusedOutput => {
              let (tx, rx) = async_channel::bounded(1);
              ctx.event_loop.insert_idle(move |state| {
-diff -ruN a/src/layout/mod.rs b/src/layout/mod.rs
+diff --git a/src/layout/mod.rs b/src/layout/mod.rs
+index f21367c4..15638f0b 100644
 --- a/src/layout/mod.rs
 +++ b/src/layout/mod.rs
-@@ -882,10 +882,9 @@
+@@ -882,10 +882,9 @@ impl<W: LayoutElement> Layout<W> {
                  mut primary_idx,
                  mut active_monitor_idx,
              } => {
@@ -2013,10 +2031,11 @@ diff -ruN a/src/layout/mod.rs b/src/layout/mod.rs
                  let monitor = monitors.remove(idx);
  
                  self.last_active_workspace_id.insert(
-diff -ruN a/src/main.rs b/src/main.rs
+diff --git a/src/main.rs b/src/main.rs
+index f9563ae6..ba6a9eaf 100644
 --- a/src/main.rs
 +++ b/src/main.rs
-@@ -177,6 +177,13 @@
+@@ -177,6 +177,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
      // Handle Ctrl+C and other signals.
      niri::utils::signals::listen(&event_loop.handle());
  
@@ -2030,7 +2049,7 @@ diff -ruN a/src/main.rs b/src/main.rs
      // Create the compositor.
      let display = Display::new().unwrap();
  
-@@ -188,7 +195,7 @@
+@@ -188,7 +195,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
          event_loop.handle(),
          event_loop.get_signal(),
          display,
@@ -2039,10 +2058,11 @@ diff -ruN a/src/main.rs b/src/main.rs
          true,
          cli.session,
      )
-diff -ruN a/src/niri.rs b/src/niri.rs
+diff --git a/src/niri.rs b/src/niri.rs
+index 3366252d..eebb302f 100644
 --- a/src/niri.rs
 +++ b/src/niri.rs
-@@ -782,7 +782,7 @@
+@@ -790,7 +790,7 @@ impl State {
              || env::var_os("DISPLAY").is_some();
  
          let mut backend = if headless {
@@ -2051,7 +2071,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
              Backend::Headless(headless)
          } else if has_display {
              let winit = Winit::new(config.clone(), event_loop.clone())?;
-@@ -806,6 +806,10 @@
+@@ -814,6 +814,10 @@ impl State {
  
          let mut state = Self { backend, niri };
  
@@ -2062,7 +2082,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
          // Load the xkb_file config option if set by the user.
          state.load_xkb_file();
          // Initialize some IPC server state.
-@@ -816,6 +820,61 @@
+@@ -824,6 +828,61 @@ impl State {
          Ok(state)
      }
  
@@ -2124,7 +2144,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
      pub fn refresh_and_flush_clients(&mut self) {
          let _span = tracy_client::span!("State::refresh_and_flush_clients");
  
-@@ -1975,6 +2034,8 @@
+@@ -2014,6 +2073,8 @@ impl State {
      }
  
      pub fn reload_output_config(&mut self) {
@@ -2133,7 +2153,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
          let mut resized_outputs = vec![];
          let mut recolored_outputs = vec![];
  
-@@ -3928,6 +3989,7 @@
+@@ -4039,6 +4100,7 @@ impl Niri {
          let map_to_output = config.input.touch.map_to_output.as_ref();
          map_to_output
              .and_then(|name| self.output_by_name_match(name))
@@ -2141,7 +2161,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
              .or_else(|| self.global_space.outputs().next())
      }
  
-@@ -3979,15 +4041,11 @@
+@@ -4090,15 +4152,11 @@ impl Niri {
      }
  
      pub fn redraw_queued_outputs(&mut self, backend: &mut Backend) {
@@ -2162,7 +2182,7 @@ diff -ruN a/src/niri.rs b/src/niri.rs
              let output = output.clone();
              self.redraw(backend, &output);
          }
-@@ -5010,7 +5068,13 @@
+@@ -5170,7 +5228,13 @@ impl Niri {
          //
          // However, this should probably be restricted to sending frame callbacks to more surfaces,
          // to err on the safe side.
@@ -2177,11 +2197,10 @@ diff -ruN a/src/niri.rs b/src/niri.rs
          backend.with_primary_renderer(|renderer| {
              #[cfg(feature = "xdp-gnome-screencast")]
              {
-@@ -5442,6 +5506,52 @@
-             );
+@@ -5608,6 +5672,52 @@ impl Niri {
          }
      }
-+
+ 
 +    /// Send frame callbacks for a virtual output.
 +    ///
 +    /// Virtual outputs (e.g. HEADLESS-*) don't go through the normal scanout/render pipeline that
@@ -2227,21 +2246,25 @@ diff -ruN a/src/niri.rs b/src/niri.rs
 +            );
 +        }
 +    }
- 
++
      pub fn send_frame_callbacks_on_fallback_timer(&mut self) {
          if !self.monitors_active || self.output_state.is_empty() {
-diff -ruN a/src/tests/mod.rs b/src/tests/mod.rs
+             return;
+diff --git a/src/tests/mod.rs b/src/tests/mod.rs
+index ad66c822..0315b76d 100644
 --- a/src/tests/mod.rs
 +++ b/src/tests/mod.rs
-@@ -12,5 +12,6 @@
+@@ -12,5 +12,6 @@ mod fullscreen;
  mod layer_shell;
  mod remove_output;
  mod transactions;
 +mod virtual_output;
  mod virtual_pointer;
  mod window_opening;
-diff -ruN a/src/tests/virtual_output.rs b/src/tests/virtual_output.rs
---- a/src/tests/virtual_output.rs
+diff --git a/src/tests/virtual_output.rs b/src/tests/virtual_output.rs
+new file mode 100644
+index 00000000..acc7a099
+--- /dev/null
 +++ b/src/tests/virtual_output.rs
 @@ -0,0 +1,182 @@
 +use super::*;
