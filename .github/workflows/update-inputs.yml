@@ -29,6 +29,7 @@ jobs:
       - name: Update every input except the private one
         run: |
           set -euo pipefail
+          cp flake.lock "$RUNNER_TEMP/before.lock"
           inputs=$(jq -r '.nodes.root.inputs | keys | map(select(. != "roj")) | join(" ")' flake.lock)
           # shellcheck disable=SC2086
           nix flake update $inputs
@@ -45,9 +46,12 @@ jobs:
           git switch -C "$BRANCH"
           git commit -m "build(deps): update flake inputs" -- flake.lock
           git push --force origin "$BRANCH"
+          jq -r -s -f .github/scripts/lock-diff.jq "$RUNNER_TEMP/before.lock" flake.lock > "$RUNNER_TEMP/body.md"
           if [ -z "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
             gh pr create --head "$BRANCH" --base main \
               --title "build(deps): update flake inputs" \
-              --body "Merged automatically once the nixbot status is green."
+              --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr edit "$BRANCH" --body-file "$RUNNER_TEMP/body.md"
           fi
           gh pr merge "$BRANCH" --auto --rebase
