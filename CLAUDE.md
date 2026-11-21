@@ -47,7 +47,8 @@
 ## Nixpkgs Patches
 
 - The `nixpkgs` input is upstream `nixos-unstable`; local changes are `patches/nixpkgs-<topic>.patch`, listed in `patchSpec.nixpkgs.patches` in `flake.nix` and applied by flake-input-patcher
-- To carry a nixpkgs PR or an own change: make it in the clone `~/projects/repos/github.com/ElXreno/nixpkgs` on top of the locked rev, write `git diff <locked rev> -- <paths>` into a patch file, `git add` it and list it
+- A change that exists upstream (a PR or a merged commit) is listed as `patcher.fetchpatch` with the immutable `https://github.com/NixOS/nixpkgs/commit/<full sha>.patch` URL and a hash, never `pull/N.patch`; when the PR is force-pushed, re-check that the new commits still apply and replace the shas
+- An own change, or a third-party one rebased here, is a file: make it in the clone `~/projects/repos/github.com/ElXreno/nixpkgs` on top of the locked rev, write `git diff <locked rev> -- <paths>` into a patch file, `git add` it and list it
 - After `nix flake update nixpkgs` run `git apply --check` for every patch on a checkout of the new rev: `patch` accepts fuzz and may apply a moved hunk in the wrong place; drop a patch once upstream has it
 
 ## Networking

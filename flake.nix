@@ -204,12 +204,27 @@
             ./patches/nixpkgs-plasma6-mobile.patch
             ./patches/nixpkgs-haskell-test-wrapper.patch
 
-            # NixOS/nixpkgs#578694
-            ./patches/nixpkgs-graalvm-native-image.patch
-
             ./patches/nixpkgs-nvidia-production.patch
             ./patches/nixpkgs-zfs-linux-7.3.patch
-            ./patches/nixpkgs-convco-libgit2.patch
+
+            # NixOS/nixpkgs#578694
+            (patcher.fetchpatch {
+              name = "graalvm-native-image-rpath.patch";
+              url = "https://github.com/NixOS/nixpkgs/commit/ec035b26756bac85f2c9255d68dc8427ab09a54a.patch";
+              hash = "sha256-IF+bTSOV0VVXq/KXv6SGMqvrXEKjCkRQvBKgZ3Y/Ofs=";
+            })
+            (patcher.fetchpatch {
+              name = "graalvm-oracle-onnxruntime.patch";
+              url = "https://github.com/NixOS/nixpkgs/commit/3a878b607f3a3e68a690f64bbda8edd63808552d.patch";
+              hash = "sha256-Lj3RlXOUD/qvirmVaWWK1n88WGLtgJcJQS/NyXbx+lo=";
+            })
+
+            # NixOS/nixpkgs#585314
+            (patcher.fetchpatch {
+              name = "convco-sys-libgit2.patch";
+              url = "https://github.com/NixOS/nixpkgs/commit/8985929eb917f3ea218097b5820bc669b55a1f64.patch";
+              hash = "sha256-FkmZ3eZ1e7OyvAXey9RsYIwsGwQqxQQlla8DcKFNVd0=";
+            })
           ];
 
           nix-minecraft.patches = [
