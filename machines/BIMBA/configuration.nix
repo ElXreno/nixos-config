@@ -15,7 +15,6 @@
     system = {
       ccache = {
         enable = true;
-        cacheDir = "/var/cache/ccache";
         aliases = [ "/nix/ccache" ];
       };
       networking.dns.addresses = {

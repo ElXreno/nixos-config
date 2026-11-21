@@ -110,7 +110,7 @@
           };
           "root-persist/ccache" = {
             type = "zfs_fs";
-            mountpoint = "/var/cache/ccache";
+            mountpoint = "/mnt/scratch/ccache";
           };
           "root-persist/postgres" = {
             type = "zfs_fs";
