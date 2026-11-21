@@ -725,16 +725,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1790431839,
-        "narHash": "sha256-AjRtuU02VNuibijOK/trf3XQR1xPYCS74fyAfekQPQw=",
-        "owner": "ElXreno",
+        "lastModified": 1790310854,
+        "narHash": "sha256-QuU33Sw5IjLKKq8xitpNSHnOUTgjTG9ZQdqOdIRz4F8=",
+        "owner": "Infinidoge",
         "repo": "nix-minecraft",
-        "rev": "98b4b7f9ddc32693c8787bb127a737a6995a3b1a",
+        "rev": "8945905e42ce06b68464fcd7614937bb382a95f2",
         "type": "github"
       },
       "original": {
-        "owner": "ElXreno",
-        "ref": "feat/fetchCurseForgeModpack",
+        "owner": "Infinidoge",
         "repo": "nix-minecraft",
         "type": "github"
       }

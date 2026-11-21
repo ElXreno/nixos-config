@@ -144,7 +144,7 @@
     };
 
     nix-minecraft = {
-      url = "github:ElXreno/nix-minecraft/feat/fetchCurseForgeModpack";
+      url = "github:Infinidoge/nix-minecraft";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
       inputs.flake-compat.follows = "";
@@ -204,6 +204,10 @@
             ./patches/nixpkgs-nvidia-production.patch
             ./patches/nixpkgs-zfs-linux-7.3.patch
             ./patches/nixpkgs-convco-libgit2.patch
+          ];
+
+          nix-minecraft.patches = [
+            ./patches/nix-minecraft-fetch-curseforge-modpack.patch
           ];
 
           niri = {
