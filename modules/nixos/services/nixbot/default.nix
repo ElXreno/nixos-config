@@ -48,6 +48,11 @@ in
       default = 2;
       description = "Number of flake outputs built at the same time.";
     };
+    maxJobs = mkOption {
+      type = types.ints.positive;
+      default = 3;
+      description = "Number of derivations the nix daemon of this host builds at the same time.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -94,6 +99,8 @@ in
           '{ "github-status": { data: { token: ($token | rtrimstr("\n")) } } }' > "$out/secrets.json"
       '';
     };
+
+    nix.settings.max-jobs = cfg.maxJobs;
 
     services.nixbot = {
       enable = true;
