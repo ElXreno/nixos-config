@@ -2,6 +2,7 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -70,6 +71,17 @@ in
       };
     };
 
+    clan.core.vars.generators.nixbot-ssh = {
+      files = {
+        key = { };
+        "key.pub".secret = false;
+      };
+      runtimeInputs = [ pkgs.openssh ];
+      script = ''
+        ssh-keygen -t ed25519 -N "" -C "nixbot@${config.clan.core.settings.machine.name}" -f "$out/key"
+      '';
+    };
+
     services.nixbot = {
       enable = true;
       domain = "nixbot.${config.clan.core.settings.domain}";
@@ -85,6 +97,10 @@ in
       };
       pullBased = {
         pollInterval = 300;
+        sshPrivateKeyFile = vars.nixbot-ssh.files.key.path;
+        sshKnownHostsFile = pkgs.writeText "nixbot-known-hosts" ''
+          github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl
+        '';
         repositories = lib.mapAttrs (_: repo: {
           inherit (repo) url;
           defaultBranch = repo.branch;
