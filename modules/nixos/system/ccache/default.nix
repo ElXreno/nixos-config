@@ -3,6 +3,7 @@
   namespace,
   lib,
   pkgs,
+  utils,
   ...
 }:
 let
@@ -153,6 +154,14 @@ in
         "nofail"
         "x-systemd.after=systemd-tmpfiles-setup.service"
       ];
+    };
+
+    systemd.units."${utils.escapeSystemdPath cfg.thinltoCacheDir}.mount" = {
+      overrideStrategy = "asDropin";
+      text = ''
+        [Mount]
+        LimitNOFILE=1048576
+      '';
     };
 
     environment.systemPackages = [ pkgs.ccache ];
