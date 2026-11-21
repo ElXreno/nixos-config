@@ -204,7 +204,6 @@
             ./patches/nixpkgs-plasma6-mobile.patch
             ./patches/nixpkgs-haskell-test-wrapper.patch
 
-            ./patches/nixpkgs-nvidia-production.patch
             ./patches/nixpkgs-zfs-linux-7.3.patch
 
             # NixOS/nixpkgs#578694
@@ -217,6 +216,13 @@
               name = "graalvm-oracle-onnxruntime.patch";
               url = "https://github.com/NixOS/nixpkgs/commit/3a878b607f3a3e68a690f64bbda8edd63808552d.patch";
               hash = "sha256-Lj3RlXOUD/qvirmVaWWK1n88WGLtgJcJQS/NyXbx+lo=";
+            })
+
+            # NixOS/nixpkgs#583684
+            (patcher.fetchpatch {
+              name = "nvidia-production-620.70.06.patch";
+              url = "https://github.com/NixOS/nixpkgs/commit/1fc17581c358927eae6449a131ad6191b7e30233.patch";
+              hash = "sha256-M434gFCP5fEq12dRsQSdsfT9ymwVJFA1ti5lhXeUZd4=";
             })
 
             # NixOS/nixpkgs#585314
