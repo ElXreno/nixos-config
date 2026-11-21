@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ inputs, clanMeta, ... }:
 let
   inherit (inputs.nixpkgs) lib;
   toplevels = lib.mapAttrs (
@@ -9,10 +9,23 @@ in
   flake.hydraJobs = toplevels;
 
   perSystem =
-    { system, ... }:
+    { config, system, ... }:
+    let
+      updatable = lib.filterAttrs (
+        _: package:
+        let
+          position = builtins.unsafeGetAttrPos "updateScript" package;
+        in
+        package ? updateScript && position != null && lib.hasPrefix "${inputs.self}/packages/" position.file
+      ) config.packages;
+    in
     {
-      checks = lib.mapAttrs' (name: toplevel: lib.nameValuePair "nixos-${name}" toplevel) (
-        lib.filterAttrs (_: toplevel: toplevel.system == system) toplevels
-      );
+      checks =
+        lib.mapAttrs' (name: toplevel: lib.nameValuePair "nixos-${name}" toplevel) (
+          lib.filterAttrs (_: toplevel: toplevel.system == system) toplevels
+        )
+        // lib.mapAttrs' (
+          name: _: lib.nameValuePair "package-${name}" config.legacyPackages.cuda.${clanMeta.name}.${name}
+        ) updatable;
     };
 }
