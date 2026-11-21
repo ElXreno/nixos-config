@@ -7,6 +7,7 @@
   openjdk25,
   fetchFromGitHub,
   fetchpatch,
+  nix-update-script,
 }:
 
 let
@@ -118,7 +119,10 @@ maven.buildMavenPackage {
     runHook postInstall
   '';
 
-  passthru = { inherit bridge; };
+  passthru = {
+    inherit bridge;
+    updateScript = nix-update-script { };
+  };
 
   meta = {
     description = "MCP server + Ghidra plugin for AI-powered reverse engineering";

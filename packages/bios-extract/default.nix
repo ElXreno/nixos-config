@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  nix-update-script,
 }:
 
 stdenv.mkDerivation {
@@ -18,6 +19,8 @@ stdenv.mkDerivation {
   installPhase = ''
     install -Dm755 bios_extract $out/bin/bios_extract
   '';
+
+  passthru.updateScript = nix-update-script { extraArgs = [ "--version=branch" ]; };
 
   meta = {
     description = "Extract modules from AMI, Award, and Phoenix BIOS images";

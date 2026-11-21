@@ -6,6 +6,7 @@
   ninja,
   zstd,
   lz4,
+  nix-update-script,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -50,6 +51,8 @@ stdenv.mkDerivation (finalAttrs: {
     install -Dm755 cli/zli $out/bin/zli
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "Format-aware compression framework with a universal decoder";

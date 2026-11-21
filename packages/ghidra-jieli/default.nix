@@ -3,6 +3,7 @@
   stdenvNoCC,
   fetchFromGitHub,
   ghidra,
+  nix-update-script,
 }:
 stdenvNoCC.mkDerivation {
   pname = "ghidra-jieli";
@@ -41,6 +42,8 @@ stdenvNoCC.mkDerivation {
 
     runHook postInstall
   '';
+
+  passthru.updateScript = nix-update-script { extraArgs = [ "--version=branch" ]; };
 
   meta = {
     description = "Ghidra processor modules for JieLi custom CPU architectures";

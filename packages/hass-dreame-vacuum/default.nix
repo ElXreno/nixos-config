@@ -6,6 +6,7 @@
   fetchurl,
   autoPatchelfHook,
   home-assistant,
+  nix-update-script,
 }:
 let
   mini-racer = home-assistant.python3Packages.buildPythonPackage rec {
@@ -76,6 +77,10 @@ buildHomeAssistantComponent rec {
   ]);
 
   dontCheckManifest = true;
+
+  passthru.updateScript = nix-update-script {
+    extraArgs = [ "--override-filename=packages/hass-dreame-vacuum/default.nix" ];
+  };
 
   meta = {
     changelog = "https://github.com/${owner}/dreame-vacuum/releases/tag/${src.tag}";

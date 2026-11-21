@@ -22,6 +22,19 @@
 
       packages = customNixpkgs.packages // {
         inherit clan-cli;
+        update-packages = pkgs.writeShellApplication {
+          name = "update-packages";
+          runtimeInputs = [
+            pkgs.gitMinimal
+            pkgs.jq
+            pkgs.nix-update
+          ];
+          runtimeEnv = {
+            UPDATE_SYSTEM = system;
+            UPDATE_SELECT = ./_updatable.nix;
+          };
+          text = builtins.readFile ./update-packages.sh;
+        };
         unlock-zfs = pkgs.writeShellApplication {
           name = "unlock-zfs";
           runtimeInputs = [

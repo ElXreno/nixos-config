@@ -11,6 +11,7 @@
   ccacheTools,
   cudaPackages_12_9,
   cudaCapability ? "8.9",
+  nix-update-script,
 }:
 
 let
@@ -70,6 +71,8 @@ rustPlatform.buildRustPackage rec {
   autoPatchelfIgnoreMissingDeps = [ "libcuda.so.1" ];
 
   doCheck = false;
+
+  passthru.updateScript = nix-update-script { };
 
   meta = {
     description = "High-performance text embeddings inference (CUDA)";
