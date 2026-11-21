@@ -1,0 +1,97 @@
+From 6c638fcfc17d4f5c0b2629c7e85cf02ace138c31 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Thu, 12 Nov 2026 05:16:56 +0300
+Subject: [PATCH] drm/i915: Evade the vblank on the scanline of the joiner
+ primary
+
+The scanline counter of a joiner secondary pipe was observed to wrap
+at 8192 lines on Arrow Lake, with pipes A and B joined. Sampling
+PIPEDSL of both pipes, they agree up to line 8191, which is the
+largest value pipe B ever returns, while pipe A counts on up to the
+vmax vtotal. From line 8192 on pipe B reads 8192 lines less than
+pipe A. This comes from measurement only, I have no documentation for
+it, and I could not check whether it is a property of the joiner
+secondary or of that pipe.
+
+It is harmless as long as vtotal stays below 8192, which every fixed
+refresh rate mode that needs the joiner does. With VRR the vmax
+vtotal can be larger, 12200 for a 3840x2400@240 mode with a 48 Hz
+lower limit. The vmax vblank start at line 12160 then reads as 3968
+on the secondary, vblank evasion on that pipe never sees its evasion
+window, and the pipe gets armed across the vblank:
+
+ Atomic update failure on pipe B (start=48480 end=48481) time 8 us, min 12101, max 12159, scanline start 3965, end 3969
+
+All joined pipes run off the timings of the primary, so look at the
+scanline counter of the primary when evading the vblank on a
+secondary. This matters for the commits that still take the per pipe
+critical sections with the joiner.
+
+Only the evasion is changed. The vblank timestamps of a secondary
+still come from its own counter, and so does the end scanline in the
+message above, while the start scanline is now the primary's.
+---
+ drivers/gpu/drm/i915/display/intel_vblank.c | 12 ++++++++++--
+ drivers/gpu/drm/i915/display/intel_vblank.h |  2 +-
+ 2 files changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_vblank.c b/drivers/gpu/drm/i915/display/intel_vblank.c
+index 28d8119..52b0ad6 100644
+--- a/drivers/gpu/drm/i915/display/intel_vblank.c
++++ b/drivers/gpu/drm/i915/display/intel_vblank.c
+@@ -11,6 +11,7 @@
+ #include "intel_color.h"
+ #include "intel_crtc.h"
+ #include "intel_de.h"
++#include "intel_display.h"
+ #include "intel_display_jiffies.h"
+ #include "intel_display_regs.h"
+ #include "intel_display_types.h"
+@@ -698,6 +699,13 @@ void intel_vblank_evade_init(const struct intel_crtc_state *old_crtc_state,
+ 	/* TODO: maybe just use the active timings here? */
+ 	crtc_state = pre_commit_crtc_state(old_crtc_state, new_crtc_state);
+ 
++	/*
++	 * The scanline counter of a joiner secondary pipe has been
++	 * seen to wrap at 8192 lines (on ARL), which the VRR vmax can
++	 * exceed. The primary runs off the same timings and counts on.
++	 */
++	evade->scanline_crtc = intel_primary_crtc(crtc_state);
++
+ 	adjusted_mode = &crtc_state->hw.adjusted_mode;
+ 
+ 	if (crtc->mode_flags & I915_MODE_FLAG_VRR) {
+@@ -753,7 +761,7 @@ int intel_vblank_evade(struct intel_vblank_evade_ctx *evade)
+ 		 */
+ 		prepare_to_wait(wq, &wait, TASK_UNINTERRUPTIBLE);
+ 
+-		scanline = intel_get_crtc_scanline(crtc);
++		scanline = intel_get_crtc_scanline(evade->scanline_crtc);
+ 		if (scanline < evade->min || scanline > evade->max)
+ 			break;
+ 
+@@ -789,7 +797,7 @@ int intel_vblank_evade(struct intel_vblank_evade_ctx *evade)
+ 	 * FIXME figure out if BXT+ DSI suffers from this as well
+ 	 */
+ 	while (evade->need_vlv_dsi_wa && scanline == evade->vblank_start)
+-		scanline = intel_get_crtc_scanline(crtc);
++		scanline = intel_get_crtc_scanline(evade->scanline_crtc);
+ 
+ 	return scanline;
+ }
+diff --git a/drivers/gpu/drm/i915/display/intel_vblank.h b/drivers/gpu/drm/i915/display/intel_vblank.h
+index 98d04ca..28b4c45 100644
+--- a/drivers/gpu/drm/i915/display/intel_vblank.h
++++ b/drivers/gpu/drm/i915/display/intel_vblank.h
+@@ -16,7 +16,7 @@ struct intel_crtc;
+ struct intel_crtc_state;
+ 
+ struct intel_vblank_evade_ctx {
+-	struct intel_crtc *crtc;
++	struct intel_crtc *crtc, *scanline_crtc;
+ 	int min, max, vblank_start;
+ 	bool need_vlv_dsi_wa;
+ };
+-- 
+2.56.0
+

@@ -1,0 +1,12 @@
+{
+  "session_id": "abcd1234-0000-4000-8000-000000000000",
+  "transcript_path": "",
+  "cwd": "/home/test/repo",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/x/.claude/agent-memory-local/log-forensics/n.md",
+    "content": "note\n"
+  },
+  "tool_use_id": "toolu_memory-allow"
+}

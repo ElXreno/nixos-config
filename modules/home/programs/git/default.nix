@@ -11,7 +11,7 @@ let
 in
 {
   options.${namespace}.programs.git = {
-    enable = mkEnableOption "Whether or not to manage git.";
+    enable = mkEnableOption "managing git";
   };
 
   config = mkIf cfg.enable {
@@ -27,21 +27,11 @@ in
           cp = "cherry-pick";
         };
 
-        user = {
-          email = "elxreno@gmail.com";
-          name = "ElXreno";
-        };
-
         pull.rebase = true;
         init.defaultBranch = "main";
         fetch.prune = true;
         core.autocrlf = "input";
         gc.auto = 0;
-      };
-
-      signing = {
-        key = "C573235A0F2B0FE2";
-        signByDefault = !config.${namespace}.roles.server.enable;
       };
     };
   };

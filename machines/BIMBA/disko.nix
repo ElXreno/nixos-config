@@ -1,55 +1,13 @@
-{ config, pkgs, ... }:
-let
-  defaultMountOptions = [ "compress-force=zstd" ];
-in
 {
-  clan.core.vars.generators.luks = {
-    files.key.neededFor = "partitioning";
-    runtimeInputs = [ pkgs.xkcdpass ];
-    script = ''
-      xkcdpass -d - -n 8 | tr -d '\n' > $out/key
-    '';
-  };
-
-  boot.initrd = {
-    systemd = {
-      enable = true;
-      network = {
-        enable = true;
-        networks."10-ens3" = {
-          matchConfig.Name = "ens3";
-          address = [
-            "159.195.56.52/22"
-            "2a0a:4cc0:c1:e9be::/64"
-          ];
-          routes = [
-            { Gateway = "159.195.56.1"; }
-            { Gateway = "fe80::1"; }
-          ];
-        };
-      };
-    };
-
-    network = {
-      enable = true;
-      ssh = {
-        enable = true;
-        port = 7172;
-        authorizedKeys = config.users.users.elxreno.openssh.authorizedKeys.keys;
-        hostKeys = [
-          config.clan.core.vars.generators.openssh.files."ssh.id_ed25519".path
-        ];
-      };
-    };
-
-    kernelModules = [ "virtio_net" ];
-  };
-
+  config,
+  ...
+}:
+{
   disko.devices = {
     disk = {
       vda = {
         type = "disk";
-        device = "/dev/vda";
+        device = "/dev/disk/by-path/pci-0000:00:10.0";
         content = {
           type = "gpt";
           partitions = {
@@ -64,32 +22,98 @@ in
                 mountOptions = [ "umask=0077" ];
               };
             };
-            root = {
+            swap = {
+              size = "16G";
+              content = {
+                type = "swap";
+                priority = 10;
+                randomEncryption = true;
+              };
+            };
+            zfs = {
               size = "100%";
               content = {
-                type = "luks";
-                name = "cryptroot";
-                passwordFile = config.clan.core.vars.generators.luks.files.key.path;
-                settings.allowDiscards = true;
-                content = {
-                  type = "btrfs";
-                  extraArgs = [ "-f" ];
-                  subvolumes = {
-                    "/root" = {
-                      mountpoint = "/";
-                      mountOptions = defaultMountOptions;
-                    };
-                    "/nix" = {
-                      mountpoint = "/nix";
-                      mountOptions = defaultMountOptions;
-                    };
-                    "/home" = {
-                      mountpoint = "/home";
-                      mountOptions = defaultMountOptions;
-                    };
-                  };
-                };
+                type = "zfs";
+                pool = "rpool";
               };
+            };
+          };
+        };
+      };
+    };
+
+    zpool = {
+      rpool = {
+        type = "zpool";
+        options = {
+          ashift = "12";
+          autotrim = "on";
+        };
+        rootFsOptions = {
+          canmount = "off";
+          mountpoint = "none";
+          encryption = "aes-256-gcm";
+          keyformat = "passphrase";
+          keylocation = "file://${config.clan.core.vars.generators.zfs-passphrase.files.passphrase.path}";
+          compression = "lz4";
+          atime = "off";
+          xattr = "sa";
+          acltype = "posixacl";
+          dnodesize = "auto";
+        };
+        postCreateHook = "zfs set keylocation=prompt rpool";
+
+        datasets = {
+          home-persist = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+          };
+          nix = {
+            type = "zfs_fs";
+            mountpoint = "/nix";
+          };
+          root-persist = {
+            type = "zfs_fs";
+            mountpoint = "/";
+          };
+          "root-persist/garage" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/private/garage";
+            options = {
+              recordsize = "1M";
+            };
+          };
+          "root-persist/clickhouse" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/clickhouse";
+          };
+          "root-persist/matrix" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/matrix-synapse";
+            options = {
+              recordsize = "1M";
+            };
+          };
+          "root-persist/minecraft" = {
+            type = "zfs_fs";
+            mountpoint = "/srv/minecraft";
+            options = {
+              recordsize = "1M";
+            };
+          };
+          "root-persist/ncps" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/ncps";
+            options = {
+              recordsize = "1M";
+            };
+          };
+          "root-persist/postgres" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/postgresql";
+            options = {
+              recordsize = "16k";
+              redundant_metadata = "most";
             };
           };
         };

@@ -1,8 +1,11 @@
 { pkgs, namespace }:
 let
   inherit (pkgs) symlinkJoin makeWrapper;
-  inherit (pkgs.${namespace}) ghidra-mcp;
-  base = pkgs.ghidra.withExtensions (_: [ ghidra-mcp ]);
+  inherit (pkgs.${namespace}) ghidra-mcp ghidra-jieli;
+  base = pkgs.ghidra.withExtensions (_: [
+    ghidra-mcp
+    ghidra-jieli
+  ]);
 in
 symlinkJoin {
   name = "ghidra-with-mcp-${pkgs.ghidra.version}";

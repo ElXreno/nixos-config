@@ -1,0 +1,1 @@
+{"session_id":"s1","cwd":"@ROOT@/repos/nixos-config","hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"@ROOT@/home/w/elsewhere","content":"x"},"tool_use_id":"toolu_23"}

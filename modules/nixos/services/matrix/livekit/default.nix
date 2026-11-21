@@ -7,29 +7,22 @@
 }:
 
 let
-  inherit (lib)
-    mkIf
-    mkEnableOption
-    ;
-  cfg = config.${namespace}.services.matrix.livekit;
-  synapseCfg = config.${namespace}.services.matrix.synapse;
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.services.matrix;
+  ports = config.${namespace}.ports;
 
-  baseDomain = synapseCfg.serverName;
+  baseDomain = cfg.serverName;
   livekitHost = "livekit.${baseDomain}";
+  livekitServiceUrl = "https://${livekitHost}";
+  keyFile = config.clan.core.vars.generators.matrix-livekit-key.files.key-file.path;
+
+  rtcPorts = {
+    from = 50000;
+    to = 51000;
+  };
 in
 {
-  options.${namespace}.services.matrix.livekit = {
-    enable = mkEnableOption "Whether to manage LiveKit SFU for Element Call.";
-  };
-
-  config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = synapseCfg.enable;
-        message = "${namespace}.services.matrix.livekit requires matrix.synapse to be enabled.";
-      }
-    ];
-
+  config = mkIf (cfg.enable && cfg.voip.enable) {
     clan.core.vars.generators.matrix-livekit-key = {
       files.key-file = {
         secret = true;
@@ -47,35 +40,58 @@ in
 
     services.livekit = {
       enable = true;
-      keyFile = config.clan.core.vars.generators.matrix-livekit-key.files.key-file.path;
+      inherit keyFile;
       openFirewall = false;
       settings = {
-        port = 7880;
+        port = ports.livekit;
         rtc = {
-          port_range_start = 50000;
-          port_range_end = 51000;
+          port_range_start = rtcPorts.from;
+          port_range_end = rtcPorts.to;
           use_external_ip = true;
         };
       };
     };
 
-    networking.firewall.allowedUDPPortRanges = [
-      {
-        from = 50000;
-        to = 51000;
-      }
-    ];
-
-    ${namespace}.services.nginx.virtualHosts."${livekitHost}" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:7880";
-        proxyWebsockets = true;
-        extraConfig = ''
-          proxy_buffering off;
-          proxy_read_timeout 86400s;
-          proxy_send_timeout 86400s;
-        '';
-      };
+    services.lk-jwt-service = {
+      enable = true;
+      inherit keyFile;
+      livekitUrl = "wss://${livekitHost}";
+      port = ports.lk-jwt;
     };
+
+    systemd.services.lk-jwt-service.environment.LIVEKIT_FULL_ACCESS_HOMESERVERS = baseDomain;
+
+    services.matrix-synapse.settings = {
+      experimental_features.msc4143_enabled = true;
+      matrix_rtc.transports = [
+        {
+          type = "livekit";
+          livekit_service_url = livekitServiceUrl;
+        }
+      ];
+    };
+
+    ${namespace} = {
+      system.networking.firewall.public.livekit.udpRanges = [ rtcPorts ];
+      ports = {
+        livekit = 7880;
+        lk-jwt = 8083;
+      };
+      services.matrix.wellKnownClientExtra."org.matrix.msc4143.rtc_foci" = [
+        {
+          type = "livekit";
+          livekit_service_url = livekitServiceUrl;
+        }
+      ];
+    };
+
+    services.caddy.virtualHosts."${livekitHost}".extraConfig = ''
+      handle /sfu/* {
+        reverse_proxy 127.0.0.1:${toString ports.lk-jwt}
+      }
+      handle {
+        reverse_proxy 127.0.0.1:${toString ports.livekit}
+      }
+    '';
   };
 }

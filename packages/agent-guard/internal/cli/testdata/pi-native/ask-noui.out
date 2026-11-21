@@ -1,0 +1,1 @@
+{"block":"git reset --hard destroys uncommitted work. Yes only if the user asked for it; otherwise git reset (mixed), git reset --soft, or revert specific paths. This needs the user's confirmation, and nobody can answer in this mode."}

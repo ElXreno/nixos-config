@@ -11,7 +11,7 @@ let
 in
 {
   options.${namespace}.roles.common = {
-    enable = mkEnableOption "Whether or not to enable common configuration.";
+    enable = mkEnableOption "common configuration";
   };
 
   config = mkIf cfg.enable {
@@ -22,16 +22,10 @@ in
         git.enable = true;
         helix.enable = true;
         htop.enable = true;
+        lazygit.enable = true;
         nix-index.enable = true;
         starship.enable = true;
       };
-    };
-
-    # Extra default home stuff
-    systemd.user.startServices = "sd-switch";
-    xdg = {
-      mimeApps.enable = true;
-      configFile."mimeapps.list".force = true;
     };
   };
 }

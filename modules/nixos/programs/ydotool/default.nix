@@ -11,7 +11,7 @@ let
 in
 {
   options.${namespace}.programs.ydotool = {
-    enable = mkEnableOption "Whether or not to manage ydotool." // {
+    enable = mkEnableOption "managing ydotool" // {
       default = with config.${namespace}.desktop-environments; niri.enable || plasma.enable;
     };
   };

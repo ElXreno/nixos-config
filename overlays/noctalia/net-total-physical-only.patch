@@ -1,0 +1,46 @@
+--- a/src/system/system_monitor_service.cpp
++++ b/src/system/system_monitor_service.cpp
+@@ -141,6 +141,11 @@
+     return fastest;
+   }
+ 
++  [[nodiscard]] bool isPhysicalInterface(const std::string& iface) {
++    std::error_code ec;
++    return std::filesystem::exists(std::filesystem::path{"/sys/class/net"} / iface / "device", ec);
++  }
++
+   [[nodiscard]] double netRxFromStats(const SystemStats& stats, std::string_view interfaceName) {
+     if (interfaceName.empty()) {
+       return stats.netRxBytesPerSec;
+@@ -1417,6 +1422,9 @@
+         const double scale = intervalSeconds > 0.0 ? 1.0 / intervalSeconds : 1.0;
+         double totalRx = 0.0;
+         double totalTx = 0.0;
++        double virtualRx = 0.0;
++        double virtualTx = 0.0;
++        bool hasPhysical = false;
+         std::unordered_map<std::string, SystemStats::NetThroughput> byInterface;
+         for (const auto& [iface, cur] : *currentNetBytes) {
+           const auto it = m_prevNetBytes.find(iface);
+@@ -1430,12 +1438,20 @@
+               ifaceTx = static_cast<double>(cur.tx - it->second.tx) * scale;
+             }
+           }
+-          if (iface != "lo") {
++          if (isPhysicalInterface(iface)) {
+             totalRx += ifaceRx;
+             totalTx += ifaceTx;
++            hasPhysical = true;
++          } else if (iface != "lo") {
++            virtualRx += ifaceRx;
++            virtualTx += ifaceTx;
+           }
+           byInterface.emplace(iface, SystemStats::NetThroughput{.rxBytesPerSec = ifaceRx, .txBytesPerSec = ifaceTx});
+         }
++        if (!hasPhysical) {
++          totalRx = virtualRx;
++          totalTx = virtualTx;
++        }
+         m_prevNetBytes = *currentNetBytes;
+         std::scoped_lock lock{m_statsMutex};
+         m_latest.netRxBytesPerSec = totalRx;

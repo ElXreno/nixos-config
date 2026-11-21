@@ -12,17 +12,39 @@ let
 in
 {
   options.${namespace}.programs.steam = {
-    enable = mkEnableOption "Whether or not to manage steam.";
-    xboxSupport = mkEnableOption "Whether to enable Xbox Controller support.";
+    enable = mkEnableOption "managing steam";
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.system.networking.firewall.public.steam = {
+      upstream = "nixos/modules/programs/steam.nix";
+      tcp = [
+        27015
+        27036
+        27037
+        27040
+      ];
+      udp = [
+        10400
+        10401
+        27015
+        27036
+      ];
+      udpRanges = [
+        {
+          from = 27031;
+          to = 27035;
+        }
+      ];
+    };
+
     programs.steam = {
       enable = true;
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
       localNetworkGameTransfers.openFirewall = true;
       gamescopeSession.enable = true;
+      extraPackages = [ pkgs.${namespace}.nms-vk-fix ];
     };
 
     environment.systemPackages = with pkgs; [
@@ -48,12 +70,6 @@ in
       "vm.max_map_count" = 2147483642;
     };
 
-    ${namespace} = {
-      programs.gamescope.enable = true;
-      system.hardware.bluetooth.xboxSupport = cfg.xboxSupport;
-    };
-    hardware.xpadneo.enable = cfg.xboxSupport;
-
     boot.kernelModules = [ "ntsync" ];
     services.udev.packages = [
       (pkgs.writeTextFile {
@@ -71,7 +87,7 @@ in
     };
     security.pam.loginLimits = [
       {
-        domain = "elxreno";
+        domain = config.${namespace}.primaryUser;
         type = "hard";
         item = "nofile";
         value = "1048576";
@@ -81,7 +97,6 @@ in
     environment.sessionVariables = {
       PROTON_ENABLE_WAYLAND = "1";
       PROTON_NO_WM_DECORATION = "1";
-      PROTON_USE_NTSYNC = "1";
       PROTON_USE_WOW64 = "1";
     };
   };

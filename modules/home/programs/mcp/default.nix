@@ -11,20 +11,13 @@ let
 in
 {
   options.${namespace}.programs.mcp = {
-    enable = mkEnableOption "Whether to manage MCP servers.";
+    enable = mkEnableOption "managing MCP servers";
   };
 
   config = mkIf cfg.enable {
     programs.mcp = {
       enable = true;
-      servers = {
-        nixos.command = "${lib.getExe pkgs.mcp-nixos}";
-        ghidra-mcp.command = "${lib.getExe pkgs.${namespace}.ghidra-mcp}";
-        playwright = {
-          command = "${lib.getExe pkgs.playwright-mcp}";
-          args = [ "--isolated" ];
-        };
-      };
+      servers.ghidra-mcp.command = "${lib.getExe pkgs.${namespace}.ghidra-mcp}";
     };
   };
 }

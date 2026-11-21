@@ -9,11 +9,18 @@ let
   inherit (inputs.nixpkgs) lib;
 
   collectModules =
-    dir: builtins.filter (lib.hasSuffix ".nix") (lib.filesystem.listFilesRecursive dir);
+    dir:
+    builtins.filter (p: lib.hasSuffix ".nix" p && !lib.hasPrefix "_" (baseNameOf p)) (
+      lib.filesystem.listFilesRecursive dir
+    );
 
   mkOverlays = map (f: import f { inherit inputs; }) (collectModules ./overlays);
 
-  packageDirs = map dirOf (collectModules ./packages);
+  packageDirs = lib.mapAttrsToList (name: _: ./packages + "/${name}") (
+    lib.filterAttrs (
+      name: type: type == "directory" && builtins.pathExists (./packages + "/${name}/default.nix")
+    ) (builtins.readDir ./packages)
+  );
 
   mkPackagesOverlay =
     final: _prev:
@@ -30,14 +37,7 @@ rec {
   pkgs = import inputs.nixpkgs {
     inherit system;
 
-    overlays =
-      with inputs;
-      [
-        firefox-addons.overlays.default
-        nix-minecraft.overlays.default
-        mkPackagesOverlay
-      ]
-      ++ mkOverlays;
+    overlays = [ mkPackagesOverlay ] ++ mkOverlays;
 
     config = {
       allowUnfree = true;

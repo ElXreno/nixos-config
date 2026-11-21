@@ -1,0 +1,11 @@
+{
+  "session_id": "abcd1234-0000-4000-8000-000000000000",
+  "transcript_path": "",
+  "cwd": "/home/test/repo",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "git push https://github.com/ElXreno/other.git main"
+  },
+  "tool_use_id": "toolu_bash-git-push-other"
+}

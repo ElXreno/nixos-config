@@ -1,5 +1,8 @@
 _:
 let
+  serverDomain = "datalake.elxreno.com";
+  hysteria2Port = 10001;
+
   uuidGenerator = {
     files.uuid.secret = true;
     script = ''
@@ -15,21 +18,21 @@ in
   manifest.readme = ''
     # sing-box
 
-    VLESS server (WS on :10000 behind nginx) and
-    sing-box clients (TUN-based) wired together with one VLESS UUID
-    per client identity.
+    VLESS and hysteria2 server (WS on :10000 behind caddy) with one
+    UUID per client identity; clients route a list of domains to it.
 
     Roles:
-    - `server`: terminates WS, fronted by nginx for the
+    - `server`: terminates WS, fronted by caddy for the
       `datalake.elxreno.com` vhost. Provisions a shared
       `sing-box-uuid-<MACHINE>` for every machine in `roles.client`,
       plus a per-server-only `sing-box-uuid-<NAME>` for each entry
       in `settings.extraClients` (default `[ "mobile" ]`) — those
       UUIDs stay on the server and are copied manually to external
       clients (phones, etc.).
-    - `client`: declares its own shared `sing-box-uuid-<HOST>` and
-      uses it to dial the server via VLESS-over-WS. `settings.autostart`
-      controls whether `sing-box.service` starts at boot.
+    - `client`: declares its own shared `sing-box-uuid-<HOST>`, a
+      hysteria2 tunnel `home` and the domains routed through it.
+      `settings.autostart` controls whether the domain router starts
+      at boot.
   '';
 
   roles.server = {
@@ -42,6 +45,7 @@ in
           default = [ "mobile" ];
           description = "Extra non-clan client identities to provision UUIDs for (e.g. phones).";
         };
+
       };
 
     perInstance =
@@ -60,6 +64,7 @@ in
               elem
               listToAttrs
               ;
+
             clientMachines = attrNames (roles.client.machines or { });
             allClients = clientMachines ++ settings.extraClients;
             uuidPath = name: config.clan.core.vars.generators."sing-box-uuid-${name}".files.uuid.path;
@@ -78,19 +83,26 @@ in
               }) allClients
             );
 
-            ${namespace}.services.nginx = {
-              enable = true;
-              virtualHosts."datalake.elxreno.com" = {
-                locations."/api/v1/stream" = {
-                  proxyPass = "http://localhost:10000";
-                  proxyWebsockets = true;
-                  extraConfig = ''
-                    proxy_buffering off;
-                    proxy_request_buffering off;
-                  '';
-                };
-              };
+            ${namespace} = {
+              ports.sing-box-vless = 10000;
+              ports.sing-box-hysteria2 = hysteria2Port;
+              system.networking.firewall.public.hysteria2.udp = [ hysteria2Port ];
+
+              services.caddy.enable = true;
             };
+
+            services.caddy.virtualHosts.${serverDomain}.extraConfig = ''
+              handle /api/v1/stream {
+                reverse_proxy localhost:${toString config.${namespace}.ports.sing-box-vless} {
+                  flush_interval -1
+                }
+              }
+              handle {
+                respond 404
+              }
+            '';
+
+            systemd.services.sing-box.serviceConfig.Nice = -10;
 
             services.sing-box = {
               enable = true;
@@ -122,7 +134,7 @@ in
                     type = "vless";
 
                     listen = "::";
-                    listen_port = 10000;
+                    listen_port = config.${namespace}.ports.sing-box-vless;
 
                     inherit users;
 
@@ -131,7 +143,26 @@ in
                       path = "/api/v1/stream";
                       max_early_data = 2048;
                       early_data_header_name = "Sec-WebSocket-Protocol";
-                      headers.Host = [ "datalake.elxreno.com" ];
+                      headers.Host = [ serverDomain ];
+                    };
+                  }
+                  {
+                    tag = "hysteria2-in";
+                    type = "hysteria2";
+
+                    listen = "::";
+                    listen_port = config.${namespace}.ports.sing-box-hysteria2;
+
+                    users = map (name: {
+                      inherit name;
+                      password._secret = uuidPath name;
+                    }) allClients;
+
+                    tls = {
+                      enabled = true;
+                      server_name = serverDomain;
+                      certificate_path = "${config.security.acme.certs.${serverDomain}.directory}/fullchain.pem";
+                      key_path = "${config.security.acme.certs.${serverDomain}.directory}/key.pem";
                     };
                   }
                 ];
@@ -177,21 +208,23 @@ in
               };
             };
 
-            users.users.sing-box.extraGroups = [ "acme" ];
+            users.users.sing-box.extraGroups = [
+              "acme"
+              "caddy"
+            ];
           };
       };
   };
 
   roles.client = {
-    description = "Runs the sing-box client (TUN) and tunnels to the server using a per-machine VLESS UUID.";
+    description = "Routes the listed domains to the server over hysteria2 with a per-machine identity.";
     interface =
       { lib, ... }:
       {
         options = {
-          autostart = lib.mkEnableOption "Whether to execute sing-box client at system boot." // {
+          autostart = lib.mkEnableOption "starting the domain router at system boot" // {
             default = true;
           };
-          enableSocks = lib.mkEnableOption "Whether to add a socks-proxy as outbound.";
         };
       };
 
@@ -201,7 +234,7 @@ in
         nixosModule =
           {
             config,
-            lib,
+            namespace,
             ...
           }:
           let
@@ -213,210 +246,79 @@ in
               "sing-box-uuid-${hostName}" = uuidGenerator // {
                 share = true;
               };
-            }
-            // lib.optionalAttrs settings.enableSocks {
-              sing-box-socks.prompts = {
-                address = {
-                  description = "IP Address of a SOCKS5 proxy";
-                  type = "hidden";
-                  persist = true;
-                };
-                username = {
-                  description = "Username of a SOCKS5 proxy";
-                  type = "hidden";
-                  persist = true;
-                };
-                password = {
-                  description = "Password of a SOCKS5 proxy";
-                  type = "hidden";
-                  persist = true;
-                };
-              };
             };
 
-            services.sing-box = {
-              enable = true;
-              settings = {
-                log.level = "debug";
+            ${namespace}.system.networking = {
+              tunnels.home = {
+                type = "hysteria2";
+                server = serverDomain;
+                port = hysteria2Port;
+                passwordFile = uuidPath;
+              };
 
-                dns = {
-                  strategy = "ipv4_only";
-                  servers = [
-                    {
-                      type = "local";
-                    }
-                  ];
-                };
+              routes = {
+                inherit (settings) autostart;
 
-                inbounds = [
-                  {
-                    type = "tun";
+                cgroups = [ "home" ];
 
-                    address = [ "172.18.0.1/30" ];
+                domains.home = [
+                  # enabled for the arr stack metadata APIs
+                  "radarr.video"
+                  "sonarr.tv"
+                  "servarr.com"
+                  "prowlarr.com"
 
-                    mtu = 65535;
-                    auto_route = true;
-                    auto_redirect = true;
-                    strict_route = true;
+                  "github.com"
+                  "githubassets.com"
+                  "githubusercontent.com"
 
-                    stack = "system";
+                  "scdn.co"
+                  "spotify.com"
+                  "spotifycdn.com"
+                  "spotifycdn.net"
+                  "akamaized.net"
 
-                    route_address = [
-                      "0.0.0.0/0"
-                      "::/0"
-                    ];
+                  "discord.com"
+                  "discord.gg"
+                  "discord.media"
+                  "discordapp.com"
+                  "discordapp.net"
 
-                    exclude_interface = [ "tailscale0" ];
+                  "chat.com"
+                  "chatgpt.com"
+                  "crixet.com"
+                  "oaistatic.com"
+                  "oaistatsig.com"
+                  "oaiusercontent.com"
+                  "openai.com"
+                  "sora.com"
 
-                    route_exclude_address = [
-                      "10.0.0.0/8"
-                      "172.16.0.0/12"
-                      "100.64.0.0/10"
+                  "anthropic.com"
+                  "clau.de"
+                  "claude.ai"
+                  "claude.com"
+                  "claudemcpclient.com"
+                  "claudeusercontent.com"
+                  "servd-anthropic-website.b-cdn.net"
 
-                      # DNS
-                      "1.1.1.1/32"
-                      "1.0.0.1/32"
-                      "8.8.8.8/32"
-                      "8.8.4.4/32"
+                  "deepl.com"
+                  "fabricmc.net"
+                  "modrinth.com"
+                  "terraform.io"
+                  "grafana.com"
+                  "patreon.com"
+                  "statsig.com"
+                  "stripe.com"
+                  "usefathom.com"
+                  "sentry.io"
+                  "quay.io"
+                  "qualcomm.com"
+                  "fragment.com"
 
-                      # IPv6 loopback
-                      "::1/128"
-
-                      # link-local multicast
-                      "ff02::/16"
-                      # link-local unicast
-                      "fe80::/10"
-                    ];
-                  }
+                  "geosite:microsoft"
                 ];
-
-                outbounds = [
-                  {
-                    type = "vless";
-                    tag = "datalake";
-
-                    server = "datalake.elxreno.com";
-                    server_port = 443;
-
-                    uuid._secret = uuidPath;
-
-                    tls = {
-                      enabled = true;
-                      server_name = "datalake.elxreno.com";
-                      utls = {
-                        enabled = true;
-                        fingerprint = "chrome";
-                      };
-                    };
-
-                    transport = {
-                      type = "ws";
-                      path = "/api/v1/stream";
-                      max_early_data = 2048;
-                      early_data_header_name = "Sec-WebSocket-Protocol";
-                      headers.Host = [ "datalake.elxreno.com" ];
-                    };
-                  }
-                  {
-                    type = "direct";
-                    tag = "direct";
-                  }
-                ]
-                ++ lib.optional settings.enableSocks (
-                  with config.clan.core.vars.generators.sing-box-socks.files;
-                  {
-                    type = "socks";
-                    tag = "proxy-seller";
-                    server._secret = address.path;
-                    server_port = 50101;
-                    username._secret = username.path;
-                    password._secret = password.path;
-                    version = "5";
-                  }
-                );
-
-                route = {
-                  rules = [
-                    { action = "sniff"; }
-                    {
-                      protocol = "dns";
-                      action = "hijack-dns";
-                    }
-                  ]
-                  ++ lib.optional settings.enableSocks {
-                    domain_suffix = [
-                      # Anthropic stuff
-                      "anthropic.com"
-                      "clau.de"
-                      "claude.ai"
-                      "claude.com"
-                      "claudemcpclient.com"
-                      "claudeusercontent.com"
-                      "sentry.io"
-                      "servd-anthropic-website.b-cdn.net"
-                      "statsig.com"
-                      "stripe.com"
-                      "usefathom.com"
-
-                      # ChatGPT stuff
-                      "chat.com"
-                      "chatgpt.com"
-                      "crixet.com"
-                      "oaistatic.com"
-                      "oaistatsig.com"
-                      "oaiusercontent.com"
-                      "openai.com"
-                      "sora.com"
-                    ];
-                    outbound = "proxy-seller";
-                  }
-                  ++ [
-                    {
-                      domain_suffix = [
-                        # Arr stack metadata APIs (Cloudflare-blocked)
-                        "radarr.video"
-                        "sonarr.tv"
-                        "servarr.com"
-                        "prowlarr.com"
-
-                        # etc
-                        "deepl.com"
-                        "terraform.io"
-                        "grafana.com"
-                      ];
-                      outbound = "datalake";
-                    }
-                  ];
-
-                  rule_set = [
-                    {
-                      tag = "geoip-ru";
-                      type = "remote";
-                      format = "binary";
-                      url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-ru.srs";
-                      download_detour = "direct";
-                    }
-                    {
-                      tag = "geoip-by";
-                      type = "remote";
-                      format = "binary";
-                      url = "https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-by.srs";
-                      download_detour = "direct";
-                    }
-                  ];
-
-                  final = "direct";
-                  auto_detect_interface = true;
-                };
-
-                experimental = {
-                  cache_file.enabled = true;
-                  clash_api.external_controller = "127.0.0.1:9090";
-                  debug.listen = "127.0.0.1:9091";
-                };
               };
             };
-            systemd.services.sing-box.wantedBy = lib.mkIf (!settings.autostart) (lib.mkForce [ ]);
           };
       };
   };

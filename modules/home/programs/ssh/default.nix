@@ -10,7 +10,7 @@ let
 in
 {
   options.${namespace}.programs.ssh = {
-    enable = mkEnableOption "Whether or not to manage ssh.";
+    enable = mkEnableOption "managing ssh";
   };
 
   config = mkIf cfg.enable {
@@ -35,10 +35,6 @@ in
           HostName = "eu.nixbuild.net";
           IdentityFile = "~/.ssh/nixbuild";
           IdentitiesOnly = true;
-        };
-
-        "*.fedoraproject.org *.fedorahosted.org *.fedorainfracloud.org fedorapeople.org" = {
-          IdentityFile = "~/.ssh/id_rsa";
         };
 
         "github.com gitlab.com gerrit.aospa.co aur.archlinux.org gitlab.tenders-ai.ru" = {

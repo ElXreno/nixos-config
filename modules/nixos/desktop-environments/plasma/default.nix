@@ -6,23 +6,12 @@
   ...
 }:
 let
-  inherit (lib)
-    mkIf
-    mkEnableOption
-    mkOption
-    types
-    optional
-    ;
+  inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.plasma;
 in
 {
   options.${namespace}.desktop-environments.plasma = {
-    enable = mkEnableOption "Whether or not to manage plasma.";
-    wayland = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Whether to enable wayland.";
-    };
+    enable = mkEnableOption "managing plasma";
   };
 
   config = mkIf cfg.enable {
@@ -33,13 +22,9 @@ in
       };
     };
     services = {
-      displayManager = {
-        sddm = {
-          enable = true;
-          wayland.enable = cfg.wayland;
-        };
-
-        defaultSession = mkIf (!cfg.wayland) "plasmax11";
+      displayManager.sddm = {
+        enable = true;
+        wayland.enable = true;
       };
       desktopManager.plasma6 = {
         enable = true;
@@ -48,7 +33,7 @@ in
 
     environment.plasma6.excludePackages = with pkgs; [ kdePackages.elisa ];
 
-    services.colord.enable = cfg.wayland;
+    services.colord.enable = true;
 
     fonts.packages = with pkgs; [ jetbrains-mono ];
 
@@ -75,8 +60,9 @@ in
 
         # Icons
         papirus-icon-theme
-      ]
-      ++ optional cfg.wayland gnome-color-manager;
+
+        gnome-color-manager
+      ];
 
     programs.dconf.enable = true;
   };

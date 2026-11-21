@@ -13,23 +13,39 @@ let
     concatStrings
     ;
   cfg = config.${namespace}.system.zswap;
+  impermanence = config.${namespace}.system.impermanence;
+
+  diskoSwap = lib.any (
+    disk:
+    lib.any (partition: (partition.content.type or null) == "swap") (
+      lib.attrValues (disk.content.partitions or { })
+    )
+  ) (lib.attrValues config.disko.devices.disk);
 in
 {
   options.${namespace}.system.zswap = {
-    enable = mkEnableOption "Whether or not to manage zswap.";
+    enable = mkEnableOption "managing zswap";
     swapfilePath = mkOption {
       type = types.str;
       default = concatStrings [
-        (lib.optionalString config.${namespace}.system.impermanence.enable "/mnt/root-persist")
+        (lib.optionalString impermanence.enable impermanence.defaultPersistentPath)
         "/swapfile"
       ];
     };
     swapfileSize = mkOption {
       type = types.int;
-      default = 16 * 1024; # 16 GB
+      default =
+        let
+          ram = config.${namespace}.facts.memory.totalMiB;
+          roundUp = size: if size >= ram then size else roundUp (size * 2);
+        in
+        lib.min (16 * 1024) (roundUp 1024);
+      defaultText = "RAM size from facts rounded up to a power of two, at most 16 GiB.";
+      description = "Swapfile size in MiB.";
     };
-    createSwapfile = mkEnableOption "Whether to create a swapfile." // {
-      default = true;
+    createSwapfile = mkEnableOption "creating a swapfile" // {
+      default = !diskoSwap;
+      defaultText = "Whether disko declares no swap partition.";
     };
   };
 
@@ -43,13 +59,11 @@ in
 
     boot.kernelParams = [
       "zswap.enabled=1"
-      "zswap.compressor=zstd" # It already used by default
       "zswap.max_pool_percent=20"
       "zswap.shrinker_enabled=1"
     ];
 
     boot.kernel.sysctl = {
-      "vm.page-cluster" = 0;
       "vm.swappiness" = 100;
     };
   };

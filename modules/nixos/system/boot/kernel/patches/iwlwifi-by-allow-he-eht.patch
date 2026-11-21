@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Tue, 20 Oct 2026 17:22:38 +0300
+Subject: [PATCH] wifi: iwlwifi: allow 11ax and 11be in Belarus
+
+The firmware's regulatory capabilities for MCC "BY" set the 11ax and
+11be disabled bits, so every rule of the Belarus regdomain carries
+NO-HE and NO-EHT and Intel adapters fall back to VHT. Other vendors'
+radios run HE and EHT under the same national rules. Keep the
+firmware's channel, power and bandwidth rules for BY and clear only
+those two bits.
+---
+ drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+index 863d5e3..9015b87 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-nvm-parse.c
+@@ -1805,6 +1805,11 @@ iwl_parse_nvm_mcc_info(struct iwl_trans *trans,
+ 	if (puncturing_status)
+ 		*puncturing_status = reg_capa.puncturing_status;
+ 
++	if (fw_mcc == ('B' << 8 | 'Y')) {
++		reg_capa.disable_11ax = false;
++		reg_capa.disable_11be = false;
++	}
++
+ 	for (ch_idx = 0; ch_idx < num_of_ch; ch_idx++) {
+ 		enum nl80211_band band =
+ 			iwl_nl80211_band_from_channel_idx(ch_idx);

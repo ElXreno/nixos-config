@@ -18,10 +18,18 @@ let
   cfg = config.${namespace}.programs.firefox;
 
   ramMiB = osConfig.${namespace}.facts.memory.totalMiB;
+
+  themeStyles = config.stylix.enable && (cfg.allStyles || cfg.styles != [ ]);
+
+  userContent = pkgs.${namespace}.userstyles-base16.override {
+    colors = config.lib.stylix.colors.withHashtag;
+    styles = if cfg.allStyles then null else cfg.styles;
+    inherit (cfg) excludeStyles styleVars;
+  };
 in
 {
   options.${namespace}.programs.firefox = {
-    enable = mkEnableOption "Whether or not to manage Firefox.";
+    enable = mkEnableOption "managing Firefox";
     package = mkPackageOption pkgs "firefox" { };
 
     extensions = {
@@ -40,6 +48,37 @@ in
       type = types.raw;
       default = { };
     };
+
+    styles = mkOption {
+      type = with types; listOf str;
+      default = [
+        "github"
+        "wiki.nixos.org"
+        "reddit"
+        "nixos-search"
+      ];
+      description = "Names of catppuccin/userstyles styles to build against the stylix palette.";
+    };
+
+    allStyles = mkOption {
+      type = types.bool;
+      default = true;
+      description = "Whether to build every style the collection ships.";
+    };
+
+    excludeStyles = mkOption {
+      type = with types; listOf str;
+      default = [ ];
+      description = "Styles to drop when allStyles is enabled.";
+    };
+
+    styleVars = mkOption {
+      type = with types; attrsOf (attrsOf str);
+      default = {
+        claude.accentColor = "peach";
+      };
+      description = "Per-style UserCSS variable overrides, keyed by style name.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -50,20 +89,7 @@ in
 
     programs.firefox = {
       enable = true;
-      package = cfg.package.override {
-        # TODO: Remove after INFINITY deploy
-        extraPrefs = ''
-          clearPref("gfx.webrender.all");
-          clearPref("widget.dmabuf.force-enabled");
-          clearPref("media.hardware-video-decoding.force-enabled");
-          clearPref("nglayout.initialpaint.delay");
-          clearPref("nglayout.initialpaint.delay_in_oopif");
-          clearPref("javascript.options.use_fdlibm_for_sin_cos_tan");
-          clearPref("accessibility.force_disabled");
-          clearPref("network.trr.custom_uri");
-          clearPref("network.dns.echconfig.enabled");
-        '';
-      };
+      inherit (cfg) package;
 
       languagePacks = [
         "ru"
@@ -93,7 +119,7 @@ in
       };
 
       profiles.default = {
-        isDefault = true;
+        userContent = mkIf themeStyles userContent;
 
         search = {
           default = "google";
@@ -128,6 +154,8 @@ in
         };
 
         settings = {
+          "toolkit.legacyUserProfileCustomizations.stylesheets" = themeStyles;
+
           "browser.tabs.fadeOutUnloadedTabs" = true;
           "browser.tabs.unloadOnLowMemory" = true;
           "browser.tabs.min_inactive_duration_before_unload" = 14400000;
@@ -135,7 +163,10 @@ in
 
           # ECH via local dnscrypt-proxy DoH
           "network.trr.mode" = 3;
-          "network.trr.uri" = "https://127.0.0.1:3000/dns-query";
+          "network.trr.uri" = "https://127.0.0.1:${
+            toString osConfig.${namespace}.ports.dnscrypt-local-doh
+          }/dns-query";
+          "network.trr.excluded-domains" = osConfig.clan.core.settings.domain;
 
           "gfx.webrender.layer-compositor" = true;
           "gfx.content.skia-font-cache-size" = 32;

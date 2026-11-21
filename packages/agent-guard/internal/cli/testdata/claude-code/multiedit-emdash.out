@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"additionalContext":"This writes an em-dash to disk: \"alpha — beta\". Those are AI markers the user strips by hand; use a plain hyphen, straight quotes, three dots or an ordinary space instead. Arrows and other technical glyphs are fine.","hookEventName":"PreToolUse"}}

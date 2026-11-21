@@ -1,0 +1,1 @@
+{"patch":{"command":"rg -n foo ."},"append":"agent-guard: Ran `rg -n foo .` instead: in rg, -r is --replace and recursion is the default, so the r was dropped."}

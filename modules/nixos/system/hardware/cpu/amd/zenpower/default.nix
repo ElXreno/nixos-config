@@ -13,7 +13,7 @@ let
 in
 {
   options.${namespace}.system.hardware.cpu.amd.zenpower = {
-    enable = mkEnableOption "Whether to utilize zenpower for sensors." // {
+    enable = mkEnableOption "utilizing zenpower for sensors" // {
       default = config.${namespace}.facts.cpu.amd.zenpowerSupported;
     };
   };

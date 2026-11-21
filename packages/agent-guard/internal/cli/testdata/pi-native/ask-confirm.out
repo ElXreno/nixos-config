@@ -1,0 +1,1 @@
+{"confirm":{"message":"git reset --hard destroys uncommitted work. Yes only if the user asked for it; otherwise git reset (mixed), git reset --soft, or revert specific paths.","declined":"The user declined: git reset --hard destroys uncommitted work. Yes only if the user asked for it; otherwise git reset (mixed), git reset --soft, or revert specific paths."}}

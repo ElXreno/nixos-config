@@ -14,7 +14,7 @@ let
 in
 {
   options.${namespace}.system.virtualisation.libvirtd = {
-    enable = mkEnableOption "Whether or not to manage libvirtd.";
+    enable = mkEnableOption "managing libvirtd";
   };
 
   config = mkIf cfg.enable {

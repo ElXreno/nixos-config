@@ -1,0 +1,1 @@
+Blocked: git add of the whole tree also stages the user's own uncommitted work and other sessions' changes. Stage the paths this task changed, git add <paths>, or commit them in one step with git commit -m <msg> -- <paths>. When the user asked to commit everything, name the paths explicitly.

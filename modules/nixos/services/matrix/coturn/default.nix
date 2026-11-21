@@ -7,30 +7,16 @@
 }:
 
 let
-  inherit (lib)
-    mkIf
-    mkEnableOption
-    ;
-  cfg = config.${namespace}.services.matrix.coturn;
-  synapseCfg = config.${namespace}.services.matrix.synapse;
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.services.matrix;
 
-  baseDomain = synapseCfg.serverName;
+  baseDomain = cfg.serverName;
   turnHost = "turn.${baseDomain}";
   certDir = "/var/lib/acme/${turnHost}";
+  coturn = config.services.coturn;
 in
 {
-  options.${namespace}.services.matrix.coturn = {
-    enable = mkEnableOption "Whether to manage coturn for Matrix voice/video.";
-  };
-
-  config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = synapseCfg.enable;
-        message = "${namespace}.services.matrix.coturn requires matrix.synapse to be enabled.";
-      }
-    ];
-
+  config = mkIf (cfg.enable && cfg.voip.enable) {
     clan.core.vars.generators.matrix-coturn-secret = {
       files.secret = {
         secret = true;
@@ -47,7 +33,10 @@ in
 
     security.acme.certs."${turnHost}".reloadServices = [ "coturn.service" ];
 
-    users.users.turnserver.extraGroups = [ "acme" ];
+    users.users.turnserver.extraGroups = [
+      "acme"
+      "caddy"
+    ];
 
     services.coturn = {
       enable = true;
@@ -59,7 +48,7 @@ in
       pkey = "${certDir}/key.pem";
       secure-stun = true;
       no-tcp-relay = true;
-      min-port = 49152;
+      min-port = 52000;
       max-port = 65535;
       extraConfig = ''
         denied-peer-ip=0.0.0.0-0.255.255.255
@@ -94,33 +83,12 @@ in
       "static-auth-secret:${config.clan.core.vars.generators.matrix-coturn-secret.files.secret.path}"
     ];
 
-    networking.firewall = {
-      allowedTCPPorts = [
-        3478
-        3479
-        5349
-        5350
-      ];
-      allowedUDPPorts = [
-        3478
-        3479
-        5349
-        5350
-      ];
-      allowedUDPPortRanges = [
-        {
-          from = 49152;
-          to = 65535;
-        }
-      ];
-    };
-
     services.matrix-synapse.settings = {
       turn_uris = [
-        "turn:${turnHost}:3478?transport=udp"
-        "turn:${turnHost}:3478?transport=tcp"
-        "turns:${turnHost}:5349?transport=udp"
-        "turns:${turnHost}:5349?transport=tcp"
+        "turn:${turnHost}:${toString coturn.listening-port}?transport=udp"
+        "turn:${turnHost}:${toString coturn.listening-port}?transport=tcp"
+        "turns:${turnHost}:${toString coturn.tls-listening-port}?transport=udp"
+        "turns:${turnHost}:${toString coturn.tls-listening-port}?transport=tcp"
       ];
       turn_shared_secret_path = "/run/credentials/matrix-synapse.service/coturn-shared-secret";
       turn_user_lifetime = 86400000;
@@ -131,8 +99,33 @@ in
       "coturn-shared-secret:${config.clan.core.vars.generators.matrix-coturn-secret.files.secret.path}"
     ];
 
-    ${namespace}.services.nginx.virtualHosts."${turnHost}" = {
-      locations."/".return = "204";
+    ${namespace} = {
+      ports = {
+        coturn-stun = coturn.listening-port;
+        coturn-stun-alt = coturn.alt-listening-port;
+        coturn-turns = coturn.tls-listening-port;
+        coturn-turns-alt = coturn.alt-tls-listening-port;
+      };
+
+      system.networking.firewall.public.coturn = rec {
+        tcp = [
+          coturn.listening-port
+          coturn.alt-listening-port
+          coturn.tls-listening-port
+          coturn.alt-tls-listening-port
+        ];
+        udp = tcp;
+        udpRanges = [
+          {
+            from = coturn.min-port;
+            to = coturn.max-port;
+          }
+        ];
+      };
     };
+
+    services.caddy.virtualHosts."${turnHost}".extraConfig = ''
+      respond 204
+    '';
   };
 }

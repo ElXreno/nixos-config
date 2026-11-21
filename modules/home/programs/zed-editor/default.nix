@@ -9,10 +9,11 @@
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.programs.zed-editor;
+  lsp = import ../_lsp.nix { inherit pkgs lib; };
 in
 {
   options.${namespace}.programs.zed-editor = {
-    enable = mkEnableOption "Whether or not to manage Zed Editor.";
+    enable = mkEnableOption "managing Zed Editor";
   };
 
   config = mkIf cfg.enable {
@@ -20,6 +21,7 @@ in
       zed-editor = {
         enable = true;
         extensions = [
+          "xml"
           "nix"
           "github-actions"
           "gitlab-ci-ls"
@@ -35,29 +37,14 @@ in
           "go-snippets"
         ];
         extraPackages =
-          with pkgs;
-          [
-            nixd
-            nixfmt
-
+          lsp.packages
+          ++ (with pkgs; [
             gitlab-ci-ls
             opentofu
-            tofu-ls
-            helm-ls
-            yaml-language-server
-            (runCommand "json-language-server" { } ''
-              mkdir -p "$out"/bin
-              ln -s ${lib.getExe vscode-json-languageserver} "$out"/bin/json-language-server
-              ln -s ${lib.getExe vscode-json-languageserver} "$out"/bin/vscode-json-languageserver
-            '')
-            (tree-sitter.withPlugins (p: builtins.attrValues p))
 
-            gopls
             golangci-lint-langserver
             delve
             package-version-server
-          ]
-          ++ (with pkgs.${namespace}; [
             crates-lsp
           ]);
 
@@ -68,6 +55,7 @@ in
           };
 
           ensure_final_newline_on_save = true;
+          window_decorations = "server";
           load_direnv = "shell_hook";
           formatter = "language_server";
 
@@ -139,6 +127,11 @@ in
             };
           };
         };
+      };
+
+      niri.settings.binds."Mod+Shift+D" = mkIf config.${namespace}.desktop-environments.niri.enable {
+        action.spawn-sh = "${pkgs.uwsm}/bin/uwsm-app -- zeditor";
+        hotkey-overlay.title = "Run an Text Editor: zeditor";
       };
     };
 

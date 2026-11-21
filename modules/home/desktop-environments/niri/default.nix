@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   pkgs,
@@ -8,8 +9,6 @@
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.niri;
-
-  uwsm-app = "${pkgs.uwsm}/bin/uwsm-app --";
 
   inherit (config.lib.stylix.colors.withHashtag)
     base00
@@ -21,19 +20,19 @@ let
 in
 {
   options.${namespace}.desktop-environments.niri = {
-    enable = mkEnableOption "Whether or not to manage niri.";
+    enable = mkEnableOption "managing niri" // {
+      default = osConfig.${namespace}.desktop-environments.niri.enable;
+    };
   };
 
   config = mkIf cfg.enable {
     ${namespace} = {
+      stylix.enable = true;
+
       programs = {
         kitty.enable = true;
         noctalia.enable = true;
       };
-    };
-
-    services = {
-      playerctld.enable = true;
     };
 
     systemd.user.services.wayland-wm-app-daemon = {
@@ -102,6 +101,11 @@ in
           accel-speed = 0.0;
         };
 
+        touchpad = {
+          tap = true;
+          natural-scroll = true;
+        };
+
         warp-mouse-to-focus.enable = true;
 
         focus-follows-mouse = {
@@ -110,32 +114,13 @@ in
         };
       };
 
-      outputs = {
-        "eDP-1" = {
-          position = {
-            x = 0;
-            y = 360;
-          };
-          variable-refresh-rate = false;
-        };
-        "Xiaomi Corporation Mi monitor 5392700044842" = {
-          mode = {
-            width = 2560;
-            height = 1440;
-            refresh = 180.0;
-          };
-          focus-at-startup = true;
-          variable-refresh-rate = true;
-          bpc = 10;
-        };
-      };
-
-      debug.enable-overlay-planes = { };
+      debug.enable-overlay-planes = mkIf osConfig.${namespace}.facts.gpu.amd.exists { };
 
       clipboard.disable-primary = true;
 
       layout = {
         gaps = 12;
+        background-color = "transparent";
         border = {
           width = 2;
           active.gradient = {
@@ -171,358 +156,20 @@ in
 
       overview = {
         backdrop-color = base00;
-        workspace-shadow = {
-          softness = 40.0;
-          spread = 10;
-          offset = {
-            x = 0;
-            y = 10;
-          };
-          color = "#00000060";
-        };
+        workspace-shadow.enable = false;
       };
 
       cursor.hide-when-typing = true;
-
-      binds = {
-        "Mod+Shift+Slash".action.show-hotkey-overlay = [ ];
-
-        "Mod+B" = {
-          action.spawn-sh = "${uwsm-app} firefox";
-          hotkey-overlay.title = "Open a Browser: firefox";
-        };
-        "Mod+Return" = {
-          action.spawn-sh = "${uwsm-app} kitty";
-          hotkey-overlay.title = "Open a Terminal: kitty";
-        };
-        "Mod+D" = {
-          action.spawn-sh = "noctalia-shell ipc call launcher toggle";
-          hotkey-overlay.title = "Open Application Launcher (Noctalia)";
-        };
-        "Mod+Shift+C" = {
-          action.spawn-sh = "noctalia-shell ipc call launcher clipboard";
-          hotkey-overlay.title = "Open Clipboard History (Noctalia)";
-        };
-        "Mod+E" = {
-          action.spawn-sh = "${uwsm-app} thunar";
-          hotkey-overlay.title = "Run an File Manager: thunar";
-        };
-        "Mod+Shift+D" = {
-          action.spawn-sh = "${uwsm-app} zeditor";
-          hotkey-overlay.title = "Run an Text Editor: zeditor";
-        };
-        "Mod+Shift+W" = {
-          action.spawn-sh = ''noctalia-shell ipc call "plugin:linux-wallpaperengine-controller" toggle'';
-          hotkey-overlay.title = "Wallpaper Engine (Noctalia)";
-        };
-        "Mod+Shift+L" = {
-          action.spawn-sh = "noctalia-shell ipc call lockScreen lock";
-          hotkey-overlay.title = "Lock the Screen (Noctalia)";
-        };
-        "Mod+Shift+I" = {
-          action.spawn-sh = "noctalia-shell ipc call idleInhibitor toggle";
-          hotkey-overlay.title = "Toggle Idle Inhibitor (Noctalia)";
-        };
-
-        "XF86AudioRaiseVolume" = {
-          action.spawn-sh = "noctalia-shell ipc call volume increase";
-          allow-when-locked = true;
-        };
-        "XF86AudioLowerVolume" = {
-          action.spawn-sh = "noctalia-shell ipc call volume decrease";
-          allow-when-locked = true;
-        };
-        "XF86AudioMute" = {
-          action.spawn-sh = "noctalia-shell ipc call volume muteOutput";
-          allow-when-locked = true;
-        };
-        "XF86AudioMicMute" = {
-          action.spawn-sh = "noctalia-shell ipc call volume muteInput";
-          allow-when-locked = true;
-        };
-
-        "XF86AudioPlay" = {
-          action.spawn-sh = "playerctl play-pause --player=spotify";
-          allow-when-locked = true;
-        };
-        "XF86AudioPause" = {
-          action.spawn-sh = "playerctl play-pause --player=spotify";
-          allow-when-locked = true;
-        };
-        "XF86AudioStop" = {
-          action.spawn-sh = "playerctl pause --player=spotify";
-          allow-when-locked = true;
-        };
-        "XF86AudioPrev" = {
-          action.spawn-sh = "playerctl previous --player=spotify";
-          allow-when-locked = true;
-        };
-        "XF86AudioNext" = {
-          action.spawn-sh = "playerctl next --player=spotify";
-          allow-when-locked = true;
-        };
-
-        "XF86MonBrightnessUp" = {
-          action.spawn-sh = "noctalia-shell ipc call brightness increase";
-          allow-when-locked = true;
-        };
-        "XF86MonBrightnessDown" = {
-          action.spawn-sh = "noctalia-shell ipc call brightness decrease";
-          allow-when-locked = true;
-        };
-
-        "Mod+Tab" = {
-          action.toggle-overview = [ ];
-          repeat = false;
-        };
-
-        "Mod+Q" = {
-          action.close-window = [ ];
-          repeat = false;
-        };
-
-        "Mod+Left".action.focus-column-left = [ ];
-        "Mod+Down".action.focus-window-down = [ ];
-        "Mod+Up".action.focus-window-up = [ ];
-        "Mod+Right".action.focus-column-right = [ ];
-
-        "Mod+Ctrl+Left".action.move-column-left = [ ];
-        "Mod+Ctrl+Down".action.move-window-down = [ ];
-        "Mod+Ctrl+Up".action.move-window-up = [ ];
-        "Mod+Ctrl+Right".action.move-column-right = [ ];
-
-        "Mod+Home".action.focus-column-first = [ ];
-        "Mod+End".action.focus-column-last = [ ];
-        "Mod+Ctrl+Home".action.move-column-to-first = [ ];
-        "Mod+Ctrl+End".action.move-column-to-last = [ ];
-
-        "Mod+Shift+Left".action.focus-monitor-left = [ ];
-        "Mod+Shift+Down".action.focus-monitor-down = [ ];
-        "Mod+Shift+Up".action.focus-monitor-up = [ ];
-        "Mod+Shift+Right".action.focus-monitor-right = [ ];
-
-        "Mod+Shift+Ctrl+Left".action.move-column-to-monitor-left = [ ];
-        "Mod+Shift+Ctrl+Down".action.move-column-to-monitor-down = [ ];
-        "Mod+Shift+Ctrl+Up".action.move-column-to-monitor-up = [ ];
-        "Mod+Shift+Ctrl+Right".action.move-column-to-monitor-right = [ ];
-
-        "Mod+Page_Down".action.focus-workspace-down = [ ];
-        "Mod+Page_Up".action.focus-workspace-up = [ ];
-        "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = [ ];
-        "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = [ ];
-
-        "Mod+Shift+Page_Down".action.move-workspace-down = [ ];
-        "Mod+Shift+Page_Up".action.move-workspace-up = [ ];
-
-        "Mod+WheelScrollDown" = {
-          action.focus-workspace-down = [ ];
-          cooldown-ms = 50;
-        };
-        "Mod+WheelScrollUp" = {
-          action.focus-workspace-up = [ ];
-          cooldown-ms = 50;
-        };
-
-        "Mod+Shift+WheelScrollDown".action.focus-column-right = [ ];
-        "Mod+Shift+WheelScrollUp".action.focus-column-left = [ ];
-
-        "Mod+1".action.focus-workspace = 1;
-        "Mod+2".action.focus-workspace = 2;
-        "Mod+3".action.focus-workspace = 3;
-        "Mod+4".action.focus-workspace = 4;
-        "Mod+5".action.focus-workspace = 5;
-        "Mod+6".action.focus-workspace = 6;
-        "Mod+7".action.focus-workspace = 7;
-        "Mod+8".action.focus-workspace = 8;
-        "Mod+9".action.focus-workspace = 9;
-        "Mod+Ctrl+1".action.move-column-to-workspace = 1;
-        "Mod+Ctrl+2".action.move-column-to-workspace = 2;
-        "Mod+Ctrl+3".action.move-column-to-workspace = 3;
-        "Mod+Ctrl+4".action.move-column-to-workspace = 4;
-        "Mod+Ctrl+5".action.move-column-to-workspace = 5;
-        "Mod+Ctrl+6".action.move-column-to-workspace = 6;
-        "Mod+Ctrl+7".action.move-column-to-workspace = 7;
-        "Mod+Ctrl+8".action.move-column-to-workspace = 8;
-        "Mod+Ctrl+9".action.move-column-to-workspace = 9;
-
-        "Mod+BracketLeft".action.consume-or-expel-window-left = [ ];
-        "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
-
-        "Mod+Comma".action.consume-window-into-column = [ ];
-        "Mod+Period".action.expel-window-from-column = [ ];
-
-        "Mod+R".action.switch-preset-column-width = [ ];
-        "Mod+Shift+R".action.switch-preset-window-height = [ ];
-        "Mod+Ctrl+R".action.reset-window-height = [ ];
-        "Mod+F".action.maximize-column = [ ];
-        "Mod+Shift+F".action.fullscreen-window = [ ];
-
-        "Mod+Ctrl+F".action.expand-column-to-available-width = [ ];
-
-        "Mod+C".action.center-column = [ ];
-
-        "Mod+Ctrl+C".action.center-visible-columns = [ ];
-
-        "Mod+Minus".action.set-column-width = "-10%";
-        "Mod+Equal".action.set-column-width = "+10%";
-
-        "Mod+Shift+Minus".action.set-window-height = "-10%";
-        "Mod+Shift+Equal".action.set-window-height = "+10%";
-
-        "Mod+V".action.toggle-window-floating = [ ];
-        "Mod+Shift+V".action.switch-focus-between-floating-and-tiling = [ ];
-
-        "Mod+W".action.toggle-column-tabbed-display = [ ];
-
-        "Print".action.screenshot = [ ];
-        "Ctrl+Print".action.screenshot-screen = [ ];
-        "Alt+Print".action.screenshot-window = [ ];
-
-        "Mod+Escape" = {
-          action.toggle-keyboard-shortcuts-inhibit = [ ];
-          allow-inhibiting = false;
-        };
-
-        "Ctrl+Alt+Delete".action.quit = [ ];
-
-        "Mod+Shift+P".action.power-off-monitors = [ ];
-
-        "Mod+Ctrl+Shift+Print" = {
-          action.spawn-sh = ''noctalia-shell ipc call "plugin:screen-recorder" toggle'';
-          hotkey-overlay.title = "Toggle Screen Recording (Noctalia)";
-        };
-      };
-
-      window-rules = [
-        {
-          default-column-width = {
-            proportion = 0.5;
-          };
-          shadow = {
-            enable = true;
-            draw-behind-window = true;
-          };
-          geometry-corner-radius = {
-            top-left = 8.0;
-            top-right = 8.0;
-            bottom-left = 8.0;
-            bottom-right = 8.0;
-          };
-          clip-to-geometry = true;
-        }
-
-        {
-          matches = [
-            { app-id = "^xdg-desktop-portal-gtk$"; }
-            { app-id = "^nz\\.co\\.mega\\.$"; }
-          ];
-          open-floating = true;
-        }
-
-        {
-          matches = [
-            { app-id = "^dev\\.zed\\.Zed$"; }
-            { app-id = "^firefox$"; }
-            { app-id = "^Freelens$"; }
-            { app-id = "^spotify$"; }
-            { app-id = "^steam$"; }
-          ];
-          excludes = [
-            {
-              app-id = "^steam$";
-              title = "^Friends List$";
-            }
-          ];
-          open-maximized = true;
-        }
-
-        {
-          matches = [
-            { app-id = "^org\\.telegram\\.desktop$"; }
-          ];
-          excludes = [
-            {
-              app-id = "^org\\.telegram\\.desktop$";
-              title = "^Media viewer$";
-            }
-          ];
-          open-maximized = true;
-          block-out-from = "screen-capture";
-        }
-        {
-          matches = [
-            {
-              app-id = "^org\\.telegram\\.desktop$";
-              title = "^Media viewer$";
-            }
-          ];
-          open-fullscreen = false;
-          open-floating = true;
-          default-column-width.proportion = 0.7;
-          default-window-height.proportion = 0.7;
-          block-out-from = "screen-capture";
-        }
-
-        {
-          matches = [
-            { app-id = "^org\\.keepassxc\\.KeePassXC$"; }
-          ];
-          open-maximized = true;
-          open-focused = true;
-          block-out-from = "screen-capture";
-        }
-
-        {
-          matches = [
-            {
-              app-id = "^steam$";
-              title = "^Friends List$";
-            }
-          ];
-          open-floating = true;
-          default-column-width.proportion = 0.3;
-          default-window-height.proportion = 0.7;
-        }
-        {
-          matches = [
-            {
-              app-id = "steam";
-              title = "^notificationtoasts_\\d+_desktop$";
-            }
-          ];
-          open-focused = false;
-          default-floating-position = {
-            x = 10;
-            y = 10;
-            relative-to = "bottom-right";
-          };
-          block-out-from = "screen-capture";
-        }
-      ];
-
-      layer-rules = [
-        {
-          matches = [
-            { namespace = "^noctalia-notifications"; }
-            { namespace = "^noctalia-toast"; }
-          ];
-          block-out-from = "screen-capture";
-        }
-        {
-          matches = [ { namespace = "^noctalia-overview"; } ];
-          place-within-backdrop = true;
-        }
-      ];
-
-      spawn-at-startup = [
-        { command = [ "noctalia-shell" ]; }
-      ];
 
       hotkey-overlay.skip-at-startup = true;
       prefer-no-csd = true;
     };
 
     gtk.enable = true;
+
+    xfconf.settings.thunar = {
+      hidden-bookmarks = [ "file://${config.home.homeDirectory}/Desktop" ];
+    };
 
     xdg.portal = {
       enable = true;

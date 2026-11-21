@@ -13,12 +13,10 @@ let
 in
 {
   options.${namespace}.system.virtualisation.podman = {
-    enable = mkEnableOption "Whether or not to manage podman.";
+    enable = mkEnableOption "managing podman";
   };
 
   config = mkIf cfg.enable {
-    networking.dhcpcd.IPv6rs = false; # Not in use anyway
-
     virtualisation.podman.enable = true;
 
     hardware.nvidia-container-toolkit.enable = config.hardware.nvidia.enabled;

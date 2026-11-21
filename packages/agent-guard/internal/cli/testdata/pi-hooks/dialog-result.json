@@ -1,0 +1,7 @@
+{
+  "event": "dialog_result",
+  "toolName": "bash",
+  "toolCallId": "call_ask-confirm",
+  "sessionId": "019a5f00-0000-7000-8000-00000000c0de",
+  "approved": true
+}

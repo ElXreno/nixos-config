@@ -1,0 +1,1 @@
+{"session_id":"s1","transcript_path":"@ROOT@/transcript.jsonl","cwd":"@ROOT@/repos/nixos-config","permission_mode":"default","hook_event_name":"UserPromptSubmit","prompt":"Can I git push the commit to the remote now, or do I wait for your authorization first?"}

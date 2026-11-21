@@ -9,10 +9,11 @@
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.services.dnscrypt-proxy;
+  ports = config.${namespace}.ports;
 in
 {
   options.${namespace}.services.dnscrypt-proxy = {
-    enable = mkEnableOption "Whether or not to manage dnscrypt-proxy.";
+    enable = mkEnableOption "managing dnscrypt-proxy";
   };
 
   config = mkIf cfg.enable {
@@ -48,14 +49,21 @@ in
       runtimeInputs = [ pkgs.openssl ];
     };
 
-    ${namespace}.system.impermanence.directories = [
-      {
-        directory = "/var/lib/private/dnscrypt-proxy";
-        user = "nobody";
-        group = "nogroup";
-        mode = "0700";
-      }
-    ];
+    ${namespace} = {
+      ports = {
+        dnscrypt-local-doh = 3000;
+        dnscrypt-metrics = 8079;
+      };
+      services.monitoring.agent.targets.dnscrypt-proxy.port = ports.dnscrypt-metrics;
+      system.impermanence.directories = [
+        {
+          directory = "/var/lib/private/dnscrypt-proxy";
+          user = "nobody";
+          group = "nogroup";
+          mode = "0700";
+        }
+      ];
+    };
 
     security.pki.certificateFiles = [
       config.clan.core.vars.generators."dnscrypt-proxy-local-doh".files."ca.pem".path
@@ -66,17 +74,18 @@ in
         "127.0.0.1"
         "::1"
       ];
-      networkmanager.dns = lib.mkForce "systemd-resolved";
+      networkmanager.dns = "systemd-resolved";
     };
 
+    services.timesyncd.servers = [
+      "162.159.200.1"
+      "162.159.200.123"
+      "216.239.35.0"
+    ];
+
     services.resolved.settings.Resolve = {
-      DNS = [
-        "127.0.0.1:53"
-        "[::1]:53"
-      ];
       Domains = [ "~." ];
       FallbackDNS = [ "" ];
-      DNSOverTLS = false;
     };
 
     systemd.services.dnscrypt-proxy.serviceConfig.LoadCredential = [
@@ -101,15 +110,10 @@ in
         http3 = true;
         http3_probe = true;
 
+        block_ipv6 = true;
+
         # Enforce good old default
         lb_strategy = "p2";
-        lb_estimator = true;
-
-        cache_size = 4096;
-        cache_min_ttl = 2400;
-        cache_max_ttl = 86400;
-        cache_neg_min_ttl = 60;
-        cache_neg_max_ttl = 600;
 
         server_names = [
           "cloudflare"
@@ -129,7 +133,7 @@ in
         };
 
         local_doh = {
-          listen_addresses = [ "127.0.0.1:3000" ];
+          listen_addresses = [ "127.0.0.1:${toString ports.dnscrypt-local-doh}" ];
           path = "/dns-query";
           cert_file = "/run/credentials/dnscrypt-proxy.service/localhost.pem";
           cert_key_file = "/run/credentials/dnscrypt-proxy.service/localhost.pem";
@@ -139,9 +143,9 @@ in
           enabled = true;
           username = ""; # I don't care
           password = ""; # I don't care
-          listen_address = "127.0.0.1:8079";
+          listen_address = "127.0.0.1:${toString ports.dnscrypt-metrics}";
           privacy_level = 0;
-          prometheus_enabled = config.services.victoriametrics.enable;
+          prometheus_enabled = config.services.vmagent.enable;
         };
       };
     };

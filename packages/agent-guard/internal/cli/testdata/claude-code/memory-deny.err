@@ -1,0 +1,1 @@
+Blocked: this agent writes only under /home/test/.claude/agent-memory/log-forensics, /x/.claude/agent-memory/log-forensics, /x/.claude/agent-memory-local/log-forensics. Gather the evidence and report it. Do not modify the system under investigation.

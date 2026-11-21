@@ -2,8 +2,8 @@
   imports = [
     ./clan.nix
     ./hydraJobs.nix
-    ./nixOnDroid.nix
     ./packages.nix
+    ./routers.nix
     ./devShells.nix
     ./terranix.nix
     ./treefmt.nix

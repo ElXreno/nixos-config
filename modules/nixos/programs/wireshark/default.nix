@@ -12,7 +12,7 @@ let
 in
 {
   options.${namespace}.programs.wireshark = {
-    enable = mkEnableOption "Whether or not to manage wireshark.";
+    enable = mkEnableOption "managing wireshark";
   };
 
   config = mkIf cfg.enable {
@@ -23,6 +23,6 @@ in
       usbmon.enable = true;
     };
 
-    users.users.elxreno.extraGroups = [ "wireshark" ];
+    users.users.${config.${namespace}.primaryUser}.extraGroups = [ "wireshark" ];
   };
 }

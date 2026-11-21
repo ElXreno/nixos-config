@@ -1,0 +1,68 @@
+From 9b144ee4f3c2c12afb07b78d67b521940374449c Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sat, 31 Oct 2026 20:00:57 +0300
+Subject: [PATCH] nvidia-drm: only flag degamma and TMO changes when clearing
+ state changes them
+
+With DRM_CLIENT_CAP_PLANE_COLOR_PIPELINE set and no COLOR_PIPELINE on a
+plane, nv_drm_plane_process_color_mgmt_state() clears the vendor plane
+color state on every atomic check and sets degamma_changed and
+tmo_changed unconditionally, even when that state is already at its
+defaults.
+
+plane_req_config_update() then drops the plane's ILUT surface, builds a
+new one from the CRTC DEGAMMA_LUT and sends it to NVKMS on every commit.
+A compositor that uses the color pipeline uAPI for some planes and the
+legacy CRTC DEGAMMA_LUT/CTM/GAMMA_LUT for the output therefore gets its
+ILUT reallocated and reprogrammed every frame, and the output
+occasionally shows a frame with the wrong degamma as a brief brightness
+flicker. With a bpftrace probe, acquire_drm_lut_surface() ran 212 times
+for 213 commits on an idle desktop.
+
+Only set degamma_changed and tmo_changed when the cleared state was not
+already at its defaults. TMO state counts as set when it has a LUT or a
+non-default SAT_CORR setting.
+---
+ .../nvidia-drm/nvidia-drm-color-pipeline.c       | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-color-pipeline.c b/kernel-open/nvidia-drm/nvidia-drm-color-pipeline.c
+index a363614..cfc1b39 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-color-pipeline.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-color-pipeline.c
+@@ -588,6 +588,14 @@ int nv_drm_plane_process_color_mgmt_state(struct drm_plane *plane,
+     }
+ 
+     if (clear_state) {
++        NvBool degamma_set =
++            (nv_plane_state->degamma_tf != NV_DRM_TRANSFER_FUNCTION_DEFAULT) ||
++            (nv_plane_state->degamma_lut != NULL) ||
++            (nv_plane_state->degamma_multiplier != NV_DRM_S31_32_ONE);
++        NvBool tmo_set =
++            (nv_plane_state->tmo_lut != NULL) ||
++            (nv_plane_state->tmo_sat_corr_enable != NV_DRM_TMO_SAT_CORR_ENABLE_DEFAULT);
++
+         drm_property_blob_put(nv_plane_state->fmt_ctm);
+         nv_plane_state->fmt_ctm = NULL;
+ 
+@@ -607,11 +615,15 @@ int nv_drm_plane_process_color_mgmt_state(struct drm_plane *plane,
+         drm_property_blob_put(nv_plane_state->degamma_lut);
+         nv_plane_state->degamma_lut = NULL;
+         nv_plane_state->degamma_multiplier = NV_DRM_S31_32_ONE;
+-        nv_plane_state->degamma_changed = true;
++        if (degamma_set) {
++            nv_plane_state->degamma_changed = true;
++        }
+ 
+         drm_property_blob_put(nv_plane_state->tmo_lut);
+         nv_plane_state->tmo_lut = NULL;
+-        nv_plane_state->tmo_changed = true;
++        if (tmo_set) {
++            nv_plane_state->tmo_changed = true;
++        }
+         nv_plane_state->tmo_sat_corr_enable = NV_DRM_TMO_SAT_CORR_ENABLE_DEFAULT;
+     }
+ 
+-- 
+2.56.0
+

@@ -1,135 +1,38 @@
-{
-  namespace,
-  virtual,
-  ...
-}:
+{ namespace, ... }:
 
 {
-  imports = [
-    ./wireguard.nix
-  ];
-
   ${namespace} = {
-    roles.laptop.enable = true;
-
     system = {
-      boot = {
-        uefi = {
-          enable = true;
-        };
-        kernel = {
-          amdPstateForceCppc = true;
-          optimizations = {
-            enable = true;
-            znver = 4;
-          };
-        };
-      };
-
       impermanence.enable = true;
 
       hardware = {
-        asus.fa507uv.enable = true;
         gpu.nvidia = {
-          dynamicBoost.enable = true;
-          overclock.enable = true;
-          powerManagement.finegrained = true;
-          acpiNotifyRtd3Guard.enable = true;
-
-          prime = {
+          overclock = {
             enable = true;
-            amdgpuBusId = "PCI:66:0:0";
-            nvidiaBusId = "PCI:1:0:0";
+            freqOffset = 140;
+            maxClock = 2625;
           };
+          acpiNotifyRtd3Guard.enable = true;
         };
-
-        lamzu.enable = true;
-        zaopin.enable = true;
-        fifine-am8 = {
-          enable = true;
-          pipewire.noise-cancelling.target = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
-        };
-        silakka54.enable = true;
-        rk-m87.enable = true;
       };
 
       fs.zfs = {
-        # enable = true;
-        hostId = "e7e00058";
-      };
-
-      virtualisation = {
-        libvirtd.enable = true;
-        podman.enable = true;
+        hostId = "790a20cd";
+        autoSnapshot.filesystems = {
+          "rpool/home-persist" = true;
+          "rpool/root-persist<" = true;
+        };
       };
     };
 
     services = {
-      postgresql.enable = true;
-      bitmagnet.enable = true;
-      restic.enable = !virtual;
-      attic-watch-store.enable = true;
-      # monitoring.enable = true;
-
-      pipewire.rnnoise = {
-        enable = true;
-        target = "alsa_input.pci-0000_66_00.6.analog-stereo";
-      };
-
-      flatpak.enable = true;
+      monitoring.prometheus.exporters.nvidia.enable = false;
     };
-
-    programs = {
-      steam = {
-        enable = true;
-        xboxSupport = true;
-      };
-    };
-
-    desktop-environments.niri.enable = true;
 
     home-manager.syncthing.randomPortIncrement = 42;
   };
 
-  hardware.cpu.amd.ryzen-smu.enable = true;
-
   # I'll manage it manually
   # Nvidia kernel module too big for `/boot` partition
   hardware.facter.detected.graphics.enable = false;
-  # And dhcp too
-  hardware.facter.detected.dhcp.enable = false;
-
-  boot.kernelParams = [
-    "acpi_osi=!"
-    "acpi_osi=\"Windows 2022\""
-    "tsc=nowatchdog"
-    "tsc=reliable"
-    "clocksource=tsc"
-
-    "pcie_aspm.policy=powersupersave"
-  ];
-
-  boot.extraModprobeConfig = ''
-    # NVIDIA dGPU
-    options nvidia NVreg_EnableS0ixPowerManagement=1 NVreg_UsePageAttributeTable=1
-    options nvidia NVreg_EnableStreamMemOPs=1 NVreg_EnableResizableBar=1 NVreg_EnablePCIERelaxedOrderingMode=1
-  '';
-
-  networking.firewall = {
-    allowedTCPPorts = [
-      25565 # Minecraft
-      57621 # Spotify
-      8100 # Minecraft web map
-      56660 # Torrents
-    ];
-    allowedUDPPorts = [
-      25565 # Minecraft
-      56660 # Torrents
-    ];
-  };
-
-  # Required sometimes
-  # services.timesyncd.enable = false;
-
-  nix.settings.system-features = [ "gccarch-znver4" ];
 }

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export LC_ALL=C
 
 json=$(cat)
@@ -81,17 +82,10 @@ if [[ -n $pr_num ]]; then
   fi
 fi
 
-flag="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.caveman-active"
-if [[ -f $flag && ! -L $flag ]]; then
-  mode=$(head -c 64 "$flag" 2>/dev/null | tr -d '\n\r' | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
-  orange=$'\e[38;5;172m'
-  case $mode in
-  full) seg+=("${orange}[CAVEMAN]$reset") ;;
-  lite | ultra | wenyan | wenyan-lite | wenyan-full | wenyan-ultra | commit | review | compress)
-    seg+=("${orange}[CAVEMAN:${mode^^}]$reset")
-    ;;
-  esac
-fi
+hooks=(@hooks@)
+for hook in "${hooks[@]}"; do
+  "$hook" <<<"$json"
+done
 
 out=""
 for s in "${seg[@]}"; do

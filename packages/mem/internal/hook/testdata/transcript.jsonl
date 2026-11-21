@@ -1,0 +1,8 @@
+{"type":"user","message":{"role":"user","content":"look at memory usage"},"sessionId":"s5","timestamp":"2026-11-07T10:00:00.000Z"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"Checking the Bluetooth headset first."}]},"sessionId":"s5"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"thinking","thinking":"hmm"},{"type":"text","text":"The ZFS ARC holds most of the RAM after boot: zfs_arc_max is unset, so the ARC grows to half of memory and gives it back slowly under pressure. Shall I cap the ARC?"}]},"sessionId":"s5"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"tool_use","id":"toolu_x","name":"Bash","input":{"command":"arcstat 1 1"}}]},"sessionId":"s5"}
+{"type":"user","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_x","content":"ok"}]},"sessionId":"s5"}
+{"type":"assistant","isSidechain":true,"message":{"role":"assistant","content":[{"type":"text","text":"Sidechain chatter about the quantum lattice."}]},"sessionId":"s5"}
+{"type":"assistant","isApiErrorMessage":true,"message":{"role":"assistant","content":[{"type":"text","text":"API Error: overloaded"}]},"sessionId":"s5"}
+{"type":"assistant","message":{"role":"assistant","content":[{"type":"text","text":"partial line without newline

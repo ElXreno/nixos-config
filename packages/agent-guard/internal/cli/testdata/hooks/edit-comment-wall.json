@@ -1,0 +1,13 @@
+{
+  "session_id": "abcd1234-0000-4000-8000-000000000000",
+  "transcript_path": "",
+  "cwd": "/home/test/repo",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/home/test/repo/main.go",
+    "old_string": "package main",
+    "new_string": "package main\n\n// one\n// two\n// three\n// four\n// five\nfunc main() {}\n"
+  },
+  "tool_use_id": "toolu_edit-comment-wall"
+}

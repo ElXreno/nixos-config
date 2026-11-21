@@ -52,7 +52,7 @@ let
 in
 {
   options.${namespace}.services.github-watch = {
-    enable = mkEnableOption "Whether to auto-watch owned GitHub repos.";
+    enable = mkEnableOption "auto-watching owned GitHub repos";
 
     interval = mkOption {
       type = types.str;

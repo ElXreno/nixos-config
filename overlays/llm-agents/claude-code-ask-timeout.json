@@ -1,0 +1,11 @@
+[
+  {
+    "module": "/$bunfs/root/chunk-5bpaxaqk.js",
+    "replace": [
+      {
+        "old": "async function li(e,r){let{ctx:n,description:s,result:y}=e,",
+        "new": "async function li(e,r){{let Tq=+process.env.AGENT_GUARD_ASK_TIMEOUT_MS,Rq=e.result,Uq=e.ctx.tool,Dq=Rq.denialLimitFallback;if(Tq>0&&Tq<2**31&&Rq.behavior===\"ask\"&&Rq.autoDenyWindow===void 0&&Dq?.autoDenyAfterMs===void 0&&![\"AskUserQuestion\",\"ExitPlanMode\",\"EnterPlanMode\"].includes(Uq.name)&&Uq.requiresUserInteraction?.()!==!0){let Hq=Rq.decisionReason?.type===\"hook\"?Rq.message||Rq.decisionReason.reason:void 0,Sq={behavior:\"deny\",message:`The permission prompt for this call expired unanswered, so it was denied.${Hq?` Hook reason: ${Hq}`:\"\"}`,decisionReason:Rq.decisionReason??{type:\"other\",reason:\"the permission prompt expired unanswered\"},decideLocation:\"pre-ask\"};e={...e,result:Dq!==void 0?{...Rq,denialLimitFallback:{...Dq,autoDenyAfterMs:Tq,autoDenyResolution:Sq}}:{...Rq,autoDenyWindow:{autoDenyAfterMs:Tq,autoDenyResolution:Sq,notASafetyCheck:!0}}}}}let{ctx:n,description:s,result:y}=e,"
+      }
+    ]
+  }
+]

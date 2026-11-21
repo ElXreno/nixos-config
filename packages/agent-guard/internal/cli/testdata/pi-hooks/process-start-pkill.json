@@ -1,0 +1,14 @@
+{
+  "event": "tool_call",
+  "toolName": "process",
+  "toolCallId": "call_process-start-pkill",
+  "input": {
+    "action": "start",
+    "name": "k",
+    "command": "pkill -f x",
+    "cwd": "sub"
+  },
+  "cwd": "/home/test/repo",
+  "sessionId": "019a5f00-0000-7000-8000-00000000c0de",
+  "hasUI": true
+}

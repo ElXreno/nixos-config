@@ -11,3 +11,4 @@ result*
 
 # terranix
 config.tf.json
+.playwright-mcp/

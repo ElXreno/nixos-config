@@ -11,17 +11,12 @@ let
 in
 {
   options.${namespace}.programs.direnv = {
-    enable = mkEnableOption "Whether or not to manage direnv.";
+    enable = mkEnableOption "managing direnv";
   };
 
   config = mkIf cfg.enable {
     programs = {
-      direnv = {
-        enable = true;
-        nix-direnv = {
-          enable = true;
-        };
-      };
+      direnv.enable = true;
       bash.enable = true;
     };
   };

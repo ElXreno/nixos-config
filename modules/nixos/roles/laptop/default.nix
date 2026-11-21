@@ -6,44 +6,39 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkIf mkDefault mkEnableOption;
   cfg = config.${namespace}.roles.laptop;
 in
 {
   options.${namespace}.roles.laptop = {
-    enable = mkEnableOption "Whether or not to enable laptop configuration.";
+    enable = mkEnableOption "laptop configuration";
   };
 
   config = mkIf cfg.enable {
     ${namespace} = {
       roles.common.enable = true;
 
-      common-packages.enable = true;
+      tailscale.tags = [ "tag:laptop" ];
+
+      programs.partition-manager.enable = true;
 
       services = {
         pipewire.enable = true;
-        scx = {
-          enable = true;
-          scheduler = "scx_lavd";
-          schedulerExtraArgs = [
-            "--performance"
-          ];
-        };
-      };
-
-      programs = {
-        adb.enable = true;
       };
 
       system = {
         hardware.bluetooth.enable = true;
 
-        nix = {
-          daemonCPUSchedPolicy = "idle";
-          daemonCPUWeight = 1;
+        boot.lowLatency = mkDefault true;
+
+        tuning = {
+          profile = mkDefault "laptop";
+          sched.enable = mkDefault true;
         };
       };
     };
+
+    environment.systemPackages = [ config.boot.kernelPackages.cpupower ];
 
     services.logind.settings.Login = {
       HandleLidSwitch = "ignore";

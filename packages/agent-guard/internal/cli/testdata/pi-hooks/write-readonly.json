@@ -1,0 +1,12 @@
+{
+  "event": "tool_call",
+  "toolName": "write",
+  "toolCallId": "call_write-readonly",
+  "input": {
+    "path": "@/home/test/.claude/x",
+    "content": "x\n"
+  },
+  "cwd": "/home/test/repo",
+  "sessionId": "019a5f00-0000-7000-8000-00000000c0de",
+  "hasUI": true
+}

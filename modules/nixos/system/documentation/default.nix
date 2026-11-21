@@ -12,7 +12,7 @@ let
 in
 {
   options.${namespace}.system.documentation = {
-    enable = mkEnableOption "Whether to install documentation." // {
+    enable = mkEnableOption "installing documentation" // {
       default = true;
     };
   };

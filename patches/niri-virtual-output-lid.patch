@@ -1,0 +1,65 @@
+diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
+--- a/src/backend/tty.rs
++++ b/src/backend/tty.rs
+@@ -1141,7 +1141,7 @@
+             let device = self.devices.get(&node).unwrap();
+ 
+             // Follow the logic in on_output_config_changed().
+-            let disable_laptop_panels = self.should_disable_laptop_panels(niri.is_lid_closed);
++            let disable_laptop_panels = self.should_disable_laptop_panels(niri);
+             let should_disable = |conn: &str| disable_laptop_panels && is_laptop_panel(conn);
+ 
+             let config = self.config.borrow();
+@@ -2508,6 +2508,7 @@
+ 
+         if should_connect {
+             niri.add_output(built.output, Some(built.refresh_interval), false);
++            self.on_output_config_changed(niri);
+         }
+ 
+         // Ensure IPC reflects the configured mode immediately.
+@@ -2523,7 +2524,9 @@
+             &mut self.virtual_outputs.outputs,
+             name,
+             "virtual output",
+-        )
++        )?;
++        self.on_output_config_changed(niri);
++        Ok(())
+     }
+ 
+     #[cfg(feature = "xdp-gnome-screencast")]
+@@ -2654,13 +2657,22 @@
+         }
+     }
+ 
+-    fn should_disable_laptop_panels(&self, is_lid_closed: bool) -> bool {
+-        if !is_lid_closed {
++    fn should_disable_laptop_panels(&self, niri: &Niri) -> bool {
++        if !niri.is_lid_closed {
+             return false;
+         }
+ 
+         let config = self.config.borrow();
+         if !config.debug.keep_laptop_panel_on_when_lid_is_closed {
++            if self
++                .virtual_outputs
++                .outputs
++                .values()
++                .any(|(output, _)| niri.output_state.contains_key(output))
++            {
++                return true;
++            }
++
+             // Check if any external monitor is connected.
+             for device in self.devices.values() {
+                 for (connector, _crtc) in device.drm_scanner.crtcs() {
+@@ -2685,7 +2697,7 @@
+         self.update_output_config_on_resume = false;
+ 
+         // Figure out if we should disable laptop panels.
+-        let disable_laptop_panels = self.should_disable_laptop_panels(niri.is_lid_closed);
++        let disable_laptop_panels = self.should_disable_laptop_panels(niri);
+         let should_disable = |connector: &str| disable_laptop_panels && is_laptop_panel(connector);
+ 
+         let mut to_disconnect = vec![];

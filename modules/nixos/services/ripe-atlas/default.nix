@@ -9,65 +9,72 @@
 let
   inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.services.ripe-atlas;
-
-  regservers = pkgs.writeScript "reg_servers.sh" ''
-    REG_1_HOST=193.0.19.246
-    REG_2_HOST=193.0.19.247
-  '';
+  ports = config.${namespace}.ports;
+  key = config.clan.core.vars.generators.ripe-atlas.files;
 in
 {
   options.${namespace}.services.ripe-atlas = {
-    enable = mkEnableOption "Whether to manage ripe-atlas.";
+    enable = mkEnableOption "managing ripe-atlas";
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.system.virtualisation.podman.enable = true;
-
-    systemd.services.podman-pre-setup-ripe-atlas = {
-      serviceConfig = {
-        Type = "oneshot";
+    ${namespace} = {
+      system = {
+        virtualisation.podman.enable = true;
+        impermanence.directories = [ "/var/spool/ripe-atlas" ];
       };
-      wantedBy = [ "podman-ripe-atlas.service" ];
-      path = [ pkgs.podman ];
+      ports = {
+        ripe-atlas-httppost = 18090;
+        ripe-atlas-telnetd = 2023;
+      };
+    };
+
+    clan.core.vars.generators.ripe-atlas = {
+      files = {
+        probe_key.restartUnits = [ "podman-ripe-atlas.service" ];
+        "probe_key.pub".secret = false;
+      };
+      runtimeInputs = [ pkgs.openssh ];
       script = ''
-        mkdir -p /{etc,run,var/spool}/ripe-atlas
+        ssh-keygen -t ed25519 -N "" -C "${config.clan.core.settings.machine.name}" -f "$out/probe_key"
       '';
     };
 
-    virtualisation.oci-containers.containers = {
-      ripe-atlas = {
-        image = "jamesits/ripe-atlas:5120"; # https://hub.docker.com/r/jamesits/ripe-atlas/tags
+    systemd.services.podman-ripe-atlas.preStart = ''
+      install -d -m 0755 /run/ripe-atlas/run /var/spool/ripe-atlas
+      install -d -m 0770 -o 101 -g 101 /run/ripe-atlas/etc
+      install -m 0600 -o 101 -g 101 ${key.probe_key.path} /run/ripe-atlas/etc/probe_key
+      install -m 0644 -o 101 -g 101 ${key."probe_key.pub".path} /run/ripe-atlas/etc/probe_key.pub
+    '';
 
-        autoStart = true;
-        user = "root:root";
-        capabilities = {
-          all = false;
-          NET_RAW = true;
-          KILL = true;
-          SETUID = true;
-          SETGID = true;
-          FOWNER = true;
-          CHOWN = true;
-          DAC_OVERRIDE = true;
-        };
-        extraOptions = [
-          "--network=host"
-          # Currently broken
-          # "--runtime=runsc"
-        ];
+    virtualisation.oci-containers.containers.ripe-atlas = {
+      image = "docker.io/jamesits/ripe-atlas@sha256:841459abe5aac56833e94832b2460423b5b9532b6420df73bfec54dd3303643b";
 
-        environment = {
-          # https://github.com/RIPE-NCC/ripe-atlas-software-probe?tab=readme-ov-file#configuration-options
-          RXTXRPT = "yes";
-        };
-
-        volumes = [
-          "/etc/ripe-atlas:/etc/ripe-atlas"
-          "${regservers}:/usr/libexec/ripe-atlas/scripts/reg_servers.sh.prod" # It works only before first `/etc/ripe-atlas` init
-          "/run/ripe-atlas:/run/ripe-atlas"
-          "/var/spool/ripe-atlas:/var/spool/ripe-atlas"
-        ];
+      autoStart = true;
+      user = "root:root";
+      capabilities = {
+        all = false;
+        NET_RAW = true;
+        KILL = true;
+        SETUID = true;
+        SETGID = true;
+        FOWNER = true;
+        CHOWN = true;
+        DAC_OVERRIDE = true;
       };
+      extraOptions = [ "--network=host" ];
+
+      environment = {
+        RXTXRPT = "yes";
+        HTTP_POST_PORT = toString ports.ripe-atlas-httppost;
+        TELNETD_PORT = toString ports.ripe-atlas-telnetd;
+      };
+
+      volumes = [
+        "/run/ripe-atlas/etc:/etc/ripe-atlas"
+        "/run/ripe-atlas/run:/run/ripe-atlas"
+        "/var/spool/ripe-atlas:/var/spool/ripe-atlas"
+      ];
     };
   };
 }

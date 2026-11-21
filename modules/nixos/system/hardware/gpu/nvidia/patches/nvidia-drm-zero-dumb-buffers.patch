@@ -1,0 +1,45 @@
+From a210c43524bf0f4eb6a96b803c2c8d1967c6f237 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sat, 24 Oct 2026 11:03:38 +0300
+Subject: [PATCH] nvidia-drm: zero dumb buffers in video memory before handing
+ them out
+
+nv_drm_dumb_create() allocates scanout memory in video memory and maps
+it, but never clears it, so a new dumb buffer holds whatever was in that
+memory before: the firmware boot logo or frames of an earlier DRM
+master.
+
+The fbdev console makes this visible. With two displays of different
+sizes, drm_fb_helper allocates the fbdev buffer for the largest mode but
+draws the console only into the area of the smallest one, and the rest
+of the buffer is scanned out unchanged on the larger display. A
+3840x2400 laptop panel next to a 2560x1440 monitor shows sliced copies
+of the BGRT logo to the right of the console after plymouth exits, on
+every VT switch and at shutdown, and nothing ever draws over them.
+
+Clear the buffer through the write-combined mapping once it is set up.
+Dumb buffers in system memory have no such mapping here and are left
+as they are.
+---
+ kernel-open/nvidia-drm/nvidia-drm-gem-nvkms-memory.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-gem-nvkms-memory.c b/kernel-open/nvidia-drm/nvidia-drm-gem-nvkms-memory.c
+index 0785dddf..f413d663 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-gem-nvkms-memory.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-gem-nvkms-memory.c
+@@ -508,6 +508,11 @@ int nv_drm_dumb_create(
+         goto fail;
+     }
+ 
++    if (nv_nvkms_memory->pWriteCombinedIORemapAddress != NULL) {
++        memset_io(nv_nvkms_memory->pWriteCombinedIORemapAddress, 0,
++                  nv_nvkms_memory->base.base.size);
++    }
++
+     return nv_drm_gem_handle_create_drop_reference(file_priv,
+                                                    &nv_nvkms_memory->base,
+                                                    &args->handle);
+-- 
+2.55.0
+

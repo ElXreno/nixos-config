@@ -1,25 +1,61 @@
-_: {
+{ inputs, clanMeta, ... }:
+{
   perSystem =
     { pkgs, inputs', ... }:
     let
-      # https://github.com/tailscale/terraform-provider-tailscale
-      # TODO: Drop when tailscale_service resource lands in a released version
-      tailscaleProvider = pkgs.terraform-providers.tailscale_tailscale.override {
-        rev = "d8848da4e737e49138683d4feaba6259d75b0de0";
-        version = "0.29.0";
-        hash = "sha256-XITwEn9XdRXkVvOiAsoHm2Lhj5/JI0N52Njl4Lgs+V8=";
-        vendorHash = "sha256-nSxQYOvAF4FeLX1Qz8dT24F72Zm7dtskfcFg68dq/c4=";
-      };
-
       terraformPackage = pkgs.opentofu.withPlugins (p: [
-        tailscaleProvider
+        p.tailscale_tailscale
+        p.cloudflare_cloudflare
+        p.hashicorp_aws
         p.hashicorp_external
       ]);
+
+      tailnet = import ../terraform/lib/tailnet.nix {
+        inherit (pkgs) lib;
+        namespace = clanMeta.name;
+        inherit (inputs.self.clan) nixosConfigurations;
+      };
+
+      s4 = import ../terraform/lib/s4.nix {
+        inherit (pkgs) lib;
+        namespace = clanMeta.name;
+        inherit (inputs.self.clan) nixosConfigurations;
+      };
+
+      dns = import ../terraform/lib/dns.nix {
+        inherit (pkgs) lib;
+        namespace = clanMeta.name;
+        inherit (inputs.self.clan) nixosConfigurations;
+      };
+
+      tunnels = import ../terraform/lib/tunnels.nix {
+        inherit (pkgs) lib;
+        namespace = clanMeta.name;
+        inherit (inputs.self.clan) nixosConfigurations;
+      };
     in
     {
       terranix.terranixConfigurations.terraform = {
         workdir = "terraform";
-        modules = [ ../tofu/tailscale-services.nix ];
+        modules = [
+          ../terraform/common.nix
+          ../terraform/tailscale-services.nix
+          ../terraform/tailscale-policy.nix
+          ../terraform/tailscale-tailnet.nix
+          ../terraform/s4-policy.nix
+          ../terraform/cloudflare-dns.nix
+          ../terraform/cloudflare-zone.nix
+          ../terraform/cloudflare-workers.nix
+          ../terraform/cloudflare-tunnels.nix
+        ];
+        extraArgs = {
+          inherit
+            tailnet
+            s4
+            dns
+            tunnels
+            ;
+        };
         terraformWrapper.package = terraformPackage;
         terraformWrapper.extraRuntimeInputs = [ inputs'.clan-core.packages.clan-cli ];
         terraformWrapper.prefixText = ''
@@ -40,6 +76,13 @@ _: {
           )
 
           export TF_ENCRYPTION
+
+          if [ -e config.tf.json ]; then
+            rm -f .terraform.lock.hcl
+            ${terraformPackage}/bin/tofu providers lock \
+              -fs-mirror="${terraformPackage}/libexec/terraform-providers" \
+              -platform=${pkgs.go.GOOS}_${pkgs.go.GOARCH} >/dev/null
+          fi
         '';
       };
     };

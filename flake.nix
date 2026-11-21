@@ -7,13 +7,27 @@
     };
 
     flake-input-patcher = {
-      url = "github:ElXreno/flake-input-patcher/support-non-flake-inputs";
+      url = "github:jfly/flake-input-patcher";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+    };
+
+    zfs-slab-mobility = {
+      url = "github:ElXreno/zfs-slab-mobility";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
+    systems.url = "github:nix-systems/default";
+
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
     };
 
     clan-core = {
@@ -29,15 +43,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-on-droid = {
-      url = "github:nix-community/nix-on-droid";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
-    };
-
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    gddr6 = {
+      url = "github:olealgoritme/gddr6";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.utils.follows = "flake-utils";
     };
 
     impermanence = {
@@ -49,6 +63,7 @@
     lanzaboote = {
       url = "github:nix-community/lanzaboote";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.pre-commit.follows = "git-hooks-nix";
     };
 
     home-manager = {
@@ -62,18 +77,10 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    deploy-rs = {
-      url = "github:serokell/deploy-rs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     niri = {
-      url = "github:sodiboo/niri-flake";
+      url = "github:epireyn/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.niri-stable = {
-        url = "github:niri-wm/niri/v26.04";
-        flake = false;
-      };
+      inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
     stylix = {
@@ -85,6 +92,7 @@
     firefox-addons = {
       url = "github:petrkozorezov/firefox-addons-nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
 
     rk-m87-sync = {
@@ -93,8 +101,44 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    flydigictl = {
+      url = "github:ElXreno/flydigictl";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.crane.follows = "lanzaboote/crane";
+    };
+
+    ryukaze = {
+      url = "github:ElXreno/ryukaze/titan-18-hx";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    roj = {
+      url = "git+ssh://git@github.com/ElXreno/roj";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    courbet = {
+      url = "github:ElXreno/nixos-courbet";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-optimized.url = "github:ElXreno/nix-optimized";
+
+    nix-keenetic.url = "github:ElXreno/nix-keenetic";
+
     nixflix = {
       url = "github:kiriwalawren/nixflix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.mkdocs-catppuccin.follows = "";
+      inputs.vpn-confinement.follows = "vpn-confinement";
+    };
+
+    vpn-confinement.url = "github:Maroka-chan/VPN-Confinement";
+
+    niks3 = {
+      url = "github:Mic92/niks3";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
@@ -102,42 +146,35 @@
     nix-minecraft = {
       url = "github:ElXreno/nix-minecraft/feat/fetchCurseForgeModpack";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+      inputs.flake-compat.follows = "";
     };
 
-    proton-cachyos = {
-      url = "github:powerofthe69/proton-cachyos-nix";
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    noctalia = {
-      url = "github:noctalia-dev/noctalia-shell/legacy-v4";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    noctalia-plugins = {
-      url = "github:noctalia-dev/noctalia-plugins";
-      flake = false;
+      inputs.systems.follows = "systems";
     };
 
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    caveman = {
-      url = "github:JuliusBrussee/caveman";
-      flake = false;
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.systems.follows = "systems";
     };
 
     terranix = {
       url = "github:terranix/terranix";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
+      inputs.systems.follows = "systems";
     };
 
     git-hooks-nix = {
       url = "github:cachix/git-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-compat.follows = "";
     };
 
     treefmt-nix = {
@@ -152,34 +189,43 @@
       system = "x86_64-linux";
 
       patcher = unpatchedInputs.flake-input-patcher.lib.${system};
-      inputs = patcher.patch unpatchedInputs {
-        niri = {
-          patches = [
-            # Drop once sodiboo/niri-flake bumps niri-stable past v25.11
-            # and removes the replace-service-with-usr-bin parameter.
-            ./patches/niri-flake-stable-v26.patch
+      inputs = patcher.patch {
+        inherit unpatchedInputs;
+        flakePath = ./.;
+        patchSpec = {
+          niri = {
+            patches = [
+              ./patches/niri-flake-output-max-bpc.patch
+              ./patches/niri-flake-output-srgb-clamp.patch
+              ./patches/niri-flake-output-dithering.patch
+            ];
 
-            ./patches/niri-flake-output-bpc.patch
-          ];
+            inputs.niri-unstable.patches = [
+              ./patches/niri-unstable-srgb-clamp.patch
 
-          inputs.niri-stable.patches = [
-            ./patches/niri-stable-bpc-pr3158.patch
+              # niri-wm/niri#2201
+              ./patches/niri-lock-backdrop.patch
 
-            # Adds read-only `niri msg pointer` (global cursor, like hyprctl cursorpos)
-            # so linux-wallpaperengine can drive mouse interaction. Upstream refuses
-            # this (niri-wm/niri#1924); picked from bczhc/niri@6e2b79f.
-            ./patches/niri-stable-msg-pointer.patch
+              # niri-wm/niri#3800
+              ./patches/niri-virtual-outputs.patch
+
+              # Turns the laptop panel off on lid close when only a virtual output remains.
+              ./patches/niri-virtual-output-lid.patch
+
+              # Output `dithering` and `max-bpc` through the NVIDIA connector properties.
+              ./patches/niri-output-dithering.patch
+            ];
+          };
+
+          # workaround for hooks installed into whatever repo the devShell is entered from
+          git-hooks-nix.patches = [
+            ./patches/git-hooks-install-marker.patch
           ];
         };
-
-        noctalia.patches = [ ./patches/noctalia-no-workspace-wave.patch ];
       };
     in
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
+      systems = [ "x86_64-linux" ];
 
       imports = [
         inputs.clan-core.flakeModules.default

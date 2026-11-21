@@ -1,0 +1,30 @@
+diff --git a/settings/outputs.nix b/settings/outputs.nix
+index e7df26b..cfeb1e7 100644
+--- a/settings/outputs.nix
++++ b/settings/outputs.nix
+@@ -195,6 +195,25 @@ in
+                   ])
+                 ];
+               }
++              {
++                options.max-bpc =
++                  nullable (enum [
++                    8
++                    10
++                  ])
++                  // {
++                    description = ''
++                      Bits per colour (BPC) for this output.
++
++                      When this is null, niri does not change the existing ${fmt.code "max bpc"} connector property.
++                    '';
++                  };
++                render = config: [
++                  (lib.mkIf (config.max-bpc != null) [
++                    (kdl.leaf "max-bpc" config.max-bpc)
++                  ])
++                ];
++              }
+               {
+                 options.focus-at-startup = optional types.bool false // {
+                   description = ''

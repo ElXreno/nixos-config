@@ -13,8 +13,8 @@ let
 in
 {
   options.${namespace}.services.xserver = {
-    enable = mkEnableOption "Whether or not to manage xserver.";
-    isLaptop = mkEnableOption "Whether to enable libinput." // {
+    enable = mkEnableOption "managing xserver";
+    libinput.enable = mkEnableOption "configuring libinput for mice and touchpads" // {
       default = true;
     };
   };
@@ -29,7 +29,7 @@ in
         };
       };
 
-      libinput = mkIf cfg.isLaptop {
+      libinput = mkIf cfg.libinput.enable {
         enable = true;
         mouse.accelSpeed = "-0.4";
         touchpad = {

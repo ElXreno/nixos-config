@@ -1,0 +1,36 @@
+{
+  "home": "/home/test",
+  "shellReadRoots": [
+    "/proc",
+    "/sys",
+    "/dev",
+    "/etc",
+    "/usr",
+    "/nix/store",
+    "/run/current-system",
+    "/home/test/.claude"
+  ],
+  "scratchBase": "/mnt/scratch/claude-code",
+  "protectedRepos": [
+    "github.com/ElXreno/nixos-config"
+  ],
+  "createRoots": [
+    "/home/test/.claude"
+  ],
+  "reposRoot": "/home/test/projects/repos",
+  "deniedWrites": [
+    {
+      "path": "/proc/sys/vm/drop_caches",
+      "reason": "dropping caches or compacting memory is never done without asking: tell the owner how much memory is needed and wait."
+    },
+    {
+      "path": "/proc/sys/vm/compact_memory",
+      "reason": "dropping caches or compacting memory is never done without asking: tell the owner how much memory is needed and wait."
+    }
+  ],
+  "avoidRoots": [
+    "/home/test",
+    "/tmp",
+    "/mnt/datalake"
+  ]
+}

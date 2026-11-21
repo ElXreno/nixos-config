@@ -36,25 +36,17 @@
 
   roles.node = {
     description = "Connects the machine to the tailnet, trusts the interface, tunes networking.";
-    interface =
-      { lib, ... }:
-      {
-        options.domain = lib.mkOption {
-          type = lib.types.str;
-          description = "Tailnet MagicDNS domain (e.g. angora-ide.ts.net).";
-        };
-      };
     perInstance =
       {
         mkExports,
         machine,
-        settings,
+        meta,
         ...
       }:
       {
         exports = mkExports {
           peer.hosts = [
-            { plain = "${lib.toLower machine.name}.${settings.domain}"; }
+            { plain = "${lib.toLower machine.name}.${meta.domain}"; }
           ];
         };
         nixosModule =
@@ -66,7 +58,6 @@
             ...
           }:
           let
-            inherit (lib) mkIf mkOption;
             serveCfg = config.${namespace}.tailscale.serve;
             tsBin = lib.getExe config.services.tailscale.package;
             # TODO: switch to `tailscale serve set-config` when upstream fixes
@@ -79,11 +70,27 @@
                   portSpec: backend:
                   let
                     port = lib.last (lib.splitString ":" portSpec);
+                    appCaps = lib.optionalString (
+                      svc.acceptAppCaps != [ ]
+                    ) "--accept-app-caps ${lib.concatStringsSep "," svc.acceptAppCaps} ";
                   in
-                  "${tsBin} serve --service ${svcName} --bg --yes --https ${port} ${backend}"
+                  "${tsBin} serve --service ${svcName} --bg --yes ${appCaps}--https ${port} ${backend}"
                 ) svc.endpoints
               ) serveCfg
             );
+
+            nodeCfg = config.${namespace}.tailscale.serveNode;
+            nodePort = portSpec: lib.last (lib.splitString ":" portSpec);
+            nodeCommands = lib.mapAttrsToList (
+              portSpec: entry:
+              let
+                appCaps = lib.optionalString (
+                  entry.acceptAppCaps != [ ]
+                ) "--accept-app-caps ${lib.concatStringsSep "," entry.acceptAppCaps} ";
+              in
+              "${tsBin} serve --bg --yes ${appCaps}--https ${nodePort portSpec} ${entry.backend}"
+            ) nodeCfg;
+            declaredPorts = lib.concatStringsSep " " (map nodePort (lib.attrNames nodeCfg));
 
             declaredServices = lib.concatStringsSep " " (lib.attrNames serveCfg);
             jqBin = lib.getExe pkgs.jq;
@@ -96,37 +103,25 @@
                 fi
               done
 
-              ${lib.concatStringsSep "\n" serveCommands}
+              ports=$(${tsBin} serve status --json | ${jqBin} -r '.TCP // {} | keys[]')
+              for port in $ports; do
+                if ! echo "${declaredPorts}" | grep -qw "$port"; then
+                  ${tsBin} serve --https="$port" off
+                fi
+              done
+
+              ${lib.concatStringsSep "\n" (serveCommands ++ nodeCommands)}
             '';
           in
           {
-            options.${namespace}.tailscale.serve = mkOption {
-              type = lib.types.attrsOf (
-                lib.types.submodule {
-                  options.endpoints = mkOption {
-                    type = lib.types.attrsOf lib.types.str;
-                    default = { };
-                    example = {
-                      "tcp:443" = "http://localhost:8080";
-                    };
-                    description = ''
-                      Mapping of protocol:port to local backend URL.
-                      Tailscale terminates TLS and proxies to the backend.
-                    '';
-                  };
-                }
-              );
-              default = { };
-              description = ''
-                Tailscale Services to expose from this machine. Each key is a
-                service name (e.g. "svc:radarr") that must exist in the tailnet
-                (created via OpenTofu or the admin console). The endpoints map
-                the service's ports to local backends.
-              '';
-            };
-
             config = {
-              ${namespace}.system.impermanence.directories = [ "/var/lib/tailscale" ];
+              ${namespace}.system = {
+                impermanence.directories = [ "/var/lib/tailscale" ];
+                networking.firewall.public.tailscale = {
+                  upstream = "nixos/modules/services/networking/tailscale.nix";
+                  udp = [ config.services.tailscale.port ];
+                };
+              };
 
               clan.core.vars.generators.tailscale = {
                 prompts.authKey = {
@@ -151,7 +146,6 @@
                 useRoutingFeatures = "both";
                 extraUpFlags = [ "--reset" ];
                 extraSetFlags = [ "--accept-dns" ];
-                permitCertUid = with config.services.caddy; mkIf enable user;
               };
 
               networking =
@@ -169,18 +163,24 @@
 
               systemd.services = {
                 tailscaled = {
-                  before = [ "network.target" ];
                   after = [ "dnscrypt-proxy.service" ];
+                  serviceConfig.Nice = -10;
                 };
 
                 tailscaled-autoconnect = {
-                  serviceConfig.Type = lib.mkForce "exec";
-                  path = [ (pkgs.writeShellScriptBin "systemd-notify" "true") ];
+                  after = [ "multi-user.target" ];
+                  serviceConfig = {
+                    Restart = "on-failure";
+                    RestartSec = "10s";
+                  };
                 };
+
+                tailscaled-set.after = [ "multi-user.target" ];
 
                 tailscale-serve = {
                   description = "Apply Tailscale serve configuration";
                   after = [
+                    "multi-user.target"
                     "tailscaled.service"
                     "tailscaled-autoconnect.service"
                   ];
@@ -191,6 +191,7 @@
                     RemainAfterExit = true;
                     ExecStartPre = "${tsBin} wait";
                     ExecStart = serveScript;
+                    TimeoutStartSec = "5min";
                   };
                 };
               };

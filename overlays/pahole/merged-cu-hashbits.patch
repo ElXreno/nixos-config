@@ -1,0 +1,64 @@
+From 5dd10f8a489f2ae2db59d645171e7d2db50046c5 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Mon, 28 Sep 2026 16:17:58 +0300
+Subject: [PATCH] dwarf_loader: Size merged CU hash tables from the amount of
+ DWARF
+
+Backport to 1.31 of the upstream submission: size the merged CU hash
+tables at one bucket per 32 bytes of .debug_info, clamped to
+[hashtags__bits, max_hashtags__bits], and raise the max to 26.
+---
+ dwarf_loader.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
+
+diff --git a/dwarf_loader.c b/dwarf_loader.c
+index 79be3f5..7778ed1 100644
+--- a/dwarf_loader.c
++++ b/dwarf_loader.c
+@@ -60,7 +60,7 @@
+ static pthread_mutex_t libdw__lock = PTHREAD_MUTEX_INITIALIZER;
+ 
+ static uint32_t hashtags__bits = 12;
+-static uint32_t max_hashtags__bits = 21;
++static uint32_t max_hashtags__bits = 26;
+ 
+ static uint32_t hashtags__fn(Dwarf_Off key)
+ {
+@@ -3785,6 +3785,23 @@ out_early:
+ 	return dcus->error;
+ }
+ 
++/* One hash bucket per 32 bytes of DWARF, clamped to [default, max] bits */
++static uint32_t merged_cu__hashtags_bits(Dwarf *dw, uint32_t default_hbits)
++{
++	Dwarf_Off off = 0, noff;
++	size_t cuhl;
++	uint32_t bits;
++
++	while (dwarf_nextcu(dw, off, &noff, &cuhl, NULL, NULL, NULL) == 0)
++		off = noff;
++
++	bits = fls64(off / 32);
++	if (bits < default_hbits)
++		return default_hbits;
++
++	return bits < max_hashtags__bits ? bits : max_hashtags__bits;
++}
++
+ static int cus__merge_and_process_cu(struct cus *cus, struct conf_load *conf,
+ 				     Dwfl_Module *mod, Dwarf *dw, Elf *elf,
+ 				     const char *filename,
+@@ -3817,11 +3834,11 @@ static int cus__merge_and_process_cu(struct cus *cus, struct conf_load *conf,
+ 				goto out_abort;
+ 
+ 			/* Merged cu tends to need a lot more memory.
+-			 * Let us start with max_hashtags__bits and
++			 * Size the hash tables from the amount of DWARF and
+ 			 * go down to find a proper hashtag bit value.
+ 			 */
+ 			uint32_t default_hbits = hashtags__bits;
+-			for (hashtags__bits = max_hashtags__bits;
++			for (hashtags__bits = merged_cu__hashtags_bits(dw, default_hbits);
+ 			     hashtags__bits >= default_hbits;
+ 			     hashtags__bits--) {
+ 				if (dwarf_cu__init(dcu, cu) == 0)

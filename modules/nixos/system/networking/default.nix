@@ -20,35 +20,33 @@ let
 in
 {
   options.${namespace}.system.networking = {
-    enable = mkEnableOption "Whether or not to manage networking." // {
+    enable = mkEnableOption "managing networking" // {
       default = true;
     };
-    networkmanager.enable = mkEnableOption "Whether to use NetworkManager." // {
-      default = !config.${namespace}.roles.server.enable;
+    networkmanager.enable = mkEnableOption "using NetworkManager" // {
+      default = true;
     };
+    iwlwifi.larDisable = mkEnableOption "disabling LAR in a rebuilt iwlwifi" // {
+      default = elem "iwlwifi" wifiDrivers && !config.${namespace}.facts.network.wifi.iwlwifiMld;
+      defaultText = "Whether the WiFi driver is iwlwifi on a card iwlmvm drives.";
+    };
+    waitOnline = mkEnableOption "holding network-online.target until a link is routable";
   };
 
   config = mkIf cfg.enable {
-    ${namespace}.system.impermanence = {
-      directories = optionals cfg.networkmanager.enable [
-        "/etc/NetworkManager/system-connections"
-      ];
-    };
+    ${namespace}.system.impermanence.directories = optionals cfg.networkmanager.enable [
+      "/etc/NetworkManager/system-connections"
+      "/var/lib/NetworkManager"
+    ];
 
-    # for some reason *this* is what makes networkmanager not get screwed completely instead of the impermanence module
-    systemd.tmpfiles.rules = optionals cfg.networkmanager.enable (
-      with config.${namespace}.system.impermanence;
-      [
-        "L /var/lib/NetworkManager/secret_key - - - - ${defaultPersistentPath}/var/lib/NetworkManager/secret_key"
-        "L /var/lib/NetworkManager/seen-bssids - - - - ${defaultPersistentPath}/var/lib/NetworkManager/seen-bssids"
-        "L /var/lib/NetworkManager/timestamps - - - - ${defaultPersistentPath}/var/lib/NetworkManager/timestamps"
-      ]
-    );
+    hardware.facter.detected.dhcp.enable = mkIf cfg.networkmanager.enable false;
 
     networking = {
+      nftables.enable = true;
+
       networkmanager = {
         inherit (cfg.networkmanager) enable;
-        wifi.powersave = false;
+        wifi.powersave = true;
 
         dispatcherScripts = [
           {
@@ -90,43 +88,37 @@ in
       };
     };
 
-    systemd.services.NetworkManager-wait-online.enable = false;
-
     systemd.network.wait-online = {
-      # Override clan-core behavior
-      enable = mkForce config.${namespace}.roles.server.enable;
+      enable = mkForce cfg.waitOnline;
       timeout = 30;
     };
 
     boot = {
       extraModulePackages =
-        optionals (builtins.elem "iwlwifi" config.${namespace}.facts.network.wifi.drivers) [
+        optionals cfg.iwlwifi.larDisable [
           config.boot.kernelPackages.iwlwifi-lar
         ]
-        ++
-          optionals
-            (builtins.any (d: builtins.elem d config.${namespace}.facts.network.wifi.drivers) [
-              "mt7925e"
-              "mt7921e"
-            ])
-            [
-              config.boot.kernelPackages.mt76-tdls-fix
-            ];
+        ++ optionals (builtins.any (d: elem d wifiDrivers) [
+          "mt7925e"
+          "mt7921e"
+        ]) [ config.boot.kernelPackages.mt76-patched ];
 
       extraModprobeConfig = ''
-        options cfg80211 ieee80211_regdom=US
+        options cfg80211 ieee80211_regdom=${if cfg.iwlwifi.larDisable then "US" else "BY"}
       ''
-      + modprobeForDriver "iwlwifi" ''
-        options iwlwifi amsdu_size=3
-        options iwlwifi lar_disable=1
-        options iwlmvm power_scheme=1
-        options iwldvm force_cam=Y
-      ''
+      + modprobeForDriver "iwlwifi" (
+        ''
+          options iwlwifi amsdu_size=3
+        ''
+        + optionalString cfg.iwlwifi.larDisable ''
+          options iwlwifi lar_disable=1
+        ''
+        + optionalString (!cfg.networkmanager.enable) ''
+          options iwlmvm power_scheme=1
+        ''
+      )
       + modprobeForDriver "mt7925e" ''
         options mt7925e disable_aspm=1
-      ''
-      + modprobeForDriver "mt7921e" ''
-        options mt7921e disable_aspm=1
       '';
     };
 

@@ -1,0 +1,163 @@
+From a5afe9c15f51b9b55a080943bc191f319bb58663 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 01:08:46 +0300
+Subject: [PATCH] drm/i915/vrr: Allow VRR with the pipe joiner
+
+VRR has been limited to the fixed refresh rate timing generator with
+the joiner, as the transcoder level VRR operations were not sequenced
+against the pipe level updates of the joined pipes. That keeps VRR
+away from every mode that needs the joiner, such as 3840x2400@240 on
+the eDP panels of current 18" laptops.
+
+The transcoder is now programmed only by the joiner primary, and on
+the MMIO path all joined pipes are armed inside one vblank evasion
+critical section, with the push sent at its end. Take that path for
+VRR with the joiner and let VRR through.
+
+The DSB is not used for these commits. The push must not be sent
+before every joined pipe has been armed, but each pipe runs its own
+DSB and nothing orders them against each other. Leaving the push to
+the DSB of the primary, on the grounds that it is committed last, is
+not enough. The secondary's DSB waits for the safe window after it
+has armed (DSB_OPCODE_WAIT_VBLANKS with the safe window chicken bits,
+then the wait in intel_dsb_wait_for_delayed_vblank()). When the
+primary's push ends the safe window before the secondary's DSB gets
+there, that DSB waits for the safe window of the next frame, and it
+is still busy when intel_dsb_wait() gives it 1 ms after the flip of
+the primary has completed:
+
+ [CRTC:271:pipe B] DSB 0 timed out waiting for idle (current head=0x100, head=0x0, tail=0x140)
+
+That is what a port which only skips the push on the secondaries
+gives, 13 times in 27 minutes of desktop use on Arrow Lake. The DSB
+of a secondary can't check on the push either: commit c3571a239e10
+("drm/i915/vrr: Check that the push send bit is clear after delayed
+vblank") notes that reading TRANS_PUSH from it ends in a DSB response
+timeout.
+
+The LUT load has the same ordering problem when the colour DSB sends
+the push, so the colour DSB is not used with VRR and the joiner
+either. The LUTs are then loaded the way they are without a DSB:
+ahead of the commit when they can be preloaded, by the vblank worker
+after it otherwise, in which case the commit takes the per pipe
+critical sections, or with MMIO inside the critical section on the
+platforms with double buffered LUTs.
+
+One thing changes for joined modes even while VRR is off, as it
+follows vrr.in_range: the sink is told to ignore the MSA timing
+parameters during link training, as for any other mode within the
+VRR range.
+
+intel_vrr_compute_config() does not ask for LRR with the joiner, and
+DC balance is kept off, each with a FIXME. The vblank delay fastset
+that reuses the LRR code is not touched: where it applies (inherited
+state, or the always on VRR timing generator) it still writes the
+transcoder timings from every joined pipe, with identical values.
+---
+ drivers/gpu/drm/i915/display/intel_color.c   |  4 +++
+ drivers/gpu/drm/i915/display/intel_display.c |  1 +
+ drivers/gpu/drm/i915/display/intel_vrr.c     | 31 ++++++++++++--------
+ drivers/gpu/drm/i915/display/intel_vrr.h     |  1 +
+ 4 files changed, 25 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_color.c b/drivers/gpu/drm/i915/display/intel_color.c
+index 87ced9f..a4c52bd 100644
+--- a/drivers/gpu/drm/i915/display/intel_color.c
++++ b/drivers/gpu/drm/i915/display/intel_color.c
+@@ -2023,6 +2023,10 @@ void intel_color_prepare_commit(struct intel_atomic_state *state,
+ 	if (!crtc_state->pre_csc_lut && !crtc_state->post_csc_lut)
+ 		return;
+ 
++	/* TODO sequence the LUT load vs. the VRR push for joined pipes via DSB */
++	if (intel_vrr_needs_mmio_commit(crtc_state))
++		return;
++
+ 	if (HAS_DOUBLE_BUFFERED_LUT(display))
+ 		crtc_state->dsb_color = intel_dsb_prepare(state, crtc, INTEL_DSB_0, 1024);
+ 	else
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index d19e977..9db9b72 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -7464,6 +7464,7 @@ static void intel_atomic_dsb_prepare(struct intel_atomic_state *state,
+ 		!new_crtc_state->use_flipq &&
+ 		!new_crtc_state->do_async_flip &&
+ 		(DISPLAY_VER(display) >= 20 || !new_crtc_state->has_psr) &&
++		!intel_vrr_needs_mmio_commit(new_crtc_state) &&
+ 		!intel_crtc_needs_modeset(new_crtc_state) &&
+ 		!intel_crtc_needs_fastset(new_crtc_state);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_vrr.c b/drivers/gpu/drm/i915/display/intel_vrr.c
+index 786e017..3c2af09 100644
+--- a/drivers/gpu/drm/i915/display/intel_vrr.c
++++ b/drivers/gpu/drm/i915/display/intel_vrr.c
+@@ -395,6 +395,10 @@ intel_vrr_dc_balance_compute_config(struct intel_crtc_state *crtc_state)
+ 	    !crtc_state->vrr.enable || !display->params.enable_dc_balance)
+ 		return;
+ 
++	/* FIXME figure out DC balance with joined pipes */
++	if (crtc_state->joiner_pipes)
++		return;
++
+ 	crtc_state->vrr.dc_balance.vmax = crtc_state->vrr.vmax;
+ 	crtc_state->vrr.dc_balance.vmin = crtc_state->vrr.vmin;
+ 	crtc_state->vrr.dc_balance.max_increase =
+@@ -442,21 +446,11 @@ intel_vrr_compute_config(struct intel_crtc_state *crtc_state,
+ 	crtc_state->vrr.in_range =
+ 		intel_vrr_is_in_range(connector, drm_mode_vrefresh(adjusted_mode));
+ 
+-	/*
+-	 * Allow fixed refresh rate with VRR Timing Generator.
+-	 * For now set the vrr.in_range to 0, to allow fixed_rr but skip actual
+-	 * VRR and LRR.
+-	 * #TODO For actual VRR with joiner, we need to figure out how to
+-	 * correctly sequence transcoder level stuff vs. pipe level stuff
+-	 * in the commit.
+-	 */
+-	if (crtc_state->joiner_pipes)
+-		crtc_state->vrr.in_range = false;
+-
+ 	vmin = intel_vrr_compute_vmin(crtc_state);
+ 
+ 	if (crtc_state->vrr.in_range) {
+-		if (HAS_LRR(display))
++		/* FIXME sequence the LRR timing update for joined pipes */
++		if (HAS_LRR(display) && !crtc_state->joiner_pipes)
+ 			crtc_state->update_lrr = true;
+ 		vmax = intel_vrr_compute_vmax(connector, adjusted_mode);
+ 	} else {
+@@ -795,6 +789,19 @@ void intel_vrr_check_push_sent(struct intel_dsb *dsb,
+ 	}
+ }
+ 
++/*
++ * A VRR push latches all joined pipes at once, so it may be sent only
++ * after every one of them has been armed. Each pipe runs its own DSB
++ * and nothing orders the DSBs of the joined pipes against each other,
++ * so they can't sequence that between themselves. Such commits take
++ * the MMIO path, where the joined pipes are armed inside one vblank
++ * evasion critical section.
++ */
++bool intel_vrr_needs_mmio_commit(const struct intel_crtc_state *crtc_state)
++{
++	return crtc_state->vrr.enable && crtc_state->joiner_pipes;
++}
++
+ bool intel_vrr_is_push_sent(const struct intel_crtc_state *crtc_state)
+ {
+ 	struct intel_display *display = to_intel_display(crtc_state);
+diff --git a/drivers/gpu/drm/i915/display/intel_vrr.h b/drivers/gpu/drm/i915/display/intel_vrr.h
+index 55e9c42..e28ab3c 100644
+--- a/drivers/gpu/drm/i915/display/intel_vrr.h
++++ b/drivers/gpu/drm/i915/display/intel_vrr.h
+@@ -32,6 +32,7 @@ void intel_vrr_check_push_sent(struct intel_dsb *dsb,
+ 			       const struct intel_crtc_state *crtc_state);
+ void intel_vrr_dcb_increment_flip_count(struct intel_crtc_state *crtc_state,
+ 					struct intel_crtc *crtc);
++bool intel_vrr_needs_mmio_commit(const struct intel_crtc_state *crtc_state);
+ bool intel_vrr_is_push_sent(const struct intel_crtc_state *crtc_state);
+ void intel_vrr_disable(const struct intel_crtc_state *old_crtc_state);
+ void intel_vrr_psr_frame_change_enable(const struct intel_crtc_state *crtc_state);
+-- 
+2.56.0
+

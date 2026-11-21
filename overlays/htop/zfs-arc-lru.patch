@@ -1,0 +1,75 @@
+diff --git a/linux/LinuxMachine.c b/linux/LinuxMachine.c
+index 4b44c54b..0f307fbd 100644
+--- a/linux/LinuxMachine.c
++++ b/linux/LinuxMachine.c
+@@ -476,10 +476,24 @@ static void LinuxMachine_scanZfsArcstats(LinuxMachine* this) {
+    }
+    fclose(file);
+ 
++   // Clean ARC data kept as page cache folios is reported by meminfo already.
++   this->zfs.lru = 0;
++   file = fopen(PROCABDSTATSFILE, "r");
++   if (file != NULL) {
++      while (fgets(buffer, 128, file)) {
++         if (String_startsWith(buffer, "lru_bytes")) {
++            sscanf(buffer + strlen("lru_bytes"), " %*2u %32llu", &this->zfs.lru);
++            break;
++         }
++      }
++      fclose(file);
++   }
++
+    this->zfs.enabled = (this->zfs.size > 0 ? 1 : 0);
+    this->zfs.size   /= 1024;
+    this->zfs.min    /= 1024;
+    this->zfs.max    /= 1024;
++   this->zfs.lru    /= 1024;
+    this->zfs.MFU    /= 1024;
+    this->zfs.MRU    /= 1024;
+    this->zfs.anon   /= 1024;
+diff --git a/linux/LinuxMachine.h b/linux/LinuxMachine.h
+index efcf8f86..fe3ddd0f 100644
+--- a/linux/LinuxMachine.h
++++ b/linux/LinuxMachine.h
+@@ -121,6 +121,10 @@ typedef struct LinuxMachine_ {
+ #define PROCARCSTATSFILE PROCDIR "/spl/kstat/zfs/arcstats"
+ #endif
+ 
++#ifndef PROCABDSTATSFILE
++#define PROCABDSTATSFILE PROCDIR "/spl/kstat/zfs/abdstats"
++#endif
++
+ #ifndef PROCTTYDRIVERSFILE
+ #define PROCTTYDRIVERSFILE PROCDIR "/tty/drivers"
+ #endif
+diff --git a/linux/Platform.c b/linux/Platform.c
+index dd4121e8..19a31218 100644
+--- a/linux/Platform.c
++++ b/linux/Platform.c
+@@ -454,10 +454,11 @@ void Platform_setMemoryValues(Meter* this) {
+    this->values[MEMORY_CLASS_AVAILABLE]  = lhost->availableMem;
+ 
+    if (lhost->zfs.enabled != 0 && !Running_containerized) {
+-      // ZFS does not shrink below the value of zfs_arc_min.
++      // ZFS does not shrink below the value of zfs_arc_min, and the part of
++      // the ARC that lives in the page cache is already counted as cache.
+       unsigned long long int shrinkableSize = 0;
+-      if (lhost->zfs.size > lhost->zfs.min)
+-         shrinkableSize = lhost->zfs.size - lhost->zfs.min;
++      if (lhost->zfs.size > lhost->zfs.min + lhost->zfs.lru)
++         shrinkableSize = lhost->zfs.size - lhost->zfs.min - lhost->zfs.lru;
+       this->values[MEMORY_CLASS_USED] -= shrinkableSize;
+       this->values[MEMORY_CLASS_CACHE] += shrinkableSize;
+       this->values[MEMORY_CLASS_AVAILABLE] += shrinkableSize;
+diff --git a/zfs/ZfsArcStats.h b/zfs/ZfsArcStats.h
+index 1fe72361..0b25eefd 100644
+--- a/zfs/ZfsArcStats.h
++++ b/zfs/ZfsArcStats.h
+@@ -20,6 +20,7 @@ typedef struct ZfsArcStats_ {
+    unsigned long long int other;
+    unsigned long long int compressed;
+    unsigned long long int uncompressed;
++   unsigned long long int lru;
+ } ZfsArcStats;
+ 
+ #endif

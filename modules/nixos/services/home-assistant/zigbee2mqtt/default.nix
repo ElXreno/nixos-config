@@ -7,34 +7,30 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
-  cfg = config.${namespace}.services.zigbee2mqtt;
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.services.home-assistant;
+  ports = config.${namespace}.ports;
 in
 {
-  options.${namespace}.services.zigbee2mqtt = {
-    enable = mkEnableOption "Whether or not to manage zigbee2mqtt.";
-  };
-
   config = mkIf cfg.enable {
     ${namespace} = {
-      services.mosquitto.enable = true;
-      tailscale.serve."svc:z2m".endpoints."tcp:443" = "http://localhost:8083";
+      ports = {
+        zigbee2mqtt = 8083;
+        mosquitto = 1883;
+      };
+      tailscale.serve."svc:z2m" = {
+        comment = "Zigbee2MQTT frontend";
+        tags = [ "tag:hass" ];
+        endpoints."tcp:443" = "http://localhost:${toString ports.zigbee2mqtt}";
+      };
     };
+
+    services.mosquitto.enable = true;
 
     services.zigbee2mqtt = {
       enable = true;
       settings = {
-        advanced = {
-          homeassistant_legacy_entity_attributes = false;
-          homeassistant_legacy_triggers = false;
-          legacy_api = false;
-          legacy_availability_payload = false;
-        };
-        device_option = {
-          legacy = false;
-        };
-        homeassistant.enabled = config.${namespace}.services.home-assistant.enable;
-        permit_join = true;
+        homeassistant.enabled = true;
         devices = {
           "0xa4c138b5be94eddd" = {
             friendly_name = "plug_ceiling_lamp";
@@ -46,7 +42,7 @@ in
         };
         frontend = {
           enabled = true;
-          port = 8083;
+          port = ports.zigbee2mqtt;
         };
         availability.enabled = true;
         ota.zigbee_ota_override_index_location = pkgs.writeText "ota-config.json" (

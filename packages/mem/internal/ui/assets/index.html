@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>mem. память агента</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body class="is-live">
+<header class="top">
+  <button id="filtersBtn" class="filters-btn" aria-label="Фильтры" aria-expanded="false">Фильтры</button>
+  <div class="mark">mem<span class="dot">.</span></div>
+  <div class="host"><b id="hostN"></b><span class="p" id="hostP"></span></div>
+  <label class="search">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg>
+    <input id="q" type="search" placeholder="Поиск по памяти" autocomplete="off" aria-label="Поиск по памяти">
+    <kbd>/</kbd>
+  </label>
+  <div class="counts"><span id="cRecS"><b id="cRec"></b> <span id="cRecW"></span></span><span id="cTopS"><b id="cTop"></b> тем</span><span id="cLnkS"><b id="cLnk"></b> связей</span></div>
+  <div class="svc" id="svc" aria-label="Состояние сервисов"></div>
+  <button id="live" class="live" role="switch" aria-checked="true" title="Следить за новыми ходами агента"><span class="pip"></span>live</button>
+</header>
+
+<nav class="side" id="side" aria-label="Фильтры">
+  <h2>Типы записей</h2>
+  <div class="types" id="types"></div>
+  <h2>Статус</h2>
+  <div class="types" id="statuses"></div>
+  <h2>Проекты <span id="projN"></span></h2>
+  <div class="chips scroll" id="projects"></div>
+  <h2>Хосты <span id="hostsN"></span></h2>
+  <div class="chips" id="hosts"></div>
+  <h2>Темы <span id="topN"></span></h2>
+  <div class="topics scroll" id="topics"></div>
+  <button class="btn side-reset" id="filtersReset">Сбросить фильтры</button>
+</nav>
+<div class="backdrop" id="backdrop"></div>
+
+<main class="center">
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="graph" aria-selected="true">Граф</button>
+    <button class="tab" role="tab" data-tab="search" aria-selected="false">Поиск</button>
+    <button class="tab" role="tab" data-tab="feed" aria-selected="false">Лента <span class="badge" id="feedN">0</span></button>
+    <button class="tab" role="tab" data-tab="hyg" aria-selected="false">Гигиена <span class="badge warn" id="hygN">0</span></button>
+    <button class="tab" role="tab" data-tab="health" aria-selected="false">Здоровье</button>
+    <button class="tab" role="tab" data-tab="core" aria-selected="false">Core <span class="badge" id="coreN">0</span></button>
+  </div>
+  <div class="views">
+    <section class="view on" id="v-graph">
+      <canvas id="cv" aria-hidden="true"></canvas>
+      <canvas id="ov" tabindex="0" role="application" aria-roledescription="карта памяти" aria-label="Граф памяти агента. Стрелки: связанные записи, Tab: темы, Enter: панель записи, Esc: уровень вверх, квадратные скобки: глубина, Alt и стрелка влево: прошлая поза камеры"></canvas>
+      <div class="boot" id="boot">раскладываю граф...</div>
+      <div class="gchip" id="gchip"><span id="gchipT"></span><button class="btn mini" id="gchipOnly" hidden>только эта тема</button><button class="x" id="gchipX" aria-label="Снять фокус">✕</button></div>
+      <div class="stale" id="stale" hidden>карта устарела: mem ui --relayout</div>
+      <div class="tip" id="tip"></div>
+      <div class="legend" id="legend" aria-label="Обозначения"></div>
+      <div class="zoom"><button id="zIn" aria-label="Приблизить">+</button><button id="zOut" aria-label="Отдалить">−</button><button id="zFit">вся карта</button></div>
+    </section>
+    <section class="view" id="v-search"><div class="pane"><div class="pane-in">
+      <div class="bigsearch"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#7b7975" stroke-width="1.6"><circle cx="7" cy="7" r="5"/><path d="m11 11 3.5 3.5"/></svg><input id="q2" type="search" placeholder="Что агент помнит про..." autocomplete="off" aria-label="Поиск по памяти"></div>
+      <div class="sctl" id="sctl"></div>
+      <div class="examples" id="examples"></div>
+      <div id="results"></div>
+    </div></div></section>
+    <section class="view" id="v-feed"><div class="pane"><div class="pane-in">
+      <h1>Лента ходов</h1>
+      <p class="lead" id="feedLead"></p>
+      <div class="examples" id="sessions"></div>
+      <div id="feed"></div>
+    </div></div></section>
+    <section class="view" id="v-hyg"><div class="pane"><div class="pane-in" style="max-width:1100px">
+      <h1>Гигиена памяти</h1>
+      <p class="lead" id="hygLead"></p>
+      <div class="hyg" id="hyg"></div>
+    </div></div></section>
+    <section class="view" id="v-health"><div class="pane"><div class="pane-in" style="max-width:1100px">
+      <h1>Здоровье и калибровка</h1>
+      <p class="lead">Эмбеддер, реранкер, покрытие векторами, латентность хука и распределения оценок из turns.jsonl и shadow.jsonl.</p>
+      <div id="health"></div>
+    </div></div></section>
+    <section class="view" id="v-core"><div class="pane"><div class="pane-in" style="max-width:1100px">
+      <h1>Core-записи</h1>
+      <p class="lead">Записи, которые хук подаёт агенту на старте каждой сессии. Глобальные собираются в memory-core.md и ограничены бюджетом.</p>
+      <div id="core"></div>
+    </div></div></section>
+  </div>
+</main>
+
+<aside class="detail" id="detail" aria-label="Запись"></aside>
+<div class="gsearch" id="gsearch" role="listbox" aria-label="Результаты поиска на карте" hidden></div>
+<div class="sr" id="sr" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<footer class="strip">
+  <span class="strip-h" id="stripH">Последние ходы</span>
+  <div class="turns" id="turns"></div>
+</footer>
+
+<script src="/loader.js"></script>
+</body>
+</html>

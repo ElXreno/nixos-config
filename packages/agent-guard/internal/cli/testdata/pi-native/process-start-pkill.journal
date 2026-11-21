@@ -1,0 +1,1 @@
+{"time":"2026-11-06T12:00:00Z","harness":"pi","session":"019a5f00-0000-7000-8000-00000000c0de","tool_use_id":"call_process-start-pkill","hook":"pre-bash","tool":"process","kind":"shell","level":"deny","checks":[{"check":"pkill","level":"deny"}],"input":"pkill -f x"}

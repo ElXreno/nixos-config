@@ -1,0 +1,134 @@
+From fef83928d31f36a541055bab3cbe539c2450f114 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 03:53:36 +0300
+Subject: [PATCH] osdep/linux: read the channel and frequency through nl80211
+
+Linux refuses wireless extensions for wiphys that support MLO
+(WIPHY_FLAG_SUPPORTS_MLO, net/wireless/wext-core.c), so SIOCGIWFREQ
+fails on Wi-Fi 7 adapters such as MT7925 and airodump-ng reports
+"fixed channel <iface>: -1" although the channel was set through
+nl80211.
+
+Ask nl80211 for NL80211_ATTR_WIPHY_FREQ with NL80211_CMD_GET_INTERFACE
+first and fall back to wireless extensions when that fails.
+---
+ lib/osdep/linux.c | 89 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
+
+diff --git a/lib/osdep/linux.c b/lib/osdep/linux.c
+index bb2f0d6..df06302 100644
+--- a/lib/osdep/linux.c
++++ b/lib/osdep/linux.c
+@@ -382,6 +382,85 @@ static void test_callback(struct nl_msg *msg, void *arg)
+ */
+ #endif /* End nl80211 */
+ 
++#if defined(CONFIG_LIBNL) && (defined(CONFIG_LIBNL30) || defined(CONFIG_LIBNL20))
++static int nl80211_freq_handler(struct nl_msg * msg, void * arg)
++{
++	struct nlattr * tb[NL80211_ATTR_MAX + 1];
++	struct genlmsghdr * gnlh = nlmsg_data(nlmsg_hdr(msg));
++	int * freq = arg;
++
++	nla_parse(tb,
++			  NL80211_ATTR_MAX,
++			  genlmsg_attrdata(gnlh, 0),
++			  genlmsg_attrlen(gnlh, 0),
++			  NULL);
++
++	if (tb[NL80211_ATTR_WIPHY_FREQ])
++		*freq = (int) nla_get_u32(tb[NL80211_ATTR_WIPHY_FREQ]);
++
++	return NL_SKIP;
++}
++
++static int nl80211_done_handler(struct nl_msg * msg, void * arg)
++{
++	(void) msg;
++	*(int *) arg = 0;
++	return NL_STOP;
++}
++
++static int
++nl80211_error_handler(struct sockaddr_nl * nla, struct nlmsgerr * err, void * arg)
++{
++	(void) nla;
++	*(int *) arg = err->error;
++	return NL_STOP;
++}
++
++static int linux_get_freq_nl80211(const char * ifname)
++{
++	struct nl_sock * sock;
++	struct nl_msg * msg = NULL;
++	struct nl_cb * cb = NULL;
++	int family, ifindex, freq = -1, err = 1;
++
++	ifindex = if_nametoindex(ifname);
++	if (!ifindex) return -1;
++
++	sock = nl_socket_alloc();
++	if (!sock) return -1;
++
++	if (genl_connect(sock)) goto out;
++
++	family = genl_ctrl_resolve(sock, "nl80211");
++	if (family < 0) goto out;
++
++	msg = nlmsg_alloc();
++	cb = nl_cb_alloc(NL_CB_DEFAULT);
++	if (!msg || !cb) goto out;
++
++	genlmsg_put(msg, 0, 0, family, 0, 0, NL80211_CMD_GET_INTERFACE, 0);
++	NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, ifindex);
++
++	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, nl80211_freq_handler, &freq);
++	nl_cb_set(cb, NL_CB_ACK, NL_CB_CUSTOM, nl80211_done_handler, &err);
++	nl_cb_set(cb, NL_CB_FINISH, NL_CB_CUSTOM, nl80211_done_handler, &err);
++	nl_cb_err(cb, NL_CB_CUSTOM, nl80211_error_handler, &err);
++
++	if (nl_send_auto_complete(sock, msg) < 0) goto out;
++
++	while (err > 0)
++		if (nl_recvmsgs(sock, cb) < 0) break;
++
++nla_put_failure:
++out:
++	if (cb) nl_cb_put(cb);
++	if (msg) nlmsg_free(msg);
++	nl_socket_free(sock);
++
++	return err == 0 ? freq : -1;
++}
++#endif
++
+ static int linux_get_channel(struct wif * wi)
+ {
+ 	struct priv_linux * dev = wi_priv(wi);
+@@ -400,6 +479,11 @@ static int linux_get_channel(struct wif * wi)
+ 	fd = dev->fd_in;
+ 	if (dev->drivertype == DT_IPW2200) fd = dev->fd_main;
+ 
++#if defined(CONFIG_LIBNL) && (defined(CONFIG_LIBNL30) || defined(CONFIG_LIBNL20))
++	frequency = linux_get_freq_nl80211(wrq.ifr_name);
++	if (frequency > 0) return getChannelFromFrequency(frequency);
++#endif
++
+ 	if (ioctl(fd, SIOCGIWFREQ, &wrq) < 0) return (-1);
+ 
+ 	frequency = wrq.u.freq.m;
+@@ -433,6 +517,11 @@ static int linux_get_freq(struct wif * wi)
+ 	fd = dev->fd_in;
+ 	if (dev->drivertype == DT_IPW2200) fd = dev->fd_main;
+ 
++#if defined(CONFIG_LIBNL) && (defined(CONFIG_LIBNL30) || defined(CONFIG_LIBNL20))
++	frequency = linux_get_freq_nl80211(wrq.ifr_name);
++	if (frequency > 0) return frequency;
++#endif
++
+ 	if (ioctl(fd, SIOCGIWFREQ, &wrq) < 0) return (-1);
+ 
+ 	frequency = wrq.u.freq.m;
+-- 
+2.55.0
+

@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   ...
@@ -11,23 +12,16 @@ let
 in
 {
   options.${namespace}.roles.server = {
-    enable = mkEnableOption "Whether or not to enable server configuration.";
+    enable = mkEnableOption "server configuration" // {
+      default = osConfig.${namespace}.roles.server.enable;
+    };
   };
 
   config = mkIf cfg.enable {
     ${namespace} = {
+      roles.common.enable = true;
       common-packages.enable = true;
-
-      programs = {
-        direnv.enable = true;
-        fish.enable = true;
-        git.enable = true;
-        helix.enable = true;
-        htop.enable = true;
-        nix-index.enable = true;
-        ssh.enable = true;
-        starship.enable = true;
-      };
+      programs.ssh.enable = true;
     };
   };
 }

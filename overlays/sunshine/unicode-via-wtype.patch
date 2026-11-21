@@ -1,0 +1,71 @@
+diff --git a/src/platform/virtualhid_input.cpp b/src/platform/virtualhid_input.cpp
+index 362f50a..6a90560 100644
+--- a/src/platform/virtualhid_input.cpp
++++ b/src/platform/virtualhid_input.cpp
+@@ -9,13 +9,17 @@
+ #include <cmath>
+ #include <cstddef>
+ #include <cstdint>
++#include <cstdlib>
+ #include <format>
+ #include <limits>
+ #include <mutex>
+ #include <numbers>
+ #include <optional>
+ #include <random>
++#include <string>
+ #include <string_view>
++#include <sys/wait.h>
++#include <unistd.h>
+ #include <utility>
+ 
+ // local includes
+@@ -842,7 +846,48 @@ namespace platf::virtualhid {
+     }
+   }
+ 
++  /**
++   * Types text through the Wayland virtual-keyboard protocol.
++   *
++   * wtype uploads a keymap holding exactly the keysyms it needs, so the
++   * compositor delivers ordinary key events for any codepoint. Unlike the
++   * ISO 14755 fallback below this reaches every client, not just the ones
++   * carrying an input method that implements the sequence.
++   */
++  bool unicode_via_wtype(const std::string &text) {
++    if (!std::getenv("WAYLAND_DISPLAY")) {
++      return false;
++    }
++
++    pid_t pid = fork();
++    if (pid < 0) {
++      BOOST_LOG(warning) << "Unicode, unable to fork for wtype"sv;
++      return false;
++    }
++
++    if (pid == 0) {
++      execl("@wtype@", "wtype", "--", text.c_str(), nullptr);
++      _exit(127);
++    }
++
++    int status = 0;
++    if (waitpid(pid, &status, 0) < 0) {
++      return false;
++    }
++
++    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
++      return true;
++    }
++
++    BOOST_LOG(warning) << "Unicode, wtype failed, falling back to ISO 14755"sv;
++    return false;
++  }
++
+   void unicode(input_context_t &context, const char *utf8, int size) {
++    if (utf8 && size > 0 && unicode_via_wtype(std::string {utf8, static_cast<std::size_t>(size)})) {
++      return;
++    }
++
+     if (context.keyboard && utf8 && size > 0) {
+       log_failure("submit libvirtualhid text input"sv, context.keyboard->type_text({.text = std::string {utf8, static_cast<std::size_t>(size)}}));
+     }

@@ -2,11 +2,11 @@
   lib,
   maven,
   ghidra,
-  python3,
-  makeWrapper,
+  python3Packages,
   unzip,
-  jdk21,
+  openjdk25,
   fetchFromGitHub,
+  fetchpatch,
 }:
 
 let
@@ -24,6 +24,7 @@ let
     FileSystem = "Ghidra/Framework/FileSystem/lib/FileSystem.jar";
     Framework-TraceModeling = "Ghidra/Debug/Framework-TraceModeling/lib/Framework-TraceModeling.jar";
     Generic = "Ghidra/Framework/Generic/lib/Generic.jar";
+    Graph = "Ghidra/Framework/Graph/lib/Graph.jar";
     Gui = "Ghidra/Framework/Gui/lib/Gui.jar";
     Help = "Ghidra/Framework/Help/lib/Help.jar";
     Project = "Ghidra/Framework/Project/lib/Project.jar";
@@ -32,10 +33,10 @@ let
   };
 
   installGhidraJars =
-    repoDir:
+    mvnFlags: repoDir:
     lib.concatStringsSep "\n" (
       lib.mapAttrsToList (name: jarPath: ''
-        mvn -q install:install-file \
+        mvn -q ${mvnFlags} install:install-file \
           -Dmaven.repo.local="${repoDir}" \
           -Dfile="${ghidraHome}/${jarPath}" \
           -DgroupId=ghidra \
@@ -46,56 +47,82 @@ let
       '') ghidraJars
     );
 
-  pythonEnv = python3.withPackages (
-    ps: with ps; [
-      mcp
-      requests
-    ]
-  );
-in
-maven.buildMavenPackage rec {
-  pname = "ghidra-mcp";
-  version = "5.14.2";
+  version = "7.0.0";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
     rev = "v${version}";
-    hash = "sha256-2EMETCttJAz53GQaJDHtegb8+T2cHKmHZVMPrV5Cwxc=";
+    hash = "sha256-0RWq1bX3fHY2DR0HQ75ylNCWQbKczvsk8m8/8eSW/Sk=";
   };
 
-  mvnJdk = jdk21;
-  mvnParameters = "assembly:single";
-  doCheck = false;
+  pythonPackages = python3Packages.overrideScope (final: _prev: { mcp = final.mcp_1; });
+
+  bridge = pythonPackages.buildPythonApplication {
+    pname = "ghidra-mcp-bridge";
+    inherit version src;
+    pyproject = true;
+
+    build-system = [ pythonPackages.hatchling ];
+    dependencies = [
+      pythonPackages.mcp
+      pythonPackages.pydantic
+    ];
+
+    pythonImportsCheck = [ "bridge_mcp_ghidra" ];
+  };
+in
+maven.buildMavenPackage {
+  pname = "ghidra-mcp";
+  inherit version src;
+
+  patches = [
+    (fetchpatch {
+      name = "ghidra-12.2-sla-lookup.patch";
+      url = "https://github.com/bethington/ghidra-mcp/commit/b06c679d89cd5b7c95850efb55ffde367ebb5cbd.patch";
+      includes = [ "src/main/java/com/xebyte/core/ServiceUtils.java" ];
+      hash = "sha256-NPeqHOHbjuZe6oJ/zevXhh9qKzT3Au0xz0oy3GCgCGs=";
+    })
+  ];
 
   postPatch = ''
-    sed -i "s|<ghidra.version>[^<]*</ghidra.version>|<ghidra.version>${ghidraVersion}</ghidra.version>|" pom.xml
+    substituteInPlace src/main/java/com/xebyte/core/DataTypeService.java \
+      --replace-fail "dtm.remove(dataType, null)" "dtm.remove(dataType)" \
+      --replace-fail "dtm.remove(existing, null)" "dtm.remove(existing)"
   '';
 
-  mvnFetchExtraArgs.preBuild = installGhidraJars "$out/.m2";
+  mvnJdk = openjdk25;
+  mvnParameters = "-Dghidra.version=${ghidraVersion} assembly:single";
+  doCheck = false;
 
-  mvnHash = "sha256-MQbUB+EqZXs5jvALmEa/X9cdF/a+Ku5744+JWEQVS18=";
+  mvnFetchExtraArgs = {
+    preBuild = installGhidraJars "" "$out/.m2";
+    postInstall = ''
+      rm -rf $out/.m2/ghidra
+    '';
+  };
 
-  nativeBuildInputs = [
-    makeWrapper
-    unzip
-  ];
+  afterDepsSetup = installGhidraJars "-o" "$mvnDeps/.m2";
+
+  mvnHash = "sha256-5cMCxesHzRHVzf2GQC/UOvtPt4mrsh56zI3mPN/Pfc4=";
+
+  nativeBuildInputs = [ unzip ];
 
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/lib/ghidra/Ghidra/Extensions
+    mkdir -p $out/lib/ghidra/Ghidra/Extensions $out/bin
     unzip -d $out/lib/ghidra/Ghidra/Extensions target/*.zip
-    install -Dm644 bridge_mcp_ghidra.py $out/share/ghidra-mcp/bridge_mcp_ghidra.py
-    makeWrapper ${pythonEnv}/bin/python $out/bin/bridge_mcp_ghidra \
-      --add-flags "$out/share/ghidra-mcp/bridge_mcp_ghidra.py"
+    ln -s ${bridge}/bin/bridge-mcp-ghidra $out/bin/bridge-mcp-ghidra
 
     runHook postInstall
   '';
 
+  passthru = { inherit bridge; };
+
   meta = {
     description = "MCP server + Ghidra plugin for AI-powered reverse engineering";
-    mainProgram = "bridge_mcp_ghidra";
+    mainProgram = "bridge-mcp-ghidra";
     homepage = "https://github.com/bethington/ghidra-mcp";
     license = lib.licenses.asl20;
     platforms = lib.platforms.unix;

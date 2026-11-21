@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"additionalContext":"sleep 45s exceeds the 30s preference: poll on the actual condition if you can, and keep loop iterations short.","hookEventName":"PreToolUse"}}

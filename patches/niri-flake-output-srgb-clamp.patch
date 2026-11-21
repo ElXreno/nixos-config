@@ -1,0 +1,36 @@
+diff --git a/settings/outputs.nix b/settings/outputs.nix
+index cfeb1e7..f8b2611 100644
+--- a/settings/outputs.nix
++++ b/settings/outputs.nix
+@@ -214,6 +214,31 @@ in
+                   ])
+                 ];
+               }
++              {
++                options.srgb-clamp = optional types.bool false // {
++                  description = ''
++                    Clamp this output to the sRGB gamut.
++
++                    Untagged SDR content is sRGB, so a wide-gamut display renders it oversaturated. When enabled, niri derives the display's primaries from its EDID and programs a matching matrix into the ${fmt.code "CTM"} property, with the surrounding ${fmt.code "DEGAMMA_LUT"} and ${fmt.code "GAMMA_LUT"} transfer functions.
++                  '';
++                };
++                options.srgb-clamp-correction = nullable types.path // {
++                  description = ''
++                    A measured correction to apply instead of the EDID-derived clamp: a 3x3 matrix followed by a per-channel ramp of 16-bit values, as written by Portrait Displays' calibration tools (MSI True Color). The matrix is applied in linear light between a 2.2 power decode and encode, and the ramp after the encode.
++
++                    Takes effect only with ${fmt.link-opt (subopts toplevel-options.outputs).srgb-clamp} enabled.
++                  '';
++                };
++                render = config: [
++                  (lib.mkIf config.srgb-clamp [
++                    (kdl.plain "srgb-clamp" [
++                      (lib.mkIf (config.srgb-clamp-correction != null) [
++                        (kdl.leaf "correction" "${config.srgb-clamp-correction}")
++                      ])
++                    ])
++                  ])
++                ];
++              }
+               {
+                 options.focus-at-startup = optional types.bool false // {
+                   description = ''

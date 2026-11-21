@@ -1,45 +1,33 @@
 { inputs, clanMeta, ... }:
 {
   perSystem =
-    { system, lib, ... }:
+    { system, ... }:
     let
-      customNixpkgs =
+      mkPkgs =
+        cudaSupport:
         (import ../nixpkgs.nix {
-          inherit inputs;
+          inherit inputs cudaSupport;
           namespace = clanMeta.name;
         })
           system;
+      customNixpkgs = mkPkgs false;
       inherit (customNixpkgs) pkgs;
     in
     {
       _module.args.pkgs = pkgs;
       clan.pkgs = pkgs;
 
-      packages = customNixpkgs.packages // {
-        install-iso =
-          (lib.nixosSystem {
-            inherit system;
-            modules = [
-              ../installIso/default.nix
-              { nixpkgs.pkgs = pkgs; }
-            ];
-            specialArgs = { inherit inputs; };
-          }).config.system.build.isoImage;
+      legacyPackages.cuda = (mkPkgs true).pkgs;
 
-        push-attic-ci-token = pkgs.writeShellApplication {
-          name = "push-attic-ci-token";
+      packages = customNixpkgs.packages // {
+        unlock-zfs = pkgs.writeShellApplication {
+          name = "unlock-zfs";
           runtimeInputs = [
             inputs.clan-core.packages.${system}.clan-cli
-            pkgs.gh
+            pkgs.iputils
+            pkgs.openssh
           ];
-          text = ''
-            : "''${MACHINE:=BIMBA}"
-
-            token=$(clan vars get "$MACHINE" attic-ci-token/token | tr -d '\n')
-            printf '%s' "$token" | gh secret set ATTIC_TOKEN
-            repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
-            echo "Pushed ATTIC_TOKEN -> $repo (from $MACHINE/attic-ci-token)"
-          '';
+          text = builtins.readFile ./unlock-zfs.sh;
         };
       };
     };

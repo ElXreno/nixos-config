@@ -2,15 +2,14 @@
   lib,
   inputs,
   namespace,
-  virtual,
   ...
 }:
 let
-  # TODO: Replace with
-  # lib.filesystem.listFilesRecursive ./. |> builtins.filter (lib.hasSuffix ".nix");
-  # when experimental feature `pipe-operators` will be enabled
   collectModules =
-    dir: builtins.filter (lib.hasSuffix ".nix") (lib.filesystem.listFilesRecursive dir);
+    dir:
+    builtins.filter (p: lib.hasSuffix ".nix" p && !lib.hasPrefix "_" (baseNameOf p)) (
+      lib.filesystem.listFilesRecursive dir
+    );
 
   nixosModules = collectModules ./nixos;
   nixosAuxiliaryModules = with inputs; [
@@ -18,8 +17,11 @@ let
     impermanence.nixosModules.impermanence
     lanzaboote.nixosModules.lanzaboote
     rk-m87-sync.nixosModules.default
+    flydigictl.nixosModules.default
     nixflix.nixosModules.default
     nix-minecraft.nixosModules.minecraft-servers
+    niks3.nixosModules.niks3
+    niks3.nixosModules.niks3-auto-upload
 
     niri.nixosModules.niri
     {
@@ -33,20 +35,22 @@ let
     plasma-manager.homeModules.plasma-manager
     stylix.homeModules.default
     niri.homeModules.stylix
-    noctalia.homeModules.default
+    flydigictl.homeModules.default
+    spicetify-nix.homeManagerModules.spicetify
   ];
 
 in
 {
   imports = nixosModules ++ nixosAuxiliaryModules;
+  disabledModules = [ inputs.vpn-confinement.nixosModules.default ];
 
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    backupFileExtension = ".bak";
+    backupFileExtension = "bak";
 
     extraSpecialArgs = {
-      inherit namespace inputs virtual;
+      inherit namespace inputs;
     };
 
     sharedModules = homeModules ++ homeAuxiliaryModules;

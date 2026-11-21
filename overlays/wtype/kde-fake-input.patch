@@ -1,0 +1,450 @@
+From 50daf90f26db9be6206f606a005135865a91677d Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 4 Sep 2026 22:13:57 +0300
+Subject: [PATCH] Fall back to KDE fake input when the virtual keyboard
+ protocol is missing
+
+KWin does not implement virtual-keyboard-unstable-v1 and its developers
+have declined to add it (KDE bug 512996). Since Plasma 6.5 its
+org_kde_kwin_fake_input protocol carries a keyboard_keysym request that
+the compositor resolves itself, building a temporary keymap for keysyms
+the active layout lacks, which is exactly what wtype does client-side
+with the virtual keyboard.
+
+When the virtual keyboard manager is absent and fake input version 6 is
+announced, type every key as a keysym through that request. Modifiers
+are sent as their left-hand keys because the interface has no modifier
+state request.
+
+Up to Plasma 6.7 KWin announces fake input only to executables whose
+desktop file requests it in X-KDE-Wayland-Interfaces, matched by Exec
+path, so install such a desktop file next to the binary.
+---
+ README.md               |  20 +++++++
+ main.c                  | 126 +++++++++++++++++++++++++++++++---------
+ man/wtype.1             |   4 +-
+ meson.build             |  11 ++++
+ protocol/fake-input.xml | 103 ++++++++++++++++++++++++++++++++
+ protocol/meson.build    |   1 +
+ wtype.desktop.in        |   7 +++
+ 7 files changed, 244 insertions(+), 28 deletions(-)
+ create mode 100644 protocol/fake-input.xml
+ create mode 100644 wtype.desktop.in
+
+diff --git a/README.md b/README.md
+index f3e0e3a..2cab7e5 100644
+--- a/README.md
++++ b/README.md
+@@ -46,6 +46,26 @@ wtype -P left -p left
+ Note that when wtype terminates, all the pressed keys/modifiers get released, as the compositor destroys the associated
+ virtual keyboard object. To help performing a more complicated sequence of key presses, `-s` can be used to insert delays into the stream of key events.
+ 
++## Compositor support
++
++wtype needs the [virtual-keyboard-unstable-v1](https://wayland.app/protocols/virtual-keyboard-unstable-v1)
++protocol, which is available on wlroots-based compositors, Hyprland, niri and others.
++
++KWin does not implement that protocol. There wtype falls back to the
++`keyboard_keysym` request of KDE's `org_kde_kwin_fake_input` protocol (version 6, Plasma 6.5 and
++newer). The compositor resolves each keysym against the active layout, or against a temporary
++keymap when the layout lacks it, so text typing works the same way. Modifiers are pressed as their
++left-hand keys in this mode, which also means `-M capslock` toggles the lock on press rather than
++holding it.
++
++Up to Plasma 6.7 KWin announces that interface only to executables whose desktop file lists it in
++`X-KDE-Wayland-Interfaces`, matched by the `Exec` path. The installed `wtype.desktop` does that, so
++the install prefix's `share` directory has to be on `XDG_DATA_DIRS` of the session; alternatively
++start KWin with `KWIN_WAYLAND_NO_PERMISSION_CHECKS=1`. Plasma 6.8 drops the check for clients
++outside a sandbox.
++
++GNOME does not implement either protocol.
++
+ ```
+ # Hold the Right key for 1000ms
+ wtype -P right -s 1000 -p right
+diff --git a/main.c b/main.c
+index 24a3fee..bf42eba 100644
+--- a/main.c
++++ b/main.c
+@@ -12,10 +12,14 @@
+ #include <wchar.h>
+ #include <xkbcommon/xkbcommon.h>
+ 
++#include "fake-input-client-protocol.h"
+ #include "virtual-keyboard-unstable-v1-client-protocol.h"
+ 
+ #define ARRAY_SIZE(x) (sizeof(x) / sizeof(x[0]))
+ 
++// The first version of org_kde_kwin_fake_input that can type by keysym
++#define FAKE_INPUT_VERSION 6
++
+ 
+ enum wtype_command_type {
+ 	WTYPE_COMMAND_TEXT = 0,
+@@ -78,6 +82,9 @@ struct wtype {
+ 	struct wl_seat *seat;
+ 	struct zwp_virtual_keyboard_manager_v1 *manager;
+ 	struct zwp_virtual_keyboard_v1 *keyboard;
++	// Used instead of the virtual keyboard on compositors that only offer
++	// KDE's fake input, where the compositor resolves keysyms itself
++	struct org_kde_kwin_fake_input *fake_input;
+ 
+ 	// Stores a one-indexed logical code -> (xkb_keysym_t, wchar_t) mapping.
+ 	// Explicit key commands use these codes directly. Literal-only invocations
+@@ -122,6 +129,12 @@ static void handle_wl_event(void *data, struct wl_registry *registry,
+ 		wtype->manager = wl_registry_bind(
+ 			registry, name, &zwp_virtual_keyboard_manager_v1_interface, 1
+ 		);
++	} else if (!strcmp(interface, org_kde_kwin_fake_input_interface.name)) {
++		if (version >= FAKE_INPUT_VERSION) {
++			wtype->fake_input = wl_registry_bind(
++				registry, name, &org_kde_kwin_fake_input_interface, FAKE_INPUT_VERSION
++			);
++		}
+ 	}
+ }
+ 
+@@ -336,14 +349,66 @@ static void run_sleep(struct wtype *wtype, struct wtype_command *cmd)
+ }
+ 
+ 
++static xkb_keysym_t mod_to_keysym(enum wtype_mod mod)
++{
++	switch (mod) {
++	case WTYPE_MOD_SHIFT:
++		return XKB_KEY_Shift_L;
++	case WTYPE_MOD_CAPSLOCK:
++		return XKB_KEY_Caps_Lock;
++	case WTYPE_MOD_CTRL:
++		return XKB_KEY_Control_L;
++	case WTYPE_MOD_ALT:
++		return XKB_KEY_Alt_L;
++	case WTYPE_MOD_LOGO:
++		return XKB_KEY_Super_L;
++	case WTYPE_MOD_ALTGR:
++		return XKB_KEY_ISO_Level3_Shift;
++	default:
++		return XKB_KEY_NoSymbol;
++	}
++}
++
++
++static void send_keysym(struct wtype *wtype, xkb_keysym_t keysym, bool pressed)
++{
++	org_kde_kwin_fake_input_keyboard_keysym(
++		wtype->fake_input, keysym,
++		pressed ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED
++	);
++	wl_display_roundtrip(wtype->display);
++}
++
++
++static void send_key(struct wtype *wtype, unsigned int key_code, bool pressed)
++{
++	if (wtype->keyboard == NULL) {
++		send_keysym(wtype, wtype->keymap[key_code - 1].xkb, pressed);
++		return;
++	}
++
++	zwp_virtual_keyboard_v1_key(
++		wtype->keyboard, 0, key_code,
++		pressed ? WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED
++	);
++	wl_display_roundtrip(wtype->display);
++}
++
++
+ static void run_mod(struct wtype *wtype, struct wtype_command *cmd)
+ {
+-	if (cmd->type == WTYPE_COMMAND_MOD_PRESS) {
++	bool pressed = cmd->type == WTYPE_COMMAND_MOD_PRESS;
++	if (pressed) {
+ 		wtype->mod_status |= cmd->mod;
+ 	} else {
+ 		wtype->mod_status &= ~cmd->mod;
+ 	}
+ 
++	if (wtype->keyboard == NULL) {
++		send_keysym(wtype, mod_to_keysym(cmd->mod), pressed);
++		return;
++	}
++
+ 	zwp_virtual_keyboard_v1_modifiers(
+ 		wtype->keyboard, wtype->mod_status & ~WTYPE_MOD_CAPSLOCK, 0,
+ 		wtype->mod_status & WTYPE_MOD_CAPSLOCK, 0
+@@ -355,17 +420,12 @@ static void run_mod(struct wtype *wtype, struct wtype_command *cmd)
+ 
+ static void run_key(struct wtype *wtype, struct wtype_command *cmd)
+ {
+-	zwp_virtual_keyboard_v1_key(
+-		wtype->keyboard, 0, cmd->single_key_code,
+-		cmd->type == WTYPE_COMMAND_KEY_PRESS ?
+-			WL_KEYBOARD_KEY_STATE_PRESSED : WL_KEYBOARD_KEY_STATE_RELEASED
+-	);
+-	wl_display_roundtrip(wtype->display);
++	send_key(wtype, cmd->single_key_code, cmd->type == WTYPE_COMMAND_KEY_PRESS);
+ }
+ 
+ static void type_keycode(struct wtype *wtype, unsigned int key_code)
+ {
+-	if (wtype->literal_only) {
++	if (wtype->literal_only && wtype->keyboard != NULL) {
+ 		// Reuse printable physical codes in bounded keymaps. A map changes only
+ 		// between complete press/release pairs, never while a key is held.
+ 		size_t offset = ((key_code - 1) / ARRAY_SIZE(text_keycodes))
+@@ -377,15 +437,9 @@ static void type_keycode(struct wtype *wtype, unsigned int key_code)
+ 		key_code = text_keycodes[(key_code - 1) % ARRAY_SIZE(text_keycodes)];
+ 	}
+ 
+-	zwp_virtual_keyboard_v1_key(
+-			wtype->keyboard, 0, key_code, WL_KEYBOARD_KEY_STATE_PRESSED
+-	);
+-	wl_display_roundtrip(wtype->display);
++	send_key(wtype, key_code, true);
+ 	usleep(2000);
+-	zwp_virtual_keyboard_v1_key(
+-		wtype->keyboard, 0, key_code, WL_KEYBOARD_KEY_STATE_RELEASED
+-	);
+-	wl_display_roundtrip(wtype->display);
++	send_key(wtype, key_code, false);
+ 	usleep(2000);
+ }
+ 
+@@ -484,6 +538,10 @@ static void print_keysym_name(xkb_keysym_t keysym, FILE *f)
+ 
+ static void upload_keymap(struct wtype *wtype)
+ {
++	if (wtype->keyboard == NULL) {
++		return;
++	}
++
+ 	size_t first = wtype->literal_only ? wtype->keymap_offset : 0;
+ 	size_t end = wtype->keymap_len;
+ 	if (wtype->literal_only && end > first + ARRAY_SIZE(text_keycodes)) {
+@@ -564,18 +622,25 @@ int main(int argc, const char *argv[])
+ 	wl_display_dispatch(wtype.display);
+ 	wl_display_roundtrip(wtype.display);
+ 
+-	if (wtype.manager == NULL) {
+-		fail("Compositor does not support the virtual keyboard protocol");
+-	}
+-	if (wtype.seat == NULL) {
+-		fail("No seat found");
++	if (wtype.manager == NULL && wtype.fake_input == NULL) {
++		fail("Compositor supports neither the virtual keyboard protocol nor KDE fake input v%d",
++			 FAKE_INPUT_VERSION);
+ 	}
+ 
+-	wtype.keyboard = zwp_virtual_keyboard_manager_v1_create_virtual_keyboard(
+-		wtype.manager, wtype.seat
+-	);
++	if (wtype.manager != NULL) {
++		if (wtype.seat == NULL) {
++			fail("No seat found");
++		}
++
++		wtype.keyboard = zwp_virtual_keyboard_manager_v1_create_virtual_keyboard(
++			wtype.manager, wtype.seat
++		);
+ 
+-	upload_keymap(&wtype);
++		upload_keymap(&wtype);
++	} else {
++		org_kde_kwin_fake_input_authenticate(wtype.fake_input, "wtype", "Typing text");
++		wl_display_roundtrip(wtype.display);
++	}
+ 	run_commands(&wtype);
+ 
+ 	for (unsigned int i = 0; i < wtype.command_count; i++) {
+@@ -585,8 +650,15 @@ int main(int argc, const char *argv[])
+ 	}
+ 	free(wtype.commands);
+ 	free(wtype.keymap);
+-	zwp_virtual_keyboard_v1_destroy(wtype.keyboard);
+-	zwp_virtual_keyboard_manager_v1_destroy(wtype.manager);
++	if (wtype.keyboard != NULL) {
++		zwp_virtual_keyboard_v1_destroy(wtype.keyboard);
++	}
++	if (wtype.manager != NULL) {
++		zwp_virtual_keyboard_manager_v1_destroy(wtype.manager);
++	}
++	if (wtype.fake_input != NULL) {
++		org_kde_kwin_fake_input_destroy(wtype.fake_input);
++	}
+ 	wl_registry_destroy(wtype.registry);
+ 	wl_display_disconnect(wtype.display);
+ }
+diff --git a/man/wtype.1 b/man/wtype.1
+index 8cf0b55..96b07c2 100644
+--- a/man/wtype.1
++++ b/man/wtype.1
+@@ -15,7 +15,9 @@ wtype \- xdotool type for Wayland
+ .SH DESCRIPTION
+ .PP
+ wtype is a Wayland tool that allows you to simulate keyboard input like xdotool type for X11.
+-This is accomplished via the virtual-keyboard Wayland protocol.
++This is accomplished via the virtual-keyboard Wayland protocol. On KWin, which lacks that protocol,
++wtype types through the keysym request of the org_kde_kwin_fake_input protocol instead (version 6,
++Plasma 6.5 and newer); modifiers are then sent as their left-hand keys.
+ 
+ .SH OPTIONS
+ Modifier can be one of "shift", "capslock", "ctrl", "logo", "win", "alt", "altgr".
+diff --git a/meson.build b/meson.build
+index 5ca1ed4..bfaf8d0 100644
+--- a/meson.build
++++ b/meson.build
+@@ -30,6 +30,17 @@ rt = cc.find_library('rt')
+ prefix = get_option('prefix')
+ conf_data = configuration_data()
+ conf_data.set('prefix', prefix)
++conf_data.set('bindir', join_paths(prefix, get_option('bindir')))
++
++# KWin only announces org_kde_kwin_fake_input to executables whose desktop
++# file requests it, matched by the Exec path
++configure_file(
++    input: 'wtype.desktop.in',
++    output: 'wtype.desktop',
++    configuration: conf_data,
++    install: true,
++    install_dir: join_paths(get_option('datadir'), 'applications'),
++)
+ 
+ 
+ src_files = files(
+diff --git a/protocol/fake-input.xml b/protocol/fake-input.xml
+new file mode 100644
+index 0000000..33734c0
+--- /dev/null
++++ b/protocol/fake-input.xml
+@@ -0,0 +1,103 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<protocol name="fake_input">
++  <copyright><![CDATA[
++    SPDX-FileCopyrightText: 2015 Martin Gräßlin
++
++    SPDX-License-Identifier: LGPL-2.1-or-later
++  ]]></copyright>
++  <interface name="org_kde_kwin_fake_input" version="6">
++      <description summary="Fake input manager">
++        This interface allows other processes to provide fake input events.
++        Purpose is on the one hand side to provide testing facilities like XTest on X11.
++        But also to support use case like kdeconnect's mouse pad interface.
++
++        A compositor should not trust the input received from this interface.
++        Clients should not expect that the compositor honors the requests from this
++        interface.
++
++        Warning! The protocol described in this file is a desktop environment
++        implementation detail. Regular clients must not use this protocol.
++        Backward incompatible changes may be added without bumping the major
++        version of the extension.
++      </description>
++      <request name="authenticate">
++          <description summary="Information why the client wants to use the interface">
++              A client should use this request to tell the compositor why it wants to
++              use this interface. The compositor might use the information to decide
++              whether it wants to grant the request. The data might also be passed to
++              the user to decide whether the application should get granted access to
++              this very privileged interface.
++          </description>
++          <arg name="application" type="string" summary="user visible name of the application"/>
++          <arg name="reason" type="string" summary="reason why the application wants to use this interface"/>
++      </request>
++      <request name="pointer_motion">
++          <arg name="delta_x" type="fixed"/>
++          <arg name="delta_y" type="fixed"/>
++      </request>
++      <request name="button">
++        <arg name="button" type="uint"/>
++        <arg name="state" type="uint"/>
++      </request>
++      <request name="axis">
++        <arg name="axis" type="uint"/>
++        <arg name="value" type="fixed"/>
++      </request>
++      <request name="touch_down" since="2">
++         <description summary="touch down event">
++             A client should use this request to send touch down event at specific
++             coordinates.
++         </description>
++         <arg name="id" type="uint" summary="unique id for touch down event"/>
++         <arg name="x" type="fixed" summary="x coordinate for touch down event"/>
++         <arg name="y" type="fixed" summary="y coordinate for touch down event"/>
++      </request>
++      <request name="touch_motion" since="2">
++          <description summary="touch motion event">
++              A client should use this request to send touch motion to specific position.
++          </description>
++          <arg name="id" type="uint" summary="unique id for touch motion event"/>
++          <arg name="x" type="fixed" summary="x coordinate for touch motion event"/>
++          <arg name="y" type="fixed" summary="y coordinate for touch motion event"/>
++      </request>
++      <request name="touch_up" since="2">
++          <description summary="touch up event">
++              A client should use this request to send touch up event.
++          </description>
++          <arg name="id" type="uint" summary="unique id for touch up event"/>
++      </request>
++      <request name="touch_cancel" since="2">
++          <description summary="touch cancel event">
++              A client should use this request to cancel the current
++              touch event.
++          </description>
++      </request>
++      <request name="touch_frame" since="2">
++          <description summary="touch frame event">
++              A client should use this request to send touch frame event.
++          </description>
++      </request>
++      <request name="pointer_motion_absolute" since="3">
++          <arg name="x" type="fixed"/>
++          <arg name="y" type="fixed"/>
++      </request>
++      <request name="keyboard_key" since="4">
++        <arg name="button" type="uint"/>
++        <arg name="state" type="uint"/>
++      </request>
++
++      <!-- Version 5 additions -->
++
++      <request name="destroy" type="destructor" since="5">
++        <description summary="Destroy the fake input device"/>
++      </request>
++
++      <!-- Version 6 additions -->
++
++      <request name="keyboard_keysym" since="6">
++        <arg name="keysym" type="uint"/>
++        <arg name="state" type="uint"/>
++      </request>
++
++  </interface>
++</protocol>
+diff --git a/protocol/meson.build b/protocol/meson.build
+index d3faaf0..2521f92 100644
+--- a/protocol/meson.build
++++ b/protocol/meson.build
+@@ -17,6 +17,7 @@ wayland_scanner_client = generator(
+ 
+ client_protocols = [
+ 	['virtual-keyboard-unstable-v1.xml'],
++	['fake-input.xml'],
+ ]
+ client_protos_src = []
+ client_protos_headers = []
+diff --git a/wtype.desktop.in b/wtype.desktop.in
+new file mode 100644
+index 0000000..ccab36d
+--- /dev/null
++++ b/wtype.desktop.in
+@@ -0,0 +1,7 @@
++[Desktop Entry]
++Type=Application
++Name=wtype
++Comment=Simulate keyboard input on Wayland
++Exec=@bindir@/wtype
++NoDisplay=true
++X-KDE-Wayland-Interfaces=org_kde_kwin_fake_input
+-- 
+2.56.0
+

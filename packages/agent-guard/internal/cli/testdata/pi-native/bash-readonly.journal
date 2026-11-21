@@ -1,0 +1,1 @@
+{"time":"2026-11-06T12:00:00Z","harness":"pi","session":"019a5f00-0000-7000-8000-00000000c0de","tool_use_id":"call_bash-readonly","hook":"pre-bash","tool":"bash","kind":"shell","level":"deny","checks":[{"check":"read-only-root","level":"deny"}],"input":"echo x \u003e /home/test/.claude/x"}

@@ -1,8 +1,8 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
-  pkgs,
   ...
 }:
 
@@ -12,7 +12,9 @@ let
 in
 {
   options.${namespace}.roles.laptop = {
-    enable = mkEnableOption "Whether or not to enable laptop configuration.";
+    enable = mkEnableOption "laptop configuration" // {
+      default = osConfig.${namespace}.roles.laptop.enable;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -22,7 +24,6 @@ in
       programs = {
         firefox.enable = true;
         mpv.enable = true;
-        zed-editor.enable = true;
       };
     };
 
@@ -31,11 +32,12 @@ in
       sessionPath = [ "/home/${config.home.username}/bin" ];
       sessionVariables = {
         _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd";
-        DOTNET_CLI_TELEMETRY_OPTOUT = 1;
-        NIXPKGS = "/home/${config.home.username}/projects/repos/github.com/NixOS/nixpkgs";
-        GOROOT = "${pkgs.go}/share/go";
-        GOPATH = "/home/${config.home.username}/.go";
       };
+    };
+
+    xdg = {
+      mimeApps.enable = true;
+      configFile."mimeapps.list".force = true;
     };
   };
 }

@@ -16,18 +16,16 @@ let
 in
 {
   options.${namespace}.programs.htop = {
-    enable = mkEnableOption "Whether or not to manage htop.";
-    zfsSupport = mkEnableOption "Whether or not to enable ZFS support." // {
+    enable = mkEnableOption "managing htop";
+    zfsSupport = mkEnableOption "ZFS support" // {
       default = osConfig.boot.zfs.enabled;
     };
-    zramSupport = mkEnableOption "Whether to enable ZRAM support." // {
+    zramSupport = mkEnableOption "ZRAM support" // {
       default = osConfig.zramSwap.enable;
     };
-    showAdvancedCPUStats =
-      mkEnableOption "Whether to enable CPU frequency and temperature monitoring."
-      // {
-        default = !osConfig.${namespace}.facts.system.virtualised;
-      };
+    showAdvancedCPUStats = mkEnableOption "CPU frequency and temperature monitoring" // {
+      default = !osConfig.${namespace}.facts.system.virtualised;
+    };
   };
 
   config = mkIf cfg.enable {
@@ -84,9 +82,6 @@ in
             2
             2
           ];
-          # TODO: Write custom config generator
-          # screen_tabs = 1;
-          # "screen:I/O" = [ "PID" "USER" "IO_PRIORITY" "IO_RATE" "IO_READ_RATE" "IO_WRITE_RATE" "COMM" ];
         }
         (mkIf cfg.showAdvancedCPUStats {
           show_cpu_frequency = true;

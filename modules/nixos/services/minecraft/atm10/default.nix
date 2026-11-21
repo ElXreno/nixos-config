@@ -1,5 +1,6 @@
 {
   config,
+  options,
   inputs,
   namespace,
   lib,
@@ -9,12 +10,33 @@
 let
   inherit (lib)
     mkIf
+    mkMerge
     mkEnableOption
     mkOption
     types
     ;
   inherit (inputs.nix-minecraft.lib) collectFilesAt;
   cfg = config.${namespace}.services.minecraft.atm10;
+
+  # The world must stop changing while kopia reads it, and autosave must come
+  # back even if the snapshot dies.
+  stdin = config.services.minecraft-servers.managementSystem.systemd-socket.stdinSocket.path "atm10";
+  systemctl = "${config.systemd.package}/bin/systemctl";
+  journalctl = "${config.systemd.package}/bin/journalctl";
+  saveOff = ''
+    if ${systemctl} is-active --quiet minecraft-server-atm10; then
+      since=$(date '+%Y-%m-%d %H:%M:%S')
+      echo 'save-off' > ${stdin}
+      echo 'save-all flush' > ${stdin}
+      timeout 600 grep -qm1 'Saved the game' \
+        < <(${journalctl} -u minecraft-server-atm10 --since="$since" -f -o cat)
+    fi
+  '';
+  saveOn = ''
+    if ${systemctl} is-active --quiet minecraft-server-atm10; then
+      echo 'save-on' > ${stdin}
+    fi
+  '';
 
   modpack = pkgs.${namespace}.atm10-modpack;
 
@@ -45,17 +67,7 @@ let
     "-XX:NonProfiledCodeHeapSize=194M"
     "-XX:+UseVectorStubs"
     "-XX:TrimNativeHeapInterval=5000"
-    "-XX:G1NewSizePercent=40"
-    "-XX:G1MaxNewSizePercent=50"
-    "-XX:G1HeapRegionSize=16M"
-    "-XX:G1ReservePercent=20"
-    "-XX:G1MixedGCCountTarget=3"
-    "-XX:InitiatingHeapOccupancyPercent=20"
-    "-XX:G1MixedGCLiveThresholdPercent=90"
-    "-XX:G1SATBBufferEnqueueingThresholdPercent=30"
-    "-XX:G1ConcMarkStepDurationMillis=5"
-    "-XX:G1RSetUpdatingPauseTimePercent=0"
-    "-XX:MaxGCPauseMillis=130"
+    "-XX:+UseZGC"
     "-Djdk.graal.OptimizeLongJumps=true"
     "-Djdk.graal.TrivialInliningSize=16"
     "-Djdk.graal.MaximumInliningSize=320"
@@ -70,231 +82,135 @@ let
 in
 {
   options.${namespace}.services.minecraft.atm10 = {
-    enable = mkEnableOption "Whether to run the ATM10 Minecraft server.";
+    enable = mkEnableOption "running the ATM10 Minecraft server";
+    retain = mkEnableOption "backing up its data while the service is off" // {
+      default = options.${namespace}.services.minecraft.atm10.enable.highestPrio < 1500;
+      defaultText = "Whether this host sets `enable` at all, even to false.";
+    };
     port = mkOption {
       type = types.port;
       default = 25565;
     };
   };
 
-  config = mkIf cfg.enable {
-    services.minecraft-servers = {
-      enable = true;
-      eula = true;
-      managementSystem = {
-        tmux.enable = false;
-        systemd-socket.enable = true;
+  config = mkMerge [
+    (mkIf (cfg.enable || cfg.retain) {
+      ${namespace} = {
+        services.kopia.backup = [
+          {
+            path = "/srv/minecraft/atm10";
+            ignore = [ "/simplebackups" ];
+            preCommand = saveOff;
+            postCommand = saveOn;
+          }
+        ];
+
+        system.impermanence.directories = [
+          {
+            directory = "/srv/minecraft";
+            user = "minecraft";
+            group = "minecraft";
+            mode = "0750";
+          }
+        ];
       };
-      servers.atm10 = {
+    })
+    (mkIf cfg.enable {
+      services.minecraft-servers = {
         enable = true;
-        autoStart = true;
-        openFirewall = true;
-        package = serverPackage;
-        inherit jvmOpts;
-
-        serverProperties = {
-          server-port = cfg.port;
-          motd = "Hosted by ElXreno";
-          server-name = "ATM10";
-          white-list = true;
-          enforce-whitelist = true;
-          allow-flight = true;
-          sync-chunk-writes = false;
+        eula = true;
+        managementSystem = {
+          tmux.enable = false;
+          systemd-socket.enable = true;
         };
+        servers.atm10 = {
+          enable = true;
+          autoStart = true;
+          openFirewall = true;
+          package = serverPackage;
+          inherit jvmOpts;
 
-        whitelist = {
-          ElXreno = "40601523-a29f-414e-a942-799b839423ec";
-          kontonkara = "723f7324-2389-4ef8-bf8e-85390ef0fab1";
-          tsalkenov = "de58e68d-6f2f-4fe6-a88c-c1097f964a5f";
-          SaymoonAmogus = "a61d5728-9c6d-4377-ae53-408af16800d5";
-          G_R_O_M_I_L_A = "98f60092-8c67-4c3a-92a0-27b8ed10904c";
-        };
+          serverProperties = {
+            server-port = cfg.port;
+            motd = "Hosted by ElXreno";
+            server-name = "ATM10";
+            white-list = true;
+            enforce-whitelist = true;
+            allow-flight = true;
+            sync-chunk-writes = false;
+          };
 
-        symlinks = collectFilesAt modpack "mods";
+          whitelist = {
+            ElXreno = "40601523-a29f-414e-a942-799b839423ec";
+            kontonkara = "723f7324-2389-4ef8-bf8e-85390ef0fab1";
+            tsalkenov = "de58e68d-6f2f-4fe6-a88c-c1097f964a5f";
+            SaymoonAmogus = "a61d5728-9c6d-4377-ae53-408af16800d5";
+            G_R_O_M_I_L_A = "98f60092-8c67-4c3a-92a0-27b8ed10904c";
+          };
 
-        files =
-          collectFilesAt modpack "config"
-          // collectFilesAt modpack "defaultconfigs"
-          // collectFilesAt modpack "kubejs"
-          // {
-            "config/bluemap/core.conf" = {
-              format = pkgs.formats.json { };
-              value = {
-                accept-download = true;
-                data = "bluemap";
-                render-thread-count = 4;
-                scan-for-mod-resources = true;
-                metrics = true;
-                log = {
-                  file = "bluemap/logs/debug.log";
-                  append = false;
+          symlinks = collectFilesAt modpack "mods";
+
+          files =
+            collectFilesAt modpack "config"
+            // collectFilesAt modpack "defaultconfigs"
+            // collectFilesAt modpack "kubejs"
+            // {
+              "config/bluemap/core.conf" = {
+                format = pkgs.formats.json { };
+                value = {
+                  accept-download = true;
+                  data = "bluemap";
+                  render-thread-count = 4;
+                  scan-for-mod-resources = true;
+                  metrics = true;
+                  log = {
+                    file = "bluemap/logs/debug.log";
+                    append = false;
+                  };
                 };
               };
+              "config/c2me.toml" = pkgs.writeText "c2me.toml" ''
+                version = 3
+                globalExecutorParallelism = 6
+
+                [vanillaWorldGenOptimizations]
+                useDensityFunctionCompiler = true
+
+                [vanillaWorldGenOptimizations.nativeAcceleration]
+                enabled = true
+              '';
+              "config/lootr-common.toml" = pkgs.writeText "lootr-common.toml" (
+                builtins.readFile ./configs/lootr-common.toml
+              );
             };
-            "config/c2me.toml" = pkgs.writeText "c2me.toml" ''
-              version = 3
-              globalExecutorParallelism = 6
-
-              [vanillaWorldGenOptimizations]
-              useDensityFunctionCompiler = true
-
-              [vanillaWorldGenOptimizations.nativeAcceleration]
-              enabled = true
-            '';
-            "config/lootr-common.toml" = pkgs.writeText "lootr-common.toml" (
-              builtins.readFile ./configs/lootr-common.toml
-            );
-          };
-      };
-    };
-
-    ${namespace} = {
-      services.nginx = {
-        enable = true;
-        virtualHosts = {
-          "map.elxreno.com" = {
-            locations."/" = {
-              proxyPass = "http://localhost:8100";
-            };
-          };
         };
       };
 
-      system.impermanence.directories = [
-        {
-          directory = "/srv/minecraft";
-          user = "minecraft";
-          group = "minecraft";
-          mode = "0750";
-        }
-      ];
+      ${namespace} = {
+        ports = {
+          atm10 = cfg.port;
+          atm10-map = 8100;
+        };
 
-      services.scx.layered.layers = {
-        atm10-server-thread = {
-          priority = 10;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "Server thread"; }
-            ]
-          ];
-          kind.Grouped = {
-            util_range = [
-              0.4
-              0.95
-            ];
-            cpus_range = [
-              1
-              2
-            ];
-            idle_confined = true;
-            protected = true;
-            preempt = true;
-            preempt_first = true;
+        system.networking = {
+          dns.records."map.elxreno.com".proxied = true;
+          firewall.public.minecraft = {
+            upstream = "modules/minecraft-servers.nix";
+            tcp = [ cfg.port ];
           };
         };
-        atm10-gc = {
-          priority = 20;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "GC Thread#"; }
-            ]
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "G1 "; }
-            ]
-          ];
-          kind.Grouped = {
-            util_range = [
-              0.05
-              0.95
-            ];
-            cpus_range_frac = [
-              0.0
-              1.0
-            ];
-            preempt = true;
-          };
-        };
-        atm10-c2me = {
-          priority = 30;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "c2me-"; }
-            ]
-          ];
-          kind.Grouped = {
-            util_range = [
-              0.0
-              0.9
-            ];
-            cpus_range_frac = [
-              0.3
-              0.7
-            ];
-            idle_confined = true;
-          };
-        };
-        atm10-interactive = {
-          priority = 25;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "AE Crafting Cal"; }
-            ]
-          ];
-          kind.Grouped = {
-            util_range = [
-              0.0
-              0.95
-            ];
-            cpus_range_frac = [
-              0.0
-              0.5
-            ];
-            preempt = true;
-          };
-        };
-        atm10-bluemap = {
-          priority = 100;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "BlueMap-"; }
-            ]
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "RenderManager-"; }
-            ]
-          ];
-          kind.Open = {
-            weight = 1;
-          };
-        };
-        atm10-jit = {
-          priority = 110;
-          matches = [
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "JVMCI-native"; }
-            ]
-            [
-              { CgroupContains = "minecraft-server-atm10"; }
-              { CommPrefix = "C1 Compiler"; }
-            ]
-          ];
-          kind.Open = {
-            weight = 10;
-          };
-        };
+
+        services.caddy.enable = true;
+
       };
-    };
 
-    systemd.services.minecraft-server-atm10.serviceConfig = {
-      TimeoutStopSec = lib.mkForce "10min";
-      MemorySwapMax = "0";
-    };
-  };
+      services.caddy.virtualHosts."map.elxreno.com".extraConfig = ''
+        reverse_proxy localhost:${toString config.${namespace}.ports.atm10-map}
+      '';
+
+      systemd.services.minecraft-server-atm10.serviceConfig = {
+        TimeoutStopSec = lib.mkForce "10min";
+      };
+    })
+  ];
 }

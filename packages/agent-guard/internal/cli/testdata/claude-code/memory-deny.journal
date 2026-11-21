@@ -1,0 +1,1 @@
+{"time":"2026-11-06T12:00:00Z","harness":"claude-code","session":"abcd1234-0000-4000-8000-000000000000","tool_use_id":"toolu_memory-deny","hook":"agent-memory-write","tool":"Write","kind":"write","level":"deny","checks":[{"check":"agent-memory-write","level":"deny"}],"input":"/x/src/main.go"}

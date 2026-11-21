@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   ...
@@ -11,7 +12,9 @@ let
 in
 {
   options.${namespace}.programs.mangohud = {
-    enable = mkEnableOption "Whether or not to manage MangoHUD.";
+    enable = mkEnableOption "managing MangoHUD" // {
+      default = osConfig.${namespace}.programs.steam.enable;
+    };
   };
 
   config = mkIf cfg.enable {

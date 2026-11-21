@@ -1,0 +1,11 @@
+--- a/src/retrying_object_store.rs
++++ b/src/retrying_object_store.rs
+@@ -36,7 +36,7 @@
+         ExponentialBuilder::default()
+             .without_max_times()
+             .with_min_delay(Duration::from_millis(100))
+-            .with_max_delay(Duration::from_secs(1))
++            .with_max_delay(Duration::from_secs(60))
+     }
+ 
+     #[inline]

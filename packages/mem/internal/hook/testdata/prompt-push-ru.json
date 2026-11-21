@@ -1,0 +1,1 @@
+{"session_id":"s4","transcript_path":"@ROOT@/transcript.jsonl","cwd":"@ROOT@/repos/nixos-config","hook_event_name":"UserPromptSubmit","prompt":"Почему ARC в ZFS съедает всю память после загрузки и не отдаёт её?"}

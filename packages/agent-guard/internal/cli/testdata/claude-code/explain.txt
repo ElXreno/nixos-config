@@ -1,0 +1,95 @@
+=== rg -rn foo src
+[local d0] ["rg" "-rn" "foo" "src"]
+deny: rg-replace
+    Blocked: rg -r is --replace, NOT recursive (recursion is default in rg). Drop the -r flag. If you really meant text replacement, use --replace=<text> explicitly.
+rewrite: rg -n foo src
+=== sleep 90
+[local d0] ["sleep" "90"]
+deny: sleep
+    Blocked: sleep 90s. Never block for over a minute. Wait on the real condition instead: a polling loop at 20-30s, a --wait/--for flag, journalctl -f, or systemctl is-active in a loop. If the step truly takes minutes, poll it and report progress between checks rather than sleeping through it.
+=== sleep 45
+[local d0] ["sleep" "45"]
+advise: sleep
+    sleep 45s exceeds the 30s preference: poll on the actual condition if you can, and keep loop iterations short.
+=== make run &
+[local d0] background ["make" "run"]
+deny: background
+    Blocked: do not background with '&'. Pass run_in_background: true to the Bash tool instead: the harness tracks the job across turns, wakes you when it exits, and TaskOutput retrieves its output, so you never need to sleep and poll for it. This applies inside ssh, bash -c and container exec payloads too. If the ampersand is part of a URL or literal text, quote the argument.
+=== nohup x
+[local d0] detached ["nohup" "x"]
+deny: background
+    Blocked: do not detach with nohup/setsid/disown. Pass run_in_background: true to the Bash tool instead: the harness keeps the job alive across turns, wakes you when it exits, and TaskOutput retrieves its output. A detached shell job is invisible to all of that, so the only way to observe it is a sleep-and-poll loop.
+=== pkill -f node
+[local d0] ["pkill" "-f" "node"]
+deny: pkill
+    Blocked: pkill and killall match by pattern, and pkill -f matches against full command lines, including this agent's own shell: that is how it kills the session it is running in. If the target is a background task you started through the Bash tool, stop it with TaskStop and its task id. Otherwise list first and kill explicitly: pgrep -a <pattern> to see every match with its command line, check that none of them is something you did not mean, then kill <pid> for the ones you chose.
+=== git add -A
+[local d0] ["git" "add" "-A"]
+deny: git-scope
+    Blocked: git add of the whole tree also stages the user's own uncommitted work and other sessions' changes. Stage the paths this task changed, git add <paths>, or commit them in one step with git commit -m <msg> -- <paths>. When the user asked to commit everything, name the paths explicitly.
+=== git add -uv
+[local d0] ["git" "add" "-uv"]
+deny: git-scope
+    Blocked: git add of the whole tree also stages the user's own uncommitted work and other sessions' changes. Stage the paths this task changed, git add <paths>, or commit them in one step with git commit -m <msg> -- <paths>. When the user asked to commit everything, name the paths explicitly.
+=== git reset --hard
+[local d0] ["git" "reset" "--hard"]
+ask: git-destructive
+    git reset --hard destroys uncommitted work. Yes only if the user asked for it; otherwise git reset (mixed), git reset --soft, or revert specific paths.
+=== find . -name x
+[local d0] ["find" "." "-name" "x"]
+deny: shell-tool
+    Blocked: use fd instead of find - it is the standard here and far faster.
+=== cat /home/test/notes.txt
+[local d0] ["cat" "/home/test/notes.txt"]
+advise: shell-tool
+    cat ran, but a file you may edit next should be opened with Read: Edit refuses files not read through it, Read pages large files with offset and limit, and its line numbers anchor citations. cat is fine for one-off looks inside a command chain.
+=== grep foo a b
+[local d0] ["grep" "foo" "a" "b"]
+deny: shell-tool
+    Blocked: use rg instead of grep for searching files - it is the standard here and far faster. Remember rg -r is --replace, not recursive. grep stays fine for filtering a stream in a pipeline.
+=== ls /nix/store
+[local d0] ["ls" "/nix/store"]
+deny: nix-store-root
+    Blocked: no traversing the root of /nix or /nix/store: the store holds hundreds of thousands of entries and a sweep costs minutes of disk IO. A concrete entry is fine, globs inside it included: /nix/store/<hash>-<name>/**/*.so
+Derive the path instead of searching for it:
+  nix build <attr> --no-link --print-out-paths
+  nix eval <attr> --raw
+  nix path-info <attr>            (-r for the closure, -S for sizes)
+  nix derivation show <attr>
+  nix flake metadata <flake> --json | jq -r .path
+  nix-store -q --references / --requisites <path>
+  nix why-depends <from> <to>
+  readlink -f on result, /run/current-system, ~/.nix-profile
+=== nixos-rebuild switch
+[local d0] ["nixos-rebuild" "switch"]
+deny: deploy
+    Blocked: this activates a system or home-manager closure, and the user performs every deploy themselves. Build it (nix build .#nixosConfigurations.<host>.config.system.build.toplevel) and hand them the command to run. To experiment with a running service use what vanishes on reboot: systemctl edit --runtime, a drop-in under /run/systemd/system, a bind mount of one file over the store path, a unit restart.
+=== echo x > /home/test/new.txt
+[local d0] ["echo" "x"]
+advise: location
+    New files outside the agreed scratch area: /home/test/new.txt. Session scratch lives under /mnt/scratch/claude-code/tmp/2026-11-06-<topic>-expl/ (mkdir -p it first, pick a short topic); repository files and clones under /home/test/projects/repos are fine where they are. Not $HOME, not /tmp, not /mnt/datalake.
+=== ssh host "sleep 5 &"
+[local d0] ["ssh" "host" "sleep 5 &"]
+[remote d1] background ["sleep" "5"]
+deny: background
+    Blocked: do not background with '&'. Pass run_in_background: true to the Bash tool instead: the harness tracks the job across turns, wakes you when it exits, and TaskOutput retrieves its output, so you never need to sleep and poll for it. This applies inside ssh, bash -c and container exec payloads too. If the ampersand is part of a URL or literal text, quote the argument.
+=== for x in a b; echo $x; end
+unparsed [local d0 parse]: 1:1: `for foo [in words]` must be followed by `do`
+[local d0] ["echo" "$x"]
+[local d0] ["end"]
+advise: parser
+    This command did not parse as bash (1:1: `for foo [in words]` must be followed by `do`), so the guards only ran their conservative fallback on it. If it is fish or another dialect, wrap that part in bash -c "..."; if it is a typo, fix it.
+=== bwrap --ro-bind / / bash -c 'pkill -f x'
+[local d0] ["bwrap" "--ro-bind" "/" "/" "bash" "-c" "pkill -f x"]
+[local d1] ["pkill" "-f" "x"]
+deny: pkill
+    Blocked: pkill and killall match by pattern, and pkill -f matches against full command lines, including this agent's own shell: that is how it kills the session it is running in. If the target is a background task you started through the Bash tool, stop it with TaskStop and its task id. Otherwise list first and kill explicitly: pgrep -a <pattern> to see every match with its command line, check that none of them is something you did not mean, then kill <pid> for the ones you chose.
+=== env -S 'pkill -f x'
+[local d0] ["env" "-S" "pkill -f x"]
+[local d1] ["pkill" "-f" "x"]
+deny: pkill
+    Blocked: pkill and killall match by pattern, and pkill -f matches against full command lines, including this agent's own shell: that is how it kills the session it is running in. If the target is a background task you started through the Bash tool, stop it with TaskStop and its task id. Otherwise list first and kill explicitly: pgrep -a <pattern> to see every match with its command line, check that none of them is something you did not mean, then kill <pid> for the ones you chose.
+=== git push git@github.com:ElXreno/nixos-config.git main
+[local d0] ["git" "push" "git@github.com:ElXreno/nixos-config.git" "main"]
+ask: git-push
+    git push to github.com/ElXreno/nixos-config, a protected repository: the push publishes there. Yes only if the user asked for this push; otherwise commit locally and leave the push to the user.

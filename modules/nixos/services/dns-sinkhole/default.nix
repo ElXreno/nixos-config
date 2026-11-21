@@ -16,7 +16,7 @@ let
 in
 {
   options.${namespace}.services.dns-sinkhole = {
-    enable = mkEnableOption "Whether to enable the LAN DNS sinkhole.";
+    enable = mkEnableOption "the LAN DNS sinkhole";
 
     interface = mkOption {
       type = types.str;
@@ -43,7 +43,7 @@ in
       settings = {
         interface = [ cfg.interface ];
         except-interface = [ "lo" ];
-        bind-interfaces = true;
+        bind-dynamic = true;
         no-resolv = true;
         no-hosts = true;
         server = [ cfg.upstream ];

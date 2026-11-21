@@ -1,0 +1,181 @@
+From 4a741bf4e51affc50308374407c15c1e155506ff Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 05:25:40 +0300
+Subject: [PATCH 5/6] wifi: mt76: mt7925: tear down TDLS links the peer cannot
+ be served on
+
+The mt7925 firmware does not supervise TDLS peers, and mt76 completes
+data frames without a tx_info, so mac80211 never runs its own lost
+packet check for them either. A direct link that degrades keeps
+carrying all traffic to the peer: when the phone moves away it falls
+to HE-MCS 0 and legacy 6 Mbit/s at -80..-89 dBm while the AP path
+stays at 2.4 Gbit/s, and nothing tears it down.
+
+Track the TXFREE status of frames to TDLS peers and the average signal
+received from them. Ask userspace to tear the link down with reason
+TDLS_TEARDOWN_UNREACHABLE when 50 frames in a row have failed and no
+ACK came for 10 seconds, the thresholds mac80211 uses for TDLS peers,
+or when the average signal stays below -75 dBm for 5 seconds.
+
+ath10k gets the same decision from its firmware: it configures
+rssi_teardown_threshold = -75 and notification_interval_ms = 5000 in
+the TDLS state command and turns the RSSI and TX teardown events into
+ieee80211_tdls_oper_request() with TDLS_TEARDOWN_UNREACHABLE.
+---
+ .../net/wireless/mediatek/mt76/mt7925/init.c  |  2 +
+ .../net/wireless/mediatek/mt76/mt7925/mac.c   | 58 ++++++++++++++++++-
+ .../net/wireless/mediatek/mt76/mt7925/main.c  |  7 ++-
+ drivers/net/wireless/mediatek/mt76/mt792x.h   | 13 +++++
+ 4 files changed, 77 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/init.c b/drivers/net/wireless/mediatek/mt76/mt7925/init.c
+index e85b0d104fbe..5fb01c14f6e7 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/init.c
+@@ -239,6 +239,8 @@ int mt7925_register_device(struct mt792x_dev *dev)
+ 	init_waitqueue_head(&dev->phy.roc_wait);
+ 
+ 	dev->pm.idle_timeout = MT792x_PM_TIMEOUT;
++	dev->tdls_weak_rssi = MT792x_TDLS_WEAK_RSSI;
++	dev->tdls_weak_time_ms = MT792x_TDLS_WEAK_TIME_MS;
+ 	dev->pm.stats.last_wake_event = jiffies;
+ 	dev->pm.stats.last_doze_event = jiffies;
+ 	/* MT7927: runtime PM crashes BT firmware on the shared CONNINFRA domain */
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/mac.c b/drivers/net/wireless/mediatek/mt76/mt7925/mac.c
+index be3f1a67d4d1..bf94143aee08 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/mac.c
+@@ -1100,6 +1100,56 @@ void mt7925_txwi_free(struct mt792x_dev *dev, struct mt76_txwi_cache *t,
+ }
+ EXPORT_SYMBOL_GPL(mt7925_txwi_free);
+ 
++static void
++mt7925_mac_tdls_check(struct mt792x_dev *dev, struct ieee80211_sta *sta,
++		      struct mt76_wcid *wcid, bool failed)
++{
++	struct mt792x_link_sta *mlink;
++	struct ieee80211_vif *vif;
++	bool unreachable = false;
++	bool weak = false;
++	int rssi;
++
++	mlink = container_of(wcid, struct mt792x_link_sta, wcid);
++	if (mlink->tdls_teardown_sent || !mlink->sta)
++		return;
++
++	if (failed) {
++		if (++mlink->tdls_lost_pkts >= MT792x_TDLS_LOST_PKT_THRESHOLD &&
++		    time_after(jiffies, mlink->tdls_last_ack +
++					MT792x_TDLS_LOST_PKT_TIME))
++			unreachable = true;
++	} else {
++		mlink->tdls_lost_pkts = 0;
++		mlink->tdls_last_ack = jiffies;
++	}
++
++	rssi = ewma_signal_read(&wcid->rssi);
++	if (dev->tdls_weak_rssi && rssi > dev->tdls_weak_rssi) {
++		if (!mlink->tdls_weak_since)
++			mlink->tdls_weak_since = jiffies;
++		else if (time_after(jiffies, mlink->tdls_weak_since +
++				    msecs_to_jiffies(dev->tdls_weak_time_ms)))
++			weak = true;
++	} else {
++		mlink->tdls_weak_since = 0;
++	}
++
++	if (!unreachable && !weak)
++		return;
++
++	mlink->tdls_teardown_sent = true;
++	vif = container_of((void *)mlink->sta->vif, struct ieee80211_vif,
++			   drv_priv);
++	dev_info(dev->mt76.dev,
++		 "tearing down TDLS link to %pM: %s, signal -%d dBm, %u lost\n",
++		 sta->addr, unreachable ? "unreachable" : "weak signal", rssi,
++		 mlink->tdls_lost_pkts);
++	ieee80211_tdls_oper_request(vif, sta->addr, NL80211_TDLS_TEARDOWN,
++				    WLAN_REASON_TDLS_TEARDOWN_UNREACHABLE,
++				    GFP_ATOMIC);
++}
++
+ static void
+ mt7925_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
+ {
+@@ -1150,10 +1200,14 @@ mt7925_mac_tx_free(struct mt792x_dev *dev, void *data, int len)
+ 		if (info & MT_TXFREE_INFO_HEADER) {
+ 			if (wcid) {
+ 				u32 count = FIELD_GET(MT_TXFREE_INFO_COUNT, info);
++				bool failed = !!FIELD_GET(MT_TXFREE_INFO_STAT, info);
+ 
+ 				wcid->stats.tx_retries += count ? count - 1 : 0;
+-				wcid->stats.tx_failed +=
+-					!!FIELD_GET(MT_TXFREE_INFO_STAT, info);
++				wcid->stats.tx_failed += failed;
++
++				if (sta &&
++				    test_bit(MT_WCID_FLAG_TDLS_PEER, &wcid->flags))
++					mt7925_mac_tdls_check(dev, sta, wcid, failed);
+ 			}
+ 			continue;
+ 		}
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/main.c b/drivers/net/wireless/mediatek/mt76/mt7925/main.c
+index 443018638ddd..66a4606c6d10 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/main.c
+@@ -920,8 +920,13 @@ static int mt7925_mac_link_sta_add(struct mt76_dev *mdev,
+ 	mlink->wcid.link_valid = !!link_sta->sta->valid_links;
+ 	mlink->sta = msta;
+ 
+-	if (link_sta->sta->tdls)
++	if (link_sta->sta->tdls) {
+ 		set_bit(MT_WCID_FLAG_TDLS_PEER, &mlink->wcid.flags);
++		mlink->tdls_lost_pkts = 0;
++		mlink->tdls_last_ack = jiffies;
++		mlink->tdls_weak_since = 0;
++		mlink->tdls_teardown_sent = false;
++	}
+ 
+ 	wcid = &mlink->wcid;
+ 	ewma_signal_init(&wcid->rssi);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt792x.h b/drivers/net/wireless/mediatek/mt76/mt792x.h
+index 4f74ce512caa..9ef88ac4d6d6 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt792x.h
++++ b/drivers/net/wireless/mediatek/mt76/mt792x.h
+@@ -37,6 +37,11 @@
+ 
+ #define MT792x_WATCHDOG_TIME	(HZ / 4)
+ 
++#define MT792x_TDLS_LOST_PKT_THRESHOLD	50
++#define MT792x_TDLS_LOST_PKT_TIME	(10 * HZ)
++#define MT792x_TDLS_WEAK_RSSI		75
++#define MT792x_TDLS_WEAK_TIME_MS	5000
++
+ #define MT792x_DRV_OWN_RETRY_COUNT	10
+ #define MT792x_MCU_INIT_RETRY_COUNT	10
+ #define MT792x_WFSYS_INIT_RETRY_COUNT	2
+@@ -108,6 +113,11 @@ struct mt792x_link_sta {
+ 
+ 	unsigned long last_txs;
+ 
++	u32 tdls_lost_pkts;
++	unsigned long tdls_last_ack;
++	unsigned long tdls_weak_since;
++	bool tdls_teardown_sent;
++
+ 	struct mt76_connac_sta_key_conf bip;
+ 
+ 	struct mt792x_sta *sta;
+@@ -305,6 +315,9 @@ struct mt792x_dev {
+ 	u8 fw_debug;
+ 	u8 fw_features;
+ 
++	u32 tdls_weak_rssi;
++	u32 tdls_weak_time_ms;
++
+ 	struct mt76_connac_pm pm;
+ 	struct mt76_connac_coredump coredump;
+ 	const struct mt792x_hif_ops *hif_ops;
+-- 
+2.55.0
+

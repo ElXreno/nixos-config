@@ -24,7 +24,11 @@ let
   cpus = report.hardware.cpu or [ ];
   gpus = report.hardware.graphics_card or [ ];
   ifaces = report.hardware.network_interface or [ ];
+  netControllers = report.hardware.network_controller or [ ];
   mems = report.hardware.memory or [ ];
+
+  smbiosSystem = report.smbios.system or { };
+  smbiosBoard = report.smbios.board or { };
 
   cpu0 = if cpus == [ ] then { } else head cpus;
   cpuVendor = cpu0.vendor_name or null;
@@ -34,6 +38,17 @@ let
   gpuDrivers = unique (concatMap (g: g.driver_modules or [ ]) gpus);
   hasGpu = drivers: any (d: elem d gpuDrivers) drivers;
   gpuDriversFor = drivers: filter (d: elem d gpuDrivers) drivers;
+
+  gpuBusId =
+    drivers:
+    let
+      gpu = findFirst (g: any (d: elem d drivers) (g.driver_modules or [ ])) null gpus;
+      function = lib.toInt (lib.last (lib.splitString "." (gpu.sysfs_bus_id or "0.0")));
+    in
+    if gpu == null || !(gpu ? slot) then
+      ""
+    else
+      "PCI:${toString gpu.slot.bus}:${toString gpu.slot.number}:${toString function}";
 
   intelGpuDrivers = [
     "i915"
@@ -53,6 +68,19 @@ let
     cpuVendor == "AuthenticAMD"
     && (cpuFamily == 23 || (cpuFamily == 25 && cpuModel != null && cpuModel < 96));
 
+  inRange = lo: hi: cpuModel != null && cpuModel >= lo && cpuModel <= hi;
+  zenGeneration =
+    if cpuVendor != "AuthenticAMD" then
+      null
+    else if cpuFamily == 23 then
+      (if inRange 0 47 then 1 else 2)
+    else if cpuFamily == 25 then
+      (if inRange 16 31 || inRange 96 127 || inRange 160 175 then 4 else 3)
+    else if cpuFamily == 26 then
+      5
+    else
+      null;
+
   # Detect interface kind by name. PCI sub_class is unreliable: facter
   # misclassifies the MediaTek MT7925 (PCI class 0x0280, "Network controller
   # / Other") as "Ethernet controller", which leaks its driver into the
@@ -64,6 +92,24 @@ let
 
   wifiIfaceList = filter isWifiIface ifaces;
   ethIfaceList = filter isEthIface ifaces;
+
+  # PCI IDs in the `IWLMVM || IWLMLD` block of iwlwifi pcie/drv.c (Bz and Sc families)
+  iwlwifiMldDeviceIds = [
+    "272b"
+    "4d40"
+    "6e70"
+    "7740"
+    "a840"
+    "d240"
+    "d340"
+    "e340"
+    "e440"
+  ];
+  iwlwifiMld = any (
+    c:
+    elem "iwlwifi" (c.driver_modules or [ ])
+    && elem (lib.toLower (c.device.hex or "")) iwlwifiMldDeviceIds
+  ) netControllers;
 
   driversOf = list: unique (concatMap (e: e.driver_modules or [ ]) list);
   ifaceNames = list: concatMap (i: i.unix_device_names or [ ]) list;
@@ -95,6 +141,13 @@ in
         description = "CPU manufacturer derived from the facter report.";
       };
 
+      amd.zenGeneration = mkOption {
+        type = types.nullOr types.ints.positive;
+        default = zenGeneration;
+        defaultText = "Derived from facter CPU family/model.";
+        description = "Zen microarchitecture generation, null on non-AMD CPUs.";
+      };
+
       amd.zenpowerSupported = mkOption {
         type = types.bool;
         default = zenpowerSupported;
@@ -104,6 +157,13 @@ in
           (Zen 1/2/3) and Family 19h Model < 0x60 (Zen 3, excluding Zen 4
           Raphael/Phoenix/Hawk Point). Family 1Ah (Zen 5) is not supported.
         '';
+      };
+
+      intel.bayTrail = mkOption {
+        type = types.bool;
+        default = cpuVendor == "GenuineIntel" && cpuFamily == 6 && cpuModel == 55;
+        defaultText = "Derived from facter CPU family/model.";
+        description = "Whether the CPU is a Bay Trail SoC (Intel Family 6 Model 0x37).";
       };
 
       cores = mkOption {
@@ -140,6 +200,12 @@ in
           default = ifaceNames wifiIfaceList;
           defaultText = "Derived from facter report.";
           description = "WiFi network interface names (e.g. wlp4s0).";
+        };
+        iwlwifiMld = mkOption {
+          type = types.bool;
+          default = iwlwifiMld;
+          defaultText = "Derived from facter report.";
+          description = "Whether an iwlwifi card is of the Bz or Sc family, which iwlmld drives and which needs LAR.";
         };
       };
 
@@ -184,6 +250,12 @@ in
               default = gpuDriversFor drivers;
               defaultText = "Derived from facter report.";
             };
+            busId = mkOption {
+              type = types.str;
+              default = gpuBusId drivers;
+              defaultText = "Derived from facter report.";
+              description = "Decimal `PCI:bus:device:function` of the first matching GPU, empty if none.";
+            };
           };
       in
       {
@@ -211,16 +283,33 @@ in
       };
     };
 
-    system.virtualised = mkOption {
-      type = types.bool;
-      default = !config.hardware.facter.detected.virtualisation.none.enable;
-      defaultText = "!hardware.facter.detected.virtualisation.none.enable";
-      description = ''
-        Whether the host runs under a hypervisor. Derived from
-        `hardware.facter.detected.virtualisation.none.enable`, which facter
-        sets from systemd-detect-virt (granular per-hypervisor: qemu, kvm,
-        hyperv, oracle, parallels).
-      '';
+    system = {
+      virtualised = mkOption {
+        type = types.bool;
+        default = report != { } && !config.hardware.facter.detected.virtualisation.none.enable;
+        defaultText = "report != { } && !hardware.facter.detected.virtualisation.none.enable";
+        description = ''
+          Whether the host runs under a hypervisor. Derived from
+          `hardware.facter.detected.virtualisation.none.enable`, which facter
+          sets from systemd-detect-virt (granular per-hypervisor: qemu, kvm,
+          hyperv, oracle, parallels). A host without a facter report counts
+          as bare metal.
+        '';
+      };
+
+      vendor = mkOption {
+        type = types.nullOr types.str;
+        default = smbiosSystem.manufacturer or null;
+        defaultText = "Derived from facter report.";
+        description = "SMBIOS system manufacturer, e.g. `HONOR`.";
+      };
+
+      board = mkOption {
+        type = types.nullOr types.str;
+        default = smbiosBoard.product or null;
+        defaultText = "Derived from facter report.";
+        description = "SMBIOS baseboard product, e.g. `FA507UV`.";
+      };
     };
   };
 }

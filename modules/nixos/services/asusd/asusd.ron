@@ -65,6 +65,7 @@
         ),
     },
     armoury_settings: {
+        DgpuTgp: 115,
         NvTempTarget: 87,
         NvDynamicBoost: 25,
         PanelOverdrive: 1,

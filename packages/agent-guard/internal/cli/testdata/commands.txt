@@ -1,0 +1,20 @@
+rg -rn foo src
+sleep 90
+sleep 45
+make run &
+nohup x
+pkill -f node
+git add -A
+git add -uv
+git reset --hard
+find . -name x
+cat /home/test/notes.txt
+grep foo a b
+ls /nix/store
+nixos-rebuild switch
+echo x > /home/test/new.txt
+ssh host "sleep 5 &"
+for x in a b; echo $x; end
+bwrap --ro-bind / / bash -c 'pkill -f x'
+env -S 'pkill -f x'
+git push git@github.com:ElXreno/nixos-config.git main

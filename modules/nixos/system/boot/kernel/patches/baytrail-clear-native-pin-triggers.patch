@@ -1,0 +1,59 @@
+From 44510f18d3d29ce79b75c20384ebc58b05d38b1d Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 10:24:42 +0300
+Subject: [PATCH] pinctrl: baytrail: Clear IRQ triggers on pins muxed to a
+ native function
+
+byt_init_irq_valid_mask() clears the trigger bits only on pins whose
+mux selects GPIO mode. Firmware may leave a trigger enabled on a pin
+that runs a native function, and the trigger block still latches the
+pin's bit in INT_STAT then. No GPIO IRQ is mapped for such a pin, so
+nothing ever acks the bit, and byt_gpio_irq_handler() is re-entered
+for the same hwirq as fast as the IO-APIC line can fire.
+
+On a Prestigio Visconte 2 (Clevo S210TU, Celeron N2806) the firmware
+leaves both edge triggers set on SCORE pin 6, PCIE_CLKREQ3, the CLKREQ#
+line of the Wi-Fi card. After boot the CPU taking the SCORE interrupt
+spends more than half of its time in hardirq context: a 0.3 s kprobe on
+generic_handle_domain_irq() logged 22236 calls, all with hwirq 6, and a
+CPU-bound job pinned to that CPU took 8.95 s against 3.87 s on the other
+one.
+
+Clear the triggers on every pin that does not use direct IRQ mode.
+Users that need the interrupt request the pin, which switches it to
+GPIO mode and programs the trigger again through irq_set_type().
+---
+ drivers/pinctrl/intel/pinctrl-baytrail.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/intel/pinctrl-baytrail.c
+index b733ec3..e92083b 100644
+--- a/drivers/pinctrl/intel/pinctrl-baytrail.c
++++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+@@ -1451,9 +1451,11 @@ static void byt_init_irq_valid_mask(struct gpio_chip *chip,
+ 	int i;
+ 
+ 	/*
+-	 * Clear interrupt triggers for all pins that are GPIOs and
+-	 * do not use direct IRQ mode. This will prevent spurious
+-	 * interrupts from misconfigured pins.
++	 * Clear interrupt triggers for all pins that do not use direct
++	 * IRQ mode, including pins muxed to a native function: their
++	 * trigger block still latches INT_STAT, and a latched bit on a
++	 * pin nobody requested is never acked. This will prevent
++	 * spurious interrupts from misconfigured pins.
+ 	 */
+ 	for (i = 0; i < vg->soc->npins; i++) {
+ 		unsigned int pin = vg->soc->pins[i].number;
+@@ -1473,7 +1475,7 @@ static void byt_init_irq_valid_mask(struct gpio_chip *chip,
+ 					   BYT_TRIG_NEG | BYT_TRIG_LVL);
+ 				writel(value, reg);
+ 			}
+-		} else if ((value & BYT_PIN_MUX) == byt_get_gpio_mux(vg, i)) {
++		} else {
+ 			byt_gpio_clear_triggering(vg, i);
+ 			dev_dbg(vg->dev, "disabling GPIO %d\n", i);
+ 		}
+-- 
+2.55.0
+

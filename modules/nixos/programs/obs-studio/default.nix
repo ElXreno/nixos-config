@@ -12,7 +12,7 @@ let
 in
 {
   options.${namespace}.programs.obs-studio = {
-    enable = mkEnableOption "Whether or not to manage obs-studio.";
+    enable = mkEnableOption "managing obs-studio";
   };
 
   config = mkIf cfg.enable {

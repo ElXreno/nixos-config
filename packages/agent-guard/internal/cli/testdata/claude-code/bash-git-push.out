@@ -1,0 +1,1 @@
+{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"git push to github.com/ElXreno/nixos-config, a protected repository: the push publishes there. Yes only if the user asked for this push; otherwise commit locally and leave the push to the user."}}

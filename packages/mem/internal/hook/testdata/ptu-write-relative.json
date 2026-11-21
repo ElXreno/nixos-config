@@ -1,0 +1,1 @@
+{"session_id":"s1","cwd":"@ROOT@/home/.claude/projects/p","hook_event_name":"PreToolUse","tool_name":"Write","tool_input":{"file_path":"memory/x.md","content":"x"},"tool_use_id":"toolu_7"}

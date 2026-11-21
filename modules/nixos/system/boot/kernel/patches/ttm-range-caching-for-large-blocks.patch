@@ -1,0 +1,129 @@
+diff --git a/drivers/gpu/drm/ttm/ttm_pool.c b/drivers/gpu/drm/ttm/ttm_pool.c
+index e7648ad..e6140b3 100644
+--- a/drivers/gpu/drm/ttm/ttm_pool.c
++++ b/drivers/gpu/drm/ttm/ttm_pool.c
+@@ -260,23 +260,117 @@ static void ttm_pool_free_page(struct ttm_pool *pool, enum ttm_caching caching,
+ 	kfree(dma);
+ }
+ 
+-/* Apply any cpu-caching deferred during page allocation */
+-static int ttm_pool_apply_caching(struct ttm_pool_alloc_state *alloc)
+-{
+ #ifdef CONFIG_X86
+-	unsigned int num_pages = alloc->pages - alloc->caching_divide;
++/* Pages covered by one large page of the kernel direct map. */
++#define TTM_PMD_PAGES (PMD_SIZE >> PAGE_SHIFT)
++
++/* Change the caching of one physically contiguous run of pages. */
++static int ttm_pool_set_caching_range(struct page *first, unsigned int num_pages,
++				      enum ttm_caching caching)
++{
++	unsigned long addr = (unsigned long)page_address(first);
++
++	switch (caching) {
++	case ttm_cached:
++		break;
++	case ttm_write_combined:
++		return set_memory_wc(addr, num_pages);
++	case ttm_uncached:
++		return set_memory_uc(addr, num_pages);
++	}
++	return 0;
++}
+ 
++static int ttm_pool_set_caching_array(struct page **pages, unsigned int num_pages,
++				      enum ttm_caching caching)
++{
+ 	if (!num_pages)
+ 		return 0;
+ 
+-	switch (alloc->tt_caching) {
++	switch (caching) {
+ 	case ttm_cached:
+ 		break;
+ 	case ttm_write_combined:
+-		return set_pages_array_wc(alloc->caching_divide, num_pages);
++		return set_pages_array_wc(pages, num_pages);
+ 	case ttm_uncached:
+-		return set_pages_array_uc(alloc->caching_divide, num_pages);
++		return set_pages_array_uc(pages, num_pages);
+ 	}
++	return 0;
++}
++
++/*
++ * Length of the physically contiguous run starting at @pages[0], capped at
++ * @max_pages.
++ */
++static unsigned int ttm_pool_contig_run(struct page **pages, unsigned int max_pages)
++{
++	unsigned long pfn = page_to_pfn(pages[0]);
++	unsigned int i;
++
++	for (i = 1; i < max_pages; i++)
++		if (page_to_pfn(pages[i]) != pfn + i)
++			break;
++
++	return i;
++}
++#endif
++
++/*
++ * Apply any cpu-caching deferred during page allocation.
++ *
++ * The array interface treats every page as an independent single-page range,
++ * so it always has to split the large pages of the kernel direct map, and
++ * those are never rebuilt. Where the pages are physically contiguous and cover
++ * a whole direct-map large page, the range interface rewrites a single entry
++ * instead, leaving the mapping intact. Anything else keeps using the array
++ * interface: a split is unavoidable there, and batching is what keeps the
++ * per-call cost down.
++ */
++static int ttm_pool_apply_caching(struct ttm_pool_alloc_state *alloc)
++{
++#ifdef CONFIG_X86
++	unsigned int num_pages = alloc->pages - alloc->caching_divide;
++	struct page **pages = alloc->caching_divide;
++	unsigned int batch = 0;
++	int r;
++
++	if (!num_pages || alloc->tt_caching == ttm_cached)
++		goto done;
++
++	while (num_pages) {
++		struct page **run_start = pages + batch;
++		unsigned int run = ttm_pool_contig_run(run_start, num_pages);
++		unsigned long pfn = page_to_pfn(run_start[0]);
++		unsigned int lead = ALIGN(pfn, TTM_PMD_PAGES) - pfn;
++		unsigned int covered;
++
++		/* No whole large page fits in this run, keep batching. */
++		if (run < lead + TTM_PMD_PAGES) {
++			batch += run;
++			num_pages -= run;
++			continue;
++		}
++
++		covered = ALIGN_DOWN(run - lead, TTM_PMD_PAGES);
++
++		r = ttm_pool_set_caching_array(pages, batch + lead, alloc->tt_caching);
++		if (r)
++			return r;
++
++		r = ttm_pool_set_caching_range(run_start[lead], covered, alloc->tt_caching);
++		if (r)
++			return r;
++
++		pages += batch + lead + covered;
++		num_pages -= lead + covered;
++		batch = 0;
++	}
++
++	r = ttm_pool_set_caching_array(pages, batch, alloc->tt_caching);
++	if (r)
++		return r;
++
++done:
+ #endif
+ 	alloc->caching_divide = alloc->pages;
+ 	return 0;

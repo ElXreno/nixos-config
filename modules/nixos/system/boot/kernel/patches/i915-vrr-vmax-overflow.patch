@@ -1,0 +1,40 @@
+From 70d2c615b6a1222e4bd644497d4fc958b56a5c20 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 01:06:47 +0300
+Subject: [PATCH] drm/i915/vrr: Fix the pixel clock overflow in the vmax
+ computation
+
+intel_vrr_compute_vmax() multiplies crtc_clock, which is in kHz, by
+1000 in a signed int. A 3840x2400@240 timing has a 2342.4 MHz pixel
+clock, so the product overflows, the quotient turns negative and vmax
+is clamped to crtc_vtotal. vmin then equals vmax and VRR is never
+enabled for the mode, although it is within the range of the panel.
+
+Do the multiplication in 64 bits.
+
+No Fixes tag: intel_vrr_compute_vmax() is only called for a mode
+within the VRR range, such a pixel clock needs the joiner, and
+intel_vrr_compute_config() takes joined modes out of the range so
+far.
+---
+ drivers/gpu/drm/i915/display/intel_vrr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_vrr.c b/drivers/gpu/drm/i915/display/intel_vrr.c
+index cfc0cfb..b17ffb3 100644
+--- a/drivers/gpu/drm/i915/display/intel_vrr.c
++++ b/drivers/gpu/drm/i915/display/intel_vrr.c
+@@ -361,8 +361,8 @@ int intel_vrr_compute_vmax(struct intel_connector *connector,
+ 	const struct drm_display_info *info = &connector->base.display_info;
+ 	int vmax;
+ 
+-	vmax = adjusted_mode->crtc_clock * 1000 /
+-		(adjusted_mode->crtc_htotal * info->monitor_range.min_vfreq);
++	vmax = div_u64(mul_u32_u32(adjusted_mode->crtc_clock, 1000),
++		       adjusted_mode->crtc_htotal * info->monitor_range.min_vfreq);
+ 	vmax = max_t(int, vmax, adjusted_mode->crtc_vtotal);
+ 
+ 	return vmax;
+-- 
+2.56.0
+

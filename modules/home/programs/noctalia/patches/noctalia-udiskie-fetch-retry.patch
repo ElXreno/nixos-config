@@ -1,0 +1,160 @@
+diff -ru a/panel.luau b/panel.luau
+--- a/panel.luau	2026-11-11 15:10:42.760667312 +0300
++++ b/panel.luau	2026-11-11 15:11:05.306917118 +0300
+@@ -152,22 +152,25 @@
+     local parts = drvItem.partitions or {}
+     local sizeStr = formatSize(drv.size)
+ 
+-    local driveHeaderActions = {
+-        ui.button({
++    local driveHeaderActions = {}
++    if drv.isEjectable then
++        table.insert(driveHeaderActions, ui.button({
+             text = noctalia.tr("btn_eject"),
+             glyph = "player-eject",
+             variant = "outline",
+             controlSize = "sm",
+             onClick = function() ejectDevice(drv.device) end,
+-        }),
+-        ui.button({
++        }))
++    end
++    if drv.isDetachable then
++        table.insert(driveHeaderActions, ui.button({
+             glyph = "plug-off",
+             tooltip = noctalia.tr("btn_poweroff"),
+             variant = "destructive",
+             controlSize = "sm",
+             onClick = function() detachDevice(drv.device) end,
+-        }),
+-    }
++        }))
++    end
+ 
+     local partRows = {}
+     if #parts == 0 then
+@@ -252,7 +255,7 @@
+     if data.error then
+         table.insert(children, ui.column({ align = "center", justify = "center", paddingV = 24, gap = 12 }, {
+             ui.glyph({ name = "alert-triangle", size = 36, color = "warning" }),
+-            ui.label({ text = noctalia.tr("error_missing_dep"), color = "on_surface" }),
++            ui.label({ text = data.error == "missing_dep" and noctalia.tr("error_missing_dep") or noctalia.tr("error_fetch_failed"), color = "on_surface" }),
+             ui.row({ gap = 8, align = "center" }, {
+                 ui.button({
+                     text = noctalia.tr("btn_retry"),
+diff -ru a/service.luau b/service.luau
+--- a/service.luau	2026-11-11 15:10:42.760667312 +0300
++++ b/service.luau	2026-11-11 15:11:05.306917118 +0300
+@@ -151,13 +151,58 @@
+     isInitialFetch = false
+ end
+ 
+-local function fetchDevices()
++local FETCH_TIMEOUT_MS = 15000
++local FETCH_RETRY_LIMIT = 5
++local fetchInFlight = false
++local fetchPending = false
++local fetchRetries = 0
++local fetchDevices
++
++local function handleFetchFailure(res)
++    local code = res and res.exitCode or -1
++    noctalia.log(string.format("udiskie-info failed: exit=%s timedOut=%s stderr=%s", tostring(code), tostring(res and res.timedOut), tostring(res and res.stderr or "")))
++
++    if code == 127 then
++        noctalia.state.set("udiskie_devices", { drives = {}, standalone = {}, raw = {}, error = "missing_dep" })
++        return
++    end
++
++    if fetchRetries < FETCH_RETRY_LIMIT then
++        fetchRetries += 1
++        noctalia.runAsync("sleep 2", function()
++            fetchDevices()
++        end)
++        return
++    end
++
++    noctalia.state.set("udiskie_devices", { drives = {}, standalone = {}, raw = {}, error = "fetch_failed" })
++end
++
++fetchDevices = function()
++    if fetchInFlight then
++        fetchPending = true
++        return
++    end
++    fetchInFlight = true
++
+     noctalia.runAsync("udiskie-info -a -o \"{device_file}\t{ui_label}\t{is_mounted}\t{mount_path}\t{is_luks}\t{is_drive}\t{is_partition}\t{is_filesystem}\t{is_detachable}\t{is_ejectable}\t{in_use}\t{device_size}\"", function(res)
++        fetchInFlight = false
++        local again = fetchPending
++        fetchPending = false
++
+         if not res or res.exitCode ~= 0 then
+-            noctalia.state.set("udiskie_devices", { drives = {}, standalone = {}, raw = {}, error = "missing_dep" })
++            handleFetchFailure(res)
++            if again then
++                fetchDevices()
++            end
+             return
+         end
+ 
++        fetchRetries = 0
++        if again then
++            fetchDevices()
++        end
++
+         local rawDevices, currentMounted = parseUdiskieOutput(res.stdout)
+         local structured = buildHierarchy(rawDevices)
+         structured.error = nil
+@@ -184,7 +229,7 @@
+ 
+             noctalia.state.set("udiskie_devices", structured)
+         end)
+-    end, 5000)
++    end, FETCH_TIMEOUT_MS)
+ end
+ 
+ -- Initial fetch on startup
+@@ -193,7 +238,7 @@
+ 
+ -- Event-driven streaming using udisksctl monitor
+ noctalia.runStream("udisksctl monitor 2>/dev/null", function(line)
+-    if line:find("Added") or line:find("PropertiesChanged") or line:find("Removed") then
++    if line:find("Added") or line:find("Properties Changed") or line:find("Removed") then
+         fetchDevices()
+     end
+ end)
+diff -ru a/status.luau b/status.luau
+--- a/status.luau	2026-11-11 15:10:42.760667312 +0300
++++ b/status.luau	2026-11-11 15:11:05.306917118 +0300
+@@ -26,7 +26,7 @@
+     if type(data) == "table" and data.error then
+         barWidget.setGlyphColor("#f59e0b")
+         barWidget.setText("")
+-        barWidget.setTooltip(noctalia.tr("error_missing_dep"))
++        barWidget.setTooltip(data.error == "missing_dep" and noctalia.tr("error_missing_dep") or noctalia.tr("error_fetch_failed"))
+         return
+     else
+         -- Reset to the theme default. The API does not document "" as a reset;
+diff -ru a/translations/en.json b/translations/en.json
+--- a/translations/en.json	2026-11-11 15:10:42.771667434 +0300
++++ b/translations/en.json	2026-11-11 15:11:05.306917118 +0300
+@@ -40,6 +40,7 @@
+   "status_mounted": "Mounted",
+   "status_unmounted": "Unmounted",
+   "status_locked": "Locked (LUKS)",
++  "error_fetch_failed": "Could not read devices from udiskie",
+   "error_missing_dep": "udiskie binary is missing from PATH",
+   "btn_retry": "Retry Connection",
+   "btn_docs": "Check Documentation",
+diff -ru a/translations/es.json b/translations/es.json
+--- a/translations/es.json	2026-11-11 15:10:42.771667434 +0300
++++ b/translations/es.json	2026-11-11 15:11:05.306917118 +0300
+@@ -40,6 +40,7 @@
+   "status_mounted": "Montado",
+   "status_unmounted": "Desmontado",
+   "status_locked": "Bloqueado (LUKS)",
++  "error_fetch_failed": "No se pudieron leer los dispositivos desde udiskie",
+   "error_missing_dep": "El binario udiskie no está en el PATH",
+   "btn_retry": "Reintentar conexión",
+   "btn_docs": "Consultar documentación",

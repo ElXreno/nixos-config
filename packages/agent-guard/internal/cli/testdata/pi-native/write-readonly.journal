@@ -1,0 +1,1 @@
+{"time":"2026-11-06T12:00:00Z","harness":"pi","session":"019a5f00-0000-7000-8000-00000000c0de","tool_use_id":"call_write-readonly","hook":"pre-edit","tool":"write","kind":"write","level":"deny","checks":[{"check":"read-only-root","level":"deny"}],"input":"/home/test/.claude/x"}

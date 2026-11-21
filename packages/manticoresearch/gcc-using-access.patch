@@ -1,0 +1,13 @@
+diff --git a/src/sortergroup.cpp b/src/sortergroup.cpp
+index 702e37c..074f180 100755
+--- a/src/sortergroup.cpp
++++ b/src/sortergroup.cpp
+@@ -81,6 +81,8 @@ class KBufferGroupSorter_T : public CSphMatchQueueTraits, protected BaseGroupSor
+ {
+ 	using MYTYPE = KBufferGroupSorter_T<COMPGROUP,UNIQ,DISTINCT,NOTIFICATIONS>;
+ 	using BASE = CSphMatchQueueTraits;
++
++protected:
+ 	using BaseGroupSorter_c::AggrDiscard;
+ 
+ public:

@@ -1,0 +1,1 @@
+{"session_id":"s1","cwd":"@ROOT@/repos/nixos-config","hook_event_name":"PreToolUse","tool_name":"Edit","tool_input":{"file_path":"~/.claude/memory-core.md","old_string":"a","new_string":"b"},"tool_use_id":"toolu_20"}

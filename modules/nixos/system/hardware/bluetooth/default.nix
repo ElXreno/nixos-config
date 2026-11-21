@@ -16,8 +16,8 @@ let
 in
 {
   options.${namespace}.system.hardware.bluetooth = {
-    enable = mkEnableOption "Whether or not to manage bluetooth.";
-    xboxSupport = mkEnableOption "Whether to enable Xbox Controller support.";
+    enable = mkEnableOption "managing bluetooth";
+    xboxSupport = mkEnableOption "Xbox Controller support";
     bluezPackage = mkPackageOption pkgs "bluez5-experimental" { };
   };
 
@@ -49,8 +49,13 @@ in
       options bluetooth disable_ertm=Y
     '';
 
+    hardware.xpadneo.enable = cfg.xboxSupport;
+
     services.pipewire.wireplumber.extraConfig = {
       "10-bluez" = {
+        "wireplumber.settings" = {
+          "bluetooth.autoswitch-to-headset-profile" = false;
+        };
         "monitor.bluez.properties" = {
           "bluez5.roles" = [
             "a2dp_sink"

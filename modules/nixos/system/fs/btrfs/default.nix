@@ -101,7 +101,7 @@ let
 in
 {
   options.${namespace}.system.fs.btrfs = {
-    enable = mkEnableOption "Whether or not to manage btrfs." // {
+    enable = mkEnableOption "managing btrfs" // {
       default = lib.any (x: x.fsType == "btrfs") config.system.build.fileSystems;
     };
     nocowPaths = mkOption {

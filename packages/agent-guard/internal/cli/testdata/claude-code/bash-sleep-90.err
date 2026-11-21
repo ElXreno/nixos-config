@@ -1,0 +1,1 @@
+Blocked: sleep 90s. Never block for over a minute. Wait on the real condition instead: a polling loop at 20-30s, a --wait/--for flag, journalctl -f, or systemctl is-active in a loop. If the step truly takes minutes, poll it and report progress between checks rather than sleeping through it.

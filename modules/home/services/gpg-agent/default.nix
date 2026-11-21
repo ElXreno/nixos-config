@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   pkgs,
@@ -12,13 +13,16 @@ let
 in
 {
   options.${namespace}.services.gpg-agent = {
-    enable = mkEnableOption "Whether or not to manage gpg-agent.";
+    enable = mkEnableOption "managing gpg-agent";
   };
 
   config = mkIf cfg.enable {
+    programs.gpg.scdaemonSettings = mkIf osConfig.${namespace}.system.hardware.yubikey.enable {
+      disable-ccid = true;
+    };
+
     services.gpg-agent = {
       enable = true;
-      enableSshSupport = true;
       defaultCacheTtl = 300;
       pinentry.package = pkgs.pinentry-qt;
     };

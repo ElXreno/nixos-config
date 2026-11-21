@@ -1,0 +1,2428 @@
+diff -ruN a/docs/wiki/Configuration:-Outputs.md b/docs/wiki/Configuration:-Outputs.md
+--- a/docs/wiki/Configuration:-Outputs.md
++++ b/docs/wiki/Configuration:-Outputs.md
+@@ -8,6 +8,7 @@
+ ```kdl
+ output "eDP-1" {
+     // off
++    // create-virtual
+     mode "1920x1080@120.030"
+     scale 2.0
+     transform "90"
+@@ -64,6 +65,27 @@
+ }
+ ```
+ 
++### `create-virtual`
++
++This flag makes niri create a virtual (headless) output with this name if it doesn't already
++exist.
++
++It is useful for always having a stable output name for remote streaming setups (e.g.
++Sunshine/Moonlight).
++
++Notes:
++
++- Only supported on the TTY and Headless backends (not supported on Winit).
++- Niri will create the output at compositor startup and on config reload.
++- Niri will not automatically remove outputs that you delete from the config.
++
++```kdl
++output "sunshine" {
++    create-virtual
++    mode "1920x1080@144.000"
++}
++```
++
+ ### `mode`
+ 
+ Set the monitor resolution and refresh rate.
+diff -ruN a/docs/wiki/_Sidebar.md b/docs/wiki/_Sidebar.md
+--- a/docs/wiki/_Sidebar.md
++++ b/docs/wiki/_Sidebar.md
+@@ -26,6 +26,7 @@
+ * [Introduction](./Configuration:-Introduction.md)
+ * [Input](./Configuration:-Input.md)
+ * [Outputs](./Configuration:-Outputs.md)
++* [Virtual Outputs](./Virtual-Outputs.md)
+ * [Key Bindings](./Configuration:-Key-Bindings.md)
+ * [Switch Events](./Configuration:-Switch-Events.md)
+ * [Layout](./Configuration:-Layout.md)
+diff -ruN a/docs/wiki/Virtual-Outputs.md b/docs/wiki/Virtual-Outputs.md
+--- a/docs/wiki/Virtual-Outputs.md
++++ b/docs/wiki/Virtual-Outputs.md
+@@ -0,0 +1,205 @@
++# Virtual Outputs
++
++Virtual outputs are extra `wl_output`s (usually named `HEADLESS-*`) that niri can create even when
++there’s no physical monitor attached (or in addition to real monitors).
++
++They’re useful for:
++
++- Sunshine / Moonlight (wlr-screencopy capture)
++- VNC (e.g. wayvnc)
++- “headless” remote sessions and general screen sharing
++
++## Creating virtual outputs
++
++### TTY backend (regular session with physical displays)
++
++When running niri on a TTY with your physical monitor, you can create additional virtual outputs:
++
++```bash
++# Create a 1920x1080@144 virtual output named "sunshine"
++niri msg create-virtual-output \
++  --name sunshine \
++  --width 1920 \
++  --height 1080 \
++  --refresh-rate 144
++
++# If --name is omitted, a unique HEADLESS-N name is generated.
++```
++
++If you want to see what exists:
++
++```bash
++niri msg outputs
++```
++
++### Headless backend (no physical displays)
++
++For servers or remote-only access (e.g. SSH) where a real TTY is not available:
++
++```bash
++# Start niri in headless mode
++NIRI_BACKEND=headless niri --session &
++# A 1920x1080@60 HEADLESS-1 virtual output is created by default
++```
++
++Note: if you’re running commands from another shell, you may need to set `WAYLAND_DISPLAY` to the
++socket of that headless session.
++
++## Removing virtual outputs
++
++```bash
++niri msg remove-virtual-output sunshine
++# Output: Removed virtual output: sunshine
++```
++
++## Configuring virtual outputs
++
++Virtual outputs can be configured like regular outputs:
++
++```bash
++# Enable/disable
++niri msg output HEADLESS-1 <on|off>
++
++# Set scale
++niri msg output HEADLESS-1 scale 1.25
++
++# Set transform
++niri msg output HEADLESS-1 transform 90
++```
++
++You can also configure them in your `config.kdl` file.
++
++If you want niri to *create* a named virtual output automatically (at compositor startup and on
++config reload), add the `create-virtual` flag to the corresponding `output` block.
++
++Note: this works only on the TTY and Headless backends (virtual outputs are not supported on the
++Winit backend).
++
++```kdl
++output "sunshine" {
++    create-virtual
++    mode "1920x1080@144.000"
++    scale 1.25
++    transform "90"
++    position x=1920 y=0
++}
++```
++
++## Using with Sunshine
++
++If you want, you can tell [Sunshine](https://github.com/LizardByte/Sunshine) to create a virtual output that matches the client ([Moonlight](https://github.com/moonlight-stream/moonlight-qt)) resolution + refresh rate when a session starts, and remove it when the session ends.
++
++The snippets below are intentionally minimal; adjust them to your Sunshine setup.
++
++### TTY backend (create + remove per session)
++
++```json
++{
++  "apps": [
++    {
++      "name": "Remote Desktop",
++      "output": "sunshine",
++      "prep-cmd": [
++        {
++          "do": "sh -c \"niri msg create-virtual-output --name sunshine --width ${SUNSHINE_CLIENT_WIDTH} --height ${SUNSHINE_CLIENT_HEIGHT} --refresh-rate ${SUNSHINE_CLIENT_FPS}\"",
++          "undo": "niri msg remove-virtual-output sunshine"
++        }
++      ]
++    }
++  ]
++}
++```
++
++### Headless backend (reuse the default output)
++
++In headless mode, niri creates `HEADLESS-1` by default. You can just change its mode for the
++session and restore it afterwards.
++
++```json
++{
++  "apps": [
++    {
++      "name": "Remote Desktop",
++      "output": "HEADLESS-1",
++      "prep-cmd": [
++        {
++          "do": "sh -c \"niri msg output HEADLESS-1 custom-mode \\\"${SUNSHINE_CLIENT_WIDTH}x${SUNSHINE_CLIENT_HEIGHT}@${SUNSHINE_CLIENT_FPS}\\\"\"",
++          "undo": "niri msg output HEADLESS-1 mode '1920x1080@60.000'"
++        }
++      ]
++    }
++  ]
++}
++```
++
++## Input and seats (headless mode)
++
++In headless mode, niri can still use libinput to read local input devices (if it has permission to
++open `/dev/input/event*`). This is independent of virtual outputs.
++
++libinput enumerates devices by udev seat. By default niri uses `seat0`, but you can override it:
++
++```bash
++XDG_SEAT=seat0 NIRI_BACKEND=headless niri --session
++```
++
++The Wayland `wl_seat` name exposed by niri matches this seat string (`XDG_SEAT` / `seat0`).
++If niri can’t access any input devices (permissions, container, etc.), it will still start; you’ll
++just have no _local_ input.
++
++This section is mostly about _local_ kernel input devices. If you’re using a remote client that
++injects input over Wayland (like wayvnc), niri doesn’t need access to `/dev/input` for that.
++
++## Using with wayvnc
++
++[wayvnc](https://github.com/any1/wayvnc) is a VNC server for wlroots-based Wayland compositors. It forwards keyboard and pointer input from VNC clients to the compositor using Wayland “virtual input” protocols (virtual keyboard + virtual pointer). This means you can have working remote input even if the headless niri process can’t open `/dev/input/event*`.
++
++### Physical displays + extra virtual output
++
++```bash
++# 1. Start niri normally on your TTY
++niri --session &
++
++# 2. Create a virtual output for VNC
++niri msg create-virtual-output --width 1920 --height 1080
++
++# 3. Start wayvnc on the virtual output
++wayvnc --output HEADLESS-1
++
++# 4. Connect from a VNC client to your machine's IP
++```
++
++### Pure headless (remote only)
++
++```bash
++# 1. Start niri in headless mode (e.g., over SSH)
++NIRI_BACKEND=headless niri &
++
++# 2. Start wayvnc
++WAYLAND_DISPLAY=wayland-1 wayvnc --output HEADLESS-1
++
++# 3. Connect from a VNC client
++```
++
++### Headless with systemd
++
++For a persistent headless niri session:
++
++```ini
++# ~/.config/systemd/user/niri-headless.service
++[Unit]
++Description=Niri Headless Session
++
++[Service]
++Type=simple
++Environment=NIRI_BACKEND=headless
++ExecStart=/usr/bin/niri
++Restart=on-failure
++
++[Install]
++WantedBy=default.target
++```
++
++```bash
++systemctl --user enable --now niri-headless
++```
+diff -ruN a/niri-config/src/lib.rs b/niri-config/src/lib.rs
+--- a/niri-config/src/lib.rs
++++ b/niri-config/src/lib.rs
+@@ -1655,6 +1655,7 @@
+                 [
+                     Output {
+                         off: false,
++                        create_virtual: false,
+                         name: "eDP-1",
+                         scale: Some(
+                             FloatOrInt(
+@@ -1714,6 +1715,7 @@
+                     },
+                     Output {
+                         off: false,
++                        create_virtual: false,
+                         name: "eDP-2",
+                         scale: None,
+                         transform: Normal,
+@@ -1741,6 +1743,7 @@
+                     },
+                     Output {
+                         off: false,
++                        create_virtual: false,
+                         name: "eDP-3",
+                         scale: None,
+                         transform: Normal,
+diff -ruN a/niri-config/src/output.rs b/niri-config/src/output.rs
+--- a/niri-config/src/output.rs
++++ b/niri-config/src/output.rs
+@@ -51,6 +51,8 @@
+ pub struct Output {
+     #[knuffel(child)]
+     pub off: bool,
++    #[knuffel(child)]
++    pub create_virtual: bool,
+     #[knuffel(argument)]
+     pub name: String,
+     #[knuffel(child, unwrap(argument))]
+@@ -100,6 +102,7 @@
+     fn default() -> Self {
+         Self {
+             off: false,
++            create_virtual: false,
+             focus_at_startup: false,
+             name: String::new(),
+             scale: None,
+diff -ruN a/niri-ipc/src/lib.rs b/niri-ipc/src/lib.rs
+--- a/niri-ipc/src/lib.rs
++++ b/niri-ipc/src/lib.rs
+@@ -100,6 +100,25 @@
+         /// Configuration to apply.
+         action: OutputAction,
+     },
++    /// Create a new virtual headless output.
++    /// Defaults to 1920x1080 @ 60 Hz when not specified.
++    CreateVirtualOutput {
++        /// Width in pixels.
++        width: Option<u16>,
++        /// Height in pixels.
++        height: Option<u16>,
++        /// Refresh rate in Hz.
++        refresh_rate: Option<u32>,
++        /// Optional output name to use instead of auto-generated `HEADLESS-N`.
++        ///
++        /// When omitted, the compositor will pick a unique name.
++        name: Option<String>,
++    },
++    /// Remove a virtual headless output by name.
++    RemoveVirtualOutput {
++        /// Identifier of the output to remove.
++        name: String,
++    },
+     /// Start continuously receiving events from the compositor.
+     ///
+     /// The compositor should reply with `Reply::Ok(Response::Handled)`, then continuously send
+@@ -145,6 +164,8 @@
+     ///
+     /// Map from output name to output info.
+     Outputs(HashMap<String, Output>),
++    /// Virtual output successfully created.
++    VirtualOutputCreated(String),
+     /// Information about workspaces.
+     Workspaces(Vec<Workspace>),
+     /// Information about open windows.
+diff -ruN a/src/backend/headless.rs b/src/backend/headless.rs
+--- a/src/backend/headless.rs
++++ b/src/backend/headless.rs
+@@ -1,43 +1,174 @@
+-//! Headless backend for tests.
+-//!
+-//! This can eventually grow into a more complete backend if needed, but for now it's missing some
+-//! crucial parts like dmabufs.
++//! Note: This backend has limited DMA-BUF support intended for screencopy.
+ 
+-use std::mem;
++use std::collections::HashMap;
++use std::os::fd::{FromRawFd, OwnedFd};
++use std::path::Path;
+ use std::sync::{Arc, Mutex};
++use std::time::Duration;
++use std::{io, mem};
+ 
+ use anyhow::Context as _;
+ use niri_config::OutputName;
+ use smithay::backend::allocator::dmabuf::Dmabuf;
++use smithay::backend::allocator::format::FormatSet;
++#[cfg(feature = "xdp-gnome-screencast")]
++use smithay::backend::allocator::gbm::GbmDevice;
++use smithay::backend::allocator::Buffer;
+ use smithay::backend::drm::DrmNode;
+ use smithay::backend::egl::native::EGLSurfacelessDisplay;
+-use smithay::backend::egl::{EGLContext, EGLDisplay};
++use smithay::backend::egl::{EGLContext, EGLDevice, EGLDisplay};
++use smithay::backend::libinput::LibinputInputBackend;
+ use smithay::backend::renderer::element::RenderElementStates;
+ use smithay::backend::renderer::gles::GlesRenderer;
++use smithay::backend::renderer::{ImportDma, ImportEgl};
+ use smithay::output::{Mode, Output, PhysicalProperties, Subpixel};
++use smithay::reexports::calloop::timer::{TimeoutAction, Timer};
++use smithay::reexports::calloop::LoopHandle;
++use smithay::reexports::input;
++use smithay::reexports::input::Libinput;
+ use smithay::reexports::wayland_protocols::wp::presentation_time::server::wp_presentation_feedback;
++#[cfg(feature = "xdp-gnome-screencast")]
++use smithay::utils::DeviceFd;
+ use smithay::utils::Size;
++use smithay::wayland::dmabuf::{DmabufFeedbackBuilder, DmabufGlobal};
+ use smithay::wayland::presentation::Refresh;
+ 
+-use super::{IpcOutputMap, OutputId, RenderResult};
+-use crate::niri::{Niri, RedrawState};
++use super::{virtual_output, IpcOutputMap, OutputId, RenderResult, VirtualOutputMarker};
++use crate::niri::{Niri, RedrawState, State};
+ use crate::render_helpers::{resources, shaders};
+ use crate::utils::{get_monotonic_time, logical_output};
+ 
+ pub struct Headless {
+     renderer: Option<GlesRenderer>,
++    dmabuf_global: Option<DmabufGlobal>,
++    /// DRM render node used by the EGL device backing the renderer (if detectable).
++    ///
++    /// This is used to provide linux-dmabuf feedback so clients can allocate buffers on the
++    /// correct device/modifier set (important for dmabuf-based screencopy clients like Sunshine).
++    render_node: Option<DrmNode>,
++    /// GBM device backed by the detected DRM render node.
++    ///
++    /// This is required for PipeWire/portal screencasting (e.g. Discord/OBS PipeWire sources).
++    #[cfg(feature = "xdp-gnome-screencast")]
++    gbm: Option<GbmDevice<DeviceFd>>,
+     ipc_outputs: Arc<Mutex<IpcOutputMap>>,
++    /// Seat name used for both libinput udev enumeration (`udev_assign_seat`) and the compositor
++    /// `wl_seat` name.
++    ///
++    /// This defaults to `seat0` and can be overridden with `XDG_SEAT`.
++    udev_seat: String,
++    /// Counter for auto-naming headless outputs (HEADLESS-1, HEADLESS-2, etc.)
++    output_counter: u32,
++    /// Track outputs by name for removal, storing (Output, OutputId)
++    outputs: HashMap<String, (Output, OutputId)>,
+ }
+ 
+ impl Headless {
+-    pub fn new() -> Self {
++    pub fn new(event_loop: LoopHandle<'static, State>) -> Self {
++        let udev_seat = std::env::var("XDG_SEAT").unwrap_or_else(|_| "seat0".to_owned());
++        init_headless_libinput(event_loop, &udev_seat);
++
+         Self {
+             renderer: None,
++            dmabuf_global: None,
++            render_node: None,
++            #[cfg(feature = "xdp-gnome-screencast")]
++            gbm: None,
+             ipc_outputs: Default::default(),
++            udev_seat,
++            output_counter: 0,
++            outputs: HashMap::new(),
+         }
+     }
+ 
+-    pub fn init(&mut self, _niri: &mut Niri) {}
++    #[cfg(feature = "xdp-gnome-screencast")]
++    pub fn gbm_device(&self) -> Option<GbmDevice<DeviceFd>> {
++        self.gbm.clone()
++    }
++
++    pub fn init(&mut self, niri: &mut Niri) {
++        if let Err(err) = self.add_renderer() {
++            warn!("failed to create headless renderer: {err:?}");
++        } else if let Some(renderer) = self.renderer.as_mut() {
++            if let Err(err) = renderer.bind_wl_display(&niri.display_handle) {
++                warn!("error binding renderer wl_display: {err:?}");
++            }
++
++            let config = niri.config.borrow();
++            if let Some(src) = config.animations.window_resize.custom_shader.as_deref() {
++                shaders::set_custom_resize_program(renderer, Some(src));
++            }
++            if let Some(src) = config.animations.window_close.custom_shader.as_deref() {
++                shaders::set_custom_close_program(renderer, Some(src));
++            }
++            if let Some(src) = config.animations.window_open.custom_shader.as_deref() {
++                shaders::set_custom_open_program(renderer, Some(src));
++            }
++            drop(config);
++
++            niri.update_shaders();
++
++            // Advertise linux-dmabuf feedback when we can identify the EGL device's DRM render
++            // node. This helps dmabuf-based screencopy clients (e.g. Sunshine) pick compatible
++            // formats/modifiers. If we can't determine a node, fall back to a format-list-only
++            // dmabuf global.
++            if self.dmabuf_global.is_none() {
++                // For screencopy, the client-provided dmabuf must be usable as a render target,
++                // so only advertise formats that are both renderable by the EGL context and
++                // importable by the renderer.
++                let render_formats = renderer.egl_context().dmabuf_render_formats();
++                let import_formats: FormatSet = renderer.dmabuf_formats().into_iter().collect();
++                let formats: FormatSet = render_formats
++                    .intersection(&import_formats)
++                    .copied()
++                    .collect();
++
++                if formats.iter().next().is_none() {
++                    warn!(
++                        "headless: renderer reports no compatible dmabuf render formats; dmabuf screencopy will be unavailable"
++                    );
++                } else if let Some(render_node) = self.render_node {
++                    match DmabufFeedbackBuilder::new(render_node.dev_id(), formats.clone())
++                        .build()
++                        .context("error building default dmabuf feedback")
++                    {
++                        Ok(default_feedback) => {
++                            let global = niri
++                                .dmabuf_state
++                                .create_global_with_default_feedback::<State>(
++                                    &niri.display_handle,
++                                    &default_feedback,
++                                );
++                            self.dmabuf_global = Some(global);
++                        }
++                        Err(err) => {
++                            warn!(
++                                "headless: failed to build dmabuf feedback ({err:?}); falling back to format-list-only dmabuf global"
++                            );
++                            let formats_vec = formats.into_iter().collect::<Vec<_>>();
++                            let global = niri
++                                .dmabuf_state
++                                .create_global::<State>(&niri.display_handle, formats_vec);
++                            self.dmabuf_global = Some(global);
++                        }
++                    }
++                } else {
++                    let formats_vec = formats.into_iter().collect::<Vec<_>>();
++                    let global = niri
++                        .dmabuf_state
++                        .create_global::<State>(&niri.display_handle, formats_vec);
++                    self.dmabuf_global = Some(global);
++                }
++            }
++        }
++
++        // In real headless sessions we want a default output so clients have something to render
++        // on. In tests, the harness explicitly creates predictable `headless-N` outputs; creating
++        // an extra default `HEADLESS-1` here causes name collisions and snapshot churn.
++        if self.outputs.is_empty() && !cfg!(test) {
++            let _ = self.create_virtual_output(niri, 1920, 1080, 60, None);
++        }
++    }
+ 
+     pub fn add_renderer(&mut self) -> anyhow::Result<()> {
+         if self.renderer.is_some() {
+@@ -48,6 +179,40 @@
+         let mut renderer = unsafe {
+             let display =
+                 EGLDisplay::new(EGLSurfacelessDisplay).context("error creating EGL display")?;
++
++            self.render_node = EGLDevice::device_for_display(&display)
++                .ok()
++                .and_then(|egl_device| {
++                    if egl_device.is_software() {
++                        debug!(
++                            "headless: EGL device is software; skipping dmabuf feedback device metadata"
++                        );
++                        return None;
++                    }
++
++                    egl_device.try_get_render_node().ok().flatten()
++                });
++
++            #[cfg(feature = "xdp-gnome-screencast")]
++            {
++                if self.gbm.is_none() {
++                    if let Some(render_node) = self.render_node {
++                        match try_init_headless_gbm_device(render_node) {
++                            Ok(gbm) => self.gbm = Some(gbm),
++                            Err(err) => {
++                                warn!(
++                                    "headless: failed to initialize GBM device from render node {render_node}: {err:?}"
++                                );
++                            }
++                        }
++                    } else {
++                        debug!(
++                            "headless: no DRM render node detected; portal/PipeWire screencasting will be unavailable"
++                        );
++                    }
++                }
++            }
++
+             let context = EGLContext::new(&display).context("error creating EGL context")?;
+             GlesRenderer::new(context).context("error creating renderer")?
+         };
+@@ -59,6 +224,8 @@
+         Ok(())
+     }
+ 
++    /// Add an output for testing (uses lowercase naming like `headless-1`).
++    /// This is kept for backwards compatibility with tests.
+     pub fn add_output(&mut self, niri: &mut Niri, n: u8, size: (u16, u16)) {
+         let connector = format!("headless-{n}");
+         let make = "niri".to_string();
+@@ -90,6 +257,10 @@
+             serial: Some(serial),
+         });
+ 
++        output
++            .user_data()
++            .insert_if_missing(VirtualOutputMarker::default);
++
+         let physical_properties = output.physical_properties();
+         self.ipc_outputs.lock().unwrap().insert(
+             OutputId::next(),
+@@ -117,8 +288,101 @@
+         niri.add_output(output, None, false);
+     }
+ 
++    /// Create a virtual output with the given mode and add it to the compositor.
++    /// Returns the name of the created output.
++    pub fn create_virtual_output(
++        &mut self,
++        niri: &mut Niri,
++        width: u16,
++        height: u16,
++        refresh_rate: u32,
++        name: Option<String>,
++    ) -> Result<String, String> {
++        let mut width = width;
++        let mut height = height;
++        let mut refresh_millihz = refresh_rate.saturating_mul(1000);
++        let mut should_connect = true;
++
++        if let Some(name) = name.as_deref() {
++            let lookup_name = OutputName {
++                connector: name.to_string(),
++                make: None,
++                model: None,
++                serial: None,
++            };
++            let config = niri.config.borrow();
++            if let Some(output_config) = config.outputs.find(&lookup_name) {
++                should_connect = !output_config.off;
++
++                if let Some(mode_config) = output_config.mode {
++                    width = mode_config.mode.width;
++                    height = mode_config.mode.height;
++
++                    let refresh_hz = mode_config.mode.refresh.unwrap_or(60.0);
++                    refresh_millihz =
++                        (refresh_hz * 1000.0).round().clamp(1.0, u32::MAX as f64) as u32;
++                }
++            }
++        }
++
++        if let Some(name) = name.as_deref() {
++            if name.trim().is_empty() {
++                return Err("virtual output name cannot be empty".to_string());
++            }
++            if self.outputs.contains_key(name)
++                || niri.global_space.outputs().any(|o| o.name() == name)
++            {
++                return Err(format!("output '{name}' already exists"));
++            }
++        }
++
++        let built = virtual_output::build_headless_virtual_output(
++            &mut self.output_counter,
++            width,
++            height,
++            refresh_millihz,
++            name,
++        );
++
++        if self.outputs.contains_key(&built.name)
++            || niri.global_space.outputs().any(|o| o.name() == built.name)
++        {
++            return Err(format!("output '{}' already exists", built.name));
++        }
++
++        self.ipc_outputs
++            .lock()
++            .unwrap()
++            .insert(built.output_id, built.ipc_output);
++
++        self.outputs
++            .insert(built.name.clone(), (built.output.clone(), built.output_id));
++
++        if should_connect {
++            niri.add_output(built.output, Some(built.refresh_interval), false);
++        }
++
++        // Ensure IPC state matches the (potentially) configured mode and connection state.
++        niri.ipc_outputs_changed = true;
++        self.on_output_config_changed(niri);
++
++        Ok(built.name)
++    }
++
++    /// Remove the virtual output with the given name.
++    /// Returns an error if no such virtual output exists.
++    pub fn remove_virtual_output(&mut self, niri: &mut Niri, name: &str) -> Result<(), String> {
++        virtual_output::remove_virtual_output_from_map(
++            niri,
++            &self.ipc_outputs,
++            &mut self.outputs,
++            name,
++            "output",
++        )
++    }
++
+     pub fn seat_name(&self) -> String {
+-        "headless".to_owned()
++        self.udev_seat.clone()
+     }
+ 
+     pub fn with_primary_renderer<T>(
+@@ -129,14 +393,21 @@
+     }
+ 
+     pub fn primary_render_node(&mut self) -> Option<DrmNode> {
+-        None
++        self.render_node
+     }
+ 
+-    pub fn render(&mut self, niri: &mut Niri, output: &Output) -> RenderResult {
++    pub fn render(
++        &mut self,
++        niri: &mut Niri,
++        output: &Output,
++        target_presentation_time: Duration,
++    ) -> RenderResult {
++        let now = get_monotonic_time();
++
+         let states = RenderElementStates::default();
+         let mut presentation_feedbacks = niri.take_presentation_feedbacks(output, &states);
+         presentation_feedbacks.presented::<_, smithay::utils::Monotonic>(
+-            get_monotonic_time(),
++            now,
+             Refresh::Unknown,
+             0,
+             wp_presentation_feedback::Kind::empty(),
+@@ -147,19 +418,92 @@
+             RedrawState::Idle => unreachable!(),
+             RedrawState::Queued => (),
+             RedrawState::WaitingForVBlank { .. } => unreachable!(),
+-            RedrawState::WaitingForEstimatedVBlank(_) => unreachable!(),
+-            RedrawState::WaitingForEstimatedVBlankAndQueued(_) => unreachable!(),
++            RedrawState::WaitingForEstimatedVBlank(token)
++            | RedrawState::WaitingForEstimatedVBlankAndQueued(token) => {
++                niri.event_loop.remove(token);
++            }
+         }
+ 
++        output_state.frame_clock.presented(target_presentation_time);
+         output_state.frame_callback_sequence = output_state.frame_callback_sequence.wrapping_add(1);
+ 
+-        // FIXME: request redraw on unfinished animations remain
++        let refresh_interval = output_state
++            .frame_clock
++            .refresh_interval()
++            .unwrap_or(Duration::from_micros(16_667));
++
++        let output_clone = output.clone();
++        let timer = Timer::from_duration(refresh_interval);
++        let token = niri
++            .event_loop
++            .insert_source(timer, move |_, _, data| {
++                let output_state = data.niri.output_state.get_mut(&output_clone).unwrap();
++                output_state.frame_callback_sequence =
++                    output_state.frame_callback_sequence.wrapping_add(1);
++
++                match mem::replace(&mut output_state.redraw_state, RedrawState::Idle) {
++                    RedrawState::WaitingForEstimatedVBlank(_) => (),
++                    RedrawState::WaitingForEstimatedVBlankAndQueued(_) => {
++                        output_state.redraw_state = RedrawState::Queued;
++                        return TimeoutAction::Drop;
++                    }
++                    _ => unreachable!(),
++                }
++
++                if output_state.unfinished_animations_remain {
++                    data.niri.queue_redraw(&output_clone);
++                } else {
++                    data.niri
++                        .send_frame_callbacks_for_virtual_output(&output_clone);
++                }
++                TimeoutAction::Drop
++            })
++            .unwrap();
++        output_state.redraw_state = RedrawState::WaitingForEstimatedVBlank(token);
+ 
+         RenderResult::Submitted
+     }
+ 
+-    pub fn import_dmabuf(&mut self, _dmabuf: &Dmabuf) -> bool {
+-        unimplemented!()
++    pub fn import_dmabuf(&mut self, dmabuf: &Dmabuf) -> bool {
++        let renderer = match self.renderer.as_mut() {
++            Some(r) => r,
++            None => {
++                debug!("import_dmabuf: no renderer available");
++                return false;
++            }
++        };
++
++        let render_formats = renderer.egl_context().dmabuf_render_formats();
++        let import_formats: FormatSet = renderer.dmabuf_formats().into_iter().collect();
++        let format = dmabuf.format();
++        if !render_formats.contains(&format) || !import_formats.contains(&format) {
++            debug!(
++                "import_dmabuf: unsupported format code={:?} modifier={:?}",
++                format.code, format.modifier
++            );
++            return false;
++        }
++
++        match renderer.import_dmabuf(dmabuf, None) {
++            Ok(_texture) => {
++                dmabuf.set_node(self.render_node);
++                true
++            }
++            Err(err) => {
++                debug!("error importing dmabuf: {err:?}");
++                false
++            }
++        }
++    }
++
++    pub fn on_output_config_changed(&mut self, niri: &mut Niri) {
++        let config = niri.config.clone();
++        virtual_output::apply_config_to_managed_virtual_outputs(
++            niri,
++            &mut self.outputs,
++            Some(&self.ipc_outputs),
++            &config,
++        );
+     }
+ 
+     pub fn ipc_outputs(&self) -> Arc<Mutex<IpcOutputMap>> {
+@@ -169,6 +513,97 @@
+ 
+ impl Default for Headless {
+     fn default() -> Self {
+-        Self::new()
++        // This is only used by tests / callers that don't care about input.
++        // Headless libinput requires an event loop handle, so default disables it.
++        Self {
++            renderer: None,
++            dmabuf_global: None,
++            render_node: None,
++            #[cfg(feature = "xdp-gnome-screencast")]
++            gbm: None,
++            ipc_outputs: Default::default(),
++            udev_seat: "seat0".to_string(),
++            output_counter: 0,
++            outputs: HashMap::new(),
++        }
++    }
++}
++
++#[cfg(feature = "xdp-gnome-screencast")]
++fn try_init_headless_gbm_device(render_node: DrmNode) -> anyhow::Result<GbmDevice<DeviceFd>> {
++    use std::fs::OpenOptions;
++    use std::os::fd::OwnedFd;
++    use std::os::unix::fs::OpenOptionsExt;
++
++    let path = render_node
++        .dev_path()
++        .context("render node has no dev_path")?;
++
++    let file = OpenOptions::new()
++        .read(true)
++        .write(true)
++        .custom_flags(libc::O_CLOEXEC | libc::O_NOCTTY)
++        .open(&path)
++        .with_context(|| format!("error opening render node at {path:?}"))?;
++
++    let owned_fd = OwnedFd::from(file);
++    let device_fd = DeviceFd::from(owned_fd);
++    let gbm = GbmDevice::new(device_fd).context("error creating GBM device")?;
++    Ok(gbm)
++}
++
++#[derive(Clone, Default)]
++struct HeadlessLibinputInterface;
++
++impl input::LibinputInterface for HeadlessLibinputInterface {
++    fn open_restricted(&mut self, path: &Path, flags: i32) -> Result<OwnedFd, i32> {
++        use std::ffi::CString;
++        use std::os::unix::ffi::OsStrExt;
++
++        let c_path = CString::new(path.as_os_str().as_bytes()).map_err(|_| libc::EINVAL)?;
++        // Keep libinput's requested access mode (read-only vs read-write), but add a few
++        // safety/behavior flags (mirrors libseat's noop backend).
++        let flags = flags | libc::O_CLOEXEC | libc::O_NOCTTY | libc::O_NOFOLLOW | libc::O_NONBLOCK;
++        let fd = unsafe { libc::open(c_path.as_ptr(), flags) };
++        if fd < 0 {
++            let errno = io::Error::last_os_error()
++                .raw_os_error()
++                .unwrap_or(libc::EIO);
++
++            if errno == libc::ENOENT || errno == libc::ENODEV {
++                trace!("headless: libinput open_restricted failed for {path:?}: errno={errno}");
++            } else {
++                debug!("headless: libinput open_restricted failed for {path:?}: errno={errno}");
++            }
++            return Err(errno);
++        }
++
++        Ok(unsafe { OwnedFd::from_raw_fd(fd) })
++    }
++
++    fn close_restricted(&mut self, fd: OwnedFd) {
++        drop(fd);
++    }
++}
++
++fn init_headless_libinput(event_loop: LoopHandle<'static, State>, seat: &str) {
++    let mut libinput = Libinput::new_with_udev(HeadlessLibinputInterface);
++
++    unsafe { super::libinput_plugins::init_libinput_plugin_system(&libinput) };
++
++    if libinput.udev_assign_seat(seat).is_err() {
++        debug!("headless: failed to assign libinput seat {seat:?}; input will be unavailable");
++        return;
++    }
++
++    let input_backend = LibinputInputBackend::new(libinput);
++    if event_loop
++        .insert_source(input_backend, |mut event, _, state| {
++            state.process_libinput_event(&mut event);
++            state.process_input_event(event);
++        })
++        .is_err()
++    {
++        debug!("headless: failed to insert libinput backend; input will be unavailable");
+     }
+ }
+diff -ruN a/src/backend/libinput_plugins.rs b/src/backend/libinput_plugins.rs
+--- a/src/backend/libinput_plugins.rs
++++ b/src/backend/libinput_plugins.rs
+@@ -0,0 +1,49 @@
++use smithay::reexports::input::Libinput;
++
++/// Initializes the libinput plugin system.
++///
++/// # Safety
++///
++/// This function must be called before libinput iterates through the devices, i.e. before
++/// `libinput_udev_assign_seat()` or the first call to `libinput_path_add_device()`.
++#[allow(unused_variables)]
++pub(super) unsafe fn init_libinput_plugin_system(libinput: &Libinput) {
++    #[cfg(have_libinput_plugin_system)]
++    unsafe {
++        use std::ffi::{c_char, c_int, CString};
++        use std::os::unix::ffi::OsStringExt;
++
++        use directories::BaseDirs;
++        use input::ffi::libinput;
++        use input::AsRaw as _;
++
++        extern "C" {
++            fn libinput_plugin_system_append_path(libinput: *const libinput, path: *const c_char);
++            fn libinput_plugin_system_append_default_paths(libinput: *const libinput);
++            fn libinput_plugin_system_load_plugins(
++                libinput: *const libinput,
++                flags: c_int,
++            ) -> c_int;
++        }
++        const LIBINPUT_PLUGIN_SYSTEM_FLAG_NONE: c_int = 0;
++        let libinput = libinput.as_raw();
++
++        // Also load plugins from $XDG_CONFIG_HOME/libinput/plugins.
++        if let Some(dirs) = BaseDirs::new() {
++            let mut plugins_dir = dirs.config_dir().to_path_buf();
++            plugins_dir.push("libinput");
++            plugins_dir.push("plugins");
++            if let Ok(plugins_dir) = CString::new(plugins_dir.into_os_string().into_vec()) {
++                libinput_plugin_system_append_path(libinput, plugins_dir.as_ptr());
++            }
++        }
++
++        libinput_plugin_system_append_default_paths(libinput);
++        libinput_plugin_system_load_plugins(libinput, LIBINPUT_PLUGIN_SYSTEM_FLAG_NONE);
++    }
++
++    // When libinput's plugin system isn't available, this function is intentionally a no-op.
++    // We keep an explicit reference so the intent is clear under that cfg.
++    #[cfg(not(have_libinput_plugin_system))]
++    let _ = libinput;
++}
+diff -ruN a/src/backend/mod.rs b/src/backend/mod.rs
+--- a/src/backend/mod.rs
++++ b/src/backend/mod.rs
+@@ -16,6 +16,9 @@
+ pub mod tty;
+ pub use tty::Tty;
+ 
++mod libinput_plugins;
++mod virtual_output;
++
+ pub mod winit;
+ pub use winit::Winit;
+ 
+@@ -41,6 +44,20 @@
+ 
+ pub type IpcOutputMap = HashMap<OutputId, niri_ipc::Output>;
+ 
++/// Marker inserted into `Output::user_data()` for outputs that are not driven by a real scanout
++/// pipeline (e.g. HEADLESS-* virtual outputs).
++///
++/// Such outputs require special-casing in a few places (notably frame callback delivery), because
++/// they don't participate in the normal GPU pipeline that tracks `surface_primary_scanout_output`.
++#[derive(Debug, Default)]
++pub struct VirtualOutputMarker;
++
++impl VirtualOutputMarker {
++    pub(crate) fn is_virtual(output: &Output) -> bool {
++        output.user_data().get::<Self>().is_some()
++    }
++}
++
+ static OUTPUT_ID_COUNTER: IdCounter = IdCounter::new();
+ 
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+@@ -106,7 +123,7 @@
+         match self {
+             Backend::Tty(tty) => tty.render(niri, output, target_presentation_time),
+             Backend::Winit(winit) => winit.render(niri, output),
+-            Backend::Headless(headless) => headless.render(niri, output),
++            Backend::Headless(headless) => headless.render(niri, output, target_presentation_time),
+         }
+     }
+ 
+@@ -178,7 +195,7 @@
+         match self {
+             Backend::Tty(tty) => tty.primary_gbm_device(),
+             Backend::Winit(winit) => winit.gbm_device(),
+-            Backend::Headless(_) => None,
++            Backend::Headless(headless) => headless.gbm_device(),
+         }
+     }
+ 
+@@ -210,7 +227,7 @@
+         match self {
+             Backend::Tty(tty) => tty.on_output_config_changed(niri),
+             Backend::Winit(_) => (),
+-            Backend::Headless(_) => (),
++            Backend::Headless(headless) => headless.on_output_config_changed(niri),
+         }
+     }
+ 
+@@ -252,4 +269,36 @@
+             panic!("backend is not Headless")
+         }
+     }
++
++    /// Create a new virtual output and return its name.
++    /// Only supported on TTY and Headless backends.
++    pub fn create_virtual_output(
++        &mut self,
++        niri: &mut Niri,
++        width: u16,
++        height: u16,
++        refresh_rate: u32,
++        name: Option<String>,
++    ) -> Result<String, String> {
++        match self {
++            Backend::Headless(headless) => {
++                headless.create_virtual_output(niri, width, height, refresh_rate, name)
++            }
++            Backend::Tty(tty) => tty.create_virtual_output(niri, width, height, refresh_rate, name),
++            Backend::Winit(_) => {
++                Err("virtual outputs are not supported on the Winit backend".to_string())
++            }
++        }
++    }
++
++    /// Remove a virtual output by name.
++    pub fn remove_virtual_output(&mut self, niri: &mut Niri, name: &str) -> Result<(), String> {
++        match self {
++            Backend::Headless(headless) => headless.remove_virtual_output(niri, name),
++            Backend::Tty(tty) => tty.remove_virtual_output(niri, name),
++            Backend::Winit(_) => {
++                Err("virtual outputs are not supported on the Winit backend".to_string())
++            }
++        }
++    }
+ }
+diff -ruN a/src/backend/tty.rs b/src/backend/tty.rs
+--- a/src/backend/tty.rs
++++ b/src/backend/tty.rs
+@@ -61,8 +61,9 @@
+ use wayland_protocols::wp::linux_dmabuf::zv1::server::zwp_linux_dmabuf_feedback_v1::TrancheFlags;
+ use wayland_protocols::wp::presentation_time::server::wp_presentation_feedback;
+ 
+-use super::{srgb_clamp, IpcOutputMap, RenderResult};
+-use crate::backend::OutputId;
++use super::{
++    srgb_clamp, virtual_output, IpcOutputMap, OutputId, RenderResult, VirtualOutputMarker,
++};
+ use crate::frame_clock::FrameClock;
+ use crate::niri::{Niri, RedrawState, State};
+ use crate::render_helpers::debug::draw_damage;
+@@ -101,6 +102,16 @@
+     // Whether the debug tinting is enabled.
+     debug_tint: bool,
+     ipc_outputs: Arc<Mutex<IpcOutputMap>>,
++    // Virtual outputs that we manage and mirror to IPC, indexed by output name.
++    virtual_outputs: VirtualOutputs,
++}
++
++/// State related to managing virtual outputs (e.g. HEADLESS-* outputs).
++struct VirtualOutputs {
++    /// Counter for generating unique virtual output names and IDs.
++    counter: u32,
++    /// Virtual outputs indexed by output name.
++    outputs: HashMap<String, (Output, OutputId)>,
+ }
+ 
+ pub type TtyRenderer<'render> = MultiRenderer<
+@@ -467,7 +478,7 @@
+             .unwrap();
+ 
+         let mut libinput = Libinput::new_with_udev(LibinputSessionInterface::from(session.clone()));
+-        unsafe { init_libinput_plugin_system(&libinput) };
++        unsafe { super::libinput_plugins::init_libinput_plugin_system(&libinput) };
+         {
+             let _span = tracy_client::span!("Libinput::udev_assign_seat");
+             libinput.udev_assign_seat(&seat_name)
+@@ -542,6 +553,10 @@
+             update_output_config_on_resume: false,
+             debug_tint: false,
+             ipc_outputs: Arc::new(Mutex::new(HashMap::new())),
++            virtual_outputs: VirtualOutputs {
++                counter: 0,
++                outputs: HashMap::new(),
++            },
+         })
+     }
+ 
+@@ -1668,7 +1683,9 @@
+             .global_space
+             .outputs()
+             .find(|output| {
+-                let tty_state: &TtyOutputState = output.user_data().get().unwrap();
++                let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++                    return false;
++                };
+                 tty_state.node == node && tty_state.crtc == crtc
+             })
+             .cloned();
+@@ -1748,7 +1765,9 @@
+             .global_space
+             .outputs()
+             .find(|output| {
+-                let tty_state: &TtyOutputState = output.user_data().get().unwrap();
++                let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++                    return false;
++                };
+                 tty_state.node == node && tty_state.crtc == crtc
+             })
+             .cloned()
+@@ -1896,7 +1915,12 @@
+         if output_state.unfinished_animations_remain {
+             niri.queue_redraw(&output);
+         } else {
+-            niri.send_frame_callbacks(&output);
++            let is_virtual = VirtualOutputMarker::is_virtual(&output);
++            if is_virtual {
++                niri.send_frame_callbacks_for_virtual_output(&output);
++            } else {
++                niri.send_frame_callbacks(&output);
++            }
+         }
+     }
+ 
+@@ -1933,7 +1957,15 @@
+ 
+         let mut rv = RenderResult::Skipped;
+ 
+-        let tty_state: &TtyOutputState = output.user_data().get().unwrap();
++        let is_virtual = VirtualOutputMarker::is_virtual(output);
++        if is_virtual {
++            return self.render_virtual_output(niri, output, target_presentation_time);
++        }
++
++        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++            error!("missing tty output state for output {}", output.name());
++            return rv;
++        };
+         let Some(device) = self.devices.get_mut(&tty_state.node) else {
+             error!("missing output device");
+             return rv;
+@@ -1974,8 +2006,11 @@
+ 
+         // Visualize the damage, if enabled.
+         if niri.debug_draw_damage {
+-            let output_state = niri.output_state.get_mut(output).unwrap();
+-            draw_damage(&mut output_state.debug_damage_tracker, &mut elements);
++            if let Some(output_state) = niri.output_state.get_mut(output) {
++                draw_damage(&mut output_state.debug_damage_tracker, &mut elements);
++            } else {
++                error!("missing output state for output {}", output.name());
++            }
+         }
+ 
+         // Overlay planes are disabled by default as they cause weird performance issues on my
+@@ -2001,9 +2036,12 @@
+                 flags.remove(FrameFlags::ALLOW_CURSOR_PLANE_SCANOUT);
+             }
+             if debug.skip_cursor_only_updates_during_vrr {
+-                let output_state = niri.output_state.get(output).unwrap();
+-                if output_state.frame_clock.vrr() {
+-                    flags.insert(FrameFlags::SKIP_CURSOR_ONLY_UPDATES);
++                if let Some(output_state) = niri.output_state.get(output) {
++                    if output_state.frame_clock.vrr() {
++                        flags.insert(FrameFlags::SKIP_CURSOR_ONLY_UPDATES);
++                    }
++                } else {
++                    error!("missing output state for output {}", output.name());
+                 }
+             }
+ 
+@@ -2041,7 +2079,10 @@
+ 
+                     match drm_compositor.queue_frame(data) {
+                         Ok(()) => {
+-                            let output_state = niri.output_state.get_mut(output).unwrap();
++                            let Some(output_state) = niri.output_state.get_mut(output) else {
++                                error!("missing output state for output {}", output.name());
++                                return RenderResult::Submitted;
++                            };
+                             let new_state = RedrawState::WaitingForVBlank {
+                                 redraw_needed: false,
+                             };
+@@ -2147,7 +2188,9 @@
+     }
+ 
+     pub fn get_gamma_size(&self, output: &Output) -> anyhow::Result<u32> {
+-        let tty_state = output.user_data().get::<TtyOutputState>().unwrap();
++        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++            anyhow::bail!("output {} is not a tty output", output.name());
++        };
+         let crtc = tty_state.crtc;
+ 
+         let device = self
+@@ -2165,7 +2208,9 @@
+     }
+ 
+     pub fn set_gamma(&mut self, output: &Output, ramp: Option<Vec<u16>>) -> anyhow::Result<()> {
+-        let tty_state = output.user_data().get::<TtyOutputState>().unwrap();
++        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++            anyhow::bail!("output {} is not a tty output", output.name());
++        };
+         let crtc = tty_state.crtc;
+ 
+         let device = self
+@@ -2264,7 +2309,14 @@
+                     .global_space
+                     .outputs()
+                     .find(|output| {
+-                        let tty_state: &TtyOutputState = output.user_data().get().unwrap();
++                        if VirtualOutputMarker::is_virtual(output) {
++                            return false;
++                        }
++
++                        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++                            return false;
++                        };
++
+                         tty_state.node == *node && tty_state.crtc == crtc
+                     })
+                     .map(logical_output);
+@@ -2303,6 +2355,46 @@
+             }
+         }
+ 
++        // Since these are not DRM connectors, the loop above does not include them.
++        // If we drop them here, `niri msg outputs` will act as if they are disconnected and
++        // subsequent `niri msg output HEADLESS-* ...` commands will report "not connected".
++        for (name, (output, output_id)) in &self.virtual_outputs.outputs {
++            let current_mode = output.current_mode();
++            let Some(mode) = current_mode else {
++                continue;
++            };
++
++            let logical = niri
++                .global_space
++                .outputs()
++                .find(|o| o.name() == *name)
++                .map(logical_output);
++
++            let physical_properties = output.physical_properties();
++
++            let ipc_output = niri_ipc::Output {
++                name: name.clone(),
++                make: physical_properties.make,
++                model: physical_properties.model,
++                serial: None,
++                physical_size: None,
++                modes: vec![niri_ipc::Mode {
++                    width: mode.size.w as u16,
++                    height: mode.size.h as u16,
++                    refresh_rate: mode.refresh as u32,
++                    is_preferred: true,
++                }],
++                current_mode: Some(0),
++                is_custom_mode: true,
++                vrr_supported: false,
++                vrr_enabled: false,
++                logical,
++                max_bpc: None,
++            };
++
++            ipc_outputs.insert(*output_id, ipc_output);
++        }
++
+         let mut guard = self.ipc_outputs.lock().unwrap();
+         *guard = ipc_outputs;
+         niri.ipc_outputs_changed = true;
+@@ -2312,6 +2404,128 @@
+         self.ipc_outputs.clone()
+     }
+ 
++    /// Render a virtual output (no actual rendering, just presentation feedback).
++    fn render_virtual_output(
++        &mut self,
++        niri: &mut Niri,
++        output: &Output,
++        target_presentation_time: Duration,
++    ) -> RenderResult {
++        use smithay::backend::renderer::element::RenderElementStates;
++        use smithay::wayland::presentation::Refresh;
++
++        let now = get_monotonic_time();
++
++        let states = RenderElementStates::default();
++        let mut presentation_feedbacks = niri.take_presentation_feedbacks(output, &states);
++        presentation_feedbacks.presented::<_, smithay::utils::Monotonic>(
++            now,
++            Refresh::Unknown,
++            0,
++            wp_presentation_feedback::Kind::empty(),
++        );
++
++        // Update the frame clock so animation timing works correctly.
++        let Some(output_state) = niri.output_state.get_mut(output) else {
++            error!("missing output state for output {}", output.name());
++            return RenderResult::Skipped;
++        };
++        output_state.frame_clock.presented(target_presentation_time);
++
++        // Use the estimated vblank timer to pace redraws, just like physical outputs.
++        queue_estimated_vblank_timer(niri, output.clone(), target_presentation_time);
++
++        RenderResult::Submitted
++    }
++
++    pub fn create_virtual_output(
++        &mut self,
++        niri: &mut Niri,
++        width: u16,
++        height: u16,
++        refresh_rate: u32,
++        name: Option<String>,
++    ) -> Result<String, String> {
++        let mut width = width;
++        let mut height = height;
++        let mut refresh_millihz = refresh_rate.saturating_mul(1000);
++        let mut should_connect = true;
++
++        if let Some(name) = name.as_deref() {
++            if name.trim().is_empty() {
++                return Err("virtual output name cannot be empty".to_string());
++            }
++
++            let lookup_name = niri_config::OutputName {
++                connector: name.to_string(),
++                make: None,
++                model: None,
++                serial: None,
++            };
++            let config = self.config.borrow();
++            if let Some(output_config) = config.outputs.find(&lookup_name) {
++                should_connect = !output_config.off;
++
++                if let Some(mode_config) = output_config.mode {
++                    width = mode_config.mode.width;
++                    height = mode_config.mode.height;
++
++                    let refresh_hz = mode_config.mode.refresh.unwrap_or(60.0);
++                    refresh_millihz =
++                        (refresh_hz * 1000.0).round().clamp(1.0, u32::MAX as f64) as u32;
++                }
++            }
++
++            if self.virtual_outputs.outputs.contains_key(name)
++                || niri.global_space.outputs().any(|o| o.name() == name)
++            {
++                return Err(format!("output '{name}' already exists"));
++            }
++        }
++
++        let built = virtual_output::build_headless_virtual_output(
++            &mut self.virtual_outputs.counter,
++            width,
++            height,
++            refresh_millihz,
++            name,
++        );
++
++        if self.virtual_outputs.outputs.contains_key(&built.name)
++            || niri.global_space.outputs().any(|o| o.name() == built.name)
++        {
++            return Err(format!("output '{}' already exists", built.name));
++        }
++
++        self.ipc_outputs
++            .lock()
++            .unwrap()
++            .insert(built.output_id, built.ipc_output);
++
++        self.virtual_outputs
++            .outputs
++            .insert(built.name.clone(), (built.output.clone(), built.output_id));
++
++        if should_connect {
++            niri.add_output(built.output, Some(built.refresh_interval), false);
++        }
++
++        // Ensure IPC reflects the configured mode immediately.
++        self.refresh_ipc_outputs(niri);
++
++        Ok(built.name)
++    }
++
++    pub fn remove_virtual_output(&mut self, niri: &mut Niri, name: &str) -> Result<(), String> {
++        virtual_output::remove_virtual_output_from_map(
++            niri,
++            &self.ipc_outputs,
++            &mut self.virtual_outputs.outputs,
++            name,
++            "virtual output",
++        )
++    }
++
+     #[cfg(feature = "xdp-gnome-screencast")]
+     pub fn primary_gbm_device(&self) -> Option<GbmDevice<DeviceFd>> {
+         // Try to find a device corresponding to the primary render node.
+@@ -2347,14 +2561,24 @@
+     pub fn set_output_on_demand_vrr(&mut self, niri: &mut Niri, output: &Output, enable_vrr: bool) {
+         let _span = tracy_client::span!("Tty::set_output_on_demand_vrr");
+ 
+-        let output_state = niri.output_state.get_mut(output).unwrap();
++        if VirtualOutputMarker::is_virtual(output) {
++            return;
++        }
++
++        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++            return;
++        };
++
++        let Some(output_state) = niri.output_state.get_mut(output) else {
++            error!("missing output state for output {}", output.name());
++            return;
++        };
+         output_state.on_demand_vrr_enabled = enable_vrr;
+         if output_state.frame_clock.vrr() == enable_vrr {
+             return;
+         }
+         for (&node, device) in self.devices.iter_mut() {
+             for (&crtc, surface) in device.surfaces.iter_mut() {
+-                let tty_state: &TtyOutputState = output.user_data().get().unwrap();
+                 if tty_state.node == node && tty_state.crtc == crtc {
+                     let word = if enable_vrr { "enabling" } else { "disabling" };
+                     if let Err(err) = surface.compositor.use_vrr(enable_vrr) {
+@@ -2561,7 +2785,9 @@
+                     .global_space
+                     .outputs()
+                     .find(|output| {
+-                        let tty_state: &TtyOutputState = output.user_data().get().unwrap();
++                        let Some(tty_state) = output.user_data().get::<TtyOutputState>() else {
++                            return false;
++                        };
+                         tty_state.node == node && tty_state.crtc == crtc
+                     })
+                     .cloned();
+@@ -2673,6 +2899,17 @@
+             }
+         }
+ 
++        // Apply config changes to virtual outputs (HEADLESS-*).
++        {
++            let config = self.config.clone();
++            virtual_output::apply_config_to_managed_virtual_outputs(
++                niri,
++                &mut self.virtual_outputs.outputs,
++                None,
++                &config,
++            );
++        }
++
+         self.refresh_ipc_outputs(niri);
+     }
+ 
+@@ -3391,7 +3628,13 @@
+     output: Output,
+     target_presentation_time: Duration,
+ ) {
+-    let output_state = niri.output_state.get_mut(&output).unwrap();
++    let Some(output_state) = niri.output_state.get_mut(&output) else {
++        error!(
++            "missing output state for estimated vblank timer for output {}",
++            output.name()
++        );
++        return;
++    };
+     match mem::take(&mut output_state.redraw_state) {
+         RedrawState::Idle => unreachable!(),
+         RedrawState::Queued => (),
+@@ -3903,50 +4146,6 @@
+     }
+ }
+ 
+-/// Initializes the libinput plugin system.
+-///
+-/// # Safety
+-///
+-/// This function must be called before libinput iterates through the devices, i.e. before
+-/// libinput_udev_assign_seat() or the first call to libinput_path_add_device().
+-unsafe fn init_libinput_plugin_system(libinput: &Libinput) {
+-    #[cfg(have_libinput_plugin_system)]
+-    unsafe {
+-        use std::ffi::{c_char, c_int, CString};
+-        use std::os::unix::ffi::OsStringExt;
+-
+-        use directories::BaseDirs;
+-        use input::ffi::libinput;
+-        use input::AsRaw as _;
+-
+-        extern "C" {
+-            fn libinput_plugin_system_append_path(libinput: *const libinput, path: *const c_char);
+-            fn libinput_plugin_system_append_default_paths(libinput: *const libinput);
+-            fn libinput_plugin_system_load_plugins(
+-                libinput: *const libinput,
+-                flags: c_int,
+-            ) -> c_int;
+-        }
+-        const LIBINPUT_PLUGIN_SYSTEM_FLAG_NONE: c_int = 0;
+-        let libinput = libinput.as_raw();
+-
+-        // Also load plugins from $XDG_CONFIG_HOME/libinput/plugins.
+-        if let Some(dirs) = BaseDirs::new() {
+-            let mut plugins_dir = dirs.config_dir().to_path_buf();
+-            plugins_dir.push("libinput");
+-            plugins_dir.push("plugins");
+-            if let Ok(plugins_dir) = CString::new(plugins_dir.into_os_string().into_vec()) {
+-                libinput_plugin_system_append_path(libinput, plugins_dir.as_ptr());
+-            }
+-        }
+-
+-        libinput_plugin_system_append_default_paths(libinput);
+-        libinput_plugin_system_load_plugins(libinput, LIBINPUT_PLUGIN_SYSTEM_FLAG_NONE);
+-    }
+-    #[cfg(not(have_libinput_plugin_system))]
+-    let _ = libinput;
+-}
+-
+ #[cfg(test)]
+ mod tests {
+     use insta::assert_debug_snapshot;
+diff -ruN a/src/backend/virtual_output.rs b/src/backend/virtual_output.rs
+--- a/src/backend/virtual_output.rs
++++ b/src/backend/virtual_output.rs
+@@ -0,0 +1,298 @@
++use std::cell::RefCell;
++use std::collections::HashMap;
++use std::rc::Rc;
++use std::sync::{Arc, Mutex};
++use std::time::Duration;
++
++use niri_config::{Config, OutputName};
++use smithay::output::{Mode, Output, PhysicalProperties, Subpixel};
++use smithay::utils::Size;
++
++use super::{IpcOutputMap, OutputId, VirtualOutputMarker};
++use crate::frame_clock::FrameClock;
++use crate::niri::Niri;
++use crate::utils::logical_output;
++
++pub(super) struct BuiltVirtualOutput {
++    pub name: String,
++    pub output: Output,
++    pub output_id: OutputId,
++    pub refresh_interval: Duration,
++    pub ipc_output: niri_ipc::Output,
++}
++
++pub(super) fn refresh_interval_from_millihz(refresh_millihz: u64) -> Duration {
++    let refresh_millihz = refresh_millihz.max(1);
++    let interval_nanos = 1_000_000_000_000 / refresh_millihz;
++
++    // Clamp extremely low refresh rates to a reasonable pacing interval.
++    // This matches existing virtual-output code paths (off/on + mode changes).
++    if interval_nanos >= 1_000_000_000 {
++        Duration::from_micros(16_667)
++    } else {
++        Duration::from_nanos(interval_nanos)
++    }
++}
++
++fn set_virtual_output_mode_single(output: &Output, mode: Mode) {
++    // Virtual outputs represent a single synthetic mode.
++    //
++    // Smithay's `Output` stores a monotonically-growing list of modes. That'd be correct for real
++    // monitors, but for virtual outputs it confuses some clients (e.g. Sunshine/Moonlight) after
++    // multiple custom-mode cycles. Prune the mode list back down to only the active mode so new
++    // wl_output bindings don't see stale historical modes.
++    //
++    // Also, set the preferred mode before changing the current mode so the emitted wl_output
++    // `mode` event includes both CURRENT and PREFERRED flags.
++    output.set_preferred(mode);
++    output.change_current_state(Some(mode), None, None, None);
++
++    for other in output.modes() {
++        if other != mode {
++            output.delete_mode(other);
++        }
++    }
++}
++
++pub(super) fn build_headless_virtual_output(
++    counter: &mut u32,
++    width: u16,
++    height: u16,
++    refresh_millihz: u32,
++    name: Option<String>,
++) -> BuiltVirtualOutput {
++    let refresh_millihz = if refresh_millihz < 2_000 {
++        60_000
++    } else {
++        refresh_millihz
++    };
++
++    let refresh_millihz = refresh_millihz.clamp(1, i32::MAX as u32);
++    let refresh_millihz = refresh_millihz as i32;
++
++    let is_unnamed = name.is_none();
++    let n = if is_unnamed {
++        *counter += 1;
++        *counter
++    } else {
++        *counter
++    };
++
++    let serial = n.to_string();
++    let connector = name.unwrap_or_else(|| format!("HEADLESS-{n}"));
++    let model = connector.clone();
++    let make = "niri".to_string();
++
++    let output = Output::new(
++        connector.clone(),
++        PhysicalProperties {
++            size: (0, 0).into(),
++            subpixel: Subpixel::Unknown,
++            make: make.clone(),
++            model: model.clone(),
++            serial_number: serial.clone(),
++        },
++    );
++
++    let mode = Mode {
++        size: Size::from((i32::from(width), i32::from(height))),
++        refresh: refresh_millihz,
++    };
++    set_virtual_output_mode_single(&output, mode);
++
++    output.user_data().insert_if_missing(|| OutputName {
++        connector: connector.clone(),
++        make: Some(make),
++        model: Some(model),
++        serial: Some(serial),
++    });
++
++    output
++        .user_data()
++        .insert_if_missing(VirtualOutputMarker::default);
++
++    let output_id = OutputId::next();
++
++    let physical_properties = output.physical_properties();
++    let ipc_output = niri_ipc::Output {
++        name: output.name(),
++        make: physical_properties.make,
++        model: physical_properties.model,
++        serial: None,
++        physical_size: None,
++        modes: vec![niri_ipc::Mode {
++            width,
++            height,
++            refresh_rate: refresh_millihz as u32,
++            is_preferred: true,
++        }],
++        current_mode: Some(0),
++        is_custom_mode: true,
++        vrr_supported: false,
++        vrr_enabled: false,
++        logical: Some(logical_output(&output)),
++        max_bpc: None,
++    };
++
++    let refresh_interval = refresh_interval_from_millihz(u64::from(refresh_millihz as u32));
++
++    BuiltVirtualOutput {
++        name: connector,
++        output,
++        output_id,
++        refresh_interval,
++        ipc_output,
++    }
++}
++
++pub(super) fn remove_virtual_output_from_map(
++    niri: &mut Niri,
++    ipc_outputs: &Arc<Mutex<IpcOutputMap>>,
++    outputs: &mut HashMap<String, (Output, OutputId)>,
++    name: &str,
++    kind: &str,
++) -> Result<(), String> {
++    let lookup_name = OutputName {
++        connector: name.to_string(),
++        make: None,
++        model: None,
++        serial: None,
++    };
++
++    if niri
++        .config
++        .borrow()
++        .outputs
++        .find(&lookup_name)
++        .is_some_and(|output| output.create_virtual)
++    {
++        return Err(format!(
++            "output '{name}' is configured; remove it from the config or disable it there instead"
++        ));
++    }
++
++    let (output, output_id) = outputs
++        .remove(name)
++        .ok_or_else(|| format!("{kind} '{name}' not found"))?;
++
++    ipc_outputs.lock().unwrap().remove(&output_id);
++
++    if niri.output_exists(&output) {
++        niri.remove_output(&output);
++    }
++
++    Ok(())
++}
++
++pub(super) fn apply_config_to_managed_virtual_outputs(
++    niri: &mut Niri,
++    outputs: &mut HashMap<String, (Output, OutputId)>,
++    ipc_outputs: Option<&Arc<Mutex<IpcOutputMap>>>,
++    config: &Rc<RefCell<Config>>,
++) {
++    let config = config.borrow();
++    let mut resized_outputs = Vec::new();
++
++    // Apply config to all managed virtual outputs, even if currently disconnected (off).
++    // This allows `off`/`on` to work without losing internal state or IPC entries.
++    for (output_name, (output, output_id)) in outputs.iter_mut() {
++        let name = output.user_data().get::<OutputName>().unwrap();
++        let output_config = config.outputs.find(name);
++
++        let is_off = output_config.is_some_and(|c| c.off);
++        let new_mode = output_config.and_then(|config| {
++            config.mode.as_ref().map(|mode_config| {
++                let refresh_hz = mode_config.mode.refresh.unwrap_or(60.0);
++                let refresh_millihz =
++                    (refresh_hz * 1000.0).round().clamp(1.0, i32::MAX as f64) as i32;
++                Mode {
++                    size: Size::from((
++                        i32::from(mode_config.mode.width),
++                        i32::from(mode_config.mode.height),
++                    )),
++                    refresh: refresh_millihz,
++                }
++            })
++        });
++
++        // Apply mode changes even when off so the mode is ready when re-enabled.
++        let mut mode_changed = false;
++        if let Some(new_mode) = new_mode {
++            if output.current_mode() != Some(new_mode) {
++                set_virtual_output_mode_single(output, new_mode);
++                mode_changed = true;
++
++                if let Some(ipc_outputs) = ipc_outputs {
++                    if let Some(ipc_output) = ipc_outputs.lock().unwrap().get_mut(output_id) {
++                        ipc_output.modes = vec![niri_ipc::Mode {
++                            width: new_mode.size.w as u16,
++                            height: new_mode.size.h as u16,
++                            refresh_rate: new_mode.refresh as u32,
++                            is_preferred: true,
++                        }];
++                        ipc_output.current_mode = Some(0);
++                        ipc_output.is_custom_mode = true;
++                    }
++                }
++            }
++        }
++
++        let was_connected = niri
++            .global_space
++            .outputs()
++            .any(|o| o.name() == *output_name);
++
++        // Handle off/on by removing/adding the output from/to the space.
++        match (is_off, was_connected) {
++            (true, true) => {
++                niri.remove_output(output);
++                niri.ipc_outputs_changed = true;
++            }
++            (false, false) => {
++                let refresh_millihz = output
++                    .current_mode()
++                    .map(|m| m.refresh.max(1) as u64)
++                    .unwrap_or(60_000);
++                let refresh_interval = refresh_interval_from_millihz(refresh_millihz);
++                niri.add_output(output.clone(), Some(refresh_interval), false);
++                niri.ipc_outputs_changed = true;
++                resized_outputs.push(output.clone());
++            }
++            _ => {}
++        }
++
++        let is_connected = niri
++            .global_space
++            .outputs()
++            .any(|o| o.name() == *output_name);
++
++        if mode_changed && !is_off && is_connected {
++            if let Some(new_mode) = output.current_mode() {
++                // Keep refresh pacing in sync with the new mode when connected.
++                if let Some(output_state) = niri.output_state.get_mut(output) {
++                    let refresh_millihz = new_mode.refresh.max(1) as u64;
++                    let refresh_interval = refresh_interval_from_millihz(refresh_millihz);
++                    output_state.frame_clock = FrameClock::new(Some(refresh_interval), false);
++                }
++            }
++
++            resized_outputs.push(output.clone());
++        }
++
++        if let Some(ipc_outputs) = ipc_outputs {
++            if let Some(ipc_output) = ipc_outputs.lock().unwrap().get_mut(output_id) {
++                ipc_output.logical = is_connected.then(|| logical_output(output));
++            }
++        }
++    }
++
++    if !resized_outputs.is_empty() {
++        niri.ipc_outputs_changed = true;
++        for output in resized_outputs {
++            if niri.output_state.contains_key(&output) {
++                niri.output_resized(&output);
++                niri.queue_redraw(&output);
++            }
++        }
++    }
++}
+diff -ruN a/src/cli.rs b/src/cli.rs
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -104,6 +104,29 @@
+         #[command(subcommand)]
+         action: OutputAction,
+     },
++    /// Create a virtual output.
++    CreateVirtualOutput {
++        /// Optional name for the created output.
++        ///
++        /// When omitted, a unique `HEADLESS-N` name is generated.
++        #[arg(long)]
++        name: Option<String>,
++        /// Width in pixels.
++        #[arg(long, default_value = "1920")]
++        width: u16,
++        /// Height in pixels.
++        #[arg(long, default_value = "1080")]
++        height: u16,
++        /// Refresh rate in Hz.
++        #[arg(long, default_value = "60")]
++        refresh_rate: u32,
++    },
++    /// Remove a virtual output.
++    RemoveVirtualOutput {
++        /// Identifier of the output to remove.
++        #[arg()]
++        name: String,
++    },
+     /// Start continuously receiving events from the compositor.
+     EventStream,
+     /// Print the version of the running niri instance.
+diff -ruN a/src/ipc/client.rs b/src/ipc/client.rs
+--- a/src/ipc/client.rs
++++ b/src/ipc/client.rs
+@@ -42,6 +42,18 @@
+             output: output.clone(),
+             action: action.clone(),
+         },
++        Msg::CreateVirtualOutput {
++            name,
++            width,
++            height,
++            refresh_rate,
++        } => Request::CreateVirtualOutput {
++            name: name.clone(),
++            width: Some(*width),
++            height: Some(*height),
++            refresh_rate: Some(*refresh_rate),
++        },
++        Msg::RemoveVirtualOutput { name } => Request::RemoveVirtualOutput { name: name.clone() },
+         Msg::Workspaces => Request::Workspaces,
+         Msg::Windows => Request::Windows,
+         Msg::Layers => Request::Layers,
+@@ -377,6 +389,31 @@
+                 println!("The change will apply when it is connected.");
+             }
+         }
++        Msg::CreateVirtualOutput { .. } => {
++            let Response::VirtualOutputCreated(name) = response else {
++                bail!("unexpected response: expected VirtualOutputCreated, got {response:?}");
++            };
++
++            if json {
++                let response = json!({ "name": name });
++                println!("{response}");
++                return Ok(());
++            }
++
++            println!("Created virtual output: {name}");
++        }
++        Msg::RemoveVirtualOutput { name } => {
++            let Response::Handled = response else {
++                bail!("unexpected response: expected Handled, got {response:?}");
++            };
++
++            if json {
++                println!("{{}}");
++                return Ok(());
++            }
++
++            println!("Removed virtual output: {name}");
++        }
+         Msg::Workspaces => {
+             let Response::Workspaces(mut response) = response else {
+                 bail!("unexpected response: expected Workspaces, got {response:?}");
+diff -ruN a/src/ipc/server.rs b/src/ipc/server.rs
+--- a/src/ipc/server.rs
++++ b/src/ipc/server.rs
+@@ -437,6 +437,53 @@
+ 
+             Response::OutputConfigChanged(response)
+         }
++        Request::CreateVirtualOutput {
++            width,
++            height,
++            refresh_rate,
++            name,
++        } => {
++            let width = width.unwrap_or(1920);
++            let height = height.unwrap_or(1080);
++            let refresh_rate = refresh_rate.unwrap_or(60);
++
++            let (tx, rx) = async_channel::bounded(1);
++
++            ctx.event_loop.insert_idle(move |state| {
++                let result = state.backend.create_virtual_output(
++                    &mut state.niri,
++                    width,
++                    height,
++                    refresh_rate,
++                    name,
++                );
++                let _ = tx.send_blocking(result);
++            });
++
++            let result = rx
++                .recv()
++                .await
++                .map_err(|_| String::from("error creating virtual output"))?;
++            match result {
++                Ok(name) => Response::VirtualOutputCreated(name),
++                Err(e) => return Err(e),
++            }
++        }
++        Request::RemoveVirtualOutput { name } => {
++            let (tx, rx) = async_channel::bounded(1);
++
++            ctx.event_loop.insert_idle(move |state| {
++                let result = state.backend.remove_virtual_output(&mut state.niri, &name);
++                let _ = tx.send_blocking(result);
++            });
++
++            let result = rx
++                .recv()
++                .await
++                .map_err(|_| String::from("error removing virtual output"))?;
++            result?;
++            Response::Handled
++        }
+         Request::FocusedOutput => {
+             let (tx, rx) = async_channel::bounded(1);
+             ctx.event_loop.insert_idle(move |state| {
+diff -ruN a/src/layout/mod.rs b/src/layout/mod.rs
+--- a/src/layout/mod.rs
++++ b/src/layout/mod.rs
+@@ -882,10 +882,9 @@
+                 mut primary_idx,
+                 mut active_monitor_idx,
+             } => {
+-                let idx = monitors
+-                    .iter()
+-                    .position(|mon| &mon.output == output)
+-                    .expect("trying to remove non-existing output");
++                let Some(idx) = monitors.iter().position(|mon| &mon.output == output) else {
++                    return;
++                };
+                 let monitor = monitors.remove(idx);
+ 
+                 self.last_active_workspace_id.insert(
+diff -ruN a/src/main.rs b/src/main.rs
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -177,6 +177,13 @@
+     // Handle Ctrl+C and other signals.
+     niri::utils::signals::listen(&event_loop.handle());
+ 
++    // Determine if we're starting in headless mode.
++    let headless = env::var("NIRI_BACKEND")
++        .map(|v| v.eq_ignore_ascii_case("headless"))
++        .unwrap_or(false);
++
++    headless.then(|| info!("starting in headless mode"));
++
+     // Create the compositor.
+     let display = Display::new().unwrap();
+ 
+@@ -188,7 +195,7 @@
+         event_loop.handle(),
+         event_loop.get_signal(),
+         display,
+-        false,
++        headless,
+         true,
+         cli.session,
+     )
+diff -ruN a/src/niri.rs b/src/niri.rs
+--- a/src/niri.rs
++++ b/src/niri.rs
+@@ -782,7 +782,7 @@
+             || env::var_os("DISPLAY").is_some();
+ 
+         let mut backend = if headless {
+-            let headless = Headless::new();
++            let headless = Headless::new(event_loop.clone());
+             Backend::Headless(headless)
+         } else if has_display {
+             let winit = Winit::new(config.clone(), event_loop.clone())?;
+@@ -806,6 +806,10 @@
+ 
+         let mut state = Self { backend, niri };
+ 
++        // Create any declaratively-configured virtual outputs early, so that options like
++        // `focus-at-startup` can target them.
++        state.create_virtual_outputs_from_config();
++
+         // Load the xkb_file config option if set by the user.
+         state.load_xkb_file();
+         // Initialize some IPC server state.
+@@ -816,6 +820,61 @@
+         Ok(state)
+     }
+ 
++    fn create_virtual_outputs_from_config(&mut self) {
++        let names = {
++            let config = self.niri.config.borrow();
++            config
++                .outputs
++                .0
++                .iter()
++                .filter(|o| o.create_virtual)
++                .map(|o| o.name.clone())
++                .collect::<Vec<_>>()
++        };
++
++        if names.is_empty() {
++            return;
++        }
++
++        if matches!(&self.backend, Backend::Winit(_)) {
++            warn!("config requests virtual outputs, but the Winit backend does not support them");
++            return;
++        }
++
++        for name in names {
++            // Skip if an output with this name already exists.
++            //
++            // We check both the compositor output list (connected outputs) and the IPC output
++            // state, because virtual outputs can exist while being currently disconnected (`off`).
++            let exists = self.niri.global_space.outputs().any(|o| o.name() == name)
++                || self
++                    .backend
++                    .ipc_outputs()
++                    .lock()
++                    .unwrap()
++                    .values()
++                    .any(|o| o.name == name);
++            if exists {
++                continue;
++            }
++
++            match self.backend.create_virtual_output(
++                &mut self.niri,
++                1920,
++                1080,
++                60,
++                Some(name.clone()),
++            ) {
++                Ok(created) => {
++                    info!("created virtual output from config: {created}");
++                }
++                Err(err) => {
++                    warn!("error creating virtual output '{name}' from config: {err}");
++                }
++            }
++        }
++    }
++
+     pub fn refresh_and_flush_clients(&mut self) {
+         let _span = tracy_client::span!("State::refresh_and_flush_clients");
+ 
+@@ -1975,6 +2034,8 @@
+     }
+ 
+     pub fn reload_output_config(&mut self) {
++        self.create_virtual_outputs_from_config();
++
+         let mut resized_outputs = vec![];
+         let mut recolored_outputs = vec![];
+ 
+@@ -3928,6 +3989,7 @@
+         let map_to_output = config.input.touch.map_to_output.as_ref();
+         map_to_output
+             .and_then(|name| self.output_by_name_match(name))
++            .or_else(|| self.layout.active_output())
+             .or_else(|| self.global_space.outputs().next())
+     }
+ 
+@@ -3979,15 +4041,11 @@
+     }
+ 
+     pub fn redraw_queued_outputs(&mut self, backend: &mut Backend) {
+-        let _span = tracy_client::span!("Niri::redraw_queued_outputs");
+-
+-        while let Some((output, _)) = self.output_state.iter().find(|(_, state)| {
+-            matches!(
+-                state.redraw_state,
+-                RedrawState::Queued | RedrawState::WaitingForEstimatedVBlankAndQueued(_)
+-            )
+-        }) {
+-            trace!("redrawing output");
++        while let Some((output, _)) = self
++            .output_state
++            .iter()
++            .find(|(_, state)| matches!(state.redraw_state, RedrawState::Queued))
++        {
+             let output = output.clone();
+             self.redraw(backend, &output);
+         }
+@@ -5010,7 +5068,13 @@
+         //
+         // However, this should probably be restricted to sending frame callbacks to more surfaces,
+         // to err on the safe side.
+-        self.send_frame_callbacks(output);
++        let is_virtual = crate::backend::VirtualOutputMarker::is_virtual(output);
++        if is_virtual {
++            self.send_frame_callbacks_for_virtual_output(output);
++        } else {
++            self.send_frame_callbacks(output);
++        }
++
+         backend.with_primary_renderer(|renderer| {
+             #[cfg(feature = "xdp-gnome-screencast")]
+             {
+@@ -5442,6 +5506,52 @@
+             );
+         }
+     }
++
++    /// Send frame callbacks for a virtual output.
++    ///
++    /// Virtual outputs (e.g. HEADLESS-*) don't go through the normal scanout/render pipeline that
++    /// updates `surface_primary_scanout_output`, so the regular `send_frame_callbacks` visibility
++    /// filtering would often suppress callbacks entirely.
++    ///
++    /// This function therefore sends callbacks to surfaces associated with `output`
++    /// unconditionally (still subject to the per-surface throttling done inside `send_frame`).
++    ///
++    /// Note: this deliberately does not send callbacks for global/pointer-related surfaces (cursor
++    /// image, drag-and-drop icon) because those rely on the normal primary-output based
++    /// deduplication.
++    pub fn send_frame_callbacks_for_virtual_output(&mut self, output: &Output) {
++        let _span = tracy_client::span!("Niri::send_frame_callbacks_for_virtual_output");
++
++        let frame_callback_time = get_monotonic_time();
++
++        for mapped in self.layout.windows_for_output_mut(output) {
++            mapped.send_frame(
++                output,
++                frame_callback_time,
++                FRAME_CALLBACK_THROTTLE,
++                |_, _| Some(output.clone()),
++            );
++        }
++
++        for surface in layer_map_for_output(output).layers() {
++            surface.send_frame(
++                output,
++                frame_callback_time,
++                FRAME_CALLBACK_THROTTLE,
++                |_, _| Some(output.clone()),
++            );
++        }
++
++        if let Some(surface) = &self.output_state[output].lock_surface {
++            send_frames_surface_tree(
++                surface.wl_surface(),
++                output,
++                frame_callback_time,
++                FRAME_CALLBACK_THROTTLE,
++                |_, _| Some(output.clone()),
++            );
++        }
++    }
+ 
+     pub fn send_frame_callbacks_on_fallback_timer(&mut self) {
+         if !self.monitors_active || self.output_state.is_empty() {
+diff -ruN a/src/tests/mod.rs b/src/tests/mod.rs
+--- a/src/tests/mod.rs
++++ b/src/tests/mod.rs
+@@ -12,5 +12,6 @@
+ mod layer_shell;
+ mod remove_output;
+ mod transactions;
++mod virtual_output;
+ mod virtual_pointer;
+ mod window_opening;
+diff -ruN a/src/tests/virtual_output.rs b/src/tests/virtual_output.rs
+--- a/src/tests/virtual_output.rs
++++ b/src/tests/virtual_output.rs
+@@ -0,0 +1,182 @@
++use super::*;
++
++#[test]
++fn virtual_output_custom_mode_does_not_accumulate_modes() {
++    let mut f = Fixture::new();
++
++    let name = {
++        let state = f.niri_state();
++        state
++            .backend
++            .create_virtual_output(&mut state.niri, 1920, 1080, 60, Some("sunshine".to_owned()))
++            .unwrap()
++    };
++
++    let output = f
++        .niri()
++        .global_space
++        .outputs()
++        .find(|o| o.name() == name)
++        .unwrap()
++        .clone();
++
++    // Sanity: single initial mode.
++    {
++        let modes = output.modes();
++        assert_eq!(modes.len(), 1);
++        assert_eq!(modes[0].size.w, 1920);
++        assert_eq!(modes[0].size.h, 1080);
++    }
++
++    // 1080p -> 3200x1800
++    {
++        let state = f.niri_state();
++        state.apply_transient_output_config(
++            &name,
++            niri_ipc::OutputAction::CustomMode {
++                mode: niri_ipc::ConfiguredMode {
++                    width: 3200,
++                    height: 1800,
++                    refresh: Some(60.0),
++                },
++            },
++        );
++    }
++
++    {
++        let modes = output.modes();
++        assert_eq!(modes.len(), 1);
++        assert_eq!(modes[0].size.w, 3200);
++        assert_eq!(modes[0].size.h, 1800);
++    }
++
++    // 3200x1800 -> 1080p
++    {
++        let state = f.niri_state();
++        state.apply_transient_output_config(
++            &name,
++            niri_ipc::OutputAction::CustomMode {
++                mode: niri_ipc::ConfiguredMode {
++                    width: 1920,
++                    height: 1080,
++                    refresh: Some(60.0),
++                },
++            },
++        );
++    }
++
++    {
++        let modes = output.modes();
++        assert_eq!(modes.len(), 1);
++        assert_eq!(modes[0].size.w, 1920);
++        assert_eq!(modes[0].size.h, 1080);
++    }
++}
++
++#[test]
++fn removing_off_virtual_output_does_not_panic() {
++    let mut f = Fixture::new();
++
++    let name = {
++        let state = f.niri_state();
++        state
++            .backend
++            .create_virtual_output(&mut state.niri, 1920, 1080, 60, Some("virt".to_owned()))
++            .unwrap()
++    };
++
++    {
++        let state = f.niri_state();
++        state.modify_output_config(&name, |config| {
++            config.off = true;
++        });
++    }
++
++    {
++        let state = f.niri_state();
++        state
++            .backend
++            .remove_virtual_output(&mut state.niri, &name)
++            .unwrap();
++    }
++}
++
++#[test]
++fn config_remove_virtual_output_fails_while_configured() {
++    let mut f = Fixture::new();
++    let name = "virt";
++
++    {
++        let state = f.niri_state();
++        state.modify_output_config(name, |config| {
++            config.create_virtual = true;
++        });
++    }
++
++    let result = {
++        let state = f.niri_state();
++        state.backend.remove_virtual_output(&mut state.niri, name)
++    };
++
++    assert!(result.is_err());
++    assert!(result.unwrap_err().contains("is configured"));
++}
++
++#[test]
++fn unnamed_virtual_outputs_do_not_advance_counter_for_named_outputs() {
++    let mut f = Fixture::new();
++
++    {
++        let state = f.niri_state();
++        state.modify_output_config("virt", |_| {});
++    }
++
++    let headless_1 = {
++        let state = f.niri_state();
++        state
++            .backend
++            .create_virtual_output(&mut state.niri, 1920, 1080, 60, None)
++            .unwrap()
++    };
++
++    assert_eq!(headless_1, "HEADLESS-1");
++
++    let headless_2 = {
++        let state = f.niri_state();
++        state
++            .backend
++            .create_virtual_output(&mut state.niri, 1920, 1080, 60, None)
++            .unwrap()
++    };
++
++    assert_eq!(headless_2, "HEADLESS-2");
++}
++
++#[test]
++fn touch_input_targets_virtual_output_when_focused() {
++    let mut f = Fixture::new();
++    f.add_output(1, (1920, 1080));
++
++    let name = {
++        let state = f.niri_state();
++        state
++            .backend
++            .create_virtual_output(&mut state.niri, 1920, 1080, 60, Some("virt".to_owned()))
++            .unwrap()
++    };
++
++    let virt = f
++        .niri()
++        .global_space
++        .outputs()
++        .find(|o| o.name() == name)
++        .unwrap()
++        .clone();
++
++    f.niri().layout.focus_output(&virt);
++
++    // With no explicit `input.touch.map-to-output` configured,
++    // touch should follow the active output (which may be virtual).
++    let touch_output = f.niri().output_for_touch().unwrap().clone();
++    assert_eq!(touch_output, virt);
++}

@@ -1,0 +1,115 @@
+From 21c2e175c4cb15668c0145617c33abce5ca91227 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 01:08:46 +0300
+Subject: [PATCH] drm/i915: Split intel_update_crtc() into its stages
+
+Pull the arming of a pipe on the MMIO path and the bookkeeping that
+follows the commit of a pipe out of intel_update_crtc(), into
+commit_pipe_arm() and intel_post_update_crtc(). The next patch arms
+several joined pipes inside one vblank evasion critical section and
+needs them separately.
+
+No functional change.
+---
+ drivers/gpu/drm/i915/display/intel_display.c | 70 ++++++++++++--------
+ 1 file changed, 44 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index ec71ef6..4661420 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -6889,40 +6889,29 @@ static void intel_pre_update_crtc(struct intel_atomic_state *state,
+ 		intel_crtc_planes_update_noarm(NULL, state, crtc);
+ }
+ 
+-static void intel_update_crtc(struct intel_atomic_state *state,
+-			      struct intel_crtc *crtc)
++static void commit_pipe_arm(struct intel_atomic_state *state,
++			    struct intel_crtc *crtc)
+ {
+-	const struct intel_crtc_state *old_crtc_state =
+-		intel_atomic_get_old_crtc_state(state, crtc);
+-	struct intel_crtc_state *new_crtc_state =
++	const struct intel_crtc_state *new_crtc_state =
+ 		intel_atomic_get_new_crtc_state(state, crtc);
+ 
+-	if (new_crtc_state->use_flipq) {
+-		intel_flipq_enable(new_crtc_state);
+-
+-		intel_crtc_prepare_vblank_event(new_crtc_state, &crtc->flipq_event);
+-
+-		intel_flipq_add(crtc, INTEL_FLIPQ_PLANE_1, 0, INTEL_DSB_0,
+-				new_crtc_state->dsb_commit);
+-	} else if (new_crtc_state->use_dsb) {
+-		intel_crtc_prepare_vblank_event(new_crtc_state, &crtc->dsb_event);
+-
++	if (new_crtc_state->dsb_commit)
+ 		intel_dsb_commit(new_crtc_state->dsb_commit);
+-	} else {
+-		/* Perform vblank evasion around commit operation */
+-		intel_pipe_update_start(state, crtc);
+-
+-		if (new_crtc_state->dsb_commit)
+-			intel_dsb_commit(new_crtc_state->dsb_commit);
+ 
+-		commit_pipe_pre_planes(state, crtc);
++	commit_pipe_pre_planes(state, crtc);
+ 
+-		intel_crtc_planes_update_arm(NULL, state, crtc);
++	intel_crtc_planes_update_arm(NULL, state, crtc);
+ 
+-		commit_pipe_post_planes(state, crtc);
++	commit_pipe_post_planes(state, crtc);
++}
+ 
+-		intel_pipe_update_end(state, crtc);
+-	}
++static void intel_post_update_crtc(struct intel_atomic_state *state,
++				   struct intel_crtc *crtc)
++{
++	const struct intel_crtc_state *old_crtc_state =
++		intel_atomic_get_old_crtc_state(state, crtc);
++	struct intel_crtc_state *new_crtc_state =
++		intel_atomic_get_new_crtc_state(state, crtc);
+ 
+ 	/*
+ 	 * VRR/Seamless M/N update may need to update frame timings.
+@@ -6954,6 +6943,35 @@ static void intel_update_crtc(struct intel_atomic_state *state,
+ 	}
+ }
+ 
++static void intel_update_crtc(struct intel_atomic_state *state,
++			      struct intel_crtc *crtc)
++{
++	struct intel_crtc_state *new_crtc_state =
++		intel_atomic_get_new_crtc_state(state, crtc);
++
++	if (new_crtc_state->use_flipq) {
++		intel_flipq_enable(new_crtc_state);
++
++		intel_crtc_prepare_vblank_event(new_crtc_state, &crtc->flipq_event);
++
++		intel_flipq_add(crtc, INTEL_FLIPQ_PLANE_1, 0, INTEL_DSB_0,
++				new_crtc_state->dsb_commit);
++	} else if (new_crtc_state->use_dsb) {
++		intel_crtc_prepare_vblank_event(new_crtc_state, &crtc->dsb_event);
++
++		intel_dsb_commit(new_crtc_state->dsb_commit);
++	} else {
++		/* Perform vblank evasion around commit operation */
++		intel_pipe_update_start(state, crtc);
++
++		commit_pipe_arm(state, crtc);
++
++		intel_pipe_update_end(state, crtc);
++	}
++
++	intel_post_update_crtc(state, crtc);
++}
++
+ static void intel_old_crtc_state_disables(struct intel_atomic_state *state,
+ 					  struct intel_crtc *crtc)
+ {
+-- 
+2.56.0
+

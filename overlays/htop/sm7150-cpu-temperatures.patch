@@ -1,0 +1,62 @@
+diff --git a/linux/LibSensors.c b/linux/LibSensors.c
+index 55ebcf6..351e162 100644
+--- a/linux/LibSensors.c
++++ b/linux/LibSensors.c
+@@ -158,6 +158,9 @@ static int tempDriverPriority(const sensors_chip_name* chip) {
+       { "cpu5_thermal",       0 },
+       { "cpu6_thermal",       0 },
+       { "cpu7_thermal",       0 },
++      /* Snapdragon 7c, SM7150: two sensors per big core */
++      { "cpu8_thermal",       0 },
++      { "cpu9_thermal",       0 },
+       /* Amlogic S905W */
+       { "scpi_sensors",       0 },
+       /* Snapdragon 410 */
+@@ -214,6 +217,15 @@ static int LibSensors_stringToID(const char* str) {
+    return (int)parsedID;
+ }
+ 
++static bool LibSensors_hasChip(const char* prefix) {
++   int n = 0;
++   for (const sensors_chip_name* chip = sym_sensors_get_detected_chips(NULL, &n); chip; chip = sym_sensors_get_detected_chips(NULL, &n))
++      if (String_eq(chip->prefix, prefix))
++         return true;
++
++   return false;
++}
++
+ void LibSensors_getCPUTemperatures(CPUData* cpus, unsigned int existingCPUs, unsigned int activeCPUs) {
+    assert(existingCPUs > 0 && existingCPUs < 16384);
+ 
+@@ -229,6 +241,8 @@ void LibSensors_getCPUTemperatures(CPUData* cpus, unsigned int existingCPUs, uns
+    unsigned int coreTempCount = 0;
+    int topPriority = 99;
+ 
++   const bool twoSensorBigCores = existingCPUs == 8 && LibSensors_hasChip("cpu9_thermal");
++
+    int ccdID = 0;
+ 
+    int n = 0;
+@@ -276,9 +290,19 @@ void LibSensors_getCPUTemperatures(CPUData* cpus, unsigned int existingCPUs, uns
+ 
+          if (existingCPUs == 8) {
+             /* Map temperature values to Snapdragon 8cx cores */
+-            if (String_startsWith(chip->prefix, "cpu") && chip->prefix[3] >= '0' && chip->prefix[3] <= '7' && String_eq(chip->prefix + 4, "_thermal")) {
+-               data[1 + chip->prefix[3] - '0'] = temp;
+-               coreTempCount++;
++            if (String_startsWith(chip->prefix, "cpu") && chip->prefix[3] >= '0' && chip->prefix[3] <= '9' && String_eq(chip->prefix + 4, "_thermal")) {
++               unsigned int core = chip->prefix[3] - '0';
++               if (twoSensorBigCores && core >= 6)
++                  core = core < 8 ? 6 : 7;
++
++               if (core < 8) {
++                  if (isNaN(data[1 + core])) {
++                     data[1 + core] = temp;
++                     coreTempCount++;
++                  } else {
++                     data[1 + core] = MAXIMUM(data[1 + core], temp);
++                  }
++               }
+                continue;
+             }
+ 

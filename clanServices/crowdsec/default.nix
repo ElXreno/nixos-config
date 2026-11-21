@@ -1,5 +1,7 @@
 _:
 let
+  lapiListenPort = "8080";
+
   mkMachineGenerator =
     {
       pkgs,
@@ -89,13 +91,12 @@ in
               ;
 
             inherit (config.networking) hostName;
-            nginxEnabled = config.services.nginx.enable;
+            caddyEnabled = config.services.caddy.enable;
 
             serverName = lib.head (lib.attrNames (roles.server.machines or { }));
             isServer = serverName == hostName;
 
             inherit (config.clan.core.settings) domain;
-            lapiListenPort = "8080";
             lapiHost = "${lib.toLower serverName}.${domain}";
             lapiUrl = "http://${lapiHost}:${lapiListenPort}";
           in
@@ -120,16 +121,16 @@ in
               enable = true;
               autoUpdateService = true;
 
-              extraGroups = [ "systemd-journal" ] ++ optional nginxEnabled "nginx";
-              readOnlyPaths = optional nginxEnabled "/var/log/nginx";
+              extraGroups = [ "systemd-journal" ] ++ optional caddyEnabled "caddy";
+              readOnlyPaths = optional caddyEnabled "/var/log/caddy";
 
               hub = {
                 collections = [
                   "crowdsecurity/linux"
                   "crowdsecurity/sshd"
                 ]
-                ++ optionals nginxEnabled [
-                  "crowdsecurity/nginx"
+                ++ optionals caddyEnabled [
+                  "crowdsecurity/caddy"
                   "crowdsecurity/http-cve"
                   "crowdsecurity/base-http-scenarios"
                   "crowdsecurity/wordpress"
@@ -145,10 +146,10 @@ in
                     labels.type = "syslog";
                   }
                 ]
-                ++ optional nginxEnabled {
+                ++ optional caddyEnabled {
                   source = "file";
-                  filenames = [ "/var/log/nginx/access.log" ];
-                  labels.type = "nginx";
+                  filenames = [ "/var/log/caddy/access-*.log" ];
+                  labels.type = "caddy";
                 };
 
                 parsers.s02Enrich = [
@@ -221,11 +222,14 @@ in
 
             systemd.services = {
               crowdsec = {
-                after = lib.optional config.${namespace}.services.dnscrypt-proxy.enable "dnscrypt-proxy.service";
-                wants = lib.optional config.${namespace}.services.dnscrypt-proxy.enable "dnscrypt-proxy.service";
+                after = [
+                  "multi-user.target"
+                  "dnscrypt-proxy.service"
+                ];
+                wants = [ "dnscrypt-proxy.service" ];
                 serviceConfig = {
                   LoadCredential =
-                    lib.optional (!isServer)
+                    optional (!isServer)
                       "lapi-credentials.yaml:${
                         config.clan.core.vars.generators."crowdsec-machine-${hostName}".files."lapi-credentials.yaml".path
                       }";
@@ -237,10 +241,15 @@ in
                 };
               };
 
-              crowdsec-setup = lib.mkIf config.${namespace}.services.dnscrypt-proxy.enable {
-                after = [ "dnscrypt-proxy.service" ];
+              crowdsec-setup = {
+                after = [
+                  "multi-user.target"
+                  "dnscrypt-proxy.service"
+                ];
                 wants = [ "dnscrypt-proxy.service" ];
               };
+
+              crowdsec-firewall-bouncer.after = [ "multi-user.target" ];
             };
           };
       };
@@ -254,13 +263,14 @@ in
         nixosModule =
           {
             config,
+            namespace,
             pkgs,
             lib,
             ...
           }:
           let
             inherit (lib)
-              mkAfter
+              mkForce
               listToAttrs
               concatMap
               concatMapStringsSep
@@ -272,13 +282,14 @@ in
             remoteClientNames = lib.filter (n: n != hostName) clientMachineNames;
 
             inherit (config.clan.core.settings) domain;
-            lapiListenPort = "8080";
             lapiHost = "${lib.toLower hostName}.${domain}";
             lapiUrl = "http://${lapiHost}:${lapiListenPort}";
 
             dataDir = config.services.crowdsec.settings.config.config_paths.data_dir;
           in
           {
+            ${namespace}.ports.crowdsec-lapi = lib.toInt lapiListenPort;
+
             services.crowdsec.settings = {
               config.api.server = {
                 enable = true;
@@ -320,7 +331,7 @@ in
                 }"
               ]) remoteClientNames;
 
-              ExecStartPre = mkAfter [
+              ExecStartPre = mkForce [
                 (pkgs.writeShellScript "crowdsec-register" ''
                   set -eu
                   set -o pipefail

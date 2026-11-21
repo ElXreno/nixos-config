@@ -12,36 +12,65 @@ let
     mkIf
     optionals
     any
+    concatMapStrings
+    filter
     hasPrefix
+    attrValues
+    concatMap
+    genAttrs
+    isString
     ;
   cfg = config.${namespace}.system.impermanence;
+  privateDirs = filter (dir: any (p: hasPrefix "${dir}/" (p.directory or p)) cfg.directories) [
+    "/var/cache/private"
+    "/var/lib/private"
+  ];
+  persistDatasets = filter (m: isString m && hasPrefix "${cfg.defaultPersistentPath}/" m) (
+    concatMap (pool: map (ds: ds.mountpoint or null) (attrValues pool.datasets)) (
+      attrValues config.disko.devices.zpool
+    )
+  );
 in
 {
   options.${namespace}.system.impermanence = {
-    enable = mkEnableOption "Whether to enable impermanence.";
+    enable = mkEnableOption "impermanence";
     defaultPersistentPath = mkOption {
       type = types.str;
       default = "/mnt/root-persist";
     };
 
     directories = mkOption {
+      type = types.listOf (types.either types.str types.attrs);
       default = [ ];
+      description = "Directories kept across reboots, in environment.persistence form.";
     };
 
     files = mkOption {
+      type = types.listOf (types.either types.str types.attrs);
       default = [ ];
+      description = "Files kept across reboots, in environment.persistence form.";
     };
   };
 
   config = mkIf cfg.enable {
     clan.core.vars.sops.secretUploadDirectory = "${cfg.defaultPersistentPath}/var/lib/sops-nix";
 
+    fileSystems = genAttrs ([ cfg.defaultPersistentPath ] ++ persistDatasets) (_: {
+      neededForBoot = true;
+    });
+
     environment.persistence.${cfg.defaultPersistentPath} = {
       hideMounts = true;
       directories = [
         "/var/log"
         "/var/lib/nixos"
+        "/var/lib/systemd/backlight"
+        "/var/lib/systemd/pstore"
+        "/var/lib/systemd/timers"
       ]
+      ++ (optionals config.systemd.coredump.enable [
+        "/var/lib/systemd/coredump"
+      ])
       ++ (optionals config.services.power-profiles-daemon.enable [
         "/var/lib/power-profiles-daemon"
       ])
@@ -64,22 +93,20 @@ in
       ++ cfg.files;
     };
 
-    system.activationScripts =
-      mkIf (any (p: hasPrefix "/var/lib/private" (p.directory or p)) cfg.directories)
-        {
-          "var-lib-private-permissions" = {
-            deps = [ "specialfs" ];
-            text = ''
-              mkdir -p ${cfg.defaultPersistentPath}/var/lib/private
-              chmod 0700 ${cfg.defaultPersistentPath}/var/lib/private
-            '';
-          };
+    system.activationScripts = mkIf (privateDirs != [ ]) {
+      "private-dirs-permissions" = {
+        deps = [ "specialfs" ];
+        text = concatMapStrings (dir: ''
+          mkdir -p ${cfg.defaultPersistentPath}${dir}
+          chmod 0700 ${cfg.defaultPersistentPath}${dir}
+        '') privateDirs;
+      };
 
-          "createPersistentStorageDirs".deps = [
-            "var-lib-private-permissions"
-            "users"
-            "groups"
-          ];
-        };
+      "createPersistentStorageDirs".deps = [
+        "private-dirs-permissions"
+        "users"
+        "groups"
+      ];
+    };
   };
 }

@@ -1,0 +1,178 @@
+From a8215b29adf4fb12710f05ea0102a2c6b617a077 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sun, 15 Nov 2026 05:58:04 +0300
+Subject: [PATCH] HID: usbhid: clear halt after a transaction error on the IN
+ endpoint
+
+When the interrupt IN URB completes with -EPROTO (or -EILSEQ, -ETIME,
+-ETIMEDOUT), hid_irq_in() calls hid_io_error(), which resubmits the URB
+after a delay and resets the device if errors persist for a second.
+Only -EPIPE is followed by usb_clear_halt().
+
+That is not enough on xHCI. A transaction error halts the endpoint
+inside the host controller. xhci-hcd can retry in place a few times
+(Soft Retry), but not for a device behind the transaction translator of
+an external high-speed hub: process_bulk_intr_td() skips the retry when
+TT_SLOT is set in the slot context. Once the URB is to be given back
+with -EPROTO, finish_td() calls xhci_handle_halted_endpoint() with
+EP_HARD_RESET. That is a Reset Endpoint command without TSP, which puts
+the host side data toggle back to DATA0. Nothing is sent to the device,
+whose toggle stays where it was. If the next report of the device then
+carries DATA1, the host takes it for a retransmission and drops it,
+while the device considers it delivered. USB 2.0 5.7.5 expects a halt
+caused by transmission errors to be removed through the control pipe,
+which resets the toggle on both sides. usbhid only resubmits.
+
+This was seen on v7.3.4 with a full-speed FIDO token (1050:0407) behind
+two external hubs on an xHCI root port, used through hidraw by libfido2.
+The idle IN URB fails with -EPROTO and is resubmitted, the next request
+goes out on the OUT endpoint, and its one-packet reply never arrives.
+usbmon, lines of the FIDO interface only:
+
+ffff899842a9ccc0 3684652382 C Ii:1:058:4 -71:2 0
+ffff899842a9ccc0 3684667001 S Ii:1:058:4 -115:2 64 <
+ffff899842a9ccc0 3684810522 C Ii:1:058:4 -71:2 0
+ffff899842a9ccc0 3684837004 S Ii:1:058:4 -115:2 64 <
+ffff89a42ed66cc0 3684886020 S Io:1:058:4 -115:2 64 = ffffffff 86000840 264cf9b1 d5224d00 00000000 00000000 00000000 00000000
+ffff89a42ed66cc0 3684887536 C Io:1:058:4 0:2 64 >
+ffff899842a9ccc0 3685380717 C Ii:1:058:4 -71:2 0
+ffff899842a9ccc0 3685433098 S Ii:1:058:4 -115:2 64 <
+ffff899afe017800 3697300652 S Io:1:058:4 -115:2 64 = ffffffff 860008ff 61809f1f fe2af700 00000000 00000000 00000000 00000000
+ffff899afe017800 3697301591 C Io:1:058:4 0:2 64 >
+ffff899842a9ccc0 3697303578 C Ii:1:058:4 0:2 64 = ffffffff 860011ff 61809f1f fe2af78a facdbf02 05040305 00000000 00000000
+
+The request at 3684.886 is never answered and the caller gives up after
+ten seconds; the retry at 3697.300 works. In a two hour capture with
+3973 requests there were 16 such error episodes on this endpoint. 13 of
+them were followed by a request: its first reply was lost 7 times and
+arrived 6 times. No reply was lost without an -EPROTO before it. That
+fits a toggle which is wrong half of the time, but the packets on the
+wire have not been looked at with a bus analyzer.
+
+Remember the error in a new HID_IN_RESYNC flag and let hid_start_in()
+defer to the reset work while it is set. The work calls
+usb_clear_halt() and then submits the URB. The request puts the device
+toggle at DATA0 and usb_reset_endpoint() does the same for the host,
+which xhci-hcd skips when its hard reset has just done it. The retry
+delays of hid_io_error() and its escalation to a device reset stay as
+they are. When the request fails, the URB is submitted anyway, as it
+was before. The flag survives close and suspend, so the endpoint is
+brought back in sync before whatever submission comes next, and a
+device reset clears it.
+
+This is not specific to transaction translators: every transaction
+error that xhci-hcd passes on as -EPROTO for an interrupt endpoint has
+been through a hard reset. With a TT there are just no retries before
+it. Other host controller drivers gain one control request per error.
+
+As noted in the first thread below, resetting both toggles can in
+principle let a packet whose acknowledgment was lost earlier be accepted
+a second time. The alternative is the silent loss described above.
+
+The mismatch and who should repair it were discussed on linux-usb in
+March and April 2026. Doing it in xhci-hcd was not wanted, doing it in
+usbcore was started but is unfinished, and class drivers calling
+usb_clear_halt() themselves were considered fine. Michal Pecio
+reproduced the loss with a keyboard and saw it go away when -EPROTO was
+handled like -EPIPE (bugzilla 221184, comment 38). Unlike that
+experiment this patch keeps the retry delay and does not reset the
+device when the request fails, which it easily does right after an
+error.
+
+The analysis and the patch were prepared with an LLM coding assistant.
+
+Link: https://lore.kernel.org/linux-usb/20260313085354.71a6dbf1.michal.pecio@gmail.com/
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=221184
+Link: https://lore.kernel.org/linux-usb/2604e951-01e8-44d0-a11e-be63b0849c23@linux.intel.com/
+Link: https://lore.kernel.org/linux-usb/20260928120343.49e02c07.michal.pecio@gmail.com/
+Link: https://lore.kernel.org/linux-usb/20250918112128.05c21d6b.michal.pecio@gmail.com/
+---
+ drivers/hid/usbhid/hid-core.c | 25 +++++++++++++++++++++++++
+ drivers/hid/usbhid/usbhid.h   |  5 +++++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index d7cf2b56e117..229bf5e65cf7 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -91,6 +91,12 @@ static int hid_start_in(struct hid_device *hid)
+ 	    !test_bit(HID_DISCONNECTED, &usbhid->iofl) &&
+ 	    !test_bit(HID_SUSPENDED, &usbhid->iofl) &&
+ 	    !test_and_set_bit(HID_IN_RUNNING, &usbhid->iofl)) {
++		if (test_bit(HID_IN_RESYNC, &usbhid->iofl)) {
++			/* hid_reset() clears the halt, then comes back here */
++			clear_bit(HID_IN_RUNNING, &usbhid->iofl);
++			schedule_work(&usbhid->reset_work);
++			goto unlock;
++		}
+ 		rc = usb_submit_urb(usbhid->urbin, GFP_ATOMIC);
+ 		if (rc != 0) {
+ 			clear_bit(HID_IN_RUNNING, &usbhid->iofl);
+@@ -100,6 +106,7 @@ static int hid_start_in(struct hid_device *hid)
+ 			clear_bit(HID_NO_BANDWIDTH, &usbhid->iofl);
+ 		}
+ 	}
++unlock:
+ 	spin_unlock_irqrestore(&usbhid->lock, flags);
+ 	return rc;
+ }
+@@ -136,6 +143,22 @@ static void hid_reset(struct work_struct *work)
+ 		}
+ 	}
+ 
++	/*
++	 * A transaction error can leave the host (xHCI resets its side) and
++	 * the device with different data toggles: resync before polling again.
++	 */
++	if (test_bit(HID_IN_RESYNC, &usbhid->iofl) &&
++	    !test_bit(HID_IN_RUNNING, &usbhid->iofl) &&
++	    !test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
++		rc = usb_clear_halt(hid_to_usb_dev(hid), usbhid->urbin->pipe);
++		if (rc)
++			dev_dbg(&usbhid->intf->dev,
++				"clear-halt after I/O error failed: %d\n", rc);
++		clear_bit(HID_IN_RESYNC, &usbhid->iofl);
++		if (hid_start_in(hid))
++			hid_io_error(hid);
++	}
++
+ 	if (test_bit(HID_RESET_PENDING, &usbhid->iofl)) {
+ 		dev_dbg(&usbhid->intf->dev, "resetting device\n");
+ 		usb_queue_reset_device(usbhid->intf);
+@@ -314,6 +337,7 @@ static void hid_irq_in(struct urb *urb)
+ 	case -ETIME:		/* protocol error or unplug */
+ 	case -ETIMEDOUT:	/* Should never happen, but... */
+ 		usbhid_mark_busy(usbhid);
++		set_bit(HID_IN_RESYNC, &usbhid->iofl);
+ 		clear_bit(HID_IN_RUNNING, &usbhid->iofl);
+ 		hid_io_error(hid);
+ 		return;
+@@ -1584,6 +1608,7 @@ static int hid_post_reset(struct usb_interface *intf)
+ 	spin_lock_irq(&usbhid->lock);
+ 	clear_bit(HID_RESET_PENDING, &usbhid->iofl);
+ 	clear_bit(HID_CLEAR_HALT, &usbhid->iofl);
++	clear_bit(HID_IN_RESYNC, &usbhid->iofl);
+ 	spin_unlock_irq(&usbhid->lock);
+ 	hid_set_idle(dev, intf->cur_altsetting->desc.bInterfaceNumber, 0, 0);
+ 
+diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+index 75fe85d3d27a..0287eb22e3bf 100644
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -47,6 +47,11 @@ struct usb_interface *usbhid_find_interface(int minor);
+  * device.
+  */
+ #define HID_IN_POLLING		14
++/*
++ * The IN URB got a transaction error: clear the halt before submitting it
++ * again, the host controller may have reset its data toggle.
++ */
++#define HID_IN_RESYNC		15
+ 
+ /*
+  * USB-specific HID struct, to be pointed to
+
+base-commit: 23c62304dde29abe92013d85910d03a77dada35d
+-- 
+2.56.0
+

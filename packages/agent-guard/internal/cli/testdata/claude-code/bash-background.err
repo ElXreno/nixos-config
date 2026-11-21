@@ -1,0 +1,1 @@
+Blocked: do not background with '&'. Pass run_in_background: true to the Bash tool instead: the harness tracks the job across turns, wakes you when it exits, and TaskOutput retrieves its output, so you never need to sleep and poll for it. This applies inside ssh, bash -c and container exec payloads too. If the ampersand is part of a URL or literal text, quote the argument.

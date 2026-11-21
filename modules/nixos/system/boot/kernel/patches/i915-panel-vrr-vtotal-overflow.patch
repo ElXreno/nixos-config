@@ -1,0 +1,41 @@
+From e9ac376832c2959887751a595a8690581f9bb58c Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 01:06:46 +0300
+Subject: [PATCH] drm/i915/panel: Fix the pixel clock overflow in the VRR
+ vtotal
+
+intel_panel_compute_config_vrr() multiplies the pixel clock in kHz by
+1000 in a signed int. A 3840x2400@240 timing has a 2342.4 MHz pixel
+clock, the product overflows, and the vertical total computed for a
+refresh rate other than that of the fixed mode comes out negative.
+
+Do the multiplication in 64 bits.
+
+This needs a fixed mode above 2147 MHz, so one that uses the joiner,
+inside the VRR range of the panel, and a request for another refresh
+rate that ends up on that fixed mode, as the allow_modeset=false path
+does for a mode that is VRR compatible with the current one.
+
+Fixes: a2da67028cd0 ("drm/i915: Allow arbitrary refresh rates with VRR eDP panels")
+---
+ drivers/gpu/drm/i915/display/intel_panel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_panel.c b/drivers/gpu/drm/i915/display/intel_panel.c
+index 81e638d..157be31 100644
+--- a/drivers/gpu/drm/i915/display/intel_panel.c
++++ b/drivers/gpu/drm/i915/display/intel_panel.c
+@@ -277,8 +277,8 @@ static int intel_panel_compute_config_vrr(struct intel_atomic_state *state,
+ 		int vsync_end_offset = adjusted_mode->vtotal - adjusted_mode->vsync_end;
+ 
+ 		adjusted_mode->vtotal =
+-			DIV_ROUND_CLOSEST(adjusted_mode->clock * 1000,
+-					  adjusted_mode->htotal * vrefresh);
++			DIV_ROUND_CLOSEST_ULL(mul_u32_u32(adjusted_mode->clock, 1000),
++					      adjusted_mode->htotal * vrefresh);
+ 
+ 		adjusted_mode->vsync_start = adjusted_mode->vtotal - vsync_start_offset;
+ 		adjusted_mode->vsync_end = adjusted_mode->vtotal - vsync_end_offset;
+-- 
+2.56.0
+

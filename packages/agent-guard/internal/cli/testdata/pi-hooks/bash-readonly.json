@@ -1,0 +1,11 @@
+{
+  "event": "tool_call",
+  "toolName": "bash",
+  "toolCallId": "call_bash-readonly",
+  "input": {
+    "command": "echo x > /home/test/.claude/x"
+  },
+  "cwd": "/home/test/repo",
+  "sessionId": "019a5f00-0000-7000-8000-00000000c0de",
+  "hasUI": true
+}

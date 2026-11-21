@@ -1,0 +1,39 @@
+--- a/tools/server/server-context.cpp	1970-01-01 03:00:01.000000000 +0300
++++ b/tools/server/server-context.cpp	2026-11-12 02:19:02.728091436 +0300
+@@ -526,6 +526,18 @@
+         return false;
+     }
+ 
++    // a causal reranker scores the last token over its KV cache, so the next document
++    // of the same query continues from the prefix they share
++    bool keeps_prompt() const {
++        GGML_ASSERT(task);
++        if (task->type == SERVER_TASK_TYPE_RERANK) {
++            return llama_get_memory(ctx_tgt) != nullptr
++                && llama_pooling_type(ctx_tgt) == LLAMA_POOLING_TYPE_RANK
++                && llama_get_causal_attn(ctx_tgt);
++        }
++        return !task->is_stateless();
++    }
++
+     bool can_batch_with(server_slot & other_slot) const {
+         GGML_ASSERT(task);
+ 
+@@ -665,7 +677,7 @@
+ 
+             // do not keep context of the child slots - the parent's context is enough
+             // nor of the stateless slots - no task ever reuses it
+-            if (task->is_child() || task->is_stateless() || audio_stream || task->type == SERVER_TASK_TYPE_REALTIME) {
++            if (task->is_child() || !keeps_prompt() || audio_stream || task->type == SERVER_TASK_TYPE_REALTIME) {
+                 prompt_clear();
+             }
+ 
+@@ -4100,7 +4112,7 @@
+                                 return;
+                             }
+ 
+-                            if (slot.task->params.cache_prompt && !slot.task->is_stateless()) {
++                            if (slot.task->params.cache_prompt && slot.keeps_prompt()) {
+                                 // reuse any previously computed tokens that are common with the new prompt
+                                 n_past = slot.prompt.tokens.get_common_prefix(input_tokens);
+ 

@@ -11,7 +11,7 @@ let
 in
 {
   options.${namespace}.services.supergfxd = {
-    enable = mkEnableOption "Whether or not to manage supergfxd.";
+    enable = mkEnableOption "managing supergfxd";
   };
 
   config = mkIf cfg.enable {

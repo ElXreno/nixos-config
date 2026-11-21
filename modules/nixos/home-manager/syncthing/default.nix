@@ -18,11 +18,15 @@ let
   inherit (lib.trivial) mod;
   cfg = config.${namespace}.home-manager.syncthing;
 
-  normalUsers = filterAttrs (_: u: u.isNormalUser) config.users.users;
+  syncthingUsers = filterAttrs (
+    name: u:
+    u.isNormalUser
+    && (config.home-manager.users.${name}.${namespace}.services.syncthing.enable or false)
+  ) config.users.users;
 in
 {
   options.${namespace}.home-manager.syncthing = {
-    enable = mkEnableOption "Whether or not to manage extra stuff for Syncthing." // {
+    enable = mkEnableOption "managing extra stuff for Syncthing" // {
       default = true;
     };
     randomPortIncrement = mkOption {
@@ -42,17 +46,27 @@ in
           announcePort = 21027 + inc + cfg.randomPortIncrement;
           listenPort = 22000 + inc + cfg.randomPortIncrement;
         }
-      ) normalUsers;
+      ) syncthingUsers;
     };
   };
 
   config = mkIf cfg.enable {
-    networking.firewall.allowedTCPPorts = mapAttrsToList (_: p: p.listenPort) cfg.ports;
-    networking.firewall.allowedUDPPorts = concatLists (
-      mapAttrsToList (_: p: [
-        p.announcePort
-        p.listenPort
-      ]) cfg.ports
-    );
+    ${namespace} = {
+      ports = lib.concatMapAttrs (user: p: {
+        "syncthing-${user}-webui" = p.webUIPort;
+        "syncthing-${user}-announce" = p.announcePort;
+        "syncthing-${user}-listen" = p.listenPort;
+      }) cfg.ports;
+
+      system.networking.firewall.public.syncthing = {
+        tcp = mapAttrsToList (_: p: p.listenPort) cfg.ports;
+        udp = concatLists (
+          mapAttrsToList (_: p: [
+            p.announcePort
+            p.listenPort
+          ]) cfg.ports
+        );
+      };
+    };
   };
 }

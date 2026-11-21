@@ -18,9 +18,9 @@ let
 in
 {
   options.${namespace}.services.pipewire = {
-    enable = mkEnableOption "Whether or not to manage pipewire.";
+    enable = mkEnableOption "managing pipewire";
     rnnoise = {
-      enable = mkEnableOption "Whether to enable RNNoise.";
+      enable = mkEnableOption "RNNoise";
       target = mkOption {
         type = with types; nullOr str;
         default = null;
@@ -56,25 +56,8 @@ in
       alsa.support32Bit = true;
       pulse.enable = true;
 
-      package =
-        let
-          patchedPipewire = pkgs.pipewire.override {
-            libldac-dec = pkgs.libldac-dec.overrideAttrs (old: {
-              patches = (old.patches or [ ]) ++ [
-                # https://nixpk.gs/pr-tracker.html?pr=502690
-                # Fix uninitialized struct members passed to ldaclib_set_config_info in decode init
-                ./patches/fix-decode-init.patch
-              ];
-            });
-          };
-        in
-        patchedPipewire;
-
-      extraLv2Packages = [ pkgs.lsp-plugins ];
-
-      extraLadspaPackages = [
+      extraLadspaPackages = mkIf cfg.rnnoise.enable [
         pkgs.ladspaPlugins
-        pkgs.deepfilternet
         pkgs.rnnoise-plugin
       ];
 
@@ -211,8 +194,10 @@ in
                 lowerPriorityAction,
               }:
               {
-                type = "pw-module";
+                type = "pw-module-client";
                 name = "libpipewire-module-loopback";
+                # bare spa-json: wireplumber matches requires entries verbatim, quotes included
+                requires = "[ support.client-context ]";
                 arguments = {
                   "node.name" = "loopback.sink.role.${name}";
                   "node.description" = description;
@@ -272,7 +257,6 @@ in
       };
     };
 
-    # Real-time audio processing
     security.pam.loginLimits = [
       {
         domain = "@audio";

@@ -1,46 +1,64 @@
-# Source: https://gist.github.com/Arian04/bea169c987d46a7f51c63a68bc117472/de9d655e395c15f1bcd7806aff10012d03880646
-
-# I used this shell.nix to build LineageOS 21.0 for redfin (Google Pixel 5)
-#
-# IMPORTANT NOTE: I had to use a pure shell for my builds to work, i.e: `nix-shell --pure` rather than `nix-shell`
-#
-# The build instructions are here: https://wiki.lineageos.org/devices/redfin/build
-#
-# Warning (from forked gist, was added August 1st 2018):
-# The hardened NixOS kernel disables 32 bit emulation, which made me run into multiple "Exec format error" errors.
-# To fix, use the default kernel, or enable "IA32_EMULATION y" in the kernel config.
-#
-# Created using:
-#   https://gist.github.com/Nadrieril/d006c0d9784ba7eff0b092796d78eb2a
-#   https://nixos.wiki/wiki/Android#Building_Android_on_NixOS
-
+# based on https://gist.github.com/Arian04/bea169c987d46a7f51c63a68bc117472
 {
   pkgs,
   ...
 }:
 let
+  inherit (pkgs) lib;
+
+  buildRoot = "/mnt/scratch/android-builds";
+  ccacheDir = "${buildRoot}/ccache";
+
+  withO3 =
+    drv:
+    drv.overrideAttrs (old: {
+      env = (old.env or { }) // {
+        NIX_CFLAGS_COMPILE = toString [
+          (old.env.NIX_CFLAGS_COMPILE or "")
+          "-O3"
+        ];
+      };
+    });
+
+  ccache =
+    (withO3 (
+      pkgs.ccache.override {
+        zstd = withO3 pkgs.zstd;
+        xxhash = withO3 pkgs.xxhash;
+      }
+    )).overrideAttrs
+      (old: {
+        cmakeFlags = old.cmakeFlags ++ [ (lib.cmakeBool "CMAKE_INTERPROCEDURAL_OPTIMIZATION" true) ];
+      });
+
+  ccacheConf = pkgs.writeText "ccache.conf" ''
+    max_size = 150G
+  '';
+
   fhs = pkgs.buildFHSEnv {
     name = "android-env";
     targetPkgs =
       _pkgs: with pkgs; [
-        android-tools
-        libxcrypt-legacy # libcrypt.so.1
-        freetype # libfreetype.so.6
-        fontconfig # java NPE: "sun.awt.FontConfiguration.head" is null
-        yaml-cpp # necessary for some kernels according to a comment on the gist
+        ccache
+        git
+        git-repo
+        git-lfs
 
-        # Some of the packages here are probably unnecessary but I don't wanna figure out which
+        android-tools
+        brotli
+        e2fsprogs
+        libxcrypt-legacy
+        freetype
+        fontconfig
+        yaml-cpp
+
         bc
         binutils
         bison
-        ccache
         curl
         flex
         gcc
         gcc.cc
-        git
-        git-repo
-        git-lfs
         gnumake
         gnupg
         gperf
@@ -79,27 +97,36 @@ let
         libcxx
         readline
 
-        libgcc # crtbeginS.o
-        iconv # ??? - i put this here and by the time i went back to remove unnecessary packages i forgot why
-        iconv.dev # sys/types.h
+        libgcc
+        iconv
+        iconv.dev
         glibc.dev
       ];
     runScript = "bash";
     profile = ''
-      export ALLOW_NINJA_ENV=true
+      unset DIRENV_DIR DIRENV_FILE DIRENV_DIFF DIRENV_WATCHES
+
+      export LANG=C.UTF-8
+      export LC_ALL=C.UTF-8
+
       export USE_CCACHE=1
       export CCACHE_EXEC=/usr/bin/ccache
-      export ANDROID_JAVA_HOME=${pkgs.jdk.home}
-      # Building involves a phase of unzipping large files into a temporary directory
-      export TMPDIR=/tmp
-      export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${pkgs.ncurses5}/lib
-      export _JAVA_OPTIONS="-XX:UseAVX=3 -XX:+UseG1GC -XX:+TieredCompilation -XX:CICompilerCount=16 -XX:+UseStringDeduplication"
+      export CCACHE_DIR=${ccacheDir}
+      mkdir -p "$CCACHE_DIR"
+      ln -sfn ${ccacheConf} "$CCACHE_DIR/ccache.conf"
 
-      cd $HOME/Android/sources
+      export ROOMSERVICE_DRYRUN=true
+      export SKIP_ABI_CHECKS=true
+      export USE_THINLTO_CACHE=true
+
+      case "$PWD" in
+        ${buildRoot}*) ;;
+        *) cd ${buildRoot} ;;
+      esac
     '';
   };
 in
-pkgs.stdenv.mkDerivation {
+pkgs.mkShell {
   name = "android-env-shell";
   nativeBuildInputs = [ fhs ];
   shellHook = "exec android-env";

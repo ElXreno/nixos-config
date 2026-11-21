@@ -1,0 +1,6 @@
+{
+  "name": "goal",
+  "version": "0.1.0",
+  "description": "Draft a /goal with the agent in a pane, then run it with an auditor and budgets",
+  "types": "./types/index.d.ts"
+}

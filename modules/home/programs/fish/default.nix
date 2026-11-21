@@ -2,29 +2,39 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) getExe mkIf mkEnableOption;
   cfg = config.${namespace}.programs.fish;
 in
 {
   options.${namespace}.programs.fish = {
-    enable = mkEnableOption "Whether or not to manage fish.";
+    enable = mkEnableOption "managing fish";
   };
 
   config = mkIf cfg.enable {
+    programs.nh.enable = true;
+
     programs.fish = {
       enable = true;
+      functions = {
+        nix = ''
+          if test "$argv[1]" = build
+            ${getExe pkgs.nix-output-monitor} $argv
+          else
+            command nix $argv
+          end
+        '';
+      };
       shellAliases = {
-        nrs = "nixos-rebuild switch -v --sudo";
-        nrb = "nixos-rebuild boot -v --sudo";
-        nrt = "nixos-rebuild test -v --sudo";
+        nrs = "nh os switch";
+        nrb = "nh os boot";
+        nrt = "nh os test";
         ssr = "sudo systemctl restart";
         sss = "sudo systemctl status";
         sst = "sudo systemctl stop";
-        ytdl = "yt-dlp -f '(bestvideo[vcodec=vp9][height<=1080]/bestvideo[height<=1080])+(bestaudio[acodec=opus]/bestaudio)'";
-        ytf = "yt-dlp -F";
       };
     };
   };

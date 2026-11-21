@@ -1,0 +1,30 @@
+From 2b01ca9085ac3d1f207ffe095af572b4fdf08542 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 11:30:02 +0300
+Subject: [PATCH 1/2] Don't create a second layer surface when show() re-enters
+
+---
+ main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/main.c b/main.c
+index be7fb07..8f2942d 100644
+--- a/main.c
++++ b/main.c
+@@ -798,6 +798,13 @@ show()
+     }
+ 
+     refresh_available_dimension();
++
++    /* The roundtrip above dispatches events, and an input-method
++     * activate among them may have run show() already. */
++    if (layer_surface) {
++        return;
++    }
++
+     redimension_keyboard();
+ 
+     draw_surf.surf = wl_compositor_create_surface(compositor);
+-- 
+2.55.0
+

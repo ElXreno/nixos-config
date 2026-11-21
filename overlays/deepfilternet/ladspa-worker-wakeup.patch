@@ -1,0 +1,73 @@
+diff --git a/ladspa/src/lib.rs b/ladspa/src/lib.rs
+index baca9c5..e731635 100644
+--- a/ladspa/src/lib.rs
++++ b/ladspa/src/lib.rs
+@@ -51,6 +51,7 @@ struct DfPlugin {
+     i_tx: SampleQueue,
+     o_rx: SampleQueue,
+     control_tx: ControlProd,
++    wake_tx: SyncSender<()>,
+     id: String,
+     ch: usize,
+     sr: usize,
+@@ -107,7 +108,7 @@ fn get_worker_fn(
+     inqueue: SampleQueue,
+     outqueue: SampleQueue,
+     controls: ControlRecv,
+-    sleep_duration: Duration,
++    wake: Receiver<()>,
+     id: String,
+ ) -> impl FnMut() {
+     move || {
+@@ -116,7 +117,7 @@ fn get_worker_fn(
+         let mut outframe = Array2::zeros((df.ch, df.hop_size));
+         let t_audio_ms = df.hop_size as f32 / df.sr as f32 * 1000.;
+         loop {
+-            if let Ok((c, v)) = controls.try_recv() {
++            while let Ok((c, v)) = controls.try_recv() {
+                 log::info!("DF {} | Setting '{}' to {:.1}", id, c, v);
+                 match c {
+                     DfControl::AttenLim => df.set_atten_lim(v),
+@@ -141,7 +142,10 @@ fn get_worker_fn(
+                 }
+             };
+             if !got_samples {
+-                sleep(sleep_duration);
++                if wake.recv().is_err() {
++                    log::debug!("DF {} | Plugin dropped, worker exiting", id);
++                    break;
++                }
+                 continue;
+             }
+             let t0 = Instant::now();
+@@ -222,12 +226,13 @@ fn get_new_df(channels: usize) -> impl Fn(&PluginDescriptor, u64) -> DfPlugin {
+         let id = Uuid::new_v4().as_urn().to_string().split_at(33).1.to_string();
+ 
+         let (control_tx, control_rx) = sync_channel(32);
++        let (wake_tx, wake_rx) = sync_channel(1);
+ 
+         let worker_handle = thread::spawn(get_worker_fn(
+             Arc::clone(&i_tx),
+             Arc::clone(&o_rx),
+             control_rx,
+-            sleep_duration,
++            wake_rx,
+             id.clone(),
+         ));
+         let hist = DfControlHistory::default();
+@@ -240,6 +245,7 @@ fn get_new_df(channels: usize) -> impl Fn(&PluginDescriptor, u64) -> DfPlugin {
+             i_tx,
+             o_rx,
+             control_tx,
++            wake_tx,
+             ch: channels,
+             sr: m_sr,
+             id,
+@@ -415,6 +421,7 @@ impl Plugin for DfPlugin {
+                 }
+             }
+         }
++        let _ = self.wake_tx.try_send(());
+ 
+         'outer: loop {
+             {

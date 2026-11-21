@@ -4,58 +4,82 @@
 }:
 
 {
+  imports = [
+    ./network.nix
+    ./llm.nix
+  ];
+
   ${namespace} = {
-    roles.server.enable = true;
+    tailscale.trusted = false;
 
     system = {
-      boot = {
-        uefi.enable = true;
+      networking.dns.addresses = {
+        v4 = "159.195.56.52";
+        v6 = "2a0a:4cc0:c1:e9be::";
+      };
 
-        kernel = {
-          optimizations = {
-            enable = true;
-            znver = 4;
-          };
+      networking.tunnels = {
+        warp.enable = true;
+        airvpn = {
+          mtu = 1440;
+          # Piautos and Amansinaya, entry 3
+          endpoints = [
+            "134.19.178.169:1637"
+            "146.70.179.196:1637"
+          ];
+        };
+      };
+
+      fs.zfs = {
+        hostId = "0fa43409";
+        remoteUnlock.enable = true;
+        autoSnapshot.filesystems = {
+          "rpool/home-persist" = true;
+          "rpool/root-persist" = true;
+          "rpool/root-persist/matrix" = true;
+          "rpool/root-persist/minecraft" = true;
+          "rpool/root-persist/postgres" = true;
         };
       };
     };
 
     services = {
-      atticd.enable = true;
-      matrix.synapse.enable = true;
+      clickhouse = {
+        nativePort = 9010;
+        httpPort = 8124;
+        memoryRatio = 0.9;
+        maxMemory = 9663676416;
+      };
+      matrix.enable = false;
+      niks3 = {
+        enable = true;
+        capacity = "500GB";
+      };
       minecraft.atm10.enable = false;
-      minecraft.atm10-sky.enable = true;
-      nginx = {
+      minecraft.atm10-sky.enable = false;
+      minecraft.gtnh.enable = false;
+      caddy = {
         enable = true;
         enableDefaultVhost = true;
       };
 
       ripe-atlas.enable = true;
+
+      roj = {
+        enable = true;
+        forwardedPort = 38320;
+        scalingFactor = 25;
+        web = {
+          enable = true;
+          serve = true;
+          sharePort = 8443;
+          posters = true;
+          owners = [ "ElXreno@github" ];
+          classifier = true;
+          engine = true;
+          reindexMemory = 4000000000;
+        };
+      };
     };
   };
-
-  # Don't touch hardware.graphics.enable
-  hardware.facter.detected.graphics.enable = false;
-
-  services.qemuGuest.enable = true;
-
-  networking.useNetworkd = true;
-  networking.enableIPv6 = true;
-  systemd.network = {
-    enable = true;
-    networks."10-ens3" = {
-      matchConfig.Name = "ens3";
-      address = [
-        "159.195.56.52/22"
-        "2a0a:4cc0:c1:e9be::/64"
-      ];
-      routes = [
-        { Gateway = "159.195.56.1"; }
-        { Gateway = "fe80::1"; }
-      ];
-      linkConfig.RequiredForOnline = "routable";
-    };
-  };
-
-  nix.settings.system-features = [ "gccarch-znver4" ];
 }

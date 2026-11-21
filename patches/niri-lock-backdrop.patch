@@ -1,0 +1,25 @@
+diff --git a/src/niri.rs b/src/niri.rs
+index ec40e01c..123ec322 100644
+--- a/src/niri.rs
++++ b/src/niri.rs
+@@ -4243,6 +4243,20 @@ impl Niri {
+                 );
+             }
+ 
++            // Draw backdrop background layers (e.g. wallpapers) beneath the lock surface.
++            {
++                let layer_map = layer_map_for_output(output);
++                self.render_layer_normal(
++                    ctx.r(),
++                    None,
++                    &layer_map,
++                    Layer::Background,
++                    XrayPos::default(),
++                    true,
++                    &mut |elem| push(elem.into()),
++                );
++            }
++
+             // Draw the solid color background.
+             push(
+                 SolidColorRenderElement::from_buffer(

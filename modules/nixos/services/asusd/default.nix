@@ -11,7 +11,7 @@ let
 in
 {
   options.${namespace}.services.asusd = {
-    enable = mkEnableOption "Whether or not to manage asusd.";
+    enable = mkEnableOption "managing asusd";
   };
 
   config = mkIf cfg.enable {
@@ -30,5 +30,9 @@ in
         auraConfigs.tuf.source
       ];
     };
+
+    services.udev.extraRules = ''
+      ACTION=="bind", SUBSYSTEM=="platform", DRIVER=="asus-nb-wmi", TAG+="systemd", ENV{SYSTEMD_WANTS}+="asusd.service asus-shutdown.service"
+    '';
   };
 }

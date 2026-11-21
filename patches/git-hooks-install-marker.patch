@@ -1,0 +1,66 @@
+From 9c4bdee0f078bb8b9805bb5a8a17e49df836d0b4 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 29 Jul 2026 16:21:10 +0300
+Subject: [PATCH] pre-commit: add install.marker to refuse installing into a
+ foreign working tree
+
+---
+ modules/pre-commit.nix | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
+
+diff --git a/modules/pre-commit.nix b/modules/pre-commit.nix
+index 22df4c1..001f9a6 100644
+--- a/modules/pre-commit.nix
++++ b/modules/pre-commit.nix
+@@ -160,6 +160,26 @@ in
+             but all other module functionality (like configuration generation) will still work.
+           '';
+         };
++
++        marker = mkOption {
++          type = types.nullOr types.str;
++          default = null;
++          example = "flake.nix";
++          description = ''
++            Path, relative to the git working tree, that must exist before hooks are
++            installed. When null, no such check is performed.
++
++            The installation script resolves its target with `git rev-parse
++            --show-toplevel`, which is the working tree of the current directory rather
++            than of the project this shell belongs to. Entering the shell from an
++            unrelated repository — `nix develop /path/to/project` run from somewhere
++            else — therefore installs the config symlink and the git hooks into that
++            repository.
++
++            Pointing this at a file that only exists in your own project turns the
++            installation into a no-op everywhere else.
++          '';
++        };
+       };
+ 
+       package =
+@@ -482,6 +502,13 @@ in
+           else
+           GIT_WC=`${lib.getExe cfg.gitPackage} rev-parse --show-toplevel`
+ 
++          ${lib.optionalString (cfg.install.marker != null) ''
++            if [ ! -e "''${GIT_WC}/${cfg.install.marker}" ]; then
++              echo 1>&2 "git-hooks.nix: refusing to install into ''${GIT_WC}: it does not contain ${cfg.install.marker}."
++              echo 1>&2 "git-hooks.nix: this shell was entered from a working tree that is not this project."
++            else
++          ''}
++
+           # These update procedures compare before they write, to avoid
+           # filesystem churn. This improves performance with watch tools like lorri
+           # and prevents installation loops by lorri.
+@@ -546,6 +573,7 @@ in
+               ${lib.getExe cfg.gitPackage} config --local core.hooksPath "''$common_dir/hooks"
+             fi
+           fi
++          ${lib.optionalString (cfg.install.marker != null) "fi"}
+         fi
+         fi
+       '';
+-- 
+2.55.0
+

@@ -12,7 +12,7 @@ let
 in
 {
   options.${namespace}.services.printing = {
-    enable = mkEnableOption "Whether or not to manage printing.";
+    enable = mkEnableOption "managing printing";
   };
 
   config = mkIf cfg.enable {

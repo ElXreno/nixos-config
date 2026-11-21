@@ -63,6 +63,4 @@ in
       };
     };
   };
-
-  fileSystems."/mnt/root-persist".neededForBoot = true;
 }

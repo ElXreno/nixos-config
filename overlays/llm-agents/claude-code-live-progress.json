@@ -1,0 +1,11 @@
+[
+  {
+    "module": "/$bunfs/root/chunk-s0s63g8r.js",
+    "replace": [
+      {
+        "old": "let fo=B&&!ve&&De!==void 0?_y(le,\"renderToolResultMessage\")?.(De,M4(G),{verbose:!0,tools:c,theme:T,isTranscriptMode:!0,input:d.input,activeAgents:N}):void 0;let Be=jo!==\"\";",
+        "new": "let fo=B&&!ve&&De!==void 0?_y(le,\"renderToolResultMessage\")?.(De,M4(G),{verbose:!0,tools:c,theme:T,isTranscriptMode:!0,input:d.input,activeAgents:N}):void 0;if(fo===void 0&&!B)try{fo=_y(le,\"renderToolUseProgressMessage\")?.(G.filter((x)=>x.data?.type!==\"hook_progress\"),{tools:c,verbose:!0,inProgressToolCallCount:1})??void 0}catch{}let Be=jo!==\"\";"
+      }
+    ]
+  }
+]

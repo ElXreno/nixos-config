@@ -1,68 +1,90 @@
-let
-  defaultMountOptions = [ "compress-force=zstd" ];
-in
 {
-  fileSystems."/" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-    options = [
-      "size=4G"
-      "mode=755"
-    ];
-  };
-
   disko.devices = {
-    disk = {
-      root = {
-        type = "disk";
-        device = "/dev/disk/by-id/nvme-Samsung_SSD_9100_PRO_with_Heatsink_4TB_S7ZRNJ0Y301506K";
-        content = {
-          type = "gpt";
-          partitions = {
-            ESP = {
-              size = "4G";
-              type = "EF00";
-              content = {
-                type = "filesystem";
-                format = "vfat";
-                mountpoint = "/boot";
-                mountOptions = [ "umask=0077" ];
-              };
+    disk.nvme0 = {
+      type = "disk";
+      device = "/dev/disk/by-id/nvme-SAMSUNG_MZVL22T0HDLB-00BT7_S7CFNF0X506908";
+      content = {
+        type = "gpt";
+        partitions = {
+          ESP = {
+            size = "4G";
+            type = "EF00";
+            label = "disk-root-ESP";
+            content = {
+              type = "filesystem";
+              format = "vfat";
+              mountpoint = "/boot";
+              mountOptions = [ "umask=0077" ];
             };
-            nix = {
-              size = "400G";
-              content = {
-                type = "filesystem";
-                format = "ext4";
-                mountpoint = "/nix";
-                mountOptions = [
-                  "noatime"
-                  "discard"
-                ];
-              };
+          };
+          swap = {
+            size = "16G";
+            content = {
+              type = "swap";
+              priority = 10;
+              randomEncryption = true;
             };
-            data = {
-              size = "100%";
-              content = {
-                type = "btrfs";
-                extraArgs = [ "-f" ];
-                subvolumes = {
-                  "/home-persist" = {
-                    mountpoint = "/home";
-                    mountOptions = defaultMountOptions;
-                  };
-                  "/root-persist" = {
-                    mountpoint = "/mnt/root-persist";
-                    mountOptions = defaultMountOptions;
-                  };
-                };
-              };
+          };
+          zfs = {
+            size = "100%";
+            content = {
+              type = "zfs";
+              pool = "rpool";
             };
           };
         };
       };
     };
-  };
 
-  fileSystems."/mnt/root-persist".neededForBoot = true;
+    nodev."/" = {
+      fsType = "tmpfs";
+      mountOptions = [
+        "size=4G"
+        "mode=755"
+      ];
+    };
+
+    zpool.rpool = {
+      type = "zpool";
+      options = {
+        ashift = "12";
+        autotrim = "on";
+      };
+      rootFsOptions = {
+        canmount = "off";
+        mountpoint = "none";
+        encryption = "aes-256-gcm";
+        keyformat = "passphrase";
+        keylocation = "prompt";
+        compression = "lz4";
+        atime = "off";
+        xattr = "sa";
+        acltype = "posixacl";
+        dnodesize = "auto";
+      };
+
+      datasets = {
+        nix = {
+          type = "zfs_fs";
+          mountpoint = "/nix";
+        };
+        root-persist = {
+          type = "zfs_fs";
+          mountpoint = "/mnt/root-persist";
+        };
+        home-persist = {
+          type = "zfs_fs";
+          mountpoint = "/home";
+        };
+        scratch = {
+          type = "zfs_fs";
+          mountpoint = "/mnt/scratch";
+          options = {
+            sync = "disabled";
+            redundant_metadata = "some";
+          };
+        };
+      };
+    };
+  };
 }

@@ -11,7 +11,7 @@
     {
       devShells = {
         default = pkgs.mkShell {
-          packages = [ inputs'.clan-core.packages.clan-cli ];
+          packages = [ (inputs'.clan-core.packages.clan-cli.override { nix = pkgs.nix-optimized; }) ];
           inputsFrom = [ config.pre-commit.devShell ];
         };
       }

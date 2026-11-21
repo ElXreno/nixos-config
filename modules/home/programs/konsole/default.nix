@@ -10,7 +10,7 @@ let
 in
 {
   options.${namespace}.programs.konsole = {
-    enable = mkEnableOption "Whether or not to manage konsole.";
+    enable = mkEnableOption "managing konsole";
   };
 
   config = mkIf cfg.enable {

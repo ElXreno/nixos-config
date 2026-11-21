@@ -5,44 +5,34 @@
   ...
 }:
 {
-  # TODO: Move to the proper location
-  hardware.graphics = {
-    enable = true;
-    extraPackages = with pkgs; [
-      intel-media-driver
-      intel-compute-runtime
-    ];
-  };
-
-  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
-
   ${namespace} = {
-    roles.server.enable = true;
-
     system = {
-      boot.uefi.enable = true;
+      hardware.gpu.intel = {
+        computeRuntime = pkgs.intel-compute-runtime-legacy1;
+        loadHuc = true;
+      };
 
-      networking.wireless.enable = true;
+      hardware.morefine.m6s.enable = true;
+
+      networking.wireless = {
+        enable = true;
+        networks = {
+          Home = { };
+          Homelander.saeOnly = true;
+        };
+      };
     };
 
     services = {
       nixflix.enable = true;
       ripe-atlas.enable = true;
-      thermald.enable = true;
-      thermald.configFile = ./thermal-conf.xml;
 
       home-assistant.enable = true;
 
       dns-sinkhole = {
         enable = true;
-        interface = "wlp1s0";
+        interface = builtins.head config.${namespace}.facts.network.wifi.interfaces;
       };
     };
-
-    home-manager.syncthing.randomPortIncrement = 23;
   };
-
-  boot.extraModulePackages = [ config.boot.kernelPackages.mmio-fan ];
-
-  boot.kernelModules = [ "mmio_fan" ];
 }

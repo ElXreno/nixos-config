@@ -10,11 +10,11 @@ let
     mkIf
     mkEnableOption
     ;
-  cfg = config.${namespace}.user.alena;
+  cfg = config.${namespace}.users.alena;
 in
 {
-  options.${namespace}.user.alena = {
-    enable = mkEnableOption "Whether to configure Alena user." // {
+  options.${namespace}.users.alena = {
+    enable = mkEnableOption "configuring Alena user" // {
       default = config.home.username == "alena";
     };
   };

@@ -1,0 +1,1 @@
+{"time":"2026-11-06T12:00:00Z","harness":"claude-code","session":"abcd1234-0000-4000-8000-000000000000","tool_use_id":"toolu_bash-multi","hook":"pre-bash","tool":"Bash","kind":"shell","level":"deny","checks":[{"check":"git-destructive","level":"ask"},{"check":"git-scope","level":"deny"}],"input":"git reset --hard \u0026\u0026 git add -A"}

@@ -1,0 +1,12 @@
+diff --git a/src/datetime.cpp b/src/datetime.cpp
+index 0307b0b..8116b41 100644
+--- a/src/datetime.cpp
++++ b/src/datetime.cpp
+@@ -58,6 +58,7 @@ static CSphString DetermineLocalTimeZoneName ( CSphString & sWarning )
+ 	else
+ 		sPrefix.SetSprintf ( "%s and time zone dir '%s'", sPrefix.cstr(), sTimeZoneDir.cstr() );
+ 
++	sTimeZoneDir = RealPath ( sTimeZoneDir );
+ 	if ( !sTimeZoneDir.Ends("/") )
+ 		sTimeZoneDir.SetSprintf ( "%s/", sTimeZoneDir.cstr() );
+ 

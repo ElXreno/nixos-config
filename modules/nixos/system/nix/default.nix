@@ -1,10 +1,8 @@
 {
   config,
   namespace,
-  virtual,
   lib,
   pkgs,
-  inputs,
   ...
 }:
 let
@@ -13,129 +11,86 @@ let
     mkEnableOption
     mkPackageOption
     mkMerge
-    mkForce
     ;
   cfg = config.${namespace}.system.nix;
-
-  finalPackage = cfg.package.appendPatches [
-    # ./patches/0001-Support-store-specific-setting-for-HTTP-binary-cache.patch
-  ];
 in
 {
   options.${namespace}.system.nix = {
-    enable = mkEnableOption "Whether or not to manage nix." // {
+    enable = mkEnableOption "managing nix" // {
       default = true;
     };
-    package = mkPackageOption pkgs.nixVersions "latest" { };
-    auto-optimise.enable = mkEnableOption "Whether to enable automatic store optimisation.";
-    gc.enable = mkEnableOption "Whether to enable automatic garbage collection.";
+    package = mkPackageOption pkgs "nix-optimized" { };
+    auto-optimise.enable = mkEnableOption "automatic store optimisation";
+    gc.enable = mkEnableOption "automatic garbage collection";
 
-    daemonCPUSchedPolicy = lib.mkOption {
-      type = lib.types.enum [
-        "other"
-        "batch"
-        "idle"
-      ];
-      default = "other";
-      description = "CPU scheduling policy for nix-daemon and its build processes.";
-    };
-    daemonIOSchedClass = lib.mkOption {
-      type = lib.types.enum [
-        "best-effort"
-        "idle"
-      ];
-      default = "best-effort";
-      description = "I/O scheduling class for the daemon.";
-    };
-
-    daemonCPUWeight = lib.mkOption {
-      type = lib.types.ints.between 1 10000;
-      default = 100;
-      example = 10;
-      description = "systemd CPUWeight for nix-daemon.";
-    };
-    daemonIOWeight = lib.mkOption {
-      type = lib.types.ints.between 1 10000;
-      default = 100;
-      example = 10;
-      description = "systemd IOWeight for nix-daemon.";
-    };
-
-    # user.slice CPU weight. When competing with system.slice (default 100), higher = more CPU for user.
-    userSliceCPUWeight = lib.mkOption {
-      type = lib.types.ints.between 1 10000;
-      default = 10000;
-      example = 10000;
+    evalHeapSizeMiB = lib.mkOption {
+      type = lib.types.nullOr lib.types.ints.positive;
+      default =
+        let
+          totalMiB = config.${namespace}.facts.memory.totalMiB;
+        in
+        if totalMiB == 0 then null else lib.min 4096 (totalMiB / 8);
+      defaultText = "An eighth of total RAM, capped at 4096. Null when facter reports no memory.";
       description = ''
-        systemd CPUWeight for user.slice. Default 10000 so user sessions get ~99% when competing with system.slice (nix).
+        Initial Boehm GC heap for Nix evaluation, in MiB, exported as
+        `GC_INITIAL_HEAP_SIZE`. Evaluation runs client-side, so this applies to
+        user sessions rather than nix-daemon. A heap large enough to hold the
+        whole evaluation cuts CPU time by roughly a third; resident memory still
+        tracks actual allocation, so the reservation itself is free. Null leaves
+        Nix's own default in place.
+      '';
+    };
+
+    buildDir = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "/mnt/scratch/nix-builds";
+      description = ''
+        Directory holding derivation build scratch, bind-mounted into the
+        sandbox as `$TMPDIR`. Since Nix 2.30 this defaults to
+        `/nix/var/nix/builds`, so on a deduplicated or encrypted store dataset
+        every ephemeral build file pays that cost and is then discarded.
+        Neither this directory nor any of its parents may be world-writable.
       '';
     };
   };
 
   config = mkIf cfg.enable {
-    clan.core.vars.generators.nix-netrc = {
-      share = true;
-      dependencies = [ "attic-jwt-key" ];
-      files.netrc.secret = true;
-      runtimeInputs = [ config.${namespace}.services.atticd.mintToken ];
-
-      # Rotate monthly.
-      rotateDays = 30;
-
-      script = ''
-        token=$(attic-mint-token "$in/attic-jwt-key/key-base64" \
-          --sub "nix-substituter" \
-          --validity "90 days" \
-          --pull "common")
-
-        cat > "$out/netrc" << EOF
-        machine cache.elxreno.com password $token
-        EOF
-      '';
-    };
-
     nix = {
-      package = finalPackage;
+      inherit (cfg) package;
 
-      inherit (cfg) daemonCPUSchedPolicy;
-      inherit (cfg) daemonIOSchedClass;
+      channel.enable = false;
+
+      daemonCPUSchedPolicy = "other";
+      daemonIOSchedClass = "best-effort";
 
       settings = mkMerge [
         {
           auto-optimise-store = cfg.auto-optimise.enable;
 
-          builders-use-substitutes = true;
-
           experimental-features = [
-            "nix-command"
-            "flakes"
-
             "auto-allocate-uids"
             "cgroups"
-          ]; # TODO: Something adds extra-experimental-features, find who
+          ];
 
           system-features = [ "uid-range" ];
 
           auto-allocate-uids = true;
 
           substituters = [
-            "https://cache.elxreno.com/common?priority=11"
+            "${config.${namespace}.services.niks3.url}?priority=11"
           ];
           trusted-public-keys = [
-            "common:m1kzZFDmZb76MaOKKGGBkJKZL/Rd8MrlQr+Sk+Q92c4="
+            config.${namespace}.services.niks3.publicKey
           ];
 
-          netrc-file = config.clan.core.vars.generators.nix-netrc.files.netrc.path;
-        }
-        (mkIf (!virtual) {
           min-free = 2 * 1024 * 1024 * 1024; # 2GB
           max-free = 5 * 1024 * 1024 * 1024; # 5GB
+        }
+        (mkIf (cfg.buildDir != null) {
+          build-dir = cfg.buildDir;
         })
       ];
-
-      registry.nixpkgs.flake = inputs.nixpkgs;
-
-      nixPath = mkForce [ "nixpkgs=${inputs.nixpkgs}" ];
 
       gc = mkIf cfg.gc.enable {
         automatic = true;
@@ -144,13 +99,12 @@ in
       };
     };
 
-    systemd.services.nix-daemon.serviceConfig = {
-      CPUWeight = cfg.daemonCPUWeight;
-      IOWeight = cfg.daemonIOWeight;
+    environment.sessionVariables = mkIf (cfg.evalHeapSizeMiB != null) {
+      GC_INITIAL_HEAP_SIZE = "${toString cfg.evalHeapSizeMiB}M";
     };
 
-    systemd.slices.user = {
-      sliceConfig.CPUWeight = cfg.userSliceCPUWeight;
-    };
+    systemd.tmpfiles.rules = lib.optionals (cfg.buildDir != null) [
+      "d ${cfg.buildDir} 0755 root root -"
+    ];
   };
 }

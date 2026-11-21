@@ -6,22 +6,20 @@
 }:
 
 let
-  inherit (lib) mkIf mkEnableOption;
+  inherit (lib) mkDefault mkIf mkEnableOption;
   cfg = config.${namespace}.roles.common;
 in
 {
   options.${namespace}.roles.common = {
-    enable = mkEnableOption "Whether or not to enable common configuration.";
+    enable = mkEnableOption "common configuration";
   };
 
   config = mkIf cfg.enable {
     ${namespace} = {
-      system.boot.enable = true;
+      system.boot.enable = mkDefault true;
 
       services = {
-        bpftune.enable = true;
         dnscrypt-proxy.enable = true;
-        irqbalance.enable = true;
         openssh.enable = true;
       };
 
@@ -29,7 +27,9 @@ in
         fish.enable = true;
       };
 
-      system.zswap.enable = true;
+      system.zswap.enable = mkDefault true;
     };
+
+    services.irqbalance.enable = true;
   };
 }

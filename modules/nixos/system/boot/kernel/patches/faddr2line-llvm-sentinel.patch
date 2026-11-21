@@ -1,0 +1,52 @@
+From 7436433513f7028ca3b018d2eaf2c4d622ab4e38 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 24 Jul 2026 11:45:22 +0300
+Subject: [PATCH] scripts/faddr2line: accept current llvm-addr2line sentinel
+ reply
+
+faddr2line runs a single long-lived addr2line coprocess and, after
+writing each address to it, writes a "," sentinel line. The reader
+loop then consumes output until it recognizes the reply to the
+sentinel: "?? ??:0", ",", or a line starting with an all-zero
+address.
+
+llvm-addr2line answers the sentinel with "?? at ??:0" (observed with
+LLVM 21.1.8), which matches none of these, so the loop blocks forever
+on the next read and faddr2line silently hangs. On an LLVM-built
+kernel falling back to binutils' addr2line is not an option either,
+since it cannot parse clang-emitted DWARF ("DWARF error: mangled line
+number section").
+
+Accept the pretty-printed form as a sentinel reply as well.
+
+Assisted-by: Claude (Anthropic AI)
+Signed-off-by: ElXreno <elxreno@gmail.com>
+---
+ scripts/faddr2line | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/faddr2line b/scripts/faddr2line
+index 622875396bcf..e164f7e78620 100755
+--- a/scripts/faddr2line
++++ b/scripts/faddr2line
+@@ -159,14 +159,15 @@ run_addr2line() {
+ 		# value, i.e., something that can't be interpreted as a valid address
+ 		# (i.e., ","). This causes addr2line to write out: (1) the answer for
+ 		# our address, then (2) either "?? ??:0" or "0x0...0: ..." (if
+-		# using binutils' addr2line), or "," (if using LLVM's addr2line).
++		# using binutils' addr2line), or "," or "?? at ??:0" (if using
++		# LLVM's addr2line).
+ 		echo ${addr} >& "${ADDR2LINE_PROC[1]}"
+ 		echo "," >& "${ADDR2LINE_PROC[1]}"
+ 		local first_line
+ 		read -r first_line <& "${ADDR2LINE_PROC[0]}"
+ 		ADDR2LINE_OUT=$(echo "${first_line}" | sed 's/^0x[0-9a-fA-F]*: //')
+ 		while read -r line <& "${ADDR2LINE_PROC[0]}"; do
+-			if [[ "$line" == "?? ??:0" ]] || [[ "$line" == "," ]] || [[ $(echo "$line" | ${GREP} "^0x00*: ") ]]; then
++			if [[ "$line" == "?? ??:0" ]] || [[ "$line" == "?? at ??:0" ]] || [[ "$line" == "," ]] || [[ $(echo "$line" | ${GREP} "^0x00*: ") ]]; then
+ 				break
+ 			fi
+ 			ADDR2LINE_OUT+=$'\n'$(echo "$line" | sed 's/^0x[0-9a-fA-F]*: //')
+-- 
+2.54.0
+

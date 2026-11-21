@@ -1,0 +1,44 @@
+From 5bba8cd9a94c404639223c717a2019e0a82e631b Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 21:19:53 +0300
+Subject: [PATCH] nvidia-drm: attach the output bpc property to DisplayPort
+ connectors
+
+NV_CONNECTOR_OUTPUT_BPC is attached to HDMI connectors only, so the
+output depth of a DisplayPort or eDP display can be limited only for
+the whole driver, through the nvidia-modeset max_output_color_depth
+parameter. NVKMS picks the color format and depth for every connector
+type through the same path and already honors a requested depth there.
+
+Attach the property to DisplayPort connectors as well, so a display
+with an 8 bit + FRC panel that advertises 10 bits per component can be
+driven at 8 while another display keeps 10.
+---
+ kernel-open/nvidia-drm/nvidia-drm-connector.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-connector.c b/kernel-open/nvidia-drm/nvidia-drm-connector.c
+index c830c33..0665397 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-connector.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-connector.c
+@@ -1007,7 +1007,7 @@ nv_drm_connector_new(struct drm_device *dev,
+                                    NV_DRM_DITHERING_MODE_AUTO);
+     }
+ 
+-    /* Attach color format and output bpc properties for HDMI connectors */
++    /* Attach color format property for HDMI connectors */
+     if (nv_connector->type == NVKMS_CONNECTOR_TYPE_HDMI) {
+         if (nv_dev->nv_connector_color_format_property) {
+             drm_object_attach_property(
+@@ -1015,6 +1015,11 @@ nv_drm_connector_new(struct drm_device *dev,
+                 nv_dev->nv_connector_color_format_property,
+                 NV_DRM_CONNECTOR_COLOR_FORMAT_AUTO);
+         }
++    }
++
++    /* Attach output bpc property for HDMI and DisplayPort connectors */
++    if (nv_connector->type == NVKMS_CONNECTOR_TYPE_HDMI ||
++        nv_connector->type == NVKMS_CONNECTOR_TYPE_DP) {
+         if (nv_dev->nv_connector_output_bpc_property) {
+             drm_object_attach_property(
+                 &nv_connector->base.base,

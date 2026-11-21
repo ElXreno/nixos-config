@@ -12,7 +12,7 @@ let
 in
 {
   options.${namespace}.services.flatpak = {
-    enable = mkEnableOption "Whether or not to manage flatpak.";
+    enable = mkEnableOption "managing flatpak";
   };
 
   config = mkIf cfg.enable {

@@ -1,0 +1,198 @@
+From 1fad4c0fb988bca139ac7eb748c6a1576a9d5770 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 11:31:28 +0300
+Subject: [PATCH 2/2] Add PC-style latin and cyrillic layouts
+
+---
+ layout.mobintl.h | 157 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 156 insertions(+), 1 deletion(-)
+
+diff --git a/layout.mobintl.h b/layout.mobintl.h
+index d42c19f..17840d9 100644
+--- a/layout.mobintl.h
++++ b/layout.mobintl.h
+@@ -26,6 +26,8 @@ enum layout_id {
+ 	Nav,
+ 	Landscape,
+ 	LandscapeSpecial,
++	PcLatin,
++	PcCyrillic,
+ 	ComposeA,
+ 	ComposeE,
+ 	ComposeY,
+@@ -81,7 +83,8 @@ static struct key keys_full[], keys_full_wide[], keys_special[], keys_specialpad
+   keys_compose_cyr_i[], keys_compose_cyr_j[], keys_compose_cyr_e[],
+   keys_compose_cyr_u[], keys_compose_cyr_l[], keys_compose_cyr_n[],
+   keys_compose_cyr_tse[], keys_compose_cyr_che[], keys_compose_cyr_g[],
+-  keys_compose_cyr_k[], keys_dialer[], keys_index[];
++  keys_compose_cyr_k[], keys_dialer[], keys_index[], keys_pc_latin[],
++  keys_pc_cyrillic[];
+ 
+ static struct layout layouts[NumLayouts] = {
+   [Full] = {keys_full, "latin", "full", true}, // second parameter is the keymap name
+@@ -102,6 +105,8 @@ static struct layout layouts[NumLayouts] = {
+   [Nav] = {keys_nav, "latin", "nav", false},
+   [Landscape] = {keys_landscape, "latin", "landscape", true},
+   [LandscapeSpecial] = {keys_landscape_special, "latin", "landscapespecial", true},
++  [PcLatin] = {keys_pc_latin, "latin", "pc", true},
++  [PcCyrillic] = {keys_pc_cyrillic, "cyrillic", "pcru", true},
+   [ComposeA] = {keys_compose_a, "latin"},
+   [ComposeE] = {keys_compose_e, "latin"},
+   [ComposeY] = {keys_compose_y, "latin"},
+@@ -1714,3 +1719,153 @@ static struct key keys_compose_bracket[] = {
+   {"", "", 8, Pad},
+   {"", "", 0.0, Last},
+ };
++
++static struct key keys_pc_latin[] = {
++  {"Esc", "Esc", 1.0, Code, KEY_ESC, .scheme = 1},
++  {"`", "~", 1.0, Code, KEY_GRAVE},
++  {"1", "!", 1.0, Code, KEY_1},
++  {"2", "@", 1.0, Code, KEY_2},
++  {"3", "#", 1.0, Code, KEY_3},
++  {"4", "$", 1.0, Code, KEY_4},
++  {"5", "%", 1.0, Code, KEY_5},
++  {"6", "^", 1.0, Code, KEY_6},
++  {"7", "&", 1.0, Code, KEY_7},
++  {"8", "*", 1.0, Code, KEY_8},
++  {"9", "(", 1.0, Code, KEY_9},
++  {"0", ")", 1.0, Code, KEY_0},
++  {"-", "_", 1.0, Code, KEY_MINUS},
++  {"=", "+", 1.0, Code, KEY_EQUAL},
++  {"⌫", "⌫", 1.5, Code, KEY_BACKSPACE, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"Tab", "Tab", 1.5, Code, KEY_TAB, .scheme = 1},
++  {"q", "Q", 1.0, Code, KEY_Q},
++  {"w", "W", 1.0, Code, KEY_W},
++  {"e", "E", 1.0, Code, KEY_E},
++  {"r", "R", 1.0, Code, KEY_R},
++  {"t", "T", 1.0, Code, KEY_T},
++  {"y", "Y", 1.0, Code, KEY_Y},
++  {"u", "U", 1.0, Code, KEY_U},
++  {"i", "I", 1.0, Code, KEY_I},
++  {"o", "O", 1.0, Code, KEY_O},
++  {"p", "P", 1.0, Code, KEY_P},
++  {"[", "{", 1.0, Code, KEY_LEFTBRACE},
++  {"]", "}", 1.0, Code, KEY_RIGHTBRACE},
++  {"\\", "|", 1.0, Code, KEY_BACKSLASH},
++  {"", "", 0.0, EndRow},
++
++  {"Ctrl", "Ctrl", 1.75, Mod, Ctrl, .scheme = 1},
++  {"a", "A", 1.0, Code, KEY_A},
++  {"s", "S", 1.0, Code, KEY_S},
++  {"d", "D", 1.0, Code, KEY_D},
++  {"f", "F", 1.0, Code, KEY_F},
++  {"g", "G", 1.0, Code, KEY_G},
++  {"h", "H", 1.0, Code, KEY_H},
++  {"j", "J", 1.0, Code, KEY_J},
++  {"k", "K", 1.0, Code, KEY_K},
++  {"l", "L", 1.0, Code, KEY_L},
++  {";", ":", 1.0, Code, KEY_SEMICOLON},
++  {"'", "\"", 1.0, Code, KEY_APOSTROPHE},
++  {"Enter", "Enter", 1.75, Code, KEY_ENTER, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"⇧", "⇫", 2.0, Mod, Shift, .scheme = 1},
++  {"z", "Z", 1.0, Code, KEY_Z},
++  {"x", "X", 1.0, Code, KEY_X},
++  {"c", "C", 1.0, Code, KEY_C},
++  {"v", "V", 1.0, Code, KEY_V},
++  {"b", "B", 1.0, Code, KEY_B},
++  {"n", "N", 1.0, Code, KEY_N},
++  {"m", "M", 1.0, Code, KEY_M},
++  {",", "'", 1.0, Code, KEY_COMMA},
++  {".", "?", 1.0, Code, KEY_DOT},
++  {"/", ">", 1.0, Code, KEY_SLASH},
++  {"↑", "↑", 1.0, Code, KEY_UP, .scheme = 1},
++  {"Del", "Del", 1.0, Code, KEY_DELETE, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"RU", "RU", 1.5, Layout, 0, &layouts[PcCyrillic], .scheme = 1},
++  {"Alt", "Alt", 1.0, Mod, Alt, .scheme = 1},
++  {"Super", "Super", 1.25, Mod, Super, .scheme = 1},
++  {"English", "English", 7.25, Code, KEY_SPACE},
++  {"←", "←", 1.0, Code, KEY_LEFT, .scheme = 1},
++  {"↓", "↓", 1.0, Code, KEY_DOWN, .scheme = 1},
++  {"→", "→", 1.0, Code, KEY_RIGHT, .scheme = 1},
++
++  {"", "", 0.0, Last},
++};
++
++static struct key keys_pc_cyrillic[] = {
++  {"Esc", "Esc", 1.0, Code, KEY_ESC, .scheme = 1},
++  {"ё", "Ё", 1.0, Code, KEY_GRAVE},
++  {"1", "!", 1.0, Code, KEY_1},
++  {"2", "@", 1.0, Code, KEY_2},
++  {"3", "#", 1.0, Code, KEY_3},
++  {"4", ";", 1.0, Code, KEY_4},
++  {"5", "%", 1.0, Code, KEY_5},
++  {"6", ":", 1.0, Code, KEY_6},
++  {"7", "&", 1.0, Code, KEY_7},
++  {"8", "*", 1.0, Code, KEY_8},
++  {"9", "(", 1.0, Code, KEY_9},
++  {"0", ")", 1.0, Code, KEY_0},
++  {"-", "_", 1.0, Code, KEY_MINUS},
++  {",", "'", 1.0, Code, KEY_EQUAL},
++  {"⌫", "⌫", 1.5, Code, KEY_BACKSPACE, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"Tab", "Tab", 1.5, Code, KEY_TAB, .scheme = 1},
++  {"й", "Й", 1.0, Code, KEY_Q},
++  {"ц", "Ц", 1.0, Code, KEY_W},
++  {"у", "У", 1.0, Code, KEY_E},
++  {"к", "К", 1.0, Code, KEY_R},
++  {"е", "Е", 1.0, Code, KEY_T},
++  {"н", "Н", 1.0, Code, KEY_Y},
++  {"г", "Г", 1.0, Code, KEY_U},
++  {"ш", "Ш", 1.0, Code, KEY_I},
++  {"щ", "Щ", 1.0, Code, KEY_O},
++  {"з", "З", 1.0, Code, KEY_P},
++  {"х", "Х", 1.0, Code, KEY_LEFTBRACE},
++  {"ъ", "Ъ", 1.0, Code, KEY_RIGHTBRACE},
++  {"", "", 1.0, Pad},
++  {"", "", 0.0, EndRow},
++
++  {"Ctrl", "Ctrl", 1.75, Mod, Ctrl, .scheme = 1},
++  {"ф", "Ф", 1.0, Code, KEY_A},
++  {"ы", "Ы", 1.0, Code, KEY_S},
++  {"в", "В", 1.0, Code, KEY_D},
++  {"а", "А", 1.0, Code, KEY_F},
++  {"п", "П", 1.0, Code, KEY_G},
++  {"р", "Р", 1.0, Code, KEY_H},
++  {"о", "О", 1.0, Code, KEY_J},
++  {"л", "Л", 1.0, Code, KEY_K},
++  {"д", "Д", 1.0, Code, KEY_L},
++  {"ж", "Ж", 1.0, Code, KEY_SEMICOLON},
++  {"э", "Э", 1.0, Code, KEY_APOSTROPHE},
++  {"Enter", "Enter", 1.75, Code, KEY_ENTER, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"⇧", "⇫", 2.0, Mod, Shift, .scheme = 1},
++  {"я", "Я", 1.0, Code, KEY_Z},
++  {"ч", "Ч", 1.0, Code, KEY_X},
++  {"с", "С", 1.0, Code, KEY_C},
++  {"м", "М", 1.0, Code, KEY_V},
++  {"и", "И", 1.0, Code, KEY_B},
++  {"т", "Т", 1.0, Code, KEY_N},
++  {"ь", "Ь", 1.0, Code, KEY_M},
++  {"б", "Б", 1.0, Code, KEY_COMMA},
++  {"ю", "Ю", 1.0, Code, KEY_DOT},
++  {".", "?", 1.0, Code, KEY_SLASH},
++  {"↑", "↑", 1.0, Code, KEY_UP, .scheme = 1},
++  {"Del", "Del", 1.0, Code, KEY_DELETE, .scheme = 1},
++  {"", "", 0.0, EndRow},
++
++  {"EN", "EN", 1.5, Layout, 0, &layouts[PcLatin], .scheme = 1},
++  {"Alt", "Alt", 1.0, Mod, Alt, .scheme = 1},
++  {"Super", "Super", 1.25, Mod, Super, .scheme = 1},
++  {"Русский", "Русский", 7.25, Code, KEY_SPACE},
++  {"←", "←", 1.0, Code, KEY_LEFT, .scheme = 1},
++  {"↓", "↓", 1.0, Code, KEY_DOWN, .scheme = 1},
++  {"→", "→", 1.0, Code, KEY_RIGHT, .scheme = 1},
++
++  {"", "", 0.0, Last},
++};
+-- 
+2.55.0
+

@@ -1,0 +1,17 @@
+{
+  "session_id": "abcd1234-0000-4000-8000-000000000000",
+  "transcript_path": "",
+  "cwd": "/home/test/repo",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "MultiEdit",
+  "tool_input": {
+    "file_path": "/home/test/repo/notes.md",
+    "edits": [
+      {
+        "old_string": "a",
+        "new_string": "alpha — beta"
+      }
+    ]
+  },
+  "tool_use_id": "toolu_multiedit-emdash"
+}

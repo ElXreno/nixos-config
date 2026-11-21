@@ -1,0 +1,2 @@
+{"time":"2026-11-06T12:00:00Z","harness":"pi","session":"019a5f00-0000-7000-8000-00000000c0de","tool_use_id":"call_ask-noui","hook":"pre-bash","tool":"bash","kind":"shell","level":"ask","checks":[{"check":"git-destructive","level":"ask"}],"input":"git reset --hard"}
+{"time":"2026-11-06T12:00:00Z","harness":"pi","session":"019a5f00-0000-7000-8000-00000000c0de","tool_use_id":"call_ask-noui","hook":"permission-request","tool":"bash","kind":"shell","level":"deny","input":"git reset --hard"}

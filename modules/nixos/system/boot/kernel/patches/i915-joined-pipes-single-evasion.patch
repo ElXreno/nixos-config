@@ -1,0 +1,184 @@
+From 427f6b73481d711decff7d6e468dacca7c140794 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Fri, 13 Nov 2026 01:08:46 +0300
+Subject: [PATCH] drm/i915: Arm joined pipes within one vblank evasion for
+ VRR
+
+All joined pipes run off the transcoder of the primary, so one vblank
+latches every one of them. On the MMIO path each pipe nevertheless
+goes through its own intel_pipe_update_start()/intel_pipe_update_end()
+critical section, one pipe after another. When the vblank falls
+between two of them the earlier pipe latches its new state a frame
+ahead of the later one, and for that frame the halves of the screen
+come from different frames.
+
+With VRR that gets worse, as the commit ends the frame itself: the
+push at the end of the primary's section latches whatever has been
+armed by then. Commit the joined pipes together when VRR is in use:
+do the vblank evasion once, on the primary, arm all of them inside
+that critical section and let the primary send the push at its end.
+The evasion accounting, the trace events and the atomic update
+failure check then run once as well, for the primary.
+
+Armed this way the critical section takes 18 us on average for two
+pipes on Arrow Lake (2462 commits, 2460 of them under 30 us, one at
+189 us that I can't account for), against the 100 us the evasion
+allows for. The window is not scaled with the number of pipes.
+
+The per pipe sequence is kept where the critical section has per
+pipe work attached or the pipes need sequencing against others:
+modesets, the atomic fallback of a legacy cursor update, async flips,
+commits that need the vblank worker for the LUT load (a colour
+update, or any fastset while LUTs are in use, on the platforms
+without double buffered LUTs) and commits that change the DDB
+allocation of a joined pipe. Commits that go through the DSB or the
+flip queue are not affected, and neither is the commit sequence of a
+joined configuration without VRR. The latter has the same race
+against the fixed vblank, it is left alone only to keep this change
+to the case that can be tested with it.
+
+On the platforms with double buffered LUTs there is no vblank worker,
+the LUTs are loaded with MMIO inside the critical section, which here
+is the joined one and then loads them for all joined pipes. I have
+no such hardware and have not tested that.
+
+No functional change yet, VRR is not allowed with the joiner.
+---
+ drivers/gpu/drm/i915/display/intel_crtc.c    |  2 +-
+ drivers/gpu/drm/i915/display/intel_crtc.h    |  1 +
+ drivers/gpu/drm/i915/display/intel_display.c | 88 ++++++++++++++++++++
+ 3 files changed, 90 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_crtc.c b/drivers/gpu/drm/i915/display/intel_crtc.c
+index 10ed9bd..331b25a 100644
+--- a/drivers/gpu/drm/i915/display/intel_crtc.c
++++ b/drivers/gpu/drm/i915/display/intel_crtc.c
+@@ -487,7 +487,7 @@ int intel_crtc_get_pipe_from_crtc_id_ioctl(struct drm_device *dev, void *data,
+ 	return 0;
+ }
+ 
+-static bool intel_crtc_needs_vblank_work(const struct intel_crtc_state *crtc_state)
++bool intel_crtc_needs_vblank_work(const struct intel_crtc_state *crtc_state)
+ {
+ 	struct intel_display *display = to_intel_display(crtc_state);
+ 
+diff --git a/drivers/gpu/drm/i915/display/intel_crtc.h b/drivers/gpu/drm/i915/display/intel_crtc.h
+index 12507b5..0478394 100644
+--- a/drivers/gpu/drm/i915/display/intel_crtc.h
++++ b/drivers/gpu/drm/i915/display/intel_crtc.h
+@@ -50,6 +50,7 @@ void intel_pipe_update_start(struct intel_atomic_state *state,
+ 			     struct intel_crtc *crtc);
+ void intel_pipe_update_end(struct intel_atomic_state *state,
+ 			   struct intel_crtc *crtc);
++bool intel_crtc_needs_vblank_work(const struct intel_crtc_state *crtc_state);
+ void intel_wait_for_vblank_workers(struct intel_atomic_state *state);
+ struct intel_crtc *intel_first_crtc(struct intel_display *display);
+ struct intel_crtc *intel_crtc_for_pipe(struct intel_display *display,
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index 4661420..d19e977 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -6943,12 +6943,100 @@ static void intel_post_update_crtc(struct intel_atomic_state *state,
+ 	}
+ }
+ 
++/*
++ * All joined pipes run off the transcoder of the primary, so one
++ * vblank latches every one of them, and with VRR the commit itself
++ * ends the frame with a push. The arming registers of all joined
++ * pipes then have to be written within a single vblank evasion
++ * critical section, with the push at its end, or the pipes may
++ * latch in different frames.
++ */
++static bool intel_crtc_needs_joined_update(struct intel_atomic_state *state,
++					   struct intel_crtc *crtc)
++{
++	struct intel_display *display = to_intel_display(state);
++	const struct intel_crtc_state *old_crtc_state =
++		intel_atomic_get_old_crtc_state(state, crtc);
++	const struct intel_crtc_state *new_crtc_state =
++		intel_atomic_get_new_crtc_state(state, crtc);
++	struct intel_crtc *pipe_crtc;
++
++	if (!new_crtc_state->joiner_pipes)
++		return false;
++
++	/* FIXME do this for the fixed refresh rate case as well */
++	if (!old_crtc_state->vrr.enable && !new_crtc_state->vrr.enable)
++		return false;
++
++	/* FIXME the cursor unpin works are set up per pipe */
++	if (state->base.legacy_cursor_update)
++		return false;
++
++	for_each_intel_crtc_in_pipe_mask(display, pipe_crtc,
++					 intel_crtc_joined_pipe_mask(new_crtc_state)) {
++		const struct intel_crtc_state *old_pipe_crtc_state =
++			intel_atomic_get_old_crtc_state(state, pipe_crtc);
++		const struct intel_crtc_state *new_pipe_crtc_state =
++			intel_atomic_get_new_crtc_state(state, pipe_crtc);
++
++		/* The DSB and the flip queue do their own vblank evasion */
++		if (new_pipe_crtc_state->use_dsb || new_pipe_crtc_state->use_flipq)
++			return false;
++
++		if (intel_crtc_needs_modeset(new_pipe_crtc_state) ||
++		    new_pipe_crtc_state->do_async_flip)
++			return false;
++
++		/* FIXME the vblank work is set up per pipe */
++		if (intel_crtc_needs_vblank_work(new_pipe_crtc_state))
++			return false;
++
++		/*
++		 * A changed DDB allocation must be sequenced
++		 * against the other pipes one pipe at a time.
++		 */
++		if (!skl_ddb_entry_equal(&old_pipe_crtc_state->wm.skl.ddb,
++					 &new_pipe_crtc_state->wm.skl.ddb))
++			return false;
++	}
++
++	return true;
++}
++
++static void intel_update_joined_crtcs(struct intel_atomic_state *state,
++				      struct intel_crtc *primary_crtc)
++{
++	struct intel_display *display = to_intel_display(state);
++	const struct intel_crtc_state *new_crtc_state =
++		intel_atomic_get_new_crtc_state(state, primary_crtc);
++	u8 pipe_mask = intel_crtc_joined_pipe_mask(new_crtc_state);
++	struct intel_crtc *pipe_crtc;
++
++	/* Perform vblank evasion around the commit of all joined pipes */
++	intel_pipe_update_start(state, primary_crtc);
++
++	for_each_intel_crtc_in_pipe_mask_reverse(display, pipe_crtc, pipe_mask)
++		commit_pipe_arm(state, pipe_crtc);
++
++	intel_pipe_update_end(state, primary_crtc);
++
++	for_each_intel_crtc_in_pipe_mask_reverse(display, pipe_crtc, pipe_mask)
++		intel_post_update_crtc(state, pipe_crtc);
++}
++
+ static void intel_update_crtc(struct intel_atomic_state *state,
+ 			      struct intel_crtc *crtc)
+ {
+ 	struct intel_crtc_state *new_crtc_state =
+ 		intel_atomic_get_new_crtc_state(state, crtc);
+ 
++	if (intel_crtc_needs_joined_update(state, crtc)) {
++		/* The secondaries are committed along with the primary */
++		if (intel_crtc_is_joiner_primary(new_crtc_state))
++			intel_update_joined_crtcs(state, crtc);
++		return;
++	}
++
+ 	if (new_crtc_state->use_flipq) {
+ 		intel_flipq_enable(new_crtc_state);
+ 
+-- 
+2.56.0
+

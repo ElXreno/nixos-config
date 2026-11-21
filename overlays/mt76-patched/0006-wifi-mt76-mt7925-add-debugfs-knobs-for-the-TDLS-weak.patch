@@ -1,0 +1,27 @@
+From 8695f3f7849b2639a524c40b0eb3ec4dbdbb611d Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 05:25:41 +0300
+Subject: [PATCH 6/6] wifi: mt76: mt7925: add debugfs knobs for the TDLS
+ weak-signal teardown
+
+---
+ drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+index e750c105a126..5e186cc9ce30 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7925/debugfs.c
+@@ -548,6 +548,9 @@ int mt7925_init_debugfs(struct mt792x_dev *dev)
+ 				    mt7925_txpwr);
+ 	debugfs_create_file("tx_stats", 0400, dir, dev, &mt792x_tx_stats_fops);
+ 	debugfs_create_file("fw_debug", 0600, dir, dev, &fops_fw_debug);
++	debugfs_create_u32("tdls_weak_rssi", 0600, dir, &dev->tdls_weak_rssi);
++	debugfs_create_u32("tdls_weak_time_ms", 0600, dir,
++			   &dev->tdls_weak_time_ms);
+ 	debugfs_create_file("runtime-pm", 0600, dir, dev, &fops_pm);
+ 	debugfs_create_file("idle-timeout", 0600, dir, dev,
+ 			    &fops_pm_idle_timeout);
+-- 
+2.55.0
+

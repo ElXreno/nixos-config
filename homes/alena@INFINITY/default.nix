@@ -1,18 +1,4 @@
-{ namespace, pkgs, ... }:
+{ namespace, ... }:
 {
-  ${namespace} = {
-    roles = {
-      laptop.enable = true;
-    };
-
-    desktop-environments.plasma.enable = true;
-
-    services.syncthing.enable = true;
-  };
-
-  home = {
-    packages = with pkgs; [
-      telegram-desktop
-    ];
-  };
+  ${namespace}.programs.telegram-desktop.enable = true;
 }

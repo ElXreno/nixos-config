@@ -3,35 +3,45 @@
 ## Architecture
 
 - Flake-parts + clan-core based NixOS multi-machine config
-- `modules/default.nix` auto-collects all `.nix` files under `modules/nixos/` and `modules/home/`
-- `nixpkgs.nix` auto-collects all overlays from `overlays/` and packages from `packages/`
-- Home-manager modules receive `inputs`, `namespace`, and `virtual` via `extraSpecialArgs`
+- `modules/default.nix` auto-collects all `.nix` files under `modules/nixos/` and `modules/home/`, except files named `_*.nix`: those are plain helpers or data that their module imports itself
+- Clan inventory (machines and tags, users, service instances) lives in `inventory/`; a machine's NixOS roles come from its inventory tags through `inventory/instances/roles.nix`, `machines/*` never set `roles.*.enable`; per-user home configs are imported by exact path `homes/<user>@<host>/default.nix`
+- `machines/<NAME>/` ideally set only `${namespace}.*` options; an upstream option written there is a candidate for a namespace module (a guideline, not a hard rule)
+- CUDA is opted into per machine with `${namespace}.nixpkgs.cudaSupport = true`; `.#legacyPackages.x86_64-linux.cuda` is that same nixpkgs instance, so packages built from it match the host
+- `nixpkgs.nix` auto-collects all overlays from `overlays/`, except `_*.nix` helpers, and packages from `packages/`
+- Keenetic routers are not NixOS machines: each `routers/<NAME>/default.nix` is a `nix-keenetic` module config (Nix userspace on the router's OPKG flash drive), exposed as `.#keeneticConfigurations.<NAME>` and the packages `.#<NAME>-image` (ext4 image of the partition) and `.#<NAME>-deploy` (copy over SSH and switch)
+- Home-manager modules receive `inputs` and `namespace` via `extraSpecialArgs`
 - Custom namespace used for options: `config.${namespace}.*`
 
 ## Style
 
-- **mkEnableOption descriptions**: keep them short — just "Whether to do X.", no elaboration in the description string
+- **mkEnableOption takes a noun phrase**: `mkEnableOption "managing foo"` renders as "Whether to enable managing foo.", so never start with "Whether" and never end with a period; keep it short
 - **Use inherited lib functions**: when `inherit (lib) mkIf ...` exists in `let`, use `mkIf` not `lib.mkIf`
 
 ## Key Patterns
 
 - **Overlays for external flake packages**: `overlays/<name>/default.nix` with `{ inputs, ... }: _final: prev: { inherit (inputs.<name>.packages.${prev.stdenv.hostPlatform.system}) <pkg>; }`
 - **Home-manager program modules**: `modules/home/programs/<name>/default.nix` — wrap upstream HM options behind `${namespace}.programs.<name>.enable`
-- **Roles** (`modules/home/roles/`) aggregate program enables; per-host configs live in `homes/<user>@<host>/default.nix`
+- **Roles** (`modules/nixos/roles/`, `modules/home/roles/`) aggregate enables shared by a machine class; an HM role takes its enable from the NixOS role through `osConfig`; `machines/<NAME>/` and `homes/<user>@<host>/default.nix` keep only values specific to that host
+- **User names**: an option that takes a user defaults to `config.${namespace}.primaryUser` (set once in `inventory/users.nix`); never write the name as a literal
 - **NixOS service modules**: `modules/nixos/services/<name>/default.nix`
-- **Facts module** (`modules/nixos/facts/default.nix`): derives `${namespace}.facts.{cpu,gpu,network,memory,system}` from `hardware.facter.report` (per-machine `machines/<NAME>/facter.json`). Use these as defaults to avoid hand-coding `mkIf hostname == "X"` checks. Home-manager modules read via `osConfig.${namespace}.facts.*`. Don't reintroduce manual hardware enables in `machines/*/configuration.nix` — extend the facts module instead
-
-## MCP Servers
-
-- **nixos**: Use `mcp__nixos__nix` for searching NixOS/Home Manager packages and options instead of `nix search`
+- **Reverse proxy**: Caddy only, there is no nginx module (`${namespace}.services.caddy.enable`, vhosts in upstream `services.caddy.virtualHosts.<name>.extraConfig`); a vhost inside the public zone gets its certificate from NixOS ACME (`useACMEHost`), TLS 1.3 and the common headers as `mkDefault`/`mkBefore`, every vhost a group-readable access log that crowdsec parses. A vhost whose address depends on another option takes a static attribute name plus `hostName`, a computed attribute name recurses. NixOS runs the Caddyfile through `caddy fmt`, which breaks backtick tokens holding braces: quote with `"` and write a brace in a regex as `\x7b`; serve JSON bodies from store files instead of inline `respond`. Behind another proxy send the backend `header_up X-Forwarded-For {client_ip}`, the default appends the proxy address and the backend takes that for the client. Test a routing or auth change on the generated Caddyfile with the real Host header
+- **Cloudflare tunnel**: a service behind NAT is published with `${namespace}.services.cloudflared.ingress."<fqdn>" = "http://localhost:<port>"`; any entry starts the nixpkgs `services.cloudflared` connector on the host under a tunnel named after it. Tofu (`terraform/cloudflare-tunnels.nix`) creates the tunnel and the proxied CNAME, and hands the credentials over once: `nix run .#terraform.terraform -- output -raw <host>_tunnel_credentials | clan vars set <HOST> cloudflared/credentials`. No reverse proxy, port forward or certificate on that host
+- **Own binary cache**: `${namespace}.services.niks3.enable` runs niks3 (module from the `niks3` flake input) on a single-node Garage bucket (`${namespace}.services.garage`, layout, key and bucket created by `garage-bootstrap.service`), tailnet-only: reads through the niks3 read proxy on `<host>.<tailnet>:5751` without tokens, pushes with the shared `niks3-api-token`, uploads go to presigned URLs on `<host>.<tailnet>:3900`. Every host substitutes from `${namespace}.services.niks3.url` and trusts `.publicKey` (read from the non-secret `niks3-signing-key/public` value); `${namespace}.services.niks3.push.enable` adds the upstream post-build hook that uploads what the host builds. GC is off
+- **Certificates**: `${namespace}.services.acme.enable` (set by both proxies) issues over Cloudflare DNS-01 with the per-machine `acme-cloudflare` token
+- **Open ports**: a port open on every interface goes through `${namespace}.system.networking.firewall.public.<name>` (`tcp`, `udp`, `tcpRanges`, `udpRanges`), never `networking.firewall.allowed*`; a module outside the repo that opens its own ports gets `public.<name>.upstream = "<path suffix of its file>"` plus the exact ports it is expected to open, and the build fails on any difference or on an opening from anywhere else; `firewall.exposed` evaluates to what each name opens on a host. sshd is not public: `openFirewall = false`, reachable over the tailnet only. `networking.firewall.interfaces.<if>` stays direct
+- **Service data outlives `enable`**: a service module with state has `retain` and a two-part `config = mkMerge [ (mkIf (cfg.enable || cfg.retain) { data }) (mkIf cfg.enable { service }) ]`; the data part holds `services.kopia.backup`, the postgres `databases` and the impermanence directories, the service part everything else. `retain` defaults to true on a host that sets `enable` at all, so `<service>.enable = false;` keeps the backups running; drop the line or set `retain = false` once the data is gone
+- **Public DNS**: the `elxreno.com` records are built by tofu (`terraform/lib/dns.nix`, `terraform/cloudflare-dns.nix`) from every host: an nginx virtual host inside the zone becomes A/AAAA records to the `${namespace}.system.networking.dns.addresses` of its host; `dns.records."<fqdn>"` adds a name or sets `cname`/`proxied`. The zone's TXT records are `zoneRecords` in `terraform/cloudflare-dns.nix`; the zone's rules (WAF, origin) and settings are `terraform/cloudflare-zone.nix`; the Workers and their domains are `terraform/cloudflare-workers.nix` with the code in `terraform/workers/`; never edit the zone in the dashboard
+- **Program wrappers**: `${namespace}.programs.<name>.enable` exists for every upstream `programs.<name>` (generated in `modules/{home,nixos}/programs/default.nix`); add a `programs/<name>/` module only when it needs more than the enable
+- **agent-guard** is one Go binary, `packages/agent-guard/` (shell parser `mvdan.cc/sh`, comment check on the tree-sitter grammars nixpkgs builds), with a codec per harness: `internal/claudecode` for Claude Code command hooks, `internal/pi` for the thin pi extension `packages/agent-guard/pi/agent-guard.ts`. `agent-guard hook` answers every hook event of the configured harness (shell guards on bash and its ssh/`sh -c`/container/heredoc payloads, file checks on edits and writes, a confirmation before a `git push` into one of `protectedRepos`, resolved from the hook cwd, `cd`/`pushd`, `-C`, `--git-dir`/`GIT_DIR` and the remotes); confirmations always reach the user, and Claude Code (patched by `overlays/llm-agents/bunpatch`) denies any permission prompt left unanswered for `askTimeoutMinutes` (`AGENT_GUARD_ASK_TIMEOUT_MS`), questions and plan mode prompts wait, a timed prompt is answered only in the terminal, never through Remote Control or channels; with `power.enable` (default on, silent without a battery) a heavy build on battery (`power.heavyCommands`: program, leading subcommand words, options anywhere, `!word` excludes, `--help`/`--dry-run`/`--no-build` never heavy; seen through wrappers, `nix develop -c` and `sh -c`, ssh/container payloads skipped) gets an advise note, never an ask or deny, and PostToolUse/UserPromptSubmit (pi: `tool_result`/`before_agent_start`) inject one line only when the power source changed since the session last heard, state in `~/.local/state/agent-guard/power/<harness>-<session>[-<agent_id>].json`, a Claude Code subagent keeping its own; `agent-guard power status` and `power wait ac|battery [-timeout D]` (2 s poll, exit 1 on timeout, for a background wake-up) need no config, `AGENT_GUARD_POWER_SUPPLY` replaces `/sys/class/power_supply`; `confine <agent>` keeps a read-only Claude Code agent inside its memory dirs. `${namespace}.programs.agent-guard` holds the shared settings, `harnesses.<name>` one instance each, built into a validated `agent-guard-<name>.json` (`config check` runs at build) with a ready `.command`; Claude Code registers `claude-code` (the `pi` codec stays, no host enables pi), and `agent-guard` on PATH defaults to the Claude Code config. Journals are `~/.local/state/agent-guard/<harness>.jsonl`; `agent-guard stats [-days N] [journal...]` counts dialogs and verdicts per check, `journal import <legacy.jsonl>` moves an old journal in. The expectation matrix is `go test`, gated by `nix build .#nixosConfigurations.KURWA.pkgs.elxreno-clan.agent-guard`; locally `nix develop .#agent-guard -c go test ./...` inside `packages/agent-guard`, the shell supplies the grammars. To judge a guard change against history: `agent-guard corpus > c.nul`, `agent-guard replay c.nul > new.tsv`, `agent-guard diff old.tsv new.tsv`, and `agent-guard edits` for the file checks; `agent-guard explain '<cmd>'` shows what the analysis sees
+- **Facts module** (`modules/nixos/facts/default.nix`): derives `${namespace}.facts.{cpu,gpu,network,memory,system}` from `hardware.facter.report` (per-machine `machines/<NAME>/facter.json`). Use these as defaults to avoid hand-coding `mkIf hostname == "X"` checks. Home-manager modules read via `osConfig.${namespace}.facts.*`. Don't reintroduce manual hardware enables in `machines/*/configuration.nix` — extend the facts module instead; the one exception is a model module whose board has placeholder SMBIOS (`morefine.m6s` on GRATE)
+- **Model modules**: board quirks (kernelParams, hwdb, thermald, out-of-tree modules) live in `modules/nixos/system/hardware/<vendor>/<model>/`, `enable` defaults to `facts.system.board == "<BOARD>"`
+- **Disko-derived settings**: `boot.zfs.devNodes` (fs.zfs) and `neededForBoot` on datasets under the persistent path (impermanence) are read from disko; don't set them in `machines/`
+- **Remote ZFS unlock**: `${namespace}.system.fs.zfs.remoteUnlock` (initrd SSH, `zfs-passphrase` generator, initrd copy of the statically addressed networks: matchConfig/address/routes only); unlock with `nix run .#unlock-zfs -- -m BIMBA <host>`, port read from `boot.initrd.network.ssh.port`
 
 ## Useful Commands
 
-- Check HM module defaults: `nix flake metadata github:nix-community/home-manager --json | jq -r .path` then read the module source from the store path
-- Query HM options: use `mcp__nixos__nix` with `source=home-manager`, `type=options`
 - System platform in modules: `pkgs.stdenv.hostPlatform.system`
-- Read clan-core source: `nix flake metadata github:ElXreno/clan-core --json | jq -r .path` then read from the store path
-- No `python3` in the devShell — use `nix shell nixpkgs#python3 -c python3` for one-off scripts
+- clan-core source is the fork: `nix flake metadata github:ElXreno/clan-core --json | jq -r .path`
 
 ## Nixpkgs Fork Workflow
 
@@ -41,18 +51,16 @@
 
 ## Networking
 
-- **Tailscale** is the inter-machine network (replaced Yggdrasil). Clan domain is `angora-ide.ts.net`
-- **Clan host discovery** uses the `internet` clan service with Tailscale MagicDNS hostnames (lowercase: `bimba`, `grate`, etc.)
+- **Tailscale** is the inter-machine network (replaced Yggdrasil). Clan domain is `angora-ide.ts.net`; modules read it as `config.clan.core.settings.domain` (HM: `osConfig.clan.core.settings.domain`), never as a literal
+- **Clan host discovery** comes from the `tailscale` clanService (`clanServices/tailscale`), which exports each machine's MagicDNS hostname as `peer.hosts` (lowercase: `bimba`, `grate`, etc.)
 - **ncps cache** resolves as `http://BIMBA.angora-ide.ts.net:8501`
 - **Tailscale overlay** patches `socketBufferSize` from 7MB to 16MB to eliminate UDP recv buffer drops
-- **bpftune** runs on all machines with `sysctl_tuner` excluded (it conflicts with NixOS sysctl re-application on rebuild)
 - **TCP buffer tuning**: desktop `tcp_rmem`/`tcp_wmem` max = 64MB, `rmem_max`/`wmem_max` = 128MB — needed because wireguard-go packet reordering causes TCP rcv_ssthresh collapse with smaller buffers
 
 ## Common Pitfalls
 
-- **New files must be `git add`ed immediately after creation**: Nix flakes only see git-tracked files — always run `git add` right after creating any new `.nix` file (overlays, modules, disko configs, etc.). Do not wait for the user to discover this
 - **Impermanence**: every new service needs its state dirs manually added to impermanence config — missing one causes silent runtime failures after deploy
 - **Clan vars are runtime-only**: if a NixOS module needs a secret value at Nix eval time (e.g. hashed passwords in `serverConfig`), generate the derived value in the clan generator and expose it as a non-secret `.value`
-- **`virtual` arg**: use `virtual` (passed via `extraSpecialArgs`) to gate VM-only configuration in modules
+- **VM detection**: gate VM-specific configuration on `${namespace}.facts.system.virtualised`; `${namespace}.system.virtualisation.guest` already does (qemuGuest, facter graphics off)
 - **NixOS option priority**: clan-core sets defaults with `mkDefault` — override with plain assignment (priority 100), not `mkForce`, unless semantics require it
 - **Service restarts**: `nixos-rebuild switch` doesn't always restart services whose configs changed — verify with `systemctl show -p ActiveEnterTimestamp <unit>`

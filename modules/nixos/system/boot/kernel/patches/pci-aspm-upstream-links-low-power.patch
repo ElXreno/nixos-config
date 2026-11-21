@@ -1,0 +1,112 @@
+From 43b399ea9fd986c6fb4bcd03f807e588f9573526 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Sat, 31 Oct 2026 13:43:25 +0300
+Subject: [PATCH] PCI/ASPM: Re-evaluate upstream links when a device enters a
+ low-power state
+
+Commit c855c9921da7 ("PCI/ASPM: Don't reconfigure ASPM entering
+low-power state") removed the pcie_aspm_pm_state_change() call from
+pci_set_low_power_state(), because reconfiguring the link of a device
+that has just entered D3hot can enable L1 substates the device is
+unable to exit.
+
+That call also had a second effect. pcie_aspm_check_latency() skips
+functions that are not in D0, so re-evaluating ASPM after a function
+enters D3hot is what allows a link further upstream, shared with other
+functions, to enable the states that the sleeping function's acceptable
+latency had ruled out. Since that change such a link only has its
+capabilities tightened on D0 entry and never relaxed again.
+
+One example is an Intel Barlow Ridge (JHL9580) host router behind a PCH
+root port. Its xHCI function (8086:5782) advertises an L1 acceptable
+latency of 8us while the root port reports an L1 exit latency of up to
+64us, so L1 is removed from the root port link at enumeration. The xHCI
+runtime suspends to D3hot shortly after boot and stays there unless
+something is attached through a tunnel, but the Gen4 x4 link stays out
+of L1. On an MSI Titan 18 HX A2W (Arrow Lake HX) with a monitor in DP
+alt mode, where the redrive quirk keeps the NHI in D0, enabling L1 on
+that link by hand lowered the power drawn from the wall by about 6.7W.
+
+Re-evaluate ASPM on low-power entry again, but only configure the links
+above the one leading to the device. The device's own link is left as
+it is, so the problem addressed by that commit does not come back, and
+pcie_aspm_pm_state_change() tightens the path again when the device
+returns to D0.
+
+Fixes: c855c9921da7 ("PCI/ASPM: Don't reconfigure ASPM entering low-power state")
+---
+ drivers/pci/pci.c       |  3 +++
+ drivers/pci/pci.h       |  2 ++
+ drivers/pci/pcie/aspm.c | 22 ++++++++++++++++++++++
+ 3 files changed, 27 insertions(+)
+
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index c8be53376ff3..cd9f9dd00f3f 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -1532,6 +1532,9 @@ static int pci_set_low_power_state(struct pci_dev *dev, pci_power_t state, bool
+ 				     pci_power_name(dev->current_state),
+ 				     pci_power_name(state));
+ 
++	if (dev->bus->self)
++		pcie_aspm_pm_state_change_upstream(dev->bus->self, locked);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
+index 62c1b324a9bd..13c3bf8799ca 100644
+--- a/drivers/pci/pci.h
++++ b/drivers/pci/pci.h
+@@ -1111,6 +1111,7 @@ void pcie_aspm_remove_cap(struct pci_dev *pdev, u32 lnkcap);
+ void pcie_aspm_init_link_state(struct pci_dev *pdev);
+ void pcie_aspm_exit_link_state(struct pci_dev *pdev);
+ void pcie_aspm_pm_state_change(struct pci_dev *pdev, bool locked);
++void pcie_aspm_pm_state_change_upstream(struct pci_dev *pdev, bool locked);
+ void pcie_aspm_powersave_config_link(struct pci_dev *pdev);
+ void pci_configure_ltr(struct pci_dev *pdev);
+ void pci_bridge_reconfigure_ltr(struct pci_dev *pdev);
+@@ -1120,6 +1121,7 @@ static inline void pcie_aspm_remove_cap(struct pci_dev *pdev, u32 lnkcap) { }
+ static inline void pcie_aspm_init_link_state(struct pci_dev *pdev) { }
+ static inline void pcie_aspm_exit_link_state(struct pci_dev *pdev) { }
+ static inline void pcie_aspm_pm_state_change(struct pci_dev *pdev, bool locked) { }
++static inline void pcie_aspm_pm_state_change_upstream(struct pci_dev *pdev, bool locked) { }
+ static inline void pcie_aspm_powersave_config_link(struct pci_dev *pdev) { }
+ static inline void pci_configure_ltr(struct pci_dev *pdev) { }
+ static inline void pci_bridge_reconfigure_ltr(struct pci_dev *pdev) { }
+diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
+index 9b3548544a85..694ab85832dd 100644
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -1393,6 +1393,28 @@ void pcie_aspm_pm_state_change(struct pci_dev *pdev, bool locked)
+ 		up_read(&pci_bus_sem);
+ }
+ 
++/*
++ * @pdev: the root port or switch downstream port above a device that
++ *	  entered a low-power state; its own link is left untouched
++ * @locked: whether pci_bus_sem is held
++ */
++void pcie_aspm_pm_state_change_upstream(struct pci_dev *pdev, bool locked)
++{
++	struct pcie_link_state *link = pdev->link_state;
++
++	if (aspm_disabled || !link || !link->parent)
++		return;
++
++	if (!locked)
++		down_read(&pci_bus_sem);
++	mutex_lock(&aspm_lock);
++	pcie_update_aspm_capable(link->root);
++	pcie_config_aspm_path(link->parent);
++	mutex_unlock(&aspm_lock);
++	if (!locked)
++		up_read(&pci_bus_sem);
++}
++
+ void pcie_aspm_powersave_config_link(struct pci_dev *pdev)
+ {
+ 	struct pcie_link_state *link = pdev->link_state;
+-- 
+2.56.0
+

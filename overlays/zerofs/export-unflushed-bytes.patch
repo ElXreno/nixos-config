@@ -1,0 +1,37 @@
+--- a/src/prometheus.rs
++++ b/src/prometheus.rs
+@@ -2,6 +2,7 @@
+ use crate::dedup::DedupCache;
+ use crate::fs::metrics::{FileSystemStats, SegmentReclaimStats};
+ use crate::fs::stats::FileSystemGlobalStats;
++use crate::fs::store::ExtentStore;
+ use crate::task::spawn_named;
+ use metrics::{counter, gauge};
+ use metrics_exporter_prometheus::{PrometheusBuilder, PrometheusHandle};
+@@ -22,6 +23,7 @@
+     fs_stats: Arc<FileSystemStats>,
+     global_stats: Arc<FileSystemGlobalStats>,
+     segment_reclaim_stats: Arc<SegmentReclaimStats>,
++    extent_store: ExtentStore,
+     dedup: Arc<DedupCache>,
+     slatedb_registry: Option<Arc<DefaultMetricsRecorder>>,
+     shutdown: CancellationToken,
+@@ -58,6 +60,8 @@
+                     collect_fs_stats(&fs_stats);
+                     collect_global_stats(&global_stats);
+                     collect_segment_reclaim_stats(&segment_reclaim_stats);
++                    gauge!("zerofs_segment_unflushed_bytes")
++                        .set(extent_store.unflushed_bytes() as f64);
+                     collect_dedup_stats(&dedup);
+                     if let Some(ref registry) = slatedb_registry {
+                         collect_lsm_stats(registry);
+--- a/src/cli/server.rs
++++ b/src/cli/server.rs
+@@ -898,6 +898,7 @@
+             Arc::clone(&fs.stats),
+             Arc::clone(&fs.global_stats),
+             fs.extent_store.segment_reclaim_stats(),
++            fs.extent_store.clone(),
+             Arc::clone(&fs.dedup),
+             slatedb_registry,
+             shutdown.clone(),

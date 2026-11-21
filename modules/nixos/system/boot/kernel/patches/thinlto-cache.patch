@@ -1,0 +1,42 @@
+From 16e45926a6975c31a4f044e96f5055325004d54e Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Mon, 28 Sep 2026 13:54:36 +0300
+Subject: [PATCH] kbuild: Allow an external ThinLTO cache, keep .incbin users
+ out of LTO
+
+---
+ Makefile        | 6 ++++++
+ kernel/Makefile | 3 +++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index c28f11c..4fa7c76 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1103,6 +1103,12 @@ CC_FLAGS_LTO	:= -flto=thin -fsplit-lto-unit
+ # support, so avoid distributed ThinLTO support for now.
+ ifdef CONFIG_LTO_CLANG_THIN
+ KBUILD_LDFLAGS += $(call ld-option,--lto-whole-program-visibility -mllvm -always-rename-promoted-locals=false)
++ifneq ($(KBUILD_THINLTO_CACHE),)
++ifneq ($(shell mkdir -p $(KBUILD_THINLTO_CACHE) 2>/dev/null && test -w $(KBUILD_THINLTO_CACHE) && echo y),)
++KBUILD_THINLTO_CACHE_POLICY ?= cache_size_bytes=50g:prune_after=0s
++KBUILD_LDFLAGS += --thinlto-cache-dir=$(KBUILD_THINLTO_CACHE) --thinlto-cache-policy=$(KBUILD_THINLTO_CACHE_POLICY)
++endif
++endif
+ endif
+ endif
+ CC_FLAGS_LTO	+= -fvisibility=hidden
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 1e1a316..ef76fac 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -93,6 +93,9 @@ obj-$(CONFIG_USER_NS) += user_namespace.o
+ obj-$(CONFIG_PID_NS) += pid_namespace.o
+ obj-$(CONFIG_IKCONFIG) += configs.o
+ obj-$(CONFIG_IKHEADERS) += kheaders.o
++# .incbin contents are not part of the ThinLTO cache key
++CFLAGS_REMOVE_configs.o += $(CC_FLAGS_LTO)
++CFLAGS_REMOVE_kheaders.o += $(CC_FLAGS_LTO)
+ obj-$(CONFIG_SMP) += stop_machine.o
+ obj-$(CONFIG_AUDIT) += audit.o auditfilter.o
+ obj-$(CONFIG_AUDITSYSCALL) += auditsc.o audit_watch.o audit_fsnotify.o audit_tree.o

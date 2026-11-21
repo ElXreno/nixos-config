@@ -1,0 +1,22 @@
+diff --git a/src/libutils.cpp b/src/libutils.cpp
+index 455c1c3..bd15e44 100644
+--- a/src/libutils.cpp
++++ b/src/libutils.cpp
+@@ -90,10 +90,14 @@ static CSphString AddLibPostfix ( const CSphString & sFilename, const char * szP
+ 	if ( !szPostfix )
+ 		return sFilename;
+ 
+-	CSphString sExt = GetExtension(sFilename);
+-	CSphString sPathName = GetPathNoExtension(sFilename);
++	const char * szFile = sFilename.cstr();
++	const char * szSlash = strrchr ( szFile, '/' );
++	const char * szDot = strrchr ( szSlash ? szSlash : szFile, '.' );
+ 	CSphString sRes;
+-	sRes.SetSprintf ( "%s%s.%s", sPathName.cstr(), szPostfix, sExt.cstr() );
++	if ( !szDot )
++		sRes.SetSprintf ( "%s%s", szFile, szPostfix );
++	else
++		sRes.SetSprintf ( "%s%s%s", sFilename.SubString ( 0, (int)( szDot-szFile ) ).cstr(), szPostfix, szDot );
+ 	return sRes;
+ }
+ 

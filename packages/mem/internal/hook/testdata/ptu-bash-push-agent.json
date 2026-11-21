@@ -1,0 +1,1 @@
+{"session_id":"s1","agent_id":"a1","agent_type":"verifier","cwd":"@ROOT@/repos/nixos-config","hook_event_name":"PreToolUse","tool_name":"Bash","tool_input":{"command":"git -C . push --force-with-lease"},"tool_use_id":"toolu_13"}

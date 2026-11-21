@@ -11,14 +11,13 @@ let
     mkEnableOption
     mkOption
     types
-    optionals
     optionalString
     ;
-  cfg = config.${namespace}.system.hardware.fifine-am8;
+  cfg = config.${namespace}.system.hardware.mic.fifine-am8;
 in
 {
-  options.${namespace}.system.hardware.fifine-am8 = {
-    enable = mkEnableOption "Whether or not to manage Fifine AM8 stuff.";
+  options.${namespace}.system.hardware.mic.fifine-am8 = {
+    enable = mkEnableOption "managing Fifine AM8 stuff";
 
     vendorId = mkOption {
       type = types.str;
@@ -29,41 +28,23 @@ in
       default = "a010";
     };
 
-    disableSidetone = mkEnableOption "Whether to disable sidetone by default" // {
+    disableSidetone = mkEnableOption "disabling sidetone by default" // {
       default = true;
     };
 
     pipewire.noise-cancelling = {
-      enable = mkEnableOption "Whether to enable noise cancelling" // {
+      enable = mkEnableOption "noise cancelling" // {
         default = true;
       };
 
       target = mkOption {
-        type = with types; nullOr str;
-        default = null;
+        type = types.str;
+        default = "alsa_input.usb-MV-SILICON_fifine_Microphone_20190808-00.analog-stereo";
       };
     };
   };
 
   config = mkIf cfg.enable {
-    assertions = optionals cfg.pipewire.noise-cancelling.enable [
-      {
-        assertion = cfg.pipewire.noise-cancelling.target != null;
-        message = ''
-          When `${namespace}.system.hardware.fifine-am8.pipewire.noise-cancelling.enable` is set to true,
-          `${namespace}.system.hardware.fifine-am8.pipewire.noise-cancelling.target` must be set.
-        '';
-      }
-    ];
-
-    ${namespace}.services.pipewire = {
-      # deepfilternet is heavy for CPU
-      quantum = {
-        min = 1024;
-        max = 4096;
-      };
-    };
-
     services.udev.extraRules = ''
       ACTION=="add|change", SUBSYSTEM=="usb", ATTR{idVendor}=="${cfg.vendorId}", ATTR{idProduct}=="${cfg.productId}", ATTR{power/control}="on"
 
@@ -73,6 +54,10 @@ in
     '';
 
     services.pipewire = {
+      extraLadspaPackages = mkIf cfg.pipewire.noise-cancelling.enable [
+        pkgs.ladspaPlugins
+        pkgs.deepfilternet
+      ];
       extraConfig = {
         pipewire = {
           "95-fifine-am8-noise-cancelling" = mkIf cfg.pipewire.noise-cancelling.enable {
@@ -173,6 +158,7 @@ in
                   "capture.props" = {
                     "node.name" = "fifine_am8_voice.input";
                     "node.passive" = true;
+                    "node.latency" = "1024/48000";
                     "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;
@@ -182,6 +168,7 @@ in
                   "playback.props" = {
                     "node.name" = "fifine_am8_voice.source";
                     "media.class" = "Audio/Source";
+                    "node.latency" = "1024/48000";
                     "node.lock-rate" = true;
                     "audio.rate" = 48000;
                     "audio.channels" = 1;

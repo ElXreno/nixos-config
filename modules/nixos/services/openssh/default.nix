@@ -11,16 +11,15 @@ let
 in
 {
   options.${namespace}.services.openssh = {
-    enable = mkEnableOption "Whether or not to manage openssh.";
+    enable = mkEnableOption "managing openssh";
   };
 
   config = mkIf cfg.enable {
+    ${namespace}.ports.openssh = lib.head config.services.openssh.ports;
+
     services.openssh = {
-      enable = true;
-      settings = {
-        PasswordAuthentication = false;
-        KbdInteractiveAuthentication = false;
-      };
+      openFirewall = false;
+      settings.KbdInteractiveAuthentication = false;
     };
   };
 }

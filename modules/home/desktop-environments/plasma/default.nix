@@ -1,32 +1,23 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   ...
 }:
 let
-  inherit (lib)
-    mkIf
-    mkEnableOption
-    mkOption
-    types
-    ;
+  inherit (lib) mkIf mkEnableOption;
   cfg = config.${namespace}.desktop-environments.plasma;
 in
 {
   options.${namespace}.desktop-environments.plasma = {
-    enable = mkEnableOption "Whether or not to manage plasma.";
-    wayland = mkOption {
-      type = types.bool;
-      default = true;
-      description = "Whether to enable wayland.";
+    enable = mkEnableOption "managing plasma" // {
+      default = osConfig.${namespace}.desktop-environments.plasma.enable;
     };
   };
 
   config = mkIf cfg.enable {
-    home.sessionVariables = mkIf cfg.wayland {
-      NIXOS_OZONE_WL = 1;
-    };
+    home.sessionVariables.NIXOS_OZONE_WL = 1;
 
     ${namespace} = {
       programs.konsole.enable = true;
@@ -98,11 +89,6 @@ in
         passwordRequired = true;
         timeout = 30; # minutes
         passwordRequiredDelay = 7; # seconds
-      };
-
-      kwin.nightLight = {
-        enable = config.home.username != "alena";
-        mode = "automatic";
       };
 
       input.touchpads = [

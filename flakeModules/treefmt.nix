@@ -11,6 +11,11 @@
           nixfmt.enable = true;
           deadnix.enable = true;
           statix.enable = true;
+          prettier = {
+            enable = true;
+            includes = [ "*.js" ];
+            excludes = [ "terraform/workers/*" ];
+          };
         };
 
         settings.formatter.deadnix.options = lib.mkForce [ ];

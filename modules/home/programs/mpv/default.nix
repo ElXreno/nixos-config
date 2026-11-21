@@ -27,7 +27,7 @@ let
 in
 {
   options.${namespace}.programs.mpv = {
-    enable = mkEnableOption "Whether or not to manage MPV.";
+    enable = mkEnableOption "managing MPV";
     vulkanDevice = mkOption {
       type = with types; nullOr str;
       default = null;
@@ -43,7 +43,7 @@ in
       enable = true;
       config = {
         ytdl-format = "bestvideo[height<=1080]+(bestaudio[acodec=opus]/bestaudio)/best[height<=1080]";
-        hwdec = "vulkan";
+        hwdec = "vulkan,vaapi";
         hwdec-codecs = "all";
         vo = "gpu-next";
         gpu-api = "vulkan";
@@ -53,8 +53,6 @@ in
         demuxer-max-back-bytes = "32M";
 
         video-sync = "display-resample";
-
-        target-colorspace-hint = "no";
       }
       // optionalAttrs (cfg.vulkanDevice != null) {
         vulkan-device = cfg.vulkanDevice;

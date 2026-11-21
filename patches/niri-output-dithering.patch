@@ -1,0 +1,189 @@
+diff --git a/niri-config/src/output.rs b/niri-config/src/output.rs
+index e1d47bf..9f0d19a 100644
+--- a/niri-config/src/output.rs
++++ b/niri-config/src/output.rs
+@@ -5,6 +5,7 @@ use knuffel::decode::Context;
+ use knuffel::errors::DecodeError;
+ use knuffel::traits::ErrorSpan;
+ use knuffel::Decode;
++use miette::miette;
+ use niri_ipc::{ConfiguredMode, HSyncPolarity, Transform, VSyncPolarity};
+ 
+ use crate::gestures::HotCorners;
+@@ -63,6 +64,8 @@ pub struct Output {
+     pub position: Option<Position>,
+     #[knuffel(child, unwrap(argument))]
+     pub max_bpc: Option<MaxBpc>,
++    #[knuffel(child, unwrap(argument, str))]
++    pub dithering: Option<Dithering>,
+     #[knuffel(child)]
+     pub mode: Option<Mode>,
+     #[knuffel(child)]
+@@ -109,6 +112,7 @@ impl Default for Output {
+             transform: Transform::Normal,
+             position: None,
+             max_bpc: None,
++            dithering: None,
+             mode: None,
+             modeline: None,
+             variable_refresh_rate: None,
+@@ -140,6 +144,49 @@ pub struct Position {
+ #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+ pub struct MaxBpc(pub niri_ipc::MaxBpc);
+ 
++/// Value of the NVIDIA `dithering mode` connector property.
++#[derive(Debug, Clone, Copy, PartialEq, Eq)]
++pub enum Dithering {
++    Auto,
++    Off,
++    Static2x2,
++    Dynamic2x2,
++    Temporal,
++    On,
++}
++
++impl Dithering {
++    /// Name of the matching DRM property enum value.
++    pub fn property_value(self) -> &'static str {
++        match self {
++            Self::Auto => "auto",
++            Self::Off => "off",
++            Self::Static2x2 => "static 2x2",
++            Self::Dynamic2x2 => "dynamic 2x2",
++            Self::Temporal => "temporal",
++            Self::On => "on",
++        }
++    }
++}
++
++impl FromStr for Dithering {
++    type Err = miette::Error;
++
++    fn from_str(s: &str) -> Result<Self, Self::Err> {
++        match s {
++            "auto" => Ok(Self::Auto),
++            "off" => Ok(Self::Off),
++            "static-2x2" => Ok(Self::Static2x2),
++            "dynamic-2x2" => Ok(Self::Dynamic2x2),
++            "temporal" => Ok(Self::Temporal),
++            "on" => Ok(Self::On),
++            _ => Err(miette!(
++                r#"invalid dithering, can be "auto", "off", "static-2x2", "dynamic-2x2", "temporal" or "on""#
++            )),
++        }
++    }
++}
++
+ #[derive(knuffel::Decode, Debug, Clone, PartialEq, Default)]
+ pub struct SrgbClamp {
+     #[knuffel(child)]
+diff --git a/src/backend/tty.rs b/src/backend/tty.rs
+index 5bd5fe9..ed20c84 100644
+--- a/src/backend/tty.rs
++++ b/src/backend/tty.rs
+@@ -14,7 +14,7 @@ use anyhow::{anyhow, bail, ensure, Context};
+ use bytemuck::{bytes_of_mut, cast_slice_mut};
+ use drm_ffi::drm_mode_modeinfo;
+ use libc::dev_t;
+-use niri_config::output::{MaxBpc, Modeline};
++use niri_config::output::{Dithering, MaxBpc, Modeline};
+ use niri_config::{Config, OutputName};
+ use niri_ipc::{HSyncPolarity, VSyncPolarity};
+ use smithay::backend::allocator::dmabuf::Dmabuf;
+@@ -739,13 +739,14 @@ impl Tty {
+                         if let Ok(mut props) =
+                             ConnectorProperties::try_new(&device.drm, surface.connector)
+                         {
+-                            let max_bpc = self
++                            let (max_bpc, dithering) = self
+                                 .config
+                                 .borrow()
+                                 .outputs
+                                 .find(&surface.name)
+-                                .and_then(|o| o.max_bpc);
+-                            set_connector_properties(&mut props, max_bpc, true);
++                                .map(|o| (o.max_bpc, o.dithering))
++                                .unwrap_or_default();
++                            set_connector_properties(&mut props, max_bpc, dithering, true);
+                         } else {
+                             warn!("failed to get connector properties");
+                         }
+@@ -1367,7 +1368,7 @@ impl Tty {
+ 
+         let mut orientation = None;
+         if let Ok(mut props) = ConnectorProperties::try_new(&device.drm, connector.handle()) {
+-            set_connector_properties(&mut props, config.max_bpc, true);
++            set_connector_properties(&mut props, config.max_bpc, config.dithering, true);
+ 
+             match props.get_panel_orientation() {
+                 Ok(x) => orientation = Some(x),
+@@ -2779,7 +2780,7 @@ impl Tty {
+ 
+                 if let Ok(mut props) = ConnectorProperties::try_new(&device.drm, surface.connector)
+                 {
+-                    set_connector_properties(&mut props, config.max_bpc, false);
++                    set_connector_properties(&mut props, config.max_bpc, config.dithering, false);
+                 } else {
+                     warn!("failed to get connector properties");
+                 }
+@@ -4025,7 +4026,39 @@ impl<'a> ConnectorProperties<'a> {
+         Ok(())
+     }
+ 
++    fn set_enum(&mut self, name: &std::ffi::CStr, wanted: &str) -> anyhow::Result<()> {
++        let (info, value) = self.find(name)?;
++
++        let property::ValueType::Enum(values) = info.value_type() else {
++            bail!("wrong property type")
++        };
++
++        let (_, enums) = values.values();
++        let Some(wanted) = enums
++            .iter()
++            .find(|v| v.name().to_bytes() == wanted.as_bytes())
++            .map(|v| v.value())
++        else {
++            bail!("property has no value {wanted:?}")
++        };
++
++        if *value != wanted {
++            self.requests
++                .add_raw_property(self.connector.into(), info.handle(), wanted);
++            self.has_change = true;
++        }
++
++        Ok(())
++    }
++
+     fn set_max_bpc(&mut self, max_bpc: MaxBpc) -> anyhow::Result<u64> {
++        // The NVIDIA driver has no `max bpc`; it takes an exact output depth instead.
++        if self.find(c"max bpc").is_err() && self.find(c"NV_CONNECTOR_OUTPUT_BPC").is_ok() {
++            let max_bpc = max_bpc.0 as u64;
++            self.set_enum(c"NV_CONNECTOR_OUTPUT_BPC", &max_bpc.to_string())?;
++            return Ok(max_bpc);
++        }
++
+         let (info, value) = self.find(c"max bpc")?;
+ 
+         let property::ValueType::UnsignedRange(min, max) = info.value_type() else {
+@@ -4068,6 +4101,7 @@ impl<'a> ConnectorProperties<'a> {
+ fn set_connector_properties(
+     props: &mut ConnectorProperties,
+     max_bpc: Option<MaxBpc>,
++    dithering: Option<Dithering>,
+     reset_hdr: bool,
+ ) {
+     if let Some(max_bpc) = max_bpc {
+@@ -4076,6 +4110,12 @@ fn set_connector_properties(
+         }
+     }
+ 
++    if let Some(dithering) = dithering {
++        if let Err(err) = props.set_enum(c"dithering mode", dithering.property_value()) {
++            debug!("failed to set `dithering mode` property: {err}");
++        }
++    }
++
+     if reset_hdr {
+         if let Err(err) = props.reset_hdr() {
+             debug!("failed to set HDR properties: {err}");

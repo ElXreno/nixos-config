@@ -1,0 +1,45 @@
+From 3dbd50e9a6b2b445e16538f803f5d31ba5e9bbc1 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Wed, 14 Oct 2026 03:40:54 +0300
+Subject: [PATCH] wifi: mac80211: give an active monitor a channel context when
+ it comes up
+
+An active monitor on a driver without NO_VIRTUAL_MONITOR is added to
+the driver as a real vif, but ieee80211_do_open() never assigns it a
+channel context, while ieee80211_do_stop() releases one. The driver is
+never told the channel, so on mt792x the sniffer is not armed and the
+interface receives nothing.
+
+Use the monitor channel request when the interface comes up, the way
+ieee80211_add_virtual_monitor() does for the virtual monitor.
+
+Link: https://github.com/morrownr/USB-WiFi/issues/682#issuecomment-4115109552
+---
+ net/mac80211/iface.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 889c32fd8de1..5a417814a6e2 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -1513,6 +1513,17 @@ int ieee80211_do_open(struct wireless_dev *wdev, bool coming_up)
+ 			res = drv_add_interface(local, sdata);
+ 			if (res)
+ 				goto err_stop;
++
++			if ((sdata->u.mntr.flags & MONITOR_FLAG_ACTIVE) &&
++			    !ieee80211_hw_check(&local->hw, NO_VIRTUAL_MONITOR)) {
++				res = ieee80211_link_use_channel(&sdata->deflink,
++								 &local->monitor_chanreq,
++								 IEEE80211_CHANCTX_SHARED);
++				if (res) {
++					drv_remove_interface(local, sdata);
++					goto err_stop;
++				}
++			}
+ 		} else {
+ 			/* add/configure if there is no non-monitor interface */
+ 			if (local->virt_monitors == local->open_count) {
+-- 
+2.55.0
+

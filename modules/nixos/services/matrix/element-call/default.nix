@@ -7,14 +7,10 @@
 }:
 
 let
-  inherit (lib)
-    mkIf
-    mkEnableOption
-    ;
-  cfg = config.${namespace}.services.matrix.element-call;
-  synapseCfg = config.${namespace}.services.matrix.synapse;
+  inherit (lib) mkIf;
+  cfg = config.${namespace}.services.matrix;
 
-  baseDomain = synapseCfg.serverName;
+  baseDomain = cfg.serverName;
   matrixHost = "matrix.${baseDomain}";
   livekitHost = "livekit.${baseDomain}";
   callHost = "call.${baseDomain}";
@@ -41,33 +37,15 @@ let
   '';
 in
 {
-  options.${namespace}.services.matrix.element-call = {
-    enable = mkEnableOption "Whether to manage Element Call frontend.";
-  };
-
-  config = mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = synapseCfg.enable;
-        message = "${namespace}.services.matrix.element-call requires matrix.synapse to be enabled.";
-      }
-    ];
-
-    ${namespace}.services.nginx.virtualHosts."${callHost}" = {
-      root = "${elementCallDist}";
-      locations."/" = {
-        tryFiles = "$uri $uri/ /index.html";
-      };
-      locations."= /config.json" = {
-        extraConfig = ''
-          expires -1;
-        '';
-      };
-      locations."/assets/" = {
-        extraConfig = ''
-          expires 1y;
-        '';
-      };
-    };
+  config = mkIf (cfg.enable && cfg.voip.enable) {
+    services.caddy.virtualHosts."${callHost}".extraConfig = ''
+      root * ${elementCallDist}
+      @config path /config.json
+      header @config Cache-Control no-cache
+      @assets path /assets/*
+      header @assets Cache-Control "public, max-age=31536000"
+      try_files {path} {path}/ /index.html
+      file_server
+    '';
   };
 }

@@ -1,7 +1,3 @@
-# ---
-# schema = "single-disk"
-# [placeholders]
-# mainDisk = "/dev/disk/by-id/ata-SK800-256GB_AA000000000000001697"
 {
   disko.devices =
     let

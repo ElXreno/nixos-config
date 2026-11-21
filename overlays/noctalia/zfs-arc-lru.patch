@@ -1,0 +1,43 @@
+diff --git a/src/system/system_monitor_service.cpp b/src/system/system_monitor_service.cpp
+index e651e96..a835057 100644
+--- a/src/system/system_monitor_service.cpp
++++ b/src/system/system_monitor_service.cpp
+@@ -569,6 +569,26 @@ namespace {
+ 
+   constexpr Logger kLog("sysmon");
+ 
++  std::uint64_t readZfsArcLruBytes() {
++    std::ifstream file{"/proc/spl/kstat/zfs/abdstats"};
++    if (!file.is_open()) {
++      return 0;
++    }
++
++    std::string line;
++    while (std::getline(file, line)) {
++      std::string key;
++      std::uint32_t type = 0;
++      std::uint64_t value = 0;
++
++      std::istringstream iss{line};
++      if (iss >> key >> type >> value && key == "lru_bytes") {
++        return value;
++      }
++    }
++    return 0;
++  }
++
+   std::uint64_t readZfsEvictableArcKb() {
+     std::ifstream file{"/proc/spl/kstat/zfs/arcstats"};
+     if (!file.is_open()) {
+@@ -593,8 +613,9 @@ namespace {
+       }
+     }
+ 
+-    if (arcSize > arcMin) {
+-      return (arcSize - arcMin) / 1024;
++    const std::uint64_t arcLru = readZfsArcLruBytes();
++    if (arcSize > arcMin + arcLru) {
++      return (arcSize - arcMin - arcLru) / 1024;
+     }
+     return 0;
+   }

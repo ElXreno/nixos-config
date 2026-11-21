@@ -1,0 +1,34 @@
+diff --git a/settings/outputs.nix b/settings/outputs.nix
+index f8b2611..e64fb28 100644
+--- a/settings/outputs.nix
++++ b/settings/outputs.nix
+@@ -214,6 +214,29 @@ in
+                   ])
+                 ];
+               }
++              {
++                options.dithering =
++                  nullable (enum [
++                    "auto"
++                    "off"
++                    "static-2x2"
++                    "dynamic-2x2"
++                    "temporal"
++                    "on"
++                  ])
++                  // {
++                    description = ''
++                      Dithering mode for this output, set through the NVIDIA ${fmt.code "dithering mode"} connector property.
++
++                      When this is null, niri does not change the property.
++                    '';
++                  };
++                render = config: [
++                  (lib.mkIf (config.dithering != null) [
++                    (kdl.leaf "dithering" config.dithering)
++                  ])
++                ];
++              }
+               {
+                 options.srgb-clamp = optional types.bool false // {
+                   description = ''
