@@ -1,7 +1,7 @@
 { inputs, clanMeta, ... }:
 {
   perSystem =
-    { pkgs, inputs', ... }:
+    { config, pkgs, ... }:
     let
       terraformPackage = pkgs.opentofu.withPlugins (p: [
         p.tailscale_tailscale
@@ -57,7 +57,7 @@
             ;
         };
         terraformWrapper.package = terraformPackage;
-        terraformWrapper.extraRuntimeInputs = [ inputs'.clan-core.packages.clan-cli ];
+        terraformWrapper.extraRuntimeInputs = [ config.packages.clan-cli ];
         terraformWrapper.prefixText = ''
           TF_VAR_passphrase=$(clan secrets get tf-passphrase)
           export TF_VAR_passphrase

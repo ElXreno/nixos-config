@@ -12,6 +12,7 @@
           system;
       customNixpkgs = mkPkgs false;
       inherit (customNixpkgs) pkgs;
+      clan-cli = inputs.clan-core.packages.${system}.clan-cli.override { nix = pkgs.nix-optimized; };
     in
     {
       _module.args.pkgs = pkgs;
@@ -20,10 +21,11 @@
       legacyPackages.cuda = (mkPkgs true).pkgs;
 
       packages = customNixpkgs.packages // {
+        inherit clan-cli;
         unlock-zfs = pkgs.writeShellApplication {
           name = "unlock-zfs";
           runtimeInputs = [
-            inputs.clan-core.packages.${system}.clan-cli
+            clan-cli
             pkgs.iputils
             pkgs.openssh
           ];
