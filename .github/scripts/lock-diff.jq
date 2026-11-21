@@ -16,4 +16,4 @@ def link($node; $old; $new):
     | select($old != null and $old.locked.rev != $new.locked.rev)
     | "| `\($input.key)` | \(link($new; $old.locked.rev; $new.locked.rev)) | \($old.locked.lastModified | day) → \($new.locked.lastModified | day) |"
   ] as $rows
-| "Merged automatically once the nixbot status is green.\n\n| Input | Revision | Date |\n|---|---|---|\n" + ($rows | join("\n"))
+| "| Input | Revision | Date |\n|---|---|---|\n" + ($rows | join("\n"))
