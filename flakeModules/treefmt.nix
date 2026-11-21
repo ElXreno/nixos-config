@@ -1,6 +1,6 @@
-{ inputs, ... }:
+{ unpatchedInputs, ... }:
 {
-  imports = [ inputs.treefmt-nix.flakeModule ];
+  imports = [ unpatchedInputs.treefmt-nix.flakeModule ];
 
   perSystem =
     { lib, ... }:

@@ -2,7 +2,7 @@
   imports = [
     ./clan.nix
     ./hydraJobs.nix
-    ./herculesCI.nix
+    ./outputs.nix
     ./packages.nix
     ./routers.nix
     ./devShells.nix

@@ -260,14 +260,24 @@
           ];
         };
       };
-    in
-    flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" ];
+      parts =
+        flake-parts.lib.mkFlake
+          {
+            inherit inputs;
+            specialArgs = { inherit unpatchedInputs; };
+          }
+          {
+            systems = [ "x86_64-linux" ];
 
-      imports = [
-        inputs.clan-core.flakeModules.default
-        inputs.terranix.flakeModule
-        ./flakeModules
-      ];
+            imports = [
+              unpatchedInputs.clan-core.flakeModules.default
+              unpatchedInputs.terranix.flakeModule
+              ./flakeModules
+            ];
+          };
+    in
+    unpatchedInputs.nixpkgs.lib.genAttrs (import ./flakeModules/_outputs.nix) (name: parts.${name})
+    // {
+      herculesCI = import ./herculesCI.nix { inherit unpatchedInputs; };
     };
 }

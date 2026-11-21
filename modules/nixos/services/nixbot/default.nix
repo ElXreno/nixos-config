@@ -62,7 +62,7 @@ in
 
   config = mkIf cfg.enable {
     ${namespace} = {
-      ports.nixbot = 8010;
+      ports.nixbot = import ./_port.nix;
       services.postgresql = {
         enable = true;
         databases.nixbot = { };

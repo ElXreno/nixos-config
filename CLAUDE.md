@@ -11,6 +11,7 @@
 - Keenetic routers are not NixOS machines: each `routers/<NAME>/default.nix` is a `nix-keenetic` module config (Nix userspace on the router's OPKG flash drive), exposed as `.#keeneticConfigurations.<NAME>` and the packages `.#<NAME>-image` (ext4 image of the partition) and `.#<NAME>-deploy` (copy over SSH and switch)
 - Home-manager modules receive `inputs` and `namespace` via `extraSpecialArgs`
 - Custom namespace used for options: `config.${namespace}.*`
+- `flake.nix` forwards the flake-parts outputs by name from `flakeModules/_outputs.nix`, so `herculesCI` (`herculesCI.nix`, the nixbot effects, built on the unpatched inputs) evaluates even when an input patch no longer applies; a new top-level output has to be added to that list, `checks.flake-outputs` fails otherwise
 
 ## Style
 

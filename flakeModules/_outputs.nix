@@ -1,0 +1,17 @@
+[
+  "apps"
+  "checks"
+  "clan"
+  "clanInternals"
+  "darwinConfigurations"
+  "darwinModules"
+  "devShells"
+  "formatter"
+  "hydraJobs"
+  "keeneticConfigurations"
+  "legacyPackages"
+  "nixosConfigurations"
+  "nixosModules"
+  "overlays"
+  "packages"
+]
