@@ -26,7 +26,7 @@ jobs:
 
       - uses: cachix/install-nix-action@bb0495a1086c46893eee56f32fd192dfe4a15bb9 # v32.0.0
 
-      - name: Update every input except the private one
+      - name: Update flake inputs
         run: |
           set -euo pipefail
           cp flake.lock "$RUNNER_TEMP/before.lock"
@@ -34,7 +34,7 @@ jobs:
           # shellcheck disable=SC2086
           nix flake update $inputs
 
-      - name: Push the branch and open the pull request
+      - name: Open pull request
         run: |
           set -euo pipefail
           if git diff --quiet -- flake.lock; then
