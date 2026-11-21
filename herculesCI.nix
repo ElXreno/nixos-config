@@ -1,21 +1,13 @@
-{
-  inputs,
-  withSystem,
-  clanMeta,
-  lib,
-  ...
-}:
+{ unpatchedInputs }:
 let
-  ci = lib.findFirst (machine: machine.config.${clanMeta.name}.services.nixbot.enable) null (
-    lib.attrValues inputs.self.nixosConfigurations
-  );
-  api = "http://127.0.0.1:${toString ci.config.${clanMeta.name}.ports.nixbot}/api";
+  system = "x86_64-linux";
+  pkgs = unpatchedInputs.nixpkgs.legacyPackages.${system};
+  api = "http://127.0.0.1:${toString (import ./modules/nixos/services/nixbot/_port.nix)}/api";
 in
-{
-  flake.herculesCI = _: {
-    onEvent.build_finished.github-status = withSystem "x86_64-linux" (
-      { pkgs, system, ... }:
-      (inputs.nixbot.lib.effects { inherit pkgs; }).mkEffect {
+_: {
+  onEvent.build_finished.github-status =
+    (unpatchedInputs.nixbot.lib.effects { inherit pkgs; }).mkEffect
+      {
         name = "github-status";
         inputs = [
           pkgs.curl
@@ -50,7 +42,5 @@ in
             failed) report failure nixbot "nixbot build" ;;
           esac
         '';
-      }
-    );
-  };
+      };
 }
