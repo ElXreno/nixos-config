@@ -67,6 +67,10 @@ rustPlatform.buildRustPackage rec {
     CUDA_TOOLKIT_ROOT_DIR = lib.getDev cudaPackages.cuda_cudart;
   };
 
+  preBuild = ''
+    export RAYON_NUM_THREADS=$NIX_BUILD_CORES
+  '';
+
   appendRunpaths = [ (lib.makeLibraryPath [ cudaPackages.libcublas ]) ];
   autoPatchelfIgnoreMissingDeps = [ "libcuda.so.1" ];
 

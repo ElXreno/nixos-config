@@ -53,6 +53,11 @@ in
       default = 3;
       description = "Number of derivations the nix daemon of this host builds at the same time.";
     };
+    cores = mkOption {
+      type = types.ints.positive;
+      default = 8;
+      description = "Number of threads one derivation may use on this host.";
+    };
   };
 
   config = mkIf cfg.enable {
@@ -100,7 +105,10 @@ in
       '';
     };
 
-    nix.settings.max-jobs = cfg.maxJobs;
+    nix.settings = {
+      max-jobs = cfg.maxJobs;
+      inherit (cfg) cores;
+    };
 
     services.nixbot = {
       enable = true;
