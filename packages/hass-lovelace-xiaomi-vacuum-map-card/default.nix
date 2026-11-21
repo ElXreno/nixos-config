@@ -27,7 +27,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     description = "Xiaomi Vacuum Map card for Home Assistant Lovelace UI";
     homepage = "https://github.com/PiotrMachowski/lovelace-xiaomi-vacuum-map-card";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ elxreno ];
     platforms = lib.platforms.all;
     sourceProvenance = with lib.sourceTypes; [ binaryBytecode ];
   };

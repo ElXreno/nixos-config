@@ -82,6 +82,5 @@ buildHomeAssistantComponent rec {
     description = "Home Assistant integration for Dreame robot vacuums with map support";
     homepage = "https://github.com/${owner}/dreame-vacuum";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ elxreno ];
   };
 }
