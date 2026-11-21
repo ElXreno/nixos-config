@@ -314,13 +314,9 @@ in
           enable = true;
           namespace = tunnel;
           wgConfFile = config.${namespace}.system.networking.tunnels.${tunnel}.configFile;
-          accessibleFrom = [ ];
-          openVPNPorts = [
-            {
-              port = config.nixflix.torrentClients.qbittorrent.torrentingPort;
-              protocol = "both";
-            }
-          ];
+          allowedIngress = [ ];
+          allowedTCPPorts = [ config.nixflix.torrentClients.qbittorrent.torrentingPort ];
+          allowedUDPPorts = [ config.nixflix.torrentClients.qbittorrent.torrentingPort ];
         };
 
         torrentClients.qbittorrent = {

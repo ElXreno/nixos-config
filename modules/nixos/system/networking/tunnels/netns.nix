@@ -29,6 +29,18 @@ let
     ;
 
   namespaces = filterAttrs (_: namespace: namespace.enable) config.vpnNamespaces;
+
+  openPorts =
+    namespace:
+    namespace.openVPNPorts
+    ++ map (port: {
+      inherit port;
+      protocol = "tcp";
+    }) namespace.vpn.allowedTCPPorts
+    ++ map (port: {
+      inherit port;
+      protocol = "udp";
+    }) namespace.vpn.allowedUDPPorts;
   ipv6 = config.networking.enableIPv6;
   isV4 = address: !hasInfix ":" address;
   lines = concatStringsSep "\n";
@@ -102,7 +114,7 @@ let
             description = "Routing table and rule priority used for marked host traffic.";
           };
         };
-        accessibleFrom = mkOption {
+        allowedIngress = mkOption {
           type = types.listOf types.str;
           default = [ ];
           description = "Networks outside the namespace that may reach its mapped ports.";
@@ -140,6 +152,18 @@ let
           );
           default = [ ];
           description = "Ports reachable through the tunnel, for forwarding done by the provider.";
+        };
+        vpn = {
+          allowedTCPPorts = mkOption {
+            type = types.listOf types.port;
+            default = [ ];
+            description = "TCP ports accepted on the tunnel interface.";
+          };
+          allowedUDPPorts = mkOption {
+            type = types.listOf types.port;
+            default = [ ];
+            description = "UDP ports accepted on the tunnel interface.";
+          };
         };
         portMappings = mkOption {
           type = types.listOf (
@@ -205,7 +229,7 @@ let
           )}
           ${lines (
             map (match: "iifname ${ifnames namespace} ${match} accept") (
-              portMatches "port" namespace.openVPNPorts
+              portMatches "port" (openPorts namespace)
             )
           )}
         }
@@ -239,7 +263,7 @@ let
             type filter hook prerouting priority raw; policy accept;
             ${lines (
               map (match: "iifname ${ifnames namespace} ${match} notrack") (
-                portMatches "port" namespace.openVPNPorts
+                portMatches "port" (openPorts namespace)
               )
             )}
           }
@@ -247,7 +271,7 @@ let
             type filter hook output priority raw; policy accept;
             ${lines (
               map (match: "oifname ${ifnames namespace} ${match} notrack") (
-                portMatchesBy "sport" "port" namespace.openVPNPorts
+                portMatchesBy "sport" "port" (openPorts namespace)
               )
             )}
           }
@@ -337,7 +361,7 @@ let
     let
       inside = "ip -n ${name}";
       routed = filter (network: ipv6 || isV4 network) (
-        unique (namespace.accessibleFrom ++ namespace.allowedEgress)
+        unique (namespace.allowedIngress ++ namespace.allowedEgress)
       );
     in
     pkgs.writeShellScript "${name}-up" ''

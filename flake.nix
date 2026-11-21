@@ -224,13 +224,6 @@
               url = "https://github.com/NixOS/nixpkgs/commit/1fc17581c358927eae6449a131ad6191b7e30233.patch";
               hash = "sha256-M434gFCP5fEq12dRsQSdsfT9ymwVJFA1ti5lhXeUZd4=";
             })
-
-            # NixOS/nixpkgs#585314
-            (patcher.fetchpatch {
-              name = "convco-sys-libgit2.patch";
-              url = "https://github.com/NixOS/nixpkgs/commit/8985929eb917f3ea218097b5820bc669b55a1f64.patch";
-              hash = "sha256-FkmZ3eZ1e7OyvAXey9RsYIwsGwQqxQQlla8DcKFNVd0=";
-            })
           ];
 
           nix-minecraft.patches = [

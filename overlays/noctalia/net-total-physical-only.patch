@@ -1,18 +1,19 @@
+diff -ruN a/src/system/system_monitor_service.cpp b/src/system/system_monitor_service.cpp
 --- a/src/system/system_monitor_service.cpp
 +++ b/src/system/system_monitor_service.cpp
 @@ -141,6 +141,11 @@
      return fastest;
    }
  
-+  [[nodiscard]] bool isPhysicalInterface(const std::string& iface) {
++  bool isPhysicalInterface(const std::string& iface) {
 +    std::error_code ec;
 +    return std::filesystem::exists(std::filesystem::path{"/sys/class/net"} / iface / "device", ec);
 +  }
 +
-   [[nodiscard]] double netRxFromStats(const SystemStats& stats, std::string_view interfaceName) {
+   double netRxFromStats(const SystemStats& stats, std::string_view interfaceName) {
      if (interfaceName.empty()) {
        return stats.netRxBytesPerSec;
-@@ -1417,6 +1422,9 @@
+@@ -1430,6 +1435,9 @@
          const double scale = intervalSeconds > 0.0 ? 1.0 / intervalSeconds : 1.0;
          double totalRx = 0.0;
          double totalTx = 0.0;
@@ -22,7 +23,7 @@
          std::unordered_map<std::string, SystemStats::NetThroughput> byInterface;
          for (const auto& [iface, cur] : *currentNetBytes) {
            const auto it = m_prevNetBytes.find(iface);
-@@ -1430,12 +1438,20 @@
+@@ -1443,12 +1451,20 @@
                ifaceTx = static_cast<double>(cur.tx - it->second.tx) * scale;
              }
            }
