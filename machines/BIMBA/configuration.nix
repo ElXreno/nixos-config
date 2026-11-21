@@ -62,7 +62,13 @@
       };
       nixbot = {
         enable = true;
-        repositories."ElXreno/nixos-config".url = "https://github.com/ElXreno/nixos-config";
+        repositories = {
+          "ElXreno/nixos-config".url = "https://github.com/ElXreno/nixos-config";
+          "ElXreno/nixos-config-auto-update" = {
+            url = "https://github.com/ElXreno/nixos-config";
+            branch = "auto-update";
+          };
+        };
       };
       minecraft.atm10.enable = false;
       minecraft.atm10-sky.enable = false;

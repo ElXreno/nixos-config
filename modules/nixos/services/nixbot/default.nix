@@ -82,8 +82,24 @@ in
       '';
     };
 
+    clan.core.vars.generators.nixbot-effects = {
+      prompts.github-status-token = {
+        description = "GitHub fine-grained token for the CI repositories with only 'Commit statuses: read and write'.";
+        type = "hidden";
+      };
+      files."secrets.json" = { };
+      runtimeInputs = [ pkgs.jq ];
+      script = ''
+        jq -n --rawfile token "$prompts/github-status-token" \
+          '{ "github-status": { data: { token: ($token | rtrimstr("\n")) } } }' > "$out/secrets.json"
+      '';
+    };
+
     services.nixbot = {
       enable = true;
+      effects.perRepoSecretFiles = lib.mapAttrs' (
+        name: _: lib.nameValuePair "pull_based:${name}" vars.nixbot-effects.files."secrets.json".path
+      ) cfg.repositories;
       domain = "nixbot.${config.clan.core.settings.domain}";
       port = ports.nixbot;
       useHTTPS = true;
@@ -96,7 +112,6 @@ in
         url = "postgresql://nixbot@/nixbot?host=/run/postgresql";
       };
       pullBased = {
-        pollInterval = 300;
         sshPrivateKeyFile = vars.nixbot-ssh.files.key.path;
         sshKnownHostsFile = pkgs.writeText "nixbot-known-hosts" ''
           github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl

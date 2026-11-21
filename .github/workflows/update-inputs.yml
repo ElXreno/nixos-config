@@ -1,0 +1,53 @@
+name: Update flake inputs
+
+on:
+  schedule:
+    - cron: "17 1 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: update-inputs
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      BRANCH: auto-update
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+
+      - uses: cachix/install-nix-action@bb0495a1086c46893eee56f32fd192dfe4a15bb9 # v32.0.0
+
+      - name: Update every input except the private one
+        run: |
+          set -euo pipefail
+          inputs=$(jq -r '.nodes.root.inputs | keys | map(select(. != "roj")) | join(" ")' flake.lock)
+          # shellcheck disable=SC2086
+          nix flake update $inputs
+
+      - name: Push the branch and open the pull request
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- flake.lock; then
+            echo "Inputs are up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git commit -m "build(deps): update flake inputs" -- flake.lock
+          git push --force origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
+            gh pr create --head "$BRANCH" --base main \
+              --title "build(deps): update flake inputs" \
+              --body "Merged automatically once the nixbot status is green."
+          fi
+          gh pr merge "$BRANCH" --auto --rebase
