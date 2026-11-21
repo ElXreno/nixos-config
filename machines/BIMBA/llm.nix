@@ -17,13 +17,13 @@ in
   ${namespace}.services.llama-cpp = {
     enable = true;
     package = (pkgs.llama-cpp.override { blasSupport = false; }).overrideAttrs (old: {
-      patches = (old.patches or [ ]) ++ [ ./llama-cpp-rerank-prefix-reuse.patch ];
+      patches = (old.patches or [ ]) ++ [ ../../patches/llama-cpp-rerank-prefix-reuse.patch ];
     });
     instances.memory = {
       model = "${cfg.stateDir}/models/v5-small-retrieval-F16.gguf";
       port = 8096;
       backendPort = 18096;
-      idleTimeout = "infinity";
+      idleTimeout = "30min";
       extraArgs = [
         "--embedding"
         "--pooling"
@@ -43,7 +43,7 @@ in
       model = "${cfg.stateDir}/models/Qwen3-Reranker-0.6B-BF16.gguf";
       port = 8101;
       backendPort = 18101;
-      idleTimeout = "infinity";
+      idleTimeout = "30min";
       extraArgs = [
         "--reranking"
         "-np"

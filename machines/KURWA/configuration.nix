@@ -1,7 +1,11 @@
 { namespace, ... }:
 
 {
+  imports = [ ./llm.nix ];
+
   ${namespace} = {
+    nixpkgs.cudaSupport = true;
+
     system = {
       impermanence.enable = true;
 

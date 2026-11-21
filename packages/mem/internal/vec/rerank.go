@@ -38,7 +38,7 @@ func NewReranker(o RerankOptions) *Reranker {
 	if o.MaxBody <= 0 {
 		o.MaxBody = defaultRerankBody
 	}
-	r := &Reranker{o: o, http: o.Client, url: strings.TrimRight(o.URL, "/")}
+	r := &Reranker{o: o, http: o.Client, url: strings.TrimRight(Pick(context.Background(), o.URL), "/")}
 	if r.http == nil {
 		r.http = &http.Client{Timeout: o.Timeout}
 	}

@@ -60,7 +60,7 @@ func prewarm(ctx context.Context, rawURL string) string {
 	if rawURL == "" {
 		return ""
 	}
-	addr, ok := prewarmAddr(rawURL)
+	addr, ok := prewarmAddr(vec.Pick(ctx, rawURL))
 	if !ok {
 		return prewarmSkipped
 	}

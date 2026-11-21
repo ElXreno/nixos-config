@@ -17,6 +17,7 @@ import (
 	"mem/internal/recall"
 	"mem/internal/statefile"
 	"mem/internal/store"
+	"mem/internal/vec"
 )
 
 const (
@@ -140,6 +141,7 @@ func (s *Server) probe(name, base string) svcOut {
 	if base == "" {
 		return out
 	}
+	base = vec.Pick(context.Background(), base)
 	if u, err := url.Parse(base); err == nil {
 		out.URL = u.Scheme + "://" + u.Host
 	}

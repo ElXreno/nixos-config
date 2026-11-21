@@ -50,8 +50,8 @@
       memory = {
         enable = true;
         disableBuiltin = true;
-        embed.url = "http://bimba:8096";
-        rerank.url = "http://bimba:8101";
+        embed.url = "http://kurwa:8096,http://bimba:8096";
+        rerank.url = "http://kurwa:8101,http://bimba:8101";
         recall = {
           pool = "reg";
           extraArgs = [

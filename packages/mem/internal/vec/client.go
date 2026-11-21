@@ -29,7 +29,7 @@ func NewClient(o Options) *Client {
 	if o.Timeout == 0 {
 		o.Timeout = 10 * time.Minute
 	}
-	c := &client{o: o, http: o.Client, url: strings.TrimRight(o.URL, "/")}
+	c := &client{o: o, http: o.Client, url: strings.TrimRight(Pick(context.Background(), o.URL), "/")}
 	if c.http == nil {
 		c.http = &http.Client{Timeout: o.Timeout}
 	}
