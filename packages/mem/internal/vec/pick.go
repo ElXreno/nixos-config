@@ -2,6 +2,8 @@ package vec
 
 import (
 	"context"
+	"errors"
+	"io"
 	"net"
 	"net/url"
 	"strings"
@@ -37,6 +39,32 @@ func hostPort(raw string) (string, bool) {
 		}
 	}
 	return net.JoinHostPort(u.Hostname(), port), true
+}
+
+func order(ctx context.Context, raw string) []string {
+	urls := Split(raw)
+	first := Pick(ctx, raw)
+	out := []string{strings.TrimRight(first, "/")}
+	for _, u := range urls {
+		if u != first {
+			out = append(out, strings.TrimRight(u, "/"))
+		}
+	}
+	return out
+}
+
+func failover(err error) bool {
+	if err == nil || errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return false
+	}
+	var he *httpError
+	if errors.As(err, &he) {
+		return he.status >= 500
+	}
+	if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+		return true
+	}
+	return Classify(err) == FailDown
 }
 
 func Pick(ctx context.Context, raw string) string {

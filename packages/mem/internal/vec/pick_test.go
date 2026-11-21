@@ -2,6 +2,8 @@ package vec
 
 import (
 	"net"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 )
@@ -72,5 +74,61 @@ func TestClientsPickTheReachableURL(t *testing.T) {
 	}
 	if got := NewReranker(RerankOptions{URL: down + "," + up}).url; got != up {
 		t.Errorf("reranker url = %q, want %q", got, up)
+	}
+}
+
+func broken(t *testing.T, status int) string {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if status == 0 {
+			hj, _ := w.(http.Hijacker)
+			c, _, _ := hj.Hijack()
+			_ = c.Close()
+			return
+		}
+		w.WriteHeader(status)
+	}))
+	t.Cleanup(srv.Close)
+	return srv.URL
+}
+
+func working(t *testing.T) string {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/v1/embeddings":
+			_, _ = w.Write([]byte(`{"data":[{"index":0,"embedding":[3,4]}]}`))
+		case "/v1/rerank":
+			_, _ = w.Write([]byte(`{"results":[{"index":0,"relevance_score":0.5}]}`))
+		}
+	}))
+	t.Cleanup(srv.Close)
+	return srv.URL
+}
+
+func TestFailoverToTheNextURL(t *testing.T) {
+	for _, c := range []struct {
+		name   string
+		status int
+	}{{"a 503 answer", 503}, {"a closed connection", 0}} {
+		list := broken(t, c.status) + "," + working(t)
+		vs, err := NewClient(Options{URL: list}).Embed(t.Context(), []string{"x"})
+		if err != nil || len(vs) != 1 {
+			t.Errorf("embed after %s: %v, %v", c.name, vs, err)
+		}
+		scores, err := NewReranker(RerankOptions{URL: list}).Rerank(t.Context(), "q", []string{"d"})
+		if err != nil || len(scores) != 1 || scores[0] != 0.5 {
+			t.Errorf("rerank after %s: %v, %v", c.name, scores, err)
+		}
+	}
+}
+
+func TestNoFailoverOnAClientError(t *testing.T) {
+	list := broken(t, 400) + "," + working(t)
+	if _, err := NewClient(Options{URL: list}).Embed(t.Context(), []string{"x"}); Classify(err) != FailHTTP {
+		t.Errorf("embed: a 400 must stay an http failure, got %v", err)
+	}
+	if _, err := NewReranker(RerankOptions{URL: list}).Rerank(t.Context(), "q", []string{"d"}); Classify(err) != FailHTTP {
+		t.Errorf("rerank: a 400 must stay an http failure, got %v", err)
 	}
 }

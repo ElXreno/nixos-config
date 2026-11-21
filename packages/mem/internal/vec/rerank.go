@@ -9,7 +9,6 @@ import (
 	"io"
 	"math"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -29,6 +28,7 @@ type Reranker struct {
 	o    RerankOptions
 	http *http.Client
 	url  string
+	urls []string
 }
 
 func NewReranker(o RerankOptions) *Reranker {
@@ -38,7 +38,8 @@ func NewReranker(o RerankOptions) *Reranker {
 	if o.MaxBody <= 0 {
 		o.MaxBody = defaultRerankBody
 	}
-	r := &Reranker{o: o, http: o.Client, url: strings.TrimRight(Pick(context.Background(), o.URL), "/")}
+	urls := order(context.Background(), o.URL)
+	r := &Reranker{o: o, http: o.Client, url: urls[0], urls: urls}
 	if r.http == nil {
 		r.http = &http.Client{Timeout: o.Timeout}
 	}
@@ -64,7 +65,17 @@ func (r *Reranker) Rerank(ctx context.Context, query string, docs []string) ([]f
 	if err != nil {
 		return nil, err
 	}
-	hreq, err := http.NewRequestWithContext(ctx, http.MethodPost, r.url+"/v1/rerank", bytes.NewReader(body))
+	var scores []float64
+	for i, url := range r.urls {
+		if scores, err = r.rerankAt(ctx, url, body, query, docs); err == nil || i == len(r.urls)-1 || !failover(err) {
+			break
+		}
+	}
+	return scores, err
+}
+
+func (r *Reranker) rerankAt(ctx context.Context, url string, body []byte, query string, docs []string) ([]float64, error) {
+	hreq, err := http.NewRequestWithContext(ctx, http.MethodPost, url+"/v1/rerank", bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -29,7 +28,8 @@ func NewClient(o Options) *Client {
 	if o.Timeout == 0 {
 		o.Timeout = 10 * time.Minute
 	}
-	c := &client{o: o, http: o.Client, url: strings.TrimRight(Pick(context.Background(), o.URL), "/")}
+	urls := order(context.Background(), o.URL)
+	c := &client{o: o, http: o.Client, url: urls[0], urls: urls}
 	if c.http == nil {
 		c.http = &http.Client{Timeout: o.Timeout}
 	}

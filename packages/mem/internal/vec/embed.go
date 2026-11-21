@@ -117,6 +117,7 @@ type client struct {
 	o    Options
 	http *http.Client
 	url  string
+	urls []string
 }
 
 type embedResponse struct {
@@ -199,12 +200,12 @@ type httpError struct {
 
 func (e *httpError) Error() string { return fmt.Sprintf("http %d: %s", e.status, e.msg) }
 
-func (c *client) once(ctx context.Context, inputs []string) ([][]float32, error) {
+func (c *client) once(ctx context.Context, url string, inputs []string) ([][]float32, error) {
 	body, err := json.Marshal(map[string]any{"model": c.o.Model, "input": inputs, "encoding_format": "float"})
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url+"/v1/embeddings", bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url+"/v1/embeddings", bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
@@ -262,6 +263,17 @@ func retryable(err error) bool {
 }
 
 func (c *client) embed(ctx context.Context, inputs []string) ([][]float32, error) {
+	var out [][]float32
+	var err error
+	for i, url := range c.urls {
+		if out, err = c.embedAt(ctx, url, inputs); err == nil || i == len(c.urls)-1 || !failover(err) {
+			break
+		}
+	}
+	return out, err
+}
+
+func (c *client) embedAt(ctx context.Context, url string, inputs []string) ([][]float32, error) {
 	var err error
 	for attempt := 0; attempt <= c.o.Retries; attempt++ {
 		if attempt > 0 {
@@ -272,7 +284,7 @@ func (c *client) embed(ctx context.Context, inputs []string) ([][]float32, error
 			}
 		}
 		var out [][]float32
-		if out, err = c.once(ctx, inputs); err == nil {
+		if out, err = c.once(ctx, url, inputs); err == nil {
 			return out, nil
 		}
 		if !retryable(err) {
@@ -466,7 +478,8 @@ func Embed(ctx context.Context, o Options, log io.Writer) (*Meta, error) {
 	if o.Timeout == 0 {
 		o.Timeout = 10 * time.Minute
 	}
-	c := &client{o: o, http: o.Client, url: strings.TrimRight(o.URL, "/")}
+	urls := order(context.Background(), o.URL)
+	c := &client{o: o, http: o.Client, url: urls[0], urls: urls}
 	if c.http == nil {
 		c.http = &http.Client{Timeout: o.Timeout}
 	}
