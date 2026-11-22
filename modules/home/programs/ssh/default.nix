@@ -23,6 +23,9 @@ in
           ServerAliveCountMax = 3;
           SetEnv.TERM = "xterm-256color";
         };
+        "smok kurwa" = {
+          ForwardAgent = true;
+        };
         "biba" = {
           HostName = "109.171.24.112";
         };
