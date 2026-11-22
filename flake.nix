@@ -163,7 +163,7 @@
     };
 
     llm-agents = {
-      url = "github:numtide/llm-agents.nix";
+      url = "github:numtide/llm-agents.nix/811c205ef60d81ebd4dae2b4d9263cedd2a69548";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
       inputs.treefmt-nix.follows = "treefmt-nix";

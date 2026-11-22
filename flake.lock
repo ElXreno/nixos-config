@@ -569,6 +569,7 @@
       "original": {
         "owner": "numtide",
         "repo": "llm-agents.nix",
+        "rev": "811c205ef60d81ebd4dae2b4d9263cedd2a69548",
         "type": "github"
       }
     },

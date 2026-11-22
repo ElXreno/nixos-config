@@ -122,6 +122,7 @@ in
       allowUnauthenticatedControl = true;
       buildSystems = [ config.nixpkgs.hostPlatform.system ];
       inherit (cfg) buildConcurrency;
+      buildMaxSilentTime = 3600;
       database = {
         createLocally = false;
         url = "postgresql://nixbot@/nixbot?host=/run/postgresql";
