@@ -1,0 +1,50 @@
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -220,6 +220,7 @@
+ uint amdgpu_dc_feature_mask = 2;
+ uint amdgpu_dc_debug_mask;
+ uint amdgpu_dc_visual_confirm;
++int amdgpu_hdmi_6g;
+ int amdgpu_async_gfx_ring = 1;
+ int amdgpu_mcbp = -1;
+ int amdgpu_discovery = -1;
+@@ -870,6 +871,9 @@
+ MODULE_PARM_DESC(visualconfirm, "Visual confirm (0 = off (default), 1 = MPO, 5 = PSR)");
+ module_param_named(visualconfirm, amdgpu_dc_visual_confirm, uint, 0444);
+ 
++MODULE_PARM_DESC(hdmi6g, "Allow HDMI TMDS clocks of 300 MHz and above without the VBIOS HDMI 6G bit (0 = off (default), 1 = on)");
++module_param_named(hdmi6g, amdgpu_hdmi_6g, int, 0644);
++
+ /**
+  * DOC: abmlevel (uint)
+  * Override the default ABM (Adaptive Backlight Management) level used for DC
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -202,6 +202,7 @@
+ extern uint amdgpu_dc_feature_mask;
+ extern uint amdgpu_freesync_vid_mode;
+ extern uint amdgpu_dc_debug_mask;
++extern int amdgpu_hdmi_6g;
+ extern uint amdgpu_dc_visual_confirm;
+ extern int amdgpu_dm_abm_level;
+ extern int amdgpu_backlight;
+--- a/drivers/gpu/drm/amd/display/dc/dio/dcn10/dcn10_link_encoder.c
++++ b/drivers/gpu/drm/amd/display/dc/dio/dcn10/dcn10_link_encoder.c
+@@ -33,6 +33,8 @@
+ 
+ #include "gpio_service_interface.h"
+ 
++extern int amdgpu_hdmi_6g;
++
+ #define CTX \
+ 	enc10->base.ctx
+ #define DC_LOGGER \
+@@ -646,7 +648,7 @@
+ 			crtc_timing->pixel_encoding == PIXEL_ENCODING_YCBCR420)
+ 		return false;
+ 
+-	if ((!enc10->base.features.flags.bits.HDMI_6GB_EN ||
++	if (((!enc10->base.features.flags.bits.HDMI_6GB_EN && !amdgpu_hdmi_6g) ||
+ 			enc10->base.ctx->dc->debug.hdmi20_disable) &&
+ 			pix_clk_100hz >= 3000000)
+ 		return false;

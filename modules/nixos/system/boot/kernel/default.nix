@@ -99,6 +99,10 @@ in
           patch = ./patches/drm-edid-adaptive-sync-monitor-range.patch;
         }
         {
+          name = "amdgpu-hdmi-6g-param";
+          patch = ./patches/amdgpu-hdmi-6g-param.patch;
+        }
+        {
           name = "i915-panel-vrr-vtotal-overflow";
           patch = ./patches/i915-panel-vrr-vtotal-overflow.patch;
         }

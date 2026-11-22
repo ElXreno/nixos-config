@@ -20,6 +20,7 @@ in
     boot.kernelParams = [
       "amdgpu.dcdebugmask=0x10"
       "amdgpu.sg_display=0"
+      "amdgpu.hdmi6g=1"
       "tsc=reliable"
       "clocksource=tsc"
     ];
