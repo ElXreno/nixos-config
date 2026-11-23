@@ -90,6 +90,7 @@ in
       default = "bimba";
       description = "Tailnet host name of the hub.";
     };
+    ci.enable = mkEnableOption "building the CI of the hub through the farm";
     acOnly = mkEnableOption "building only on mains power";
     pauseFor = mkOption {
       type = types.listOf types.str;

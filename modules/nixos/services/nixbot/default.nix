@@ -16,7 +16,7 @@ let
   cfg = config.${namespace}.services.nixbot;
   niks3 = config.${namespace}.services.niks3;
   farm = config.${namespace}.services.nix-farm;
-  onFarm = farm.enable && farm.role == "hub";
+  onFarm = farm.enable && farm.role == "hub" && farm.ci.enable;
   ports = config.${namespace}.ports;
   vars = config.clan.core.vars.generators;
 in
