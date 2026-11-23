@@ -11,6 +11,7 @@ let
     mkEnableOption
     mkPackageOption
     mkMerge
+    optional
     ;
   cfg = config.${namespace}.system.nix;
 
@@ -79,10 +80,10 @@ in
 
           auto-allocate-uids = true;
 
-          substituters = [
-            "${config.${namespace}.services.niks3.url}?priority=10"
-            "https://${(lib.head cacheProxy.routes).pattern}?priority=11"
-          ];
+          substituters =
+            optional (!config.${namespace}.services.nix-farm.enable)
+              "${config.${namespace}.services.niks3.url}?priority=10"
+            ++ [ "https://${(lib.head cacheProxy.routes).pattern}?priority=11" ];
           trusted-public-keys = [
             config.${namespace}.services.niks3.publicKey
           ]

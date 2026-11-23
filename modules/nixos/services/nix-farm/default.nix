@@ -168,7 +168,6 @@ in
               role = "trusted";
             })
             [
-              "ci-*"
               "lb-*"
               "worker-*"
             ];
@@ -191,9 +190,13 @@ in
         niks3 = {
           inherit (config.services.niks3) package;
           inherit (niks3) url;
-          cacheUrl = niks3.url;
+          cacheUrl = "${niks3.url}?priority=10";
           publicKeys = [ niks3.publicKey ];
           tokenFile = credential "nix-grpc-daemon" "niks3-token";
+          pushFlags = [
+            "--max-concurrent-uploads"
+            "8"
+          ];
         };
       };
 
@@ -213,11 +216,6 @@ in
         nix-farm-lb = leaf {
           cn = "lb-${hostName}";
           san = "DNS:${hubHost},DNS:${hostName}";
-        };
-        nix-farm-ci = leaf {
-          cn = "ci-${hostName}";
-          san = "DNS:${hostName}";
-          owner = "nixbot";
         };
       };
 
