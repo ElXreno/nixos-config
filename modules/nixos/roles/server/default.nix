@@ -40,5 +40,10 @@ in
         documentation.enable = false;
       };
     };
+
+    services.resolved.settings.Resolve = {
+      LLMNR = false;
+      MulticastDNS = false;
+    };
   };
 }
