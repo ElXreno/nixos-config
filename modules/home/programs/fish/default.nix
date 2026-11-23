@@ -21,8 +21,8 @@ in
       enable = true;
       functions = {
         nix = ''
-          if test "$argv[1]" = build
-            ${getExe pkgs.nix-output-monitor} $argv
+          if contains -- "$argv[1]" build shell develop
+            ${getExe pkgs.rom} $argv[1] -- $argv[2..]
           else
             command nix $argv
           end

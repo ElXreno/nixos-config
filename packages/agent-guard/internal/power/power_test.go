@@ -101,7 +101,7 @@ var defaults = []string{
 	"go test -race", "make --jobs*", "make -j*", "nh home build", "nh home switch", "nh os boot", "nh os build*",
 	"nh os switch", "nh os test", "ninja !-t*", "nix build", "nix flake check", "nix-build", "nixos-rebuild boot",
 	"nixos-rebuild build*", "nixos-rebuild dry-activate", "nixos-rebuild switch", "nixos-rebuild test",
-	"nom build", "nom-build", "podman build",
+	"podman build", "rom build",
 }
 
 func TestHeavy(t *testing.T) {
@@ -131,8 +131,7 @@ func TestHeavy(t *testing.T) {
 		{"nix flake check --no-build", ""},
 		{"nix flake check -L", "nix flake check"},
 		{"nix --accept-flake-config flake check", "nix flake check"},
-		{"nom build .#x", "nom build"},
-		{"nom-build -A hello", "nom-build"},
+		{"rom build .#x", "rom build"},
 		{"nix flake check", "nix flake check"},
 		{"nix flake show", ""},
 		{"nix-build -A hello", "nix-build"},

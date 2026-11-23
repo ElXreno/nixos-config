@@ -223,9 +223,8 @@ in
           "nixos-rebuild dry-activate"
           "nixos-rebuild switch"
           "nixos-rebuild test"
-          "nom build"
-          "nom-build"
           "podman build"
+          "rom build"
         ];
         description = "Commands the battery note calls heavy, each word a glob: the program, then its leading subcommand words in order (an option's value may sit between them), options found anywhere before --, and !word for arguments that rule the command out; --help, -h, --version, --dry-run and --no-build always do. Wrappers, nix develop -c and sh -c payloads are seen through, ssh and container payloads skipped.";
       };

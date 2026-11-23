@@ -41,8 +41,8 @@ in
 
       # Nix stuff
       nix-tree
-      nix-output-monitor
       nurl
+      rom
     ];
   };
 }
