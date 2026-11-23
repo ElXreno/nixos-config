@@ -10,21 +10,12 @@ in
 
   perSystem =
     { config, ... }:
-    let
-      updatable = lib.filterAttrs (
-        _: package:
-        let
-          position = builtins.unsafeGetAttrPos "updateScript" package;
-        in
-        package ? updateScript && position != null && lib.hasPrefix "${inputs.self}/packages/" position.file
-      ) config.packages;
-    in
     {
       checks =
         lib.mapAttrs' (name: toplevel: lib.nameValuePair "nixos-${name}" toplevel) toplevels
         // lib.mapAttrs' (
-          name: _: lib.nameValuePair "package-${name}" config.legacyPackages.cuda.${clanMeta.name}.${name}
-        ) updatable
+          name: package: lib.nameValuePair "package-${name}" package
+        ) config.legacyPackages.cuda.${clanMeta.name}
         // lib.mapAttrs' (
           name: shell: lib.nameValuePair "devshell-${name}" shell.inputDerivation
         ) config.devShells
