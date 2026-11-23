@@ -73,7 +73,7 @@ buildGoModule {
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-4WEVLSSj3QTQ9n7E31t2dyWaGFzFeIm3Lq6/BopbinI=";
+  vendorHash = "sha256-YnX1ckHNymDlRCAR2vCPPWpMkhY5XUNQ7BLYYPQ4R6c=";
 
   ldflags = [
     "-s"
