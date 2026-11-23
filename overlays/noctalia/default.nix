@@ -6,7 +6,6 @@ final: prev: {
       (prevAttrs: {
         patches = (prevAttrs.patches or [ ]) ++ [
           ./zfs-arc-lru.patch
-          ./net-total-physical-only.patch
         ];
       });
 }
