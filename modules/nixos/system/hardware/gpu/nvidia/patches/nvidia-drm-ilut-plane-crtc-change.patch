@@ -1,0 +1,49 @@
+From 343e1a9e532682b8e6fb345539422548816f5752 Mon Sep 17 00:00:00 2001
+From: ElXreno <elxreno@gmail.com>
+Date: Mon, 23 Nov 2026 15:12:05 +0300
+Subject: [PATCH] nvidia-drm: apply the CRTC DEGAMMA_LUT to planes attached
+ later
+
+The legacy CRTC DEGAMMA_LUT is programmed as each plane's ILUT, but
+plane_req_config_update() only rebuilds the ILUT surface when the
+plane's own degamma properties or the CRTC's color management changed
+in this commit.
+
+A plane attached to a CRTC whose DEGAMMA_LUT was set in an earlier
+commit therefore never gets an ILUT, so the CTM runs on encoded values
+and GAMMA_LUT encodes them a second time. This happens when a
+compositor sets up color management before the first frame on a new
+output.
+
+Rebuild the ILUT when the plane moves onto a CRTC, as is already done
+for the CSC.
+---
+ kernel-open/nvidia-drm/nvidia-drm-crtc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-crtc.c b/kernel-open/nvidia-drm/nvidia-drm-crtc.c
+index f4841c69..e501b485 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-crtc.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-crtc.c
+@@ -1539,7 +1539,8 @@ plane_req_config_update(struct drm_plane *plane,
+                                &matrix_overrides_changed);
+     req_config->flags.matrixOverridesChanged = matrix_overrides_changed;
+ 
+-    if (nv_drm_plane_state->degamma_changed || crtc_state->color_mgmt_changed) {
++    if (nv_drm_plane_state->degamma_changed || crtc_state->color_mgmt_changed ||
++        (plane->state->crtc != plane_state->crtc)) {
+         ilut_rebuilt = true;
+         if (nv_drm_plane_state->degamma_drm_lut_surface != NULL) {
+             kref_put(&nv_drm_plane_state->degamma_drm_lut_surface->base.refcount,
+@@ -1567,7 +1568,7 @@ plane_req_config_update(struct drm_plane *plane,
+     /*
+      * Update the ILUT configuration if:
+      * - the ILUT surface was rebuilt above (degamma properties or the CRTC
+-     *   color management changed), OR
++     *   color management changed, or the plane moved onto a CRTC), OR
+      * - plane is being re-enabled and old req_config had ILUT disabled
+      *   but DRM plane state has ILUT (blob ID didn't change, but NVKMS
+      *   needs to be notified)
+-- 
+2.56.0
+

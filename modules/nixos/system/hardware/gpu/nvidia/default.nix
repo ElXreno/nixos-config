@@ -20,6 +20,7 @@ let
     optionalAttrs
     optionalString
     types
+    versionAtLeast
     ;
   cfg = config.${namespace}.system.hardware.gpu.nvidia;
   igpuIsIntel = config.${namespace}.facts.gpu.intel.exists;
@@ -45,29 +46,37 @@ let
 
   sysfsConfigInitRootUrl = "https://github.com/NVIDIA/open-gpu-kernel-modules/commit/369378dc1552ae46f7f95a598a085c0025e464b3.patch";
 
-  openPatches = [
-    ./patches/nvidia-drm-colorop-clear-state-changes.patch
-    ./patches/nvidia-drm-ilut-crtc-degamma.patch
-    ./patches/nvidia-drm-output-bpc-displayport.patch
-    ./patches/nvidia-drm-zero-dumb-buffers.patch
-    (pkgs.fetchpatch {
-      name = "nvidia-sysfs-config-init-root-nv-pci.patch";
-      url = sysfsConfigInitRootUrl;
-      includes = [ "kernel-open/nvidia/nv-pci.c" ];
-      hunks = [
-        2
-        3
-      ];
-      hash = "sha256-SjN3c3gqs6NbavXrMC7JyiLJUFu/kbTVwRfT8qFh9e0=";
-    })
-    (pkgs.fetchpatch {
-      name = "nvidia-sysfs-config-init-root-kbuild.patch";
-      url = sysfsConfigInitRootUrl;
-      includes = [ "kernel-open/nvidia/nvidia.Kbuild" ];
-      hash = "sha256-nenBdgD2ZtlOcj30JuX1Sa4EFj0rDog6epZveFAYbCk=";
-    })
-  ]
-  ++ optional cfg.acpiNotifyRtd3Guard.enable ./patches/nvidia-dgpu-rtd3-acpi-notify-guards.patch;
+  openPatches =
+    (
+      if versionAtLeast cfg.package.version "620.73" then
+        [ ./patches/nvidia-drm-ilut-plane-crtc-change.patch ]
+      else
+        [
+          ./patches/nvidia-drm-colorop-clear-state-changes.patch
+          ./patches/nvidia-drm-ilut-crtc-degamma.patch
+        ]
+    )
+    ++ [
+      ./patches/nvidia-drm-output-bpc-displayport.patch
+      ./patches/nvidia-drm-zero-dumb-buffers.patch
+      (pkgs.fetchpatch {
+        name = "nvidia-sysfs-config-init-root-nv-pci.patch";
+        url = sysfsConfigInitRootUrl;
+        includes = [ "kernel-open/nvidia/nv-pci.c" ];
+        hunks = [
+          2
+          3
+        ];
+        hash = "sha256-SjN3c3gqs6NbavXrMC7JyiLJUFu/kbTVwRfT8qFh9e0=";
+      })
+      (pkgs.fetchpatch {
+        name = "nvidia-sysfs-config-init-root-kbuild.patch";
+        url = sysfsConfigInitRootUrl;
+        includes = [ "kernel-open/nvidia/nvidia.Kbuild" ];
+        hash = "sha256-nenBdgD2ZtlOcj30JuX1Sa4EFj0rDog6epZveFAYbCk=";
+      })
+    ]
+    ++ optional cfg.acpiNotifyRtd3Guard.enable ./patches/nvidia-dgpu-rtd3-acpi-notify-guards.patch;
 
   nvidiaPackage =
     if usesOpenModule then
