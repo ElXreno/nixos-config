@@ -26,6 +26,12 @@ in
         )
         // lib.mapAttrs' (
           name: _: lib.nameValuePair "package-${name}" config.legacyPackages.cuda.${clanMeta.name}.${name}
-        ) updatable;
+        ) updatable
+        // lib.mapAttrs' (
+          name: shell: lib.nameValuePair "devshell-${name}" shell.inputDerivation
+        ) config.devShells
+        // lib.mapAttrs' (
+          name: _: lib.nameValuePair "router-${name}" config.packages."${name}-image"
+        ) inputs.self.keeneticConfigurations;
     };
 }
