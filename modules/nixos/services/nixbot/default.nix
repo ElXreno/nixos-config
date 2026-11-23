@@ -15,6 +15,7 @@ let
     ;
   cfg = config.${namespace}.services.nixbot;
   niks3 = config.${namespace}.services.niks3;
+  farm = config.${namespace}.services.nix-farm;
   ports = config.${namespace}.ports;
   vars = config.clan.core.vars.generators;
 in
@@ -137,8 +138,9 @@ in
           defaultBranch = repo.branch;
         }) cfg.repositories;
       };
+      buildStore.url = mkIf farm.enable farm.url;
       niks3 = {
-        enable = true;
+        enable = !farm.enable;
         serverUrl = niks3.url;
         authTokenFile = vars.niks3-api-token.files.token.path;
         inherit (config.services.niks3) package;

@@ -23,6 +23,7 @@ let
     niks3.nixosModules.niks3
     niks3.nixosModules.niks3-auto-upload
     nixbot.nixosModules.nixbot
+    nix-grpc-store.nixosModules.default
 
     niri.nixosModules.niri
     {

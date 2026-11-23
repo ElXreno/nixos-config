@@ -677,6 +677,29 @@
         "type": "github"
       }
     },
+    "nix-grpc-store": {
+      "inputs": {
+        "niks3": [
+          "niks3"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795420517,
+        "narHash": "sha256-OzwF6sT06TfIf7esQrvyVVulGhPiVKx0qx4Mb6t2lW4=",
+        "owner": "Mic92",
+        "repo": "nix-grpc-store",
+        "rev": "c8a2366f778272aa46dbfffdfda6b20c837b4ec0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nix-grpc-store",
+        "type": "github"
+      }
+    },
     "nix-index-database": {
       "inputs": {
         "nixpkgs": [
@@ -977,6 +1000,7 @@
         "llm-agents": "llm-agents",
         "niks3": "niks3",
         "niri": "niri",
+        "nix-grpc-store": "nix-grpc-store",
         "nix-index-database": "nix-index-database",
         "nix-keenetic": "nix-keenetic",
         "nix-minecraft": "nix-minecraft",

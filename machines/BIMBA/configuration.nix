@@ -59,6 +59,7 @@
         enable = true;
         capacity = "500GB";
       };
+      nix-farm.enable = true;
       nixbot = {
         enable = true;
         repositories = {
