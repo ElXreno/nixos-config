@@ -1,0 +1,222 @@
+nvidia-drm: do not wait for DRM locks on the NVKMS event thread
+
+Author: im0nKeY84 on GitHub
+Source: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1361#issuecomment-6876087272
+Patch against 620.70.06; NVIDIA/open-gpu-kernel-modules#1572 carries the
+same change for 620.73.
+---
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-connector.c b/kernel-open/nvidia-drm/nvidia-drm-connector.c
+index c830c33..8f8b49a 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-connector.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-connector.c
+@@ -1114,7 +1114,7 @@ bool nv_drm_connector_revoke_permissions(struct drm_device *dev,
+ }
+ 
+ /*
+- * The caller must hold dev->mode_config.mutex (for nv_connector->cp) and
++ * The caller must hold nv_drm_device::cp_lock (for nv_connector->cp) and
+  * dev->mode_config.connection_mutex (for calling drm_hdcp_update_content_protection).
+  */
+ void nv_drm_connector_update_content_protection(struct nv_drm_connector *nv_connector)
+@@ -1128,7 +1128,7 @@ void nv_drm_connector_update_content_protection(struct nv_drm_connector *nv_conn
+     bool update_cp = false;
+     unsigned int cp_val;
+ 
+-    WARN_ON(!mutex_is_locked(&dev->mode_config.mutex));
++    lockdep_assert_held(&to_nv_device(dev)->cp_lock);
+     WARN_ON(!drm_modeset_is_locked(&dev->mode_config.connection_mutex));
+ 
+     state = connector->state;
+@@ -1163,6 +1163,10 @@ void nv_drm_connector_update_content_protection(struct nv_drm_connector *nv_conn
+ #endif
+ }
+ 
++/*
++ * The caller must hold dev->mode_config.connection_mutex, which protects the
++ * connector state that holds the topology blob.
++ */
+ int nv_drm_connector_update_topology_property(struct nv_drm_connector *nv_connector,
+                                               const void *topology)
+ {
+@@ -1174,6 +1178,8 @@ int nv_drm_connector_update_topology_property(struct nv_drm_connector *nv_connec
+     struct nv_drm_device *nv_dev = to_nv_device(dev);
+     int ret;
+ 
++    WARN_ON(!drm_modeset_is_locked(&dev->mode_config.connection_mutex));
++
+     ret = drm_property_replace_global_blob(dev,
+                                             &nv_state->hdcp_topology_blob,
+                                             NVKMS_HDCP_TOPOLOGY_SIZE,
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-connector.h b/kernel-open/nvidia-drm/nvidia-drm-connector.h
+index 2ab433e..ca1c577 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-connector.h
++++ b/kernel-open/nvidia-drm/nvidia-drm-connector.h
+@@ -55,6 +55,8 @@ struct nv_drm_connector {
+ 
+     enum NvKmsContentProtection cp;
+     bool cp_event_pending;
++    NvU8 cp_topology[NVKMS_HDCP_TOPOLOGY_SIZE];
++    bool cp_topology_pending;
+ 
+     atomic_t connection_status_dirty;
+ 
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-drv.c b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+index 486731e..b89591e 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-drv.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-drv.c
+@@ -814,13 +814,23 @@ static void nv_drm_handle_content_protection_event_work(struct work_struct *work
+     struct drm_connector *connector;
+     struct drm_connector_list_iter conn_iter;
+ 
+-    mutex_lock(&dev->mode_config.mutex);
++    /*
++     * Take only connection_mutex. Holding mode_config.mutex while waiting for
++     * it blocks the nvkms event thread, wherever that thread needs
++     * mode_config.mutex, behind a commit that waits for a flip event from it.
++     */
+     drm_modeset_lock(&dev->mode_config.connection_mutex, NULL);
++    mutex_lock(&nv_dev->cp_lock);
+ 
+     drm_connector_list_iter_begin(dev, &conn_iter);
+ 
+     drm_for_each_connector_iter(connector, &conn_iter) {
+         struct nv_drm_connector *nv_connector = to_nv_connector(connector);
++        if (nv_connector->cp_topology_pending) {
++            nv_connector->cp_topology_pending = false;
++            nv_drm_connector_update_topology_property(nv_connector,
++                                                      nv_connector->cp_topology);
++        }
+         if (nv_connector->cp_event_pending) {
+             nv_connector->cp_event_pending = false;
+             nv_drm_connector_update_content_protection(nv_connector);
+@@ -829,8 +839,8 @@ static void nv_drm_handle_content_protection_event_work(struct work_struct *work
+ 
+     drm_connector_list_iter_end(&conn_iter);
+ 
++    mutex_unlock(&nv_dev->cp_lock);
+     drm_modeset_unlock(&dev->mode_config.connection_mutex);
+-    mutex_unlock(&dev->mode_config.mutex);
+ }
+ 
+ static int nv_drm_dev_load(struct drm_device *dev)
+@@ -2200,6 +2210,7 @@ void nv_drm_register_drm_device(const struct NvKmsKapiGpuInfo *gpu_info)
+     nv_dev->gpu_mig_device = gpu_info->migDevice;
+ 
+     mutex_init(&nv_dev->lock);
++    mutex_init(&nv_dev->cp_lock);
+ 
+     /* Allocate DRM device */
+ 
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-encoder.c b/kernel-open/nvidia-drm/nvidia-drm-encoder.c
+index e3ff2ca..2160547 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-encoder.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-encoder.c
+@@ -261,6 +261,13 @@ done:
+     return ret != 0 ? ERR_PTR(ret) : encoder;
+ }
+ 
++/*
++ * The display change and content protection handlers call this from the
++ * nvkms event thread, the only thread that delivers flip events, so they must
++ * not wait for DRM locks: a blocking commit holds them while it waits for a
++ * flip event. Encoders are added only before event handling is enabled or by
++ * this thread, so the list walk needs no lock.
++ */
+ static inline struct nv_drm_encoder*
+ get_nv_encoder_from_nvkms_display(struct drm_device *dev,
+                                   NvKmsKapiDisplay hDisplay)
+@@ -284,12 +291,8 @@ void nv_drm_handle_display_change(struct nv_drm_device *nv_dev,
+     struct drm_device *dev = nv_dev->dev;
+     struct nv_drm_encoder *nv_encoder = NULL;
+ 
+-    mutex_lock(&dev->mode_config.mutex);
+-
+     nv_encoder = get_nv_encoder_from_nvkms_display(dev, hDisplay);
+ 
+-    mutex_unlock(&dev->mode_config.mutex);
+-
+     if (nv_encoder == NULL) {
+         return;
+     }
+@@ -306,10 +309,8 @@ void nv_drm_handle_display_cp_change(struct nv_drm_device *nv_dev,
+     struct drm_device *dev = nv_dev->dev;
+     struct nv_drm_encoder *nv_encoder = NULL;
+ 
+-    mutex_lock(&dev->mode_config.mutex);
+     nv_encoder = get_nv_encoder_from_nvkms_display(dev, hDisplay);
+     if (nv_encoder == NULL) {
+-        mutex_unlock(&dev->mode_config.mutex);
+         return;
+     }
+ 
+@@ -317,9 +318,10 @@ void nv_drm_handle_display_cp_change(struct nv_drm_device *nv_dev,
+      * Defer the DRM content protection update to a workqueue so that it
+      * doesn't block flip events while waiting for dev->mode_config.connection_mutex.
+      */
++    mutex_lock(&nv_dev->cp_lock);
+     nv_encoder->nv_connector->cp = cp;
+     nv_encoder->nv_connector->cp_event_pending = true;
+-    mutex_unlock(&dev->mode_config.mutex);
++    mutex_unlock(&nv_dev->cp_lock);
+     schedule_delayed_work(&nv_dev->content_protection_event_work, 0);
+ }
+ 
+@@ -330,17 +332,19 @@ void nv_drm_handle_display_cp_topology_change(struct nv_drm_device *nv_dev,
+     struct drm_device *dev = nv_dev->dev;
+     struct nv_drm_encoder *nv_encoder = NULL;
+ 
+-    mutex_lock(&dev->mode_config.mutex);
+-
+     nv_encoder = get_nv_encoder_from_nvkms_display(dev, hDisplay);
+     if (nv_encoder == NULL) {
+         NV_DRM_DEV_LOG_ERR(nv_dev, "Encoder not found for display %d", hDisplay);
+-        goto out;
++        return;
+     }
+-    nv_drm_connector_update_topology_property(nv_encoder->nv_connector, topology);
+ 
+-out:
+-    mutex_unlock(&dev->mode_config.mutex);
++    /* Updating the property needs connection_mutex, so defer it as well. */
++    mutex_lock(&nv_dev->cp_lock);
++    memcpy(nv_encoder->nv_connector->cp_topology, topology,
++           NVKMS_HDCP_TOPOLOGY_SIZE);
++    nv_encoder->nv_connector->cp_topology_pending = true;
++    mutex_unlock(&nv_dev->cp_lock);
++    schedule_delayed_work(&nv_dev->content_protection_event_work, 0);
+ }
+ 
+ void nv_drm_handle_dynamic_display_connected(struct nv_drm_device *nv_dev,
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-modeset.c b/kernel-open/nvidia-drm/nvidia-drm-modeset.c
+index 5697b7b..cb99d71 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-modeset.c
++++ b/kernel-open/nvidia-drm/nvidia-drm-modeset.c
+@@ -518,7 +518,9 @@ nv_drm_atomic_apply_modeset_config(struct drm_device *dev,
+ 
+         for_each_new_connector_in_state(state, connector, connector_state, j) {
+             if (connector->state->content_protection == DRM_MODE_CONTENT_PROTECTION_DESIRED) {
++                mutex_lock(&nv_dev->cp_lock);
+                 nv_drm_connector_update_content_protection(to_nv_connector(connector));
++                mutex_unlock(&nv_dev->cp_lock);
+             }
+         }
+     }
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-priv.h b/kernel-open/nvidia-drm/nvidia-drm-priv.h
+index 6120401..f0191b5 100644
+--- a/kernel-open/nvidia-drm/nvidia-drm-priv.h
++++ b/kernel-open/nvidia-drm/nvidia-drm-priv.h
+@@ -154,6 +154,14 @@ struct nv_drm_device {
+ 
+     struct delayed_work hotplug_event_work;
+     struct delayed_work content_protection_event_work;
++
++    /*
++     * Protects the content protection fields of every nv_drm_connector (cp,
++     * cp_event_pending, cp_topology, cp_topology_pending). Taken after
++     * connection_mutex and never held while waiting for a DRM lock, so the
++     * nvkms event thread can take it.
++     */
++    struct mutex cp_lock;
+     atomic_t enable_event_handling;
+ 
+     /**

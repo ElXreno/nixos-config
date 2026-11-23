@@ -49,11 +49,20 @@ let
   openPatches =
     (
       if versionAtLeast cfg.package.version "620.73" then
-        [ ./patches/nvidia-drm-ilut-plane-crtc-change.patch ]
+        [
+          ./patches/nvidia-drm-ilut-plane-crtc-change.patch
+          # NVIDIA/open-gpu-kernel-modules#1572
+          (pkgs.fetchpatch {
+            name = "nvidia-drm-event-thread-drm-locks.patch";
+            url = "https://github.com/NVIDIA/open-gpu-kernel-modules/commit/98fbf975e515a45815efa97b1b3fbaef6f153458.patch";
+            hash = "sha256-L691H75NVTsxAd83fA9XIvZlhvAevotPi0AW44X8Ksw=";
+          })
+        ]
       else
         [
           ./patches/nvidia-drm-colorop-clear-state-changes.patch
           ./patches/nvidia-drm-ilut-crtc-degamma.patch
+          ./patches/nvidia-drm-event-thread-drm-locks.patch
         ]
     )
     ++ [
