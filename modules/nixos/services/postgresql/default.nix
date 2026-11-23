@@ -117,6 +117,8 @@ in
       }) (attrNames (filterAttrs (_: db: db.backup) cfg.databases));
     };
 
+    systemd.services.postgresql.stopIfChanged = false;
+
     systemd.services.postgresql-setup.preStart = ''
       psql -d postgres -qc 'ALTER DATABASE template1 REFRESH COLLATION VERSION'
     '';
