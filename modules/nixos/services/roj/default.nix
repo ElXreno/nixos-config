@@ -177,6 +177,7 @@ in
       wantedBy = mkIf (!cfg.autostart) (mkForce [ ]);
       wants = [ "clickhouse.service" ];
       after = [ "clickhouse.service" ];
+      serviceConfig.CPUWeight = 20;
     };
 
     clan.core.vars.generators.roj-tmdb = mkIf (cfg.web.enable && cfg.web.posters) {
@@ -206,7 +207,9 @@ in
     systemd.services.roj-web = mkIf cfg.web.enable afterStores;
     systemd.services.roj-web-reindex = mkIf cfg.web.enable afterStores;
     systemd.services.roj-catalogue = mkIf cfg.web.enable afterStores;
-    systemd.services.roj-index = mkIf (cfg.web.enable && cfg.web.classifier) afterStores;
+    systemd.services.roj-index = mkIf (cfg.web.enable && cfg.web.classifier) (
+      afterStores // { serviceConfig.CPUWeight = 20; }
+    );
     systemd.services.roj-web-mirror = mkIf (cfg.web.enable && cfg.web.engine) afterStores;
 
     vpnNamespaces.airvpn = {

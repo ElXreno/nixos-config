@@ -80,9 +80,12 @@ in
       };
     };
 
-    systemd.services.clickhouse.restartTriggers = [
-      config.environment.etc."clickhouse-server/config.d/100-nixos-module-config.yaml".source
-      config.environment.etc."clickhouse-server/users.d/100-nixos-module-config.yaml".source
-    ];
+    systemd.services.clickhouse = {
+      serviceConfig.CPUWeight = 20;
+      restartTriggers = [
+        config.environment.etc."clickhouse-server/config.d/100-nixos-module-config.yaml".source
+        config.environment.etc."clickhouse-server/users.d/100-nixos-module-config.yaml".source
+      ];
+    };
   };
 }

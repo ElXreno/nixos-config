@@ -167,6 +167,7 @@ in
       serviceConfig = {
         Type = "notify";
         NotifyAccess = "all";
+        CPUWeight = 20;
         ExecStart = "${cfg.package}/bin/searchd --config ${checkedConfig} --nodetach";
         ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
         KillMode = "mixed";
