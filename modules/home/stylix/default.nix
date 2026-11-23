@@ -60,6 +60,8 @@ in
       targets = {
         qt.standardDialogs = "xdgdesktopportal";
         rofi.enable = false;
+        # workaround for https://github.com/nix-community/stylix/issues/2556
+        wayprompt.enable = false;
       };
     };
   };
