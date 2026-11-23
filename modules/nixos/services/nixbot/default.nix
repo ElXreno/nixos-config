@@ -139,7 +139,10 @@ in
           defaultBranch = repo.branch;
         }) cfg.repositories;
       };
-      buildStore.url = mkIf onFarm farm.url;
+      buildStore = mkIf onFarm {
+        inherit (farm) url;
+        oidcAudience = farm.audience;
+      };
       niks3 = {
         enable = !onFarm;
         serverUrl = niks3.url;

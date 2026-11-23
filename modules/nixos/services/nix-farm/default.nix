@@ -15,6 +15,7 @@ let
     mkIf
     mkMerge
     mkOption
+    optionalAttrs
     optionalString
     toLower
     types
@@ -27,6 +28,10 @@ let
   hostName = toLower config.networking.hostName;
   hubHost = "${cfg.hub}.${config.clan.core.settings.domain}";
   gated = cfg.acOnly || cfg.pauseFor != [ ];
+
+  audience = "nix-farm";
+  nixbotUrl = "https://nixbot.${config.clan.core.settings.domain}";
+  nixbotPort = import ../nixbot/_port.nix;
 
   balancerPort = 50051;
   daemonPort = 50052;
@@ -101,12 +106,14 @@ in
     url = mkOption {
       type = types.str;
       readOnly = true;
-      default =
-        "grpc://${hubHost}:${toString balancerPort}"
-        + "?ca-cert=${caFile}"
-        + "&client-cert=${vars.nix-farm-ci.files."cert.pem".path}"
-        + "&client-key=${vars.nix-farm-ci.files."key.pem".path}";
+      default = "grpc://${hubHost}:${toString balancerPort}?ca-cert=${caFile}";
       description = "Store URL of the farm for the CI on the hub.";
+    };
+    audience = mkOption {
+      type = types.str;
+      readOnly = true;
+      default = audience;
+      description = "Audience the CI asks its build tokens for.";
     };
   };
 
@@ -165,6 +172,22 @@ in
               "lb-*"
               "worker-*"
             ];
+        oidc = {
+          allow_insecure = isHub;
+          providers.nixbot = {
+            issuer = nixbotUrl;
+            inherit audience;
+            rules = [
+              {
+                bound_claims.effect = [ "build" ];
+                scopes = [ "write" ];
+              }
+            ];
+          }
+          // optionalAttrs isHub {
+            jwks_url = "http://127.0.0.1:${toString nixbotPort}/.well-known/jwks.json";
+          };
+        };
         niks3 = {
           inherit (config.services.niks3) package;
           inherit (niks3) url;
