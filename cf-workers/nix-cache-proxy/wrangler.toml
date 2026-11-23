@@ -1,0 +1,59 @@
+name = "nix-cache-proxy"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+preview_urls = false
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[[routes]]
+pattern = "cache.nixos.elxreno.com"
+custom_domain = true
+
+[[vars.UPSTREAMS]]
+name = "nixos"
+url = "https://cache.nixos.org"
+key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+
+[[vars.UPSTREAMS]]
+name = "nixos-cuda"
+url = "https://cache.nixos-cuda.org"
+key = "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
+
+[[vars.UPSTREAMS]]
+name = "nix-community"
+url = "https://nix-community.cachix.org"
+key = "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+
+[[vars.UPSTREAMS]]
+name = "nixpkgs-unfree"
+url = "https://nixpkgs-unfree.cachix.org"
+key = "nixpkgs-unfree.cachix.org-1:hqvoInulhbV4nJ9yJOEr+4wxhDV4xq2d1DK7S6Nj6rs="
+
+[[vars.UPSTREAMS]]
+name = "nix-gaming"
+url = "https://nix-gaming.cachix.org"
+key = "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
+
+[[vars.UPSTREAMS]]
+name = "niri"
+url = "https://niri.cachix.org"
+key = "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+
+[[vars.UPSTREAMS]]
+name = "elxreno"
+url = "https://elxreno.cachix.org"
+key = "elxreno.cachix.org-1:ozSPSY5S3/TpbcXi+/DdtSj1JlK3CPz3G+F92yRBXDQ="
+
+[[vars.UPSTREAMS]]
+name = "numtide"
+url = "https://cache.numtide.com"
+key = "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
