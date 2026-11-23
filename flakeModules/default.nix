@@ -1,5 +1,6 @@
 {
   imports = [
+    ./cf-workers.nix
     ./clan.nix
     ./hydraJobs.nix
     ./outputs.nix

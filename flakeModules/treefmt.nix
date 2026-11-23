@@ -14,7 +14,6 @@
           prettier = {
             enable = true;
             includes = [ "*.js" ];
-            excludes = [ "terraform/workers/*" ];
           };
         };
 
