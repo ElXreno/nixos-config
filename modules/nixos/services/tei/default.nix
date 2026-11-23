@@ -15,9 +15,7 @@ let
     types
     ;
   cfg = config.${namespace}.services.tei;
-  tei = pkgs.${namespace}.text-embeddings-inference.override {
-    inherit (config.${namespace}.system.hardware.gpu.nvidia) cudaCapability;
-  };
+  tei = import ../_cuda-variant.nix args "text-embeddings-inference";
   idle = import ../_idle-backend.nix args;
 
   runner =

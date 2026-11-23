@@ -26,10 +26,20 @@ let
     final: _prev:
     let
       callPackage = lib.callPackageWith (final // { inherit inputs namespace; });
-      mkPackage = dir: lib.nameValuePair (baseNameOf dir) (callPackage dir { });
+      mkPackages =
+        dir:
+        let
+          file = import dir;
+          shape = builtins.tryEval (file (lib.mapAttrs (name: _: throw name) (lib.functionArgs file)));
+          result = callPackage dir { };
+        in
+        if shape.success && lib.isAttrs shape.value && !lib.isDerivation shape.value then
+          lib.mapAttrs (name: _: result.${name}) shape.value
+        else
+          { ${baseNameOf dir} = result; };
     in
     {
-      ${namespace} = lib.listToAttrs (map mkPackage packageDirs);
+      ${namespace} = lib.mergeAttrsList (map mkPackages packageDirs);
     };
 
 in

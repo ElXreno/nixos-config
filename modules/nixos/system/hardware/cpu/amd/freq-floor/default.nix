@@ -37,16 +37,7 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.power-profiles-daemon.package = mkIf ppd (
-      pkgs.power-profiles-daemon.overrideAttrs (prevAttrs: {
-        postPatch = (prevAttrs.postPatch or "") + ''
-          substituteInPlace src/ppd-driver-amd-pstate.c \
-            --replace-fail 'if (g_file_test (min_freq_path, G_FILE_TEST_EXISTS)) {' 'if (FALSE) {'
-          substituteInPlace tests/integration_test.py \
-            --replace-fail 'def test_amd_pstate_min_freq' 'def skip_amd_pstate_min_freq'
-        '';
-      })
-    );
+    services.power-profiles-daemon.package = mkIf ppd pkgs.power-profiles-daemon-no-min-freq;
 
     systemd.services.cpu-freq-floor = {
       description = "Raise the cpufreq floor while on AC power";

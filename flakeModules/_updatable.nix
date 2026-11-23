@@ -2,11 +2,11 @@
 let
   flake = builtins.getFlake flakePath;
   packages = flake.packages.${system};
-  prefix = "${flake.outPath}/packages/";
   own =
     name:
     let
       position = builtins.unsafeGetAttrPos "updateScript" packages.${name};
+      prefix = "${flake.outPath}/packages/${name}/";
     in
     packages.${name} ? updateScript
     && position != null

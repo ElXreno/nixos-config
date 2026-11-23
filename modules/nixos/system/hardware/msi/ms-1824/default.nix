@@ -17,15 +17,6 @@ let
     ;
   cfg = config.${namespace}.system.hardware.msi.ms-1824;
 
-  msi-ec = config.boot.kernelPackages.msi-ec.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [
-      (pkgs.fetchpatch {
-        url = "https://github.com/sidneib-accurati/msi-ec/commit/972f5a5f0c4ce945b21eec6f97f7935fb32aab93.patch";
-        hash = "sha256-YRAFRRnZsBDay/55GwDxKvc5/vZ+sAzRw1Sxb+ejoWQ=";
-      })
-    ];
-  });
-
   speakerFir = "${pkgs.${namespace}.msi-1824-speaker-fir}/share/msi-1824/speakers-fir.wav";
   codec = "pci-0000_80_1f.3-platform-skl_hda_dsp_generic.HiFi";
   speakerSink = "alsa_output.${codec}__Speaker__sink";
@@ -218,7 +209,7 @@ in
     };
 
     boot = {
-      extraModulePackages = [ msi-ec ];
+      extraModulePackages = [ config.boot.kernelPackages.msi-ec ];
       kernelModules = [ "msi-ec" ];
       kernelParams = [
         "i915.enable_dpcd_backlight=3"

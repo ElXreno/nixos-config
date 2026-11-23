@@ -36,9 +36,7 @@ let
     fi
   '';
 
-  serverPackage = pkgs.${namespace}.gtnh-server.override {
-    jre_headless = pkgs.graalvmPackages.graalvm-oracle;
-  };
+  serverPackage = pkgs.${namespace}.gtnh-server;
 
   configEntries = lib.mapAttrs' (
     name: _: lib.nameValuePair "config/${name}" "${serverPackage}/config/${name}"

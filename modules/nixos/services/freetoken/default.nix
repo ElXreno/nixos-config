@@ -17,9 +17,7 @@ let
     types
     ;
   cfg = config.${namespace}.services.freetoken;
-  freetoken = pkgs.${namespace}.freetoken.override {
-    cudaCapabilities = [ config.${namespace}.system.hardware.gpu.nvidia.cudaCapability ];
-  };
+  freetoken = import ../_cuda-variant.nix args "freetoken";
   idle = import ../_idle-backend.nix args;
 
   environment = {

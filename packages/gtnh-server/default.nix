@@ -1,7 +1,7 @@
 {
   lib,
   fetchurl,
-  jre_headless,
+  graalvmPackages,
   makeWrapper,
   stdenvNoCC,
   unzip,
@@ -41,7 +41,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       minecraft_server.1.7.10.jar \
       server-icon.png \
       $out/
-    makeWrapper ${jre_headless}/bin/java $out/bin/${finalAttrs.meta.mainProgram} \
+    makeWrapper ${graalvmPackages.graalvm-oracle}/bin/java $out/bin/${finalAttrs.meta.mainProgram} \
       --append-flags "@$out/java9args.txt -jar $out/lwjgl3ify-forgePatches.jar nogui"
     runHook postInstall
   '';

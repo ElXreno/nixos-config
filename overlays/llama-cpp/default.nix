@@ -17,4 +17,6 @@ final: prev: {
             "CUDA"
           ];
   });
+
+  llama-cpp-rerank-noblas = final.llama-cpp-rerank.override { blasSupport = false; };
 }

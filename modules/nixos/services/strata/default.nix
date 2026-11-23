@@ -15,10 +15,15 @@ let
     types
     ;
   cfg = config.${namespace}.services.strata;
-  strata = pkgs.${namespace}.strata.override {
-    cudaCapabilities = [ config.${namespace}.system.hardware.gpu.nvidia.cudaCapability ];
-    ggmlCpuFeatures = cfg.cpuFeatures;
-  };
+  variant = import ../_cuda-variant.nix args "strata";
+  strata =
+    if cfg.cpuFeatures == variant.ggmlCpuFeatures then
+      variant
+    else
+      pkgs.${namespace}.strata.override {
+        inherit (variant) cudaCapabilities;
+        ggmlCpuFeatures = cfg.cpuFeatures;
+      };
   json = pkgs.formats.json { };
   idle = import ../_idle-backend.nix args;
 
@@ -335,7 +340,8 @@ in
 
     cpuFeatures = mkOption {
       type = types.listOf types.str;
-      default = pkgs.${namespace}.strata.ggmlCpuFeatures;
+      default = variant.ggmlCpuFeatures;
+      defaultText = "The CPU features of the Strata variant for the GPU's CUDA capability.";
       description = "GGML_<feature> CPU flags the CPU expert kernels are built with.";
     };
 

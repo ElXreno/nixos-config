@@ -16,7 +16,7 @@ in
 {
   ${namespace}.services.llama-cpp = {
     enable = true;
-    package = pkgs.llama-cpp-rerank.override { blasSupport = false; };
+    package = pkgs.llama-cpp-rerank-noblas;
     instances.memory = {
       model = "${cfg.stateDir}/models/v5-small-retrieval-F16.gguf";
       port = 8096;

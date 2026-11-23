@@ -52,13 +52,6 @@ let
     }) cfg.plugins
   );
 
-  package = pkgs.noctalia.overrideAttrs (old: {
-    postFixup = old.postFixup + ''
-      wrapProgram $out/bin/noctalia \
-        --suffix PATH : ${lib.makeBinPath cfg.runtimeInputs}
-    '';
-  });
-
   msg = command: "noctalia msg ${command}";
   lockedMsg = command: {
     action.spawn-sh = msg command;
@@ -107,12 +100,6 @@ in
       default = { };
       description = "Plugins to install and enable, keyed by plugin id.";
     };
-
-    runtimeInputs = mkOption {
-      type = types.listOf types.package;
-      default = [ ];
-      description = "Packages added to the PATH of the shell and its plugins.";
-    };
   };
 
   config = mkIf cfg.enable {
@@ -120,7 +107,6 @@ in
 
     programs.noctalia = {
       enable = true;
-      inherit package;
       settings = {
         shell = {
           setup_wizard_enabled = false;
@@ -350,16 +336,6 @@ in
           noctaliaPlugin "community-plugins" "hassio" "693ddaf2cfc5dc3678d4e95aaa12e51b28655ef4"
             "sha256-aoIYNF5SPPtg9ZpJGVQMSHSap/0vVfg7rTLrLpYVyZ0=";
       };
-
-      runtimeInputs = with pkgs; [
-        glib
-        gpu-screen-recorder
-        slurp
-        sqlite
-        udiskie
-        xdg-user-dirs
-        xdg-utils
-      ];
     };
 
     programs.niri.settings = mkIf config.${namespace}.desktop-environments.niri.enable {

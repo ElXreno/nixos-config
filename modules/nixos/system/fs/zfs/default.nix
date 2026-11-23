@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   namespace,
   lib,
   pkgs,
@@ -13,7 +12,6 @@ let
     mkEnableOption
     mkOption
     types
-    optionals
     mapAttrs
     mapAttrs'
     mapAttrsToList
@@ -51,18 +49,7 @@ let
     ) (attrValues config.disko.devices.disk)
   );
 
-  mobilityPatches = inputs.zfs-slab-mobility.patches.zfs;
-
-  extraPatches = optionals cfg.arcFolioLru mobilityPatches.arclru;
-
-  withPatches =
-    zfs:
-    if extraPatches == [ ] then
-      zfs
-    else
-      zfs.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ extraPatches;
-      });
+  zfsAttr = if cfg.arcFolioLru then "zfs_2_4-arclru" else "zfs_2_4";
 in
 {
   options.${namespace}.system.fs.zfs = {
@@ -120,8 +107,8 @@ in
     boot = {
       zfs = {
         devNodes = mkIf (length zfsDiskDirs == 1) (head zfsDiskDirs);
-        package = withPatches pkgs.zfs_2_4;
-        modulePackage = withPatches config.boot.kernelPackages.zfs_2_4;
+        package = pkgs.${zfsAttr};
+        modulePackage = config.boot.kernelPackages.${zfsAttr};
       };
       initrd.supportedFilesystems = [ "zfs" ];
       supportedFilesystems = [ "zfs" ];

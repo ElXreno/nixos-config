@@ -106,7 +106,6 @@ in
 
       strata = {
         enable = true;
-        cpuFeatures = [ "AVX_VNNI" ];
         conversationCacheDir = "/mnt/models/strata-conversations";
         instances.qwen = {
           pack = "/mnt/models/qwen3.8-flash-next-nvfp4-gptq-strata/pack";

@@ -15,15 +15,6 @@ let
     optionalAttrs
     ;
   cfg = config.${namespace}.programs.mpv;
-
-  package = pkgs.mpv.override {
-    scripts = with pkgs.mpvScripts; [
-      mpris
-      sponsorblock
-      quality-menu
-    ];
-    youtubeSupport = true;
-  };
 in
 {
   options.${namespace}.programs.mpv = {
@@ -35,12 +26,15 @@ in
   };
 
   config = mkIf cfg.enable {
-    xdg.mimeApps.defaultApplicationPackages = [ package ];
+    xdg.mimeApps.defaultApplicationPackages = [ config.programs.mpv.finalPackage ];
 
     programs.mpv = {
-      inherit package;
-
       enable = true;
+      scripts = with pkgs.mpvScripts; [
+        mpris
+        sponsorblock
+        quality-menu
+      ];
       config = {
         ytdl-format = "bestvideo[height<=1080]+(bestaudio[acodec=opus]/bestaudio)/best[height<=1080]";
         hwdec = "vulkan,vaapi";
