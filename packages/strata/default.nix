@@ -69,7 +69,7 @@ let
       buildInputs = with cudaPackages; [
         cccl
         cuda_cudart
-        cuda_nvtx
+        nvtx
         cuda_profiler_api
         libcublas
       ];
