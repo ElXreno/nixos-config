@@ -13,6 +13,8 @@ let
     mkMerge
     ;
   cfg = config.${namespace}.system.nix;
+
+  cacheProxy = lib.importTOML ../../../../cf-workers/nix-cache-proxy/wrangler.toml;
 in
 {
   options.${namespace}.system.nix = {
@@ -78,11 +80,13 @@ in
           auto-allocate-uids = true;
 
           substituters = [
+            "https://${(lib.head cacheProxy.routes).pattern}?priority=10"
             "${config.${namespace}.services.niks3.url}?priority=11"
           ];
           trusted-public-keys = [
             config.${namespace}.services.niks3.publicKey
-          ];
+          ]
+          ++ map (upstream: upstream.key) cacheProxy.vars.UPSTREAMS;
 
           min-free = 2 * 1024 * 1024 * 1024; # 2GB
           max-free = 5 * 1024 * 1024 * 1024; # 5GB

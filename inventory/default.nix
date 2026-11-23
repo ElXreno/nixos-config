@@ -6,7 +6,6 @@
     ./instances/kopia.nix
     ./instances/modules.nix
     ./instances/monitoring.nix
-    ./instances/ncps.nix
     ./instances/pam-rssh.nix
     ./instances/roles.nix
     ./instances/sing-box.nix

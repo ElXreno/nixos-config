@@ -59,7 +59,7 @@
 
 - **Tailscale** is the inter-machine network (replaced Yggdrasil). Clan domain is `angora-ide.ts.net`; modules read it as `config.clan.core.settings.domain` (HM: `osConfig.clan.core.settings.domain`), never as a literal
 - **Clan host discovery** comes from the `tailscale` clanService (`clanServices/tailscale`), which exports each machine's MagicDNS hostname as `peer.hosts` (lowercase: `bimba`, `grate`, etc.)
-- **ncps cache** resolves as `http://BIMBA.angora-ide.ts.net:8501`
+- **Third-party binary caches** go through the Worker `cache.nixos.elxreno.com` (`cf-workers/nix-cache-proxy`); `${namespace}.system.nix` reads its address and the upstream keys from that Worker's `wrangler.toml`, so an upstream is added in one place
 - **Tailscale overlay** patches `socketBufferSize` from 7MB to 16MB to eliminate UDP recv buffer drops
 - **TCP buffer tuning**: desktop `tcp_rmem`/`tcp_wmem` max = 64MB, `rmem_max`/`wmem_max` = 128MB — needed because wireguard-go packet reordering causes TCP rcv_ssthresh collapse with smaller buffers
 

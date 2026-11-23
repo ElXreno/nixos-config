@@ -101,13 +101,6 @@
               recordsize = "1M";
             };
           };
-          "root-persist/ncps" = {
-            type = "zfs_fs";
-            mountpoint = "/var/lib/ncps";
-            options = {
-              recordsize = "1M";
-            };
-          };
           "root-persist/ccache" = {
             type = "zfs_fs";
             mountpoint = "/mnt/scratch/ccache";
