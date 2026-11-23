@@ -250,6 +250,9 @@ in
               };
 
               crowdsec-firewall-bouncer.after = [ "multi-user.target" ];
+              crowdsec-firewall-bouncer-register = lib.mkIf isServer {
+                after = [ "multi-user.target" ];
+              };
             };
           };
       };
