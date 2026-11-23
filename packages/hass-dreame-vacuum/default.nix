@@ -54,13 +54,13 @@ in
 buildHomeAssistantComponent rec {
   owner = "Tasshack";
   domain = "dreame_vacuum";
-  version = "2.0.0b22";
+  version = "2.0.3";
 
   src = fetchFromGitHub {
     inherit owner;
     repo = "dreame-vacuum";
     tag = "v${version}";
-    hash = "sha256-Ze7Pn3fDbEjUMzeNJ3MZ+rYPIjQG74/Kpf8lPwyd0RU=";
+    hash = "sha256-CAx0vhpFybmXGERGBTGIBjzByPsX2b6WQgPBlCmpYys=";
   };
 
   dependencies = [

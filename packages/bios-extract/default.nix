@@ -7,13 +7,13 @@
 
 stdenv.mkDerivation {
   pname = "bios-extract";
-  version = "0-unstable-2023-05-11";
+  version = "0-unstable-2023-06-10";
 
   src = fetchFromGitHub {
     owner = "coreboot";
     repo = "bios_extract";
-    rev = "f7e3b69870decfaab76e396a3ab7b75f0cb1a20d";
-    hash = "sha256-oWTgowCx5YF3hqWELAp0iLUV6Zv2lQEGzv4FeJBcZpY=";
+    rev = "0a7bc1d71735ef97b00dfec0fd54a02fcc5d1bb0";
+    hash = "sha256-gmQu8a/RHIRMZuWKLAYjUiQ2KTtu3uOf63g31k+jTGQ=";
   };
 
   installPhase = ''
