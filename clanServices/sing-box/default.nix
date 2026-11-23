@@ -61,9 +61,15 @@ in
           let
             inherit (lib)
               attrNames
+              attrValues
               elem
+              filter
               listToAttrs
               ;
+
+            ownAddresses = filter (address: address != null) (
+              attrValues config.${namespace}.system.networking.dns.addresses
+            );
 
             clientMachines = attrNames (roles.client.machines or { });
             allClients = clientMachines ++ settings.extraClients;
@@ -102,7 +108,39 @@ in
               }
             '';
 
-            systemd.services.sing-box.serviceConfig.Nice = -10;
+            systemd.services.sing-box.serviceConfig = {
+              Nice = -10;
+              CapabilityBoundingSet = "";
+              AmbientCapabilities = "";
+              NoNewPrivileges = true;
+              ProtectSystem = "strict";
+              ProtectHome = true;
+              PrivateTmp = true;
+              PrivateDevices = true;
+              ProtectKernelTunables = true;
+              ProtectKernelModules = true;
+              ProtectKernelLogs = true;
+              ProtectControlGroups = true;
+              ProtectClock = true;
+              ProtectHostname = true;
+              ProtectProc = "invisible";
+              RestrictAddressFamilies = [
+                "AF_INET"
+                "AF_INET6"
+                "AF_NETLINK"
+                "AF_UNIX"
+              ];
+              RestrictNamespaces = true;
+              RestrictRealtime = true;
+              RestrictSUIDSGID = true;
+              LockPersonality = true;
+              MemoryDenyWriteExecute = true;
+              SystemCallArchitectures = "native";
+              SystemCallFilter = [
+                "@system-service"
+                "~@privileged"
+              ];
+            };
 
             services.sing-box = {
               enable = true;
@@ -183,6 +221,12 @@ in
                     }
                     {
                       protocol = "bittorrent";
+                      action = "reject";
+                    }
+                    { action = "resolve"; }
+                    {
+                      ip_is_private = true;
+                      ip_cidr = [ "100.64.0.0/10" ] ++ ownAddresses;
                       action = "reject";
                     }
                   ];
