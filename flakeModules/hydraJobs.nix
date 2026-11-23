@@ -9,7 +9,7 @@ in
   flake.hydraJobs = toplevels;
 
   perSystem =
-    { config, system, ... }:
+    { config, ... }:
     let
       updatable = lib.filterAttrs (
         _: package:
@@ -21,9 +21,7 @@ in
     in
     {
       checks =
-        lib.mapAttrs' (name: toplevel: lib.nameValuePair "nixos-${name}" toplevel) (
-          lib.filterAttrs (_: toplevel: toplevel.system == system) toplevels
-        )
+        lib.mapAttrs' (name: toplevel: lib.nameValuePair "nixos-${name}" toplevel) toplevels
         // lib.mapAttrs' (
           name: _: lib.nameValuePair "package-${name}" config.legacyPackages.cuda.${clanMeta.name}.${name}
         ) updatable

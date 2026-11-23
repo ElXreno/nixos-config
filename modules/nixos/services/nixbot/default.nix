@@ -120,7 +120,7 @@ in
       useHTTPS = true;
       nginx.enable = false;
       allowUnauthenticatedControl = true;
-      buildSystems = [ config.nixpkgs.hostPlatform.system ];
+      buildSystems = [ config.nixpkgs.hostPlatform.system ] ++ config.boot.binfmt.emulatedSystems;
       inherit (cfg) buildConcurrency;
       buildMaxSilentTime = 3600;
       database = {
