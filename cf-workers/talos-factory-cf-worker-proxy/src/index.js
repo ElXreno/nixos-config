@@ -3,6 +3,13 @@ const UPSTREAM_DOMAIN_SUFFIX = ".talos.dev";
 const PUBLIC_ORIGIN = "https://factory.talos.elxreno.com";
 const FRONTEND_CACHE_TTL_SECONDS = 7200;
 const STATIC_INSTALLER_CACHE_TTL_SECONDS = 2592000;
+const CACHE_KEY_PREFIX = "/__cache-v2";
+
+function cacheKeyFor(url) {
+  const key = new URL(url);
+  key.pathname = CACHE_KEY_PREFIX + url.pathname;
+  return new Request(key.toString(), { method: "GET" });
+}
 
 function hasArtifactHash(pathname) {
   return /(?:^|\/)[A-Fa-f0-9]{64}(?=[:/]|$)/.test(pathname);
@@ -70,7 +77,7 @@ export default {
     // Use a normalised GET-based key so HEAD requests share the same
     // cache entry as GET requests for the same URL.
     const cache = caches.default;
-    const cacheKey = new Request(incomingUrl.toString(), { method: "GET" });
+    const cacheKey = cacheKeyFor(incomingUrl);
     const cachedResponse = await cache.match(cacheKey);
     if (cachedResponse) {
       if (method === "HEAD") {
@@ -170,7 +177,7 @@ export default {
 
     // Store in Cache API for future requests. Cache API requires a
     // GET-keyed response with a Cache-Control header.
-    if (response.status === 200) {
+    if (method === "GET" && response.status === 200) {
       const responseToCache = response.clone();
       const cacheHeaders = new Headers(responseToCache.headers);
       cacheHeaders.set("Cache-Control", `public, max-age=${cacheTtl}`);
