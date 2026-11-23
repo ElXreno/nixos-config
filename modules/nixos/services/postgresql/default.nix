@@ -189,9 +189,6 @@ in
         ensureDBOwnership = db.locale == null && db.owner == name;
       }) cfg.databases;
       inherit (cfg) package;
-      authentication = lib.mkForce ''
-        local all all trust
-      '';
       settings = {
         shared_buffers = "${toString sharedBuffersMiB}MB";
         effective_cache_size = "${toString effectiveCacheSizeMiB}MB";

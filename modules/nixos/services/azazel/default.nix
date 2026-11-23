@@ -33,6 +33,7 @@ in
           pgvector
         ];
       settings.shared_preload_libraries = "timescaledb";
+      authentication = "local azazel_lowcost azazel_lowcost trust";
     };
   };
 }
