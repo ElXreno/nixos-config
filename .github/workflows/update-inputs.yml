@@ -39,6 +39,9 @@ jobs:
           # shellcheck disable=SC2086
           nix flake update $inputs
 
+      - name: Drop merged nixpkgs patches
+        run: bash .github/scripts/drop-merged-patches.sh
+
       - name: Open pull request
         run: |
           set -euo pipefail
@@ -50,8 +53,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$BRANCH"
           : > "$RUNNER_TEMP/body.md"
-          if ! git diff --quiet -- flake.lock; then
-            git commit -m "build(deps): update flake inputs" -- flake.lock
+          if ! git diff --quiet -- flake.lock flake.nix; then
+            git commit -m "build(deps): update flake inputs" -- flake.lock flake.nix
             jq -r -s -f .github/scripts/lock-diff.jq "$RUNNER_TEMP/before.lock" flake.lock >> "$RUNNER_TEMP/body.md"
             echo >> "$RUNNER_TEMP/body.md"
           fi
