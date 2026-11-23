@@ -83,6 +83,16 @@
         forwardedPort = 2769;
       };
       niks3.push.enable = true;
+      nix-farm = {
+        enable = true;
+        acOnly = true;
+        pauseFor = [
+          "freetoken-ornith-backend"
+          "freetoken-ornith35-backend"
+          "strata-qwen-backend"
+          "strata-swift-backend"
+        ];
+      };
 
       flydigictl.enable = true;
 
