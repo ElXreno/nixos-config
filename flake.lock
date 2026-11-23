@@ -144,11 +144,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794711158,
-        "narHash": "sha256-wx5FFPw3ihz5/a/K7jxmGNEr+VFrsO0fdlxc5lyvIVA=",
+        "lastModified": 1795402653,
+        "narHash": "sha256-oK4ltxqEzv5wVzDryKa0duLLRcM/mnYozUyeg8LsvKc=",
         "owner": "ElXreno",
         "repo": "nixos-courbet",
-        "rev": "ae1cc6b060aae2c2eb2de550cc4f0159f27cc532",
+        "rev": "a30ed0784a38d42b7a5ff39a54eabeb20691f5ac",
         "type": "github"
       },
       "original": {

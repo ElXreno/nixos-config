@@ -9,7 +9,7 @@
 
   ${namespace} = {
     desktop-environments.plasma-mobile.enable = true;
-    system.boot.kernel.enable = false;
+    system.boot.kernel.packages = pkgs.linuxPackagesFor inputs.courbet.packages.x86_64-linux.kernel;
     services.monitoring.agent.journal.enable = false;
   };
 

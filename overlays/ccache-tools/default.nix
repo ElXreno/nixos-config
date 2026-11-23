@@ -3,6 +3,7 @@ _:
 final: _prev: {
   ccacheTools = final.lib.makeOverridable (
     {
+      pkgs ? final,
       cacheDir ? "/nix/ccache",
       settings ? {
         max_size = "300G";
@@ -12,7 +13,7 @@ final: _prev: {
       },
     }:
     let
-      inherit (final.lib)
+      inherit (pkgs.lib)
         isBool
         boolToString
         mapAttrsToList
@@ -22,7 +23,7 @@ final: _prev: {
       renderSetting =
         key: value: "${key} = ${if isBool value then boolToString value else toString value}";
 
-      confFile = final.writeText "ccache.conf" (
+      confFile = pkgs.writeText "ccache.conf" (
         concatStringsSep "\n" (mapAttrsToList renderSetting settings) + "\n"
       );
 
@@ -40,25 +41,25 @@ final: _prev: {
 
       wrapStdenv =
         stdenv:
-        final.stdenvAdapters.overrideCC stdenv (
+        pkgs.stdenvAdapters.overrideCC stdenv (
           stdenv.cc.override {
-            cc = final.ccache.links {
+            cc = pkgs.ccache.links {
               unwrappedCC = stdenv.cc.cc;
               extraConfig = environment "string:${stdenv.cc.cc}";
             };
           }
         );
 
-      launcher = final.writeShellScript "ccache-launcher" ''
+      launcher = pkgs.writeShellScript "ccache-launcher" ''
         ${environment "content"}
-        exec ${final.lib.getExe final.ccache} "$@"
+        exec ${pkgs.lib.getExe pkgs.ccache} "$@"
       '';
 
       wrapCompiler =
         compiler: name:
-        final.writeShellScriptBin name ''
+        pkgs.writeShellScriptBin name ''
           ${environment "string:${compiler}"}
-          exec ${final.lib.getExe final.ccache} ${final.lib.getBin compiler}/bin/${name} "$@"
+          exec ${pkgs.lib.getExe pkgs.ccache} ${pkgs.lib.getBin compiler}/bin/${name} "$@"
         '';
     }
   ) { };
