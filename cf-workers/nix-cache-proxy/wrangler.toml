@@ -1,6 +1,6 @@
 name = "nix-cache-proxy"
 main = "src/index.js"
-compatibility_date = "2026-10-01"
+compatibility_date = "2026-11-19"
 workers_dev = false
 preview_urls = false
 
