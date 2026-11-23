@@ -45,7 +45,6 @@
           ../terraform/s4-policy.nix
           ../terraform/cloudflare-dns.nix
           ../terraform/cloudflare-zone.nix
-          ../terraform/cloudflare-workers.nix
           ../terraform/cloudflare-tunnels.nix
         ];
         extraArgs = {
