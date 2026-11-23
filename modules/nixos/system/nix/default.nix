@@ -80,8 +80,8 @@ in
           auto-allocate-uids = true;
 
           substituters = [
-            "https://${(lib.head cacheProxy.routes).pattern}?priority=10"
-            "${config.${namespace}.services.niks3.url}?priority=11"
+            "${config.${namespace}.services.niks3.url}?priority=10"
+            "https://${(lib.head cacheProxy.routes).pattern}?priority=11"
           ];
           trusted-public-keys = [
             config.${namespace}.services.niks3.publicKey
