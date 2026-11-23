@@ -358,6 +358,7 @@ in
                   "quay.io"
                   "qualcomm.com"
                   "fragment.com"
+                  "nvidia.com"
 
                   "geosite:microsoft"
                 ];
