@@ -67,6 +67,10 @@
             url = "https://github.com/ElXreno/nixos-config";
             branch = "auto-update";
           };
+          "ElXreno/nixos-config-go-modules" = {
+            url = "https://github.com/ElXreno/nixos-config";
+            branch = "renovate/go-modules";
+          };
         };
       };
       minecraft.atm10.enable = false;
