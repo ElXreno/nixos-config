@@ -169,6 +169,36 @@ in
             ;
         };
       };
+
+      xolotl = {
+        enable = true;
+        cacheDir = "/mnt/models/xolotl-cache";
+        instances.deepseek =
+          let
+            root = "/mnt/models/deepseek-v4.1-flash-1017-xolotl";
+            fast = "${root}/xq/v4-fast/V41-XQ-1017-v4.mxfp4-q3k.q2k.im.x41s";
+          in
+          {
+            model = "${root}/xq/v4/V41-XQ-1017-v4.gguf";
+            rank = "${root}/xq/v4/rank-1017-v4.bin";
+            engram = [
+              "${root}/engram-a"
+              "${root}/engram-b"
+            ];
+            tokenizer = "${root}/xq/tokenizer";
+            dspark = "${root}/xq/V41-MTP-Vision-1017.Q2_K.gguf";
+            shadow = [
+              "${fast}.g10d42"
+              "${fast}.g42d10"
+              fast
+              "${fast}.g10d143"
+              "${fast}.g143d10"
+            ];
+            port = 8101;
+            backendPort = 18101;
+            webSearch.searxng = "http://127.0.0.1:${toString config.${namespace}.ports.searxng}";
+          };
+      };
     };
   };
 }

@@ -15,7 +15,7 @@ let
   cfg = config.${namespace}.services.llm-gateway;
   services = config.${namespace}.services;
 
-  backends = lib.filterAttrs (_: s: s.enable) { inherit (services) freetoken strata; };
+  backends = lib.filterAttrs (_: s: s.enable) { inherit (services) freetoken strata xolotl; };
 
   routes = lib.concatLists (
     lib.mapAttrsToList (

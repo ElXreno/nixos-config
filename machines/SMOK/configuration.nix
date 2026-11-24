@@ -91,6 +91,7 @@
           "freetoken-ornith35-backend"
           "strata-qwen-backend"
           "strata-swift-backend"
+          "xolotl-deepseek-backend"
         ];
       };
 
