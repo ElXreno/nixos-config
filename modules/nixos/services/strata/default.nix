@@ -83,10 +83,11 @@ let
           ]
           ++ optionals (i.conversationCache.disk.dir != null) (
             [
-              "--conversation-cache-spill-dir"
+              "--conversation-spill-dir"
               i.conversationCache.disk.dir
-              "--conversation-cache-disk-mib"
+              "--conversation-spill-mib"
               (toString i.conversationCache.disk.mib)
+              "--conversation-spill-persist"
             ]
             ++ optionals i.conversationCache.disk.only [ "--conversation-cache-disk-only" ]
           )
@@ -178,7 +179,7 @@ let
         };
         expertProfile = mkOption {
           type = types.str;
-          default = "${strata}/share/strata/data/expert-profile.bin";
+          default = "${strata}/share/strata/terminal/data/expert-profile.bin";
           defaultText = "The expert profile shipped with the engine.";
           description = "Expert routing profile that seeds the VRAM expert cache.";
         };
@@ -251,7 +252,7 @@ let
           enable = mkEnableOption "removing a direction from the residual stream";
           direction = mkOption {
             type = types.str;
-            default = "${strata}/share/strata/data/experimental-speed-projection/Qwen3.8-Flash-Next-experimental-speed-projection.gguf";
+            default = "${strata}/share/strata/terminal/data/experimental-speed-projection/Qwen3.8-Flash-Next-experimental-speed-projection.gguf";
             defaultText = "The refusal-direction control vector shipped with the engine.";
             description = "Control vector GGUF with a `direction.<layer>` tensor per layer.";
           };
