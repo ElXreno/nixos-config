@@ -19,7 +19,7 @@ in
       enable = true;
       servers.ghidra-mcp.command = "${lib.getExe pkgs.${namespace}.ghidra-mcp}";
       servers.rea = {
-        command = lib.getExe pkgs.${namespace}.rea-with-ghidra;
+        command = lib.getExe pkgs.${namespace}.rea-full;
         args = [ "mcp" ];
       };
     };
