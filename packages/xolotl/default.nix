@@ -19,8 +19,8 @@ let
   src = fetchFromGitHub {
     owner = "ElXreno";
     repo = "Xolotl";
-    rev = "e3a01d855cf9f3f901a1f93ad88a1b93751bd699";
-    hash = "sha256-mslun9zqZdpUGumfSpfTVghsdZBEryoYgPnNVPKMmZI=";
+    rev = "a0f520a94b3299061878c6500910cda2000336ba";
+    hash = "sha256-2e1AN4FZaITmD4uS3csafpiMv8vIB7dDVHdsoxAx1mI=";
   };
 
   llamaCpp = applyPatches {

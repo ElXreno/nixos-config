@@ -43,7 +43,7 @@ let
     export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$ctx"
     export CLAUDE_CODE_MAX_OUTPUT_TOKENS=${toString cfg.local.maxOutputTokens}
     export CLAUDE_CODE_ATTRIBUTION_HEADER=0
-    export ENABLE_TOOL_SEARCH=false
+    export ENABLE_TOOL_SEARCH="$toolsearch"
     export CLAUDE_LOCAL_COMMAND="claude-local-$peer"
     exec claude --model "$model" --settings ${settings} --permission-mode ${cfg.local.permissionMode} "$@"
   '';
@@ -57,6 +57,7 @@ let
         peer=${m.peer}
         model=${m.model}
         ctx=${toString m.ctxSize}
+        toolsearch=${lib.boolToString m.toolSearch}
       ''
       + launch;
     };
@@ -77,15 +78,21 @@ let
       peer=${(lib.head ordered).peer}
       model=${(lib.head ordered).model}
       ctx=${toString (lib.head ordered).ctxSize}
+      toolsearch=${lib.boolToString (lib.head ordered).toolSearch}
       for entry in ${
-        lib.escapeShellArgs (map (m: "${m.unit}|${m.peer}|${m.model}|${toString m.ctxSize}") ordered)
+        lib.escapeShellArgs (
+          map (
+            m: "${m.unit}|${m.peer}|${m.model}|${toString m.ctxSize}|${lib.boolToString m.toolSearch}"
+          ) ordered
+        )
       }; do
-        IFS='|' read -r unit name candidate size <<< "$entry"
+        IFS='|' read -r unit name candidate size search <<< "$entry"
         state=$(systemctl is-active "$unit" || true)
         if [[ $state == active || $state == activating || $state == reloading ]]; then
           peer=$name
           model=$candidate
           ctx=$size
+          toolsearch=$search
           break
         fi
       done

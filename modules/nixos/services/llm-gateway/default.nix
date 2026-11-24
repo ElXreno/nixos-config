@@ -25,6 +25,10 @@ let
         model = i.servedModelName;
         inherit (i) port ctxSize;
         unit = "${backend}-${name}-backend.service";
+        toolSearch = lib.elem backend [
+          "strata"
+          "xolotl"
+        ];
       }) s.instances
     ) backends
   );
@@ -62,7 +66,7 @@ in
       type = types.listOf types.attrs;
       readOnly = true;
       default = lib.optionals cfg.enable routes;
-      defaultText = "One entry per routed model: peer, model, port, ctxSize and unit.";
+      defaultText = "One entry per routed model: peer, model, port, ctxSize, unit and toolSearch.";
       description = "Models the gateway routes, as local clients see them.";
     };
   };
