@@ -66,6 +66,7 @@ in
     home.packages = [
       sweepLedger
       memoryReconcile
+      pkgs.${namespace}.rea-with-ghidra
     ];
 
     home.file.".claude/workflows" = {
@@ -98,6 +99,7 @@ in
       skills.agent-browser = "${pkgs.agent-browser}/share/agent-browser/skills/agent-browser";
       skills.memory-migrate = ./skills/memory-migrate;
       skills.exhaustive-sweep = ./skills/exhaustive-sweep;
+      skills.reverse-engineer-anything = pkgs.${namespace}.rea-with-ghidra.skill;
 
       plugins.claude-security = "${officialPlugins}/plugins/claude-security";
       plugins.frontend-design = "${officialPlugins}/plugins/frontend-design";

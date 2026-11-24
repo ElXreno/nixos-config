@@ -18,6 +18,10 @@ in
     programs.mcp = {
       enable = true;
       servers.ghidra-mcp.command = "${lib.getExe pkgs.${namespace}.ghidra-mcp}";
+      servers.rea = {
+        command = lib.getExe pkgs.${namespace}.rea-with-ghidra;
+        args = [ "mcp" ];
+      };
     };
   };
 }
