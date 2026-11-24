@@ -232,7 +232,7 @@ in
           hwmon = "thermal";
           label = "SEN3";
         };
-        panic_c = 60;
+        panic_c = 62;
         points = [
           {
             temp_c = 40;
@@ -252,10 +252,18 @@ in
           }
           {
             temp_c = 53;
-            rpm = 2800;
+            rpm = 2200;
           }
           {
             temp_c = 57;
+            rpm = 2600;
+          }
+          {
+            temp_c = 62;
+            rpm = 2600;
+          }
+          {
+            temp_c = 64;
             rpm = 4000;
           }
         ];
