@@ -17,10 +17,10 @@ let
   cudaPackages = cudaPackages_13_0;
 
   src = fetchFromGitHub {
-    owner = "Indras-Mirror";
+    owner = "ElXreno";
     repo = "Xolotl";
-    rev = "7833f7d4ff1cdf9bfde199f6f943ef93d4a5f877";
-    hash = "sha256-l3Z7nuVUhLYp04Hxo95H0WfKngALJo/Anb63N9iKf9U=";
+    rev = "e3a01d855cf9f3f901a1f93ad88a1b93751bd699";
+    hash = "sha256-mslun9zqZdpUGumfSpfTVghsdZBEryoYgPnNVPKMmZI=";
   };
 
   llamaCpp = applyPatches {
