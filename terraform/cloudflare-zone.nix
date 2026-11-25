@@ -7,6 +7,16 @@
 let
   zoneId = config.data.cloudflare_zone.this "zone_id";
 
+  cacheProxyHost =
+    (lib.head (lib.importTOML ../cf-workers/nix-cache-proxy/wrangler.toml).routes).pattern;
+
+  cacheProxyPath = lib.concatStringsSep " or " [
+    ''http.request.uri.path in {"/" "/nix-cache-info"}''
+    ''starts_with(http.request.uri.path, "/u/")''
+    ''starts_with(http.request.uri.path, "/cdn-cgi/")''
+    ''(ends_with(http.request.uri.path, ".narinfo") and len(http.request.uri.path) eq 41)''
+  ];
+
   ruleset = phase: rules: {
     zone_id = zoneId;
     name = "default";
@@ -32,6 +42,13 @@ in
         ref = "555d10fa161d4ed599f442e478e57017";
         description = "hass from belarus only";
         expression = ''(http.host eq "hass.${dns.zone}" and ip.src.country ne "BY")'';
+        action = "block";
+        enabled = true;
+      }
+      {
+        ref = "9ef6a279d8243979a67131d56d0821d9";
+        description = "nix cache proxy: binary cache paths only";
+        expression = ''(http.host eq "${cacheProxyHost}" or starts_with(http.host, "${cacheProxyHost}:")) and (not http.request.method in {"GET" "HEAD"} or not (${cacheProxyPath}))'';
         action = "block";
         enabled = true;
       }
