@@ -5,6 +5,7 @@ _final: prev: {
     patches = (prevAttrs.patches or [ ]) ++ [
       ./retry-backoff-60s.patch
       ./export-unflushed-bytes.patch
+      ./metadata-memory-size.patch
     ];
   });
 }

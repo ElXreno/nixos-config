@@ -1,0 +1,136 @@
+diff --git a/src/cli/debug.rs b/src/cli/debug.rs
+index cc6c612..393aa05 100644
+--- a/src/cli/debug.rs
++++ b/src/cli/debug.rs
+@@ -104,6 +104,7 @@ pub async fn list_keys(config_path: PathBuf) -> Result<()> {
+         root_folder: settings.cache.dir.clone(),
+         max_cache_size_gb: settings.cache.disk_size_gb,
+         memory_cache_size_gb: settings.cache.memory_size_gb,
++        metadata_memory_cache_size_gb: settings.cache.metadata_memory_size_gb,
+     };
+ 
+     let env_vars = settings.cloud_provider_env_vars();
+diff --git a/src/cli/init.rs b/src/cli/init.rs
+index 13e32ce..65f45df 100644
+--- a/src/cli/init.rs
++++ b/src/cli/init.rs
+@@ -127,6 +127,7 @@ impl StartupContext {
+             root_folder: settings.cache.dir.clone(),
+             max_cache_size_gb: settings.cache.disk_size_gb,
+             memory_cache_size_gb: settings.cache.memory_size_gb,
++            metadata_memory_cache_size_gb: settings.cache.metadata_memory_size_gb,
+         };
+ 
+         let env_vars = settings.cloud_provider_env_vars();
+@@ -1119,6 +1120,7 @@ mod role_decision_tests {
+                 root_folder: std::env::temp_dir(),
+                 max_cache_size_gb: 0.0,
+                 memory_cache_size_gb: None,
++                metadata_memory_cache_size_gb: None,
+             },
+             dedup: Arc::new(crate::dedup::DedupCache::new()),
+             replication_params: Some(ReplicationParams {
+diff --git a/src/cli/server.rs b/src/cli/server.rs
+index 5403902..999f828 100644
+--- a/src/cli/server.rs
++++ b/src/cli/server.rs
+@@ -474,11 +474,17 @@ pub(crate) fn split_disk_budget(total_disk_bytes: usize) -> (usize, usize) {
+ /// decoded_blocks_memory_bytes). Same data-favored split as
+ /// [`split_disk_budget`], with memory-scale floors so a small default still
+ /// splits.
+-pub(crate) fn split_memory_budget(total_memory_bytes: usize) -> (usize, usize) {
++pub(crate) fn split_memory_budget(
++    total_memory_bytes: usize,
++    metadata_memory_bytes: Option<usize>,
++) -> (usize, usize) {
+     const MIN_BYTES: usize = 32 * 1024 * 1024; // 32 MiB floor per side
+     const MAX_META_BYTES: usize = 2 * 1024 * 1024 * 1024; // metadata blocks rarely need more
+ 
+-    let decoded = (total_memory_bytes / 4).clamp(MIN_BYTES, MAX_META_BYTES);
++    let decoded = match metadata_memory_bytes {
++        Some(bytes) => bytes.max(MIN_BYTES),
++        None => (total_memory_bytes / 4).clamp(MIN_BYTES, MAX_META_BYTES),
++    };
+     let parts = total_memory_bytes.saturating_sub(decoded).max(MIN_BYTES);
+     (parts, decoded)
+ }
+@@ -538,7 +544,11 @@ pub async fn build_slatedb(
+     let total_disk_bytes = (total_disk_cache_gb * 1_000_000_000.0) as usize;
+     let (parts_disk_bytes, hybrid_disk_bytes) = split_disk_budget(total_disk_bytes);
+     let total_memory_bytes = (total_memory_cache_gb * 1_000_000_000.0) as usize;
+-    let (parts_memory_bytes, hybrid_memory_bytes) = split_memory_budget(total_memory_bytes);
++    let metadata_memory_bytes = cache_config
++        .metadata_memory_cache_size_gb
++        .map(|gb| (gb * 1_000_000_000.0) as usize);
++    let (parts_memory_bytes, hybrid_memory_bytes) =
++        split_memory_budget(total_memory_bytes, metadata_memory_bytes);
+ 
+     info!(
+         "Cache allocation - Disk: {:.2}GB total ({} MB decoded-blocks + {} MB raw-parts), \
+@@ -1295,11 +1305,30 @@ mod tests {
+         let mib = 1024 * 1024;
+         let gib = 1024 * mib;
+         // 25% to metadata blocks, the rest to segment parts.
+-        assert_eq!(split_memory_budget(gib), (768 * mib, 256 * mib));
++        assert_eq!(split_memory_budget(gib, None), (768 * mib, 256 * mib));
+         // Metadata capped at 2 GiB on a huge budget; parts get everything else.
+-        assert_eq!(split_memory_budget(40 * gib), (38 * gib, 2 * gib));
++        assert_eq!(split_memory_budget(40 * gib, None), (38 * gib, 2 * gib));
+         // Tiny budgets floor each side at 32 MiB.
+-        assert_eq!(split_memory_budget(16 * mib), (32 * mib, 32 * mib));
++        assert_eq!(split_memory_budget(16 * mib, None), (32 * mib, 32 * mib));
++    }
++
++    #[test]
++    fn split_memory_budget_honours_metadata_size() {
++        let mib = 1024 * 1024;
++        let gib = 1024 * mib;
++        assert_eq!(
++            split_memory_budget(gib + 256 * mib, Some(gib)),
++            (256 * mib, gib)
++        );
++        assert_eq!(
++            split_memory_budget(8 * gib, Some(4 * gib)),
++            (4 * gib, 4 * gib)
++        );
++        assert_eq!(split_memory_budget(gib, Some(gib)), (32 * mib, gib));
++        assert_eq!(
++            split_memory_budget(gib, Some(mib)),
++            (gib - 32 * mib, 32 * mib)
++        );
+     }
+ 
+     // foyer builds the same `I/O error => coding error` wrapping around the os
+diff --git a/src/config.rs b/src/config.rs
+index bf63c7a..1171543 100644
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -270,6 +270,8 @@ pub struct CacheConfig {
+     pub disk_size_gb: f64,
+     #[serde(skip_serializing_if = "Option::is_none")]
+     pub memory_size_gb: Option<f64>,
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub metadata_memory_size_gb: Option<f64>,
+     #[serde(default)]
+     pub warm_metadata: WarmMetadata,
+ }
+@@ -902,6 +904,7 @@ impl Settings {
+                 dir: PathBuf::from("${HOME}/.cache/zerofs"),
+                 disk_size_gb: 10.0,
+                 memory_size_gb: Some(1.0),
++                metadata_memory_size_gb: None,
+                 warm_metadata: WarmMetadata::default(),
+             },
+             storage: StorageConfig {
+diff --git a/src/fs/mod.rs b/src/fs/mod.rs
+index 2028e40..a8539af 100644
+--- a/src/fs/mod.rs
++++ b/src/fs/mod.rs
+@@ -147,6 +147,7 @@ pub struct CacheConfig {
+     pub root_folder: PathBuf,
+     pub max_cache_size_gb: f64,
+     pub memory_cache_size_gb: Option<f64>,
++    pub metadata_memory_cache_size_gb: Option<f64>,
+ }
+ 
+ #[cfg(test)]

@@ -42,7 +42,8 @@ let
         cache = {
           inherit (vol.cache) dir;
           disk_size_gb = vol.cache.sizeGb * 1.0;
-          memory_size_gb = 4.0;
+          memory_size_gb = 1.25;
+          metadata_memory_size_gb = 1.0;
           warm_metadata = "full";
         };
         storage = {
