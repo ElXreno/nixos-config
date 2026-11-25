@@ -196,6 +196,7 @@ in
             ];
             port = 8101;
             backendPort = 18101;
+            ctxSize = 524288;
             webSearch.searxng = "http://127.0.0.1:${toString config.${namespace}.ports.searxng}";
           };
       };
