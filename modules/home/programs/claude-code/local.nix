@@ -43,6 +43,8 @@ let
     export CLAUDE_CODE_MAX_CONTEXT_TOKENS="$ctx"
     export CLAUDE_CODE_MAX_OUTPUT_TOKENS=${toString cfg.local.maxOutputTokens}
     export CLAUDE_CODE_ATTRIBUTION_HEADER=0
+    export API_TIMEOUT_MS=3600000
+    export CLAUDE_STREAM_IDLE_TIMEOUT_MS=3600000
     export ENABLE_TOOL_SEARCH="$toolsearch"
     export CLAUDE_LOCAL_COMMAND="claude-local-$peer"
     exec claude --model "$model" --settings ${settings} --permission-mode ${cfg.local.permissionMode} "$@"
