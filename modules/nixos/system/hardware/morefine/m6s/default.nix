@@ -24,5 +24,7 @@ in
       kernelModules = [ "mmio_fan" ];
       blacklistedKernelModules = [ "int3403_thermal" ];
     };
+
+    systemd.settings.Manager.RuntimeWatchdogSec = "30s";
   };
 }
