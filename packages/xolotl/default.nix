@@ -19,8 +19,8 @@ let
   src = fetchFromGitHub {
     owner = "ElXreno";
     repo = "Xolotl";
-    rev = "a0f520a94b3299061878c6500910cda2000336ba";
-    hash = "sha256-2e1AN4FZaITmD4uS3csafpiMv8vIB7dDVHdsoxAx1mI=";
+    rev = "fb4fe266475a04f750a9c425f19e6a6cf5307a51";
+    hash = "sha256-+FS2exOtAdlb1LmymqgdS4pfhr0Fyu6c9DDt8Tn7tlE=";
   };
 
   llamaCpp = applyPatches {
@@ -54,7 +54,7 @@ let
 in
 (ccacheTools.wrapStdenv cudaPackages.backendStdenv).mkDerivation {
   pname = "xolotl";
-  version = "0-unstable-2026-11-24";
+  version = "0-unstable-2026-11-26";
 
   inherit src;
 
