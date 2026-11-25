@@ -258,10 +258,13 @@ in
     (mkIf (!isHub && gated) {
       systemd = {
         services = {
-          nix-grpc-daemon.serviceConfig = {
-            ExecCondition = guard;
-            Restart = mkForce "on-failure";
-            TimeoutStopSec = mkForce "15s";
+          nix-grpc-daemon = {
+            wantedBy = mkForce [ ];
+            serviceConfig = {
+              ExecCondition = guard;
+              Restart = mkForce "on-failure";
+              TimeoutStopSec = mkForce "15s";
+            };
           };
 
           nix-farm-pause = {
