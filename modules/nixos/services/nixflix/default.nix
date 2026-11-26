@@ -59,6 +59,64 @@ let
   ) arrServices;
 
   jellyfinDb = "${config.nixflix.stateDir}/jellyfin/data/jellyfin.db";
+
+  russianAudio = {
+    name = "Russian audio";
+    score = 5000;
+    minScore = 4000;
+    patterns = {
+      tokens = ''\b(rus|russian)\b(?![ ._-]?subs?\b)'';
+      voiceover = ''\b(mvo|dvo|avo|ru[ ._-]?dub)\b'';
+      cyrillic = "^(?!.*[іїєґў]).*[а-яё]";
+      studios = ''\b(lostfilm|hdrezka|tvshows|newstudio|jaskier|alexfilm|kubik|red[ ._-]?head[ ._-]?sound|le[ ._-]?production|dragon[ ._-]?money|baibako|coldfilm|novafilm|amedia|selezen|generalfilm|kinozal|rutracker|nnmclub)\b'';
+    };
+  };
+
+  russianAudioSync = pkgs.writeShellApplication {
+    name = "nixflix-russian-audio";
+    runtimeInputs = [
+      pkgs.curl
+      pkgs.jq
+    ];
+    text = ''
+      name=${lib.escapeShellArg russianAudio.name}
+      format=$(jq -n --arg name "$name" --argjson patterns ${lib.escapeShellArg (builtins.toJSON russianAudio.patterns)} '{
+        name: $name,
+        includeCustomFormatWhenRenaming: false,
+        specifications: [$patterns | to_entries[] | {
+          name: .key,
+          implementation: "ReleaseTitleSpecification",
+          negate: false,
+          required: false,
+          fields: [{name: "value", value: .value}]
+        }]
+      }')
+
+      headers=$(mktemp)
+      trap 'rm -f "$headers"' EXIT
+
+      sync() {
+        local url=$1 id
+        printf 'X-Api-Key: %s\nContent-Type: application/json\n' "$(cat "$2")" > "$headers"
+        local api=(curl -fsS --retry 30 --retry-delay 2 --retry-all-errors -H "@$headers")
+
+        id=$("''${api[@]}" "$url/api/v3/customformat" | jq --arg name "$name" '.[] | select(.name == $name) | .id')
+        if [ -n "$id" ]; then
+          "''${api[@]}" -X PUT "$url/api/v3/customformat/$id" -d "$(jq --argjson id "$id" '. + {id: $id}' <<<"$format")" >/dev/null
+        else
+          id=$("''${api[@]}" -X POST "$url/api/v3/customformat" -d "$format" | jq .id)
+        fi
+
+        "''${api[@]}" "$url/api/v3/qualityprofile" | jq -c '.[]' | while read -r profile; do
+          "''${api[@]}" -X PUT "$url/api/v3/qualityprofile/$(jq .id <<<"$profile")" -d "$(jq --argjson id "$id" \
+            --argjson score ${toString russianAudio.score} '.formatItems |= map(if .format == $id then .score = $score else . end)' <<<"$profile")" >/dev/null
+        done
+      }
+
+      sync http://127.0.0.1:${toString ports.sonarr} ${vars.nixflix-sonarr.files."api-key".path}
+      sync http://127.0.0.1:${toString ports.radarr} ${vars.nixflix-radarr.files."api-key".path}
+    '';
+  };
 in
 {
   options.${namespace}.services.nixflix = {
@@ -139,6 +197,28 @@ in
       # workaround: nixflix merges the uid into its mkForce wrapper, so it never applies
       users.users.qbittorrent = lib.mkForce { uid = config.nixflix.globals.uids.qbittorrent; };
 
+      systemd.services.nixflix-russian-audio = {
+        description = "Keep the Russian audio custom format in Sonarr and Radarr";
+        wantedBy = [
+          "multi-user.target"
+          "recyclarr.service"
+        ];
+        wants = [
+          "sonarr.service"
+          "radarr.service"
+        ];
+        after = [
+          "sonarr.service"
+          "radarr.service"
+          "recyclarr.service"
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = lib.getExe russianAudioSync;
+          PrivateTmp = true;
+        };
+      };
+
       ${namespace} = {
         ports = {
           radarr = config.nixflix.radarr.config.hostConfig.port;
@@ -216,18 +296,11 @@ in
             quality_profiles = [
               {
                 trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
-                reset_unmatched_scores.enabled = true;
-              }
-            ];
-            custom_formats = [
-              {
-                trash_ids = [ "4b900e171accbfb172729b63323ea8ca" ]; # MULTi
-                assign_scores_to = [
-                  {
-                    trash_id = "c3933358ba2356bafc41524f81471069"; # [SQP] SQP-2
-                    score = 100;
-                  }
-                ];
+                min_format_score = russianAudio.minScore;
+                reset_unmatched_scores = {
+                  enabled = true;
+                  except = [ russianAudio.name ];
+                };
               }
             ];
           };
@@ -235,16 +308,20 @@ in
             quality_profiles = [
               {
                 trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
-                reset_unmatched_scores.enabled = true;
+                min_format_score = russianAudio.minScore;
+                reset_unmatched_scores = {
+                  enabled = true;
+                  except = [ russianAudio.name ];
+                };
               }
             ];
             custom_formats = [
               {
-                trash_ids = [ "7ba05c6e0e14e793538174c679126996" ]; # MULTi
+                trash_ids = [ "ae575f95ab639ba5d15f663bf019e3e8" ]; # Language: Not Original
                 assign_scores_to = [
                   {
                     trash_id = "dfa5eaae7894077ad6449169b6eb03e0"; # WEB-2160p (Alternative)
-                    score = 100;
+                    score = -1000;
                   }
                 ];
               }
