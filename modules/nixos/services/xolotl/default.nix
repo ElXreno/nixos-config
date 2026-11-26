@@ -66,6 +66,10 @@ let
             STRATA_BUILD_DIR = "${cfg.package}/share/xolotl/build-xolotl";
             STRATA_NO_SCOPE = "1";
             STRATA_ATTN_F16_GATHER = "1";
+            STRATA_KV_GATHER = "1";
+            STRATA_INDEXER_NVIS = "1";
+            GGML_CUDA_MXFP4_WMMA = "1";
+            STRATA_WIDE_PROMPT = "1";
             DS4_LOCK = "${cfg.stateDir}/${name}.lock";
           }
           // lib.optionalAttrs (i.dspark != null) { STRATA_SERVE_DSPARK = i.dspark; }
@@ -165,8 +169,8 @@ let
         };
         promptBatch = mkOption {
           type = types.int;
-          default = 12288;
-          description = "Prompt tokens read per batch.";
+          default = 32768;
+          description = "Prompt tokens read per batch, at most; the engine narrows it to the VRAM that is free.";
         };
         reasoningBudget = mkOption {
           type = types.int;
