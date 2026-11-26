@@ -20,6 +20,7 @@
   pkgs,
   symlinkJoin,
   makeWrapper,
+  runCommand,
 }:
 let
   inherit (pkgs.${namespace}) jadx-headless-mcp wakaru;
@@ -66,7 +67,19 @@ symlinkJoin {
       }
     done
   '';
-  passthru.skill = "${rea}/lib/node_modules/rea-agents/skills/reverse-engineer-anything";
+  passthru.skill = runCommand "reverse-engineer-anything-skill" { } ''
+    cp -r ${rea}/lib/node_modules/rea-agents/skills/reverse-engineer-anything $out
+    chmod -R u+w $out
+    awk -v notes=${./skill-notes.md} '
+      { print }
+      $0 == "# REA" && !done {
+        print ""
+        while ((getline line < notes) > 0) print line
+        done = 1
+      }
+      END { if (!done) exit 1 }
+    ' ${rea}/lib/node_modules/rea-agents/skills/reverse-engineer-anything/SKILL.md > $out/SKILL.md
+  '';
   meta = rea.meta // {
     description = "REA with its external analysis tools preconfigured";
   };
