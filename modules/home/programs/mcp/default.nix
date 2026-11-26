@@ -21,6 +21,7 @@ in
       servers.rea = {
         command = lib.getExe pkgs.${namespace}.rea-full;
         args = [ "mcp" ];
+        env.REA_GHIDRA_CHECKPOINT_DIR = "${config.xdg.stateHome}/rea/ghidra-checkpoints";
       };
     };
   };
