@@ -6,7 +6,6 @@
   unzip,
   openjdk25,
   fetchFromGitHub,
-  fetchpatch,
   nix-update-script,
 }:
 
@@ -48,13 +47,13 @@ let
       '') ghidraJars
     );
 
-  version = "7.0.0";
+  version = "7.1.0";
 
   src = fetchFromGitHub {
     owner = "bethington";
     repo = "ghidra-mcp";
     rev = "v${version}";
-    hash = "sha256-0RWq1bX3fHY2DR0HQ75ylNCWQbKczvsk8m8/8eSW/Sk=";
+    hash = "sha256-4xWLBpdkktFCf2yI4bHDqpE+jXqZ8k8QdPM9Nh0Yf1w=";
   };
 
   pythonPackages = python3Packages.overrideScope (final: _prev: { mcp = final.mcp_1; });
@@ -77,21 +76,6 @@ maven.buildMavenPackage {
   pname = "ghidra-mcp";
   inherit version src;
 
-  patches = [
-    (fetchpatch {
-      name = "ghidra-12.2-sla-lookup.patch";
-      url = "https://github.com/bethington/ghidra-mcp/commit/b06c679d89cd5b7c95850efb55ffde367ebb5cbd.patch";
-      includes = [ "src/main/java/com/xebyte/core/ServiceUtils.java" ];
-      hash = "sha256-NPeqHOHbjuZe6oJ/zevXhh9qKzT3Au0xz0oy3GCgCGs=";
-    })
-  ];
-
-  postPatch = ''
-    substituteInPlace src/main/java/com/xebyte/core/DataTypeService.java \
-      --replace-fail "dtm.remove(dataType, null)" "dtm.remove(dataType)" \
-      --replace-fail "dtm.remove(existing, null)" "dtm.remove(existing)"
-  '';
-
   mvnJdk = openjdk25;
   mvnParameters = "-Dghidra.version=${ghidraVersion} assembly:single";
   doCheck = false;
@@ -105,7 +89,7 @@ maven.buildMavenPackage {
 
   afterDepsSetup = installGhidraJars "-o" "$mvnDeps/.m2";
 
-  mvnHash = "sha256-5cMCxesHzRHVzf2GQC/UOvtPt4mrsh56zI3mPN/Pfc4=";
+  mvnHash = "sha256-bwwQze6+saD7OLqGviEoQgwuDN8hTxNHRaS26YbsXew=";
 
   nativeBuildInputs = [ unzip ];
 
