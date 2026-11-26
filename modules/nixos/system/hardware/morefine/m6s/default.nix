@@ -14,17 +14,6 @@ in
   };
 
   config = mkIf cfg.enable {
-    services.thermald = {
-      enable = true;
-      configFile = ./thermal-conf.xml;
-    };
-
-    boot = {
-      extraModulePackages = [ config.boot.kernelPackages.mmio-fan ];
-      kernelModules = [ "mmio_fan" ];
-      blacklistedKernelModules = [ "int3403_thermal" ];
-    };
-
     systemd.settings.Manager.RuntimeWatchdogSec = "30s";
   };
 }
