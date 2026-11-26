@@ -116,21 +116,6 @@ in
         nixflix-prowlarr = credentials "password";
         nixflix-jellyfin = credentials "admin-password";
 
-        nixflix-rutracker = {
-          prompts = {
-            username = {
-              description = "RuTracker username";
-              type = "hidden";
-              persist = true;
-            };
-            password = {
-              description = "RuTracker password";
-              type = "hidden";
-              persist = true;
-            };
-          };
-        };
-
         nixflix-qbittorrent = {
           files."password".secret = true;
           files."password-pbkdf2".secret = false;
@@ -207,11 +192,12 @@ in
             hostConfig.password._secret = vars.nixflix-prowlarr.files."password".path;
             indexers = [
               {
-                name = "RuTracker.org";
+                name = "roj";
+                schemaName = "Generic Torznab";
                 enable = true;
-                username._secret = vars.nixflix-rutracker.files."username".path;
-                password._secret = vars.nixflix-rutracker.files."password".path;
-                "torrentBaseSettings.seedRatio" = 5;
+                baseUrl = "https://roj.${config.clan.core.settings.domain}/torznab";
+                apiPath = "/api";
+                "torrentBaseSettings.preferMagnetUrl" = true;
               }
             ];
           };

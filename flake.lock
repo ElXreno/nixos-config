@@ -969,11 +969,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795227624,
-        "narHash": "sha256-99Y432ym9+nDA7Nylldd2TqNpFOKUGOe/2NMVDQKeGc=",
+        "lastModified": 1795691864,
+        "narHash": "sha256-sy5X0Wrx2fmKbuGhz7+4fwmBCTOlquvvTjl7NyJQfXU=",
         "ref": "refs/heads/main",
-        "rev": "b6c692a21828d48bf30d8c5773e6ecc1b0d4d373",
-        "revCount": 96,
+        "rev": "c975bca82db3085683a79433b55eb55b1343c8dd",
+        "revCount": 109,
         "type": "git",
         "url": "ssh://git@github.com/ElXreno/roj"
       },
