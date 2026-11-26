@@ -62,10 +62,33 @@ func keepTopics(old, next []string) []string {
 	return out
 }
 
+const schemaV5 = `
+CREATE TABLE auto_topics (
+	key TEXT PRIMARY KEY
+) WITHOUT ROWID;
+`
+
 type TopicAssign struct {
 	Key   string
 	Topic string
 	Title string
+}
+
+func (s *Store) AutoTopicKeys(ctx context.Context) (map[string]bool, error) {
+	rows, err := s.db.QueryContext(ctx, `SELECT key FROM auto_topics`)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	out := map[string]bool{}
+	for rows.Next() {
+		var k string
+		if err := rows.Scan(&k); err != nil {
+			return nil, err
+		}
+		out[k] = true
+	}
+	return out, rows.Err()
 }
 
 type TopicsResult struct {
@@ -88,6 +111,14 @@ func cleanTitle(t string) (string, error) {
 }
 
 func (s *Store) SetTopics(ctx context.Context, as []TopicAssign) (TopicsResult, error) {
+	return s.setTopics(ctx, as, false)
+}
+
+func (s *Store) SetAutoTopics(ctx context.Context, as []TopicAssign) (TopicsResult, error) {
+	return s.setTopics(ctx, as, true)
+}
+
+func (s *Store) setTopics(ctx context.Context, as []TopicAssign, auto bool) (TopicsResult, error) {
 	titles := map[string]string{}
 	byKey := map[string]string{}
 	norm := make([]TopicAssign, 0, len(as))
@@ -143,6 +174,13 @@ func (s *Store) SetTopics(ctx context.Context, as []TopicAssign) (TopicsResult, 
 				continue
 			}
 			if err != nil {
+				return err
+			}
+			mark := `DELETE FROM auto_topics WHERE key = ?`
+			if auto {
+				mark = `INSERT OR IGNORE INTO auto_topics (key) VALUES (?)`
+			}
+			if _, err := tx.ExecContext(ctx, mark, a.Key); err != nil {
 				return err
 			}
 			want := TopicScope(a.Topic)

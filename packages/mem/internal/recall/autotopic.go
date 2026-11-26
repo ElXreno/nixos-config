@@ -124,6 +124,10 @@ func AutoTopics(ctx context.Context, s *store.Store, o AutoTopicOptions) (AutoTo
 	if err != nil {
 		return res, err
 	}
+	auto, err := s.AutoTopicKeys(ctx)
+	if err != nil {
+		return res, err
+	}
 	titles := make(map[string]string, len(topics))
 	for _, t := range topics {
 		titles[t.ID] = t.Title
@@ -139,7 +143,7 @@ func AutoTopics(ctx context.Context, s *store.Store, o AutoTopicOptions) (AutoTo
 		tv := topicVec{key: r.Key, topic: r.Topic(), projects: projectScopes(r.Scopes), v: normTopicVec(buf)}
 		if tv.topic == "" {
 			without = append(without, tv)
-		} else if _, ok := titles[tv.topic]; ok {
+		} else if _, ok := titles[tv.topic]; ok && !auto[tv.key] {
 			with = append(with, tv)
 		}
 		return nil
@@ -184,7 +188,7 @@ func AutoTopics(ctx context.Context, s *store.Store, o AutoTopicOptions) (AutoTo
 	if len(assign) == 0 {
 		return res, nil
 	}
-	if _, err := s.SetTopics(ctx, assign); err != nil {
+	if _, err := s.SetAutoTopics(ctx, assign); err != nil {
 		return AutoTopicResult{}, err
 	}
 	return res, nil

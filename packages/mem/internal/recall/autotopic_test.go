@@ -119,3 +119,54 @@ func TestAutoTopicsPrefersTheRecordsOwnProject(t *testing.T) {
 		t.Errorf("fresh got topic %q, want home from its own project", got)
 	}
 }
+
+func TestAutoTopicsDoNotVoteForLaterOnes(t *testing.T) {
+	s, ctx := autoTopicStore(t)
+	seedAuto(t, s, ctx, []autoRec{
+		{"o1", "other", "right", []float32{1, 0}},
+		{"o2", "other", "right", []float32{1, 0}},
+		{"o3", "other", "right", []float32{1, 0}},
+		{"m1", "mine", "sink", []float32{0, 1}},
+		{"m2", "mine", "", []float32{.1, .99}},
+		{"m2b", "mine", "", []float32{.1, .99}},
+		{"m2c", "mine", "", []float32{.1, .99}},
+	})
+	if _, err := AutoTopics(ctx, s, AutoTopicOptions{Model: "m", K: 3, MinCos: .45}); err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range []string{"m2", "m2b", "m2c"} {
+		if got := topicOf(t, s, ctx, k); got != "sink" {
+			t.Fatalf("%s got topic %q, want sink", k, got)
+		}
+	}
+	for _, k := range []string{"m3", "m4", "m5"} {
+		if _, err := s.Upsert(ctx, []store.Record{{Key: k, Kind: store.Fact, Scopes: []string{"project:mine"}, Title: "T " + k, Body: "body of " + k}}, nil, "seed"); err != nil {
+			t.Fatal(err)
+		}
+		got, err := s.Get(ctx, k)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, _, err := s.PutVectors(ctx, "m", "", []store.VecRow{{Key: k, Vec: []float32{.8, .6}, TextSHA: store.TextSHA(store.DocText("", got))}}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := AutoTopics(ctx, s, AutoTopicOptions{Model: "m", K: 3, MinCos: .45}); err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range []string{"m3", "m4", "m5"} {
+		if got := topicOf(t, s, ctx, k); got != "right" {
+			t.Errorf("%s got topic %q, want right: the automatic sink topic of m2 must not vote", k, got)
+		}
+	}
+	if _, err := s.SetTopics(ctx, []store.TopicAssign{{Key: "m2", Topic: "sink", Title: "Topic sink"}}); err != nil {
+		t.Fatal(err)
+	}
+	auto, err := s.AutoTopicKeys(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if auto["m2"] || !auto["m3"] {
+		t.Errorf("auto keys %v: a manual set must clear the mark, automatic ones keep it", auto)
+	}
+}

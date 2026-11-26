@@ -886,7 +886,7 @@ func TestMigrateV1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.DB().ExecContext(ctx, "DROP TRIGGER vectors_text_changed; DROP TABLE vectors; DROP TABLE topics; DROP TABLE links; CREATE TABLE links (src TEXT NOT NULL, dst TEXT NOT NULL, rel TEXT NOT NULL, PRIMARY KEY (src, dst, rel)) WITHOUT ROWID; "+
+	if _, err := s.DB().ExecContext(ctx, "DROP TRIGGER vectors_text_changed; DROP TABLE vectors; DROP TABLE topics; DROP TABLE auto_topics; DROP TABLE links; CREATE TABLE links (src TEXT NOT NULL, dst TEXT NOT NULL, rel TEXT NOT NULL, PRIMARY KEY (src, dst, rel)) WITHOUT ROWID; "+
 		"INSERT INTO links VALUES ('a', 'b', 'relates'); PRAGMA user_version = 1"); err != nil {
 		t.Fatal(err)
 	}

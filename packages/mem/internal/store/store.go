@@ -176,7 +176,7 @@ func (s *Store) tx(ctx context.Context, fn func(*sql.Tx) error) error {
 	return tx.Commit()
 }
 
-var migrations = []string{schemaV1, schemaV2, schemaV3, schemaV4}
+var migrations = []string{schemaV1, schemaV2, schemaV3, schemaV4, schemaV5}
 
 const schemaV2 = `ALTER TABLE links ADD COLUMN note TEXT NOT NULL DEFAULT '';`
 

@@ -319,7 +319,7 @@ func TestHookMigratesAnOutdatedDatabase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := s.DB().ExecContext(ctx, "DROP TRIGGER vectors_text_changed; DROP TABLE vectors; DROP TABLE topics; PRAGMA user_version = 2"); err != nil {
+	if _, err := s.DB().ExecContext(ctx, "DROP TRIGGER vectors_text_changed; DROP TABLE vectors; DROP TABLE topics; DROP TABLE auto_topics; PRAGMA user_version = 2"); err != nil {
 		t.Fatal(err)
 	}
 	_ = s.Close()

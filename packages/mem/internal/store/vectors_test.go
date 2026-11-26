@@ -34,8 +34,8 @@ func TestVectorsSchema(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if v != 4 {
-		t.Errorf("schema version %d, want 4", v)
+	if v != len(migrations) {
+		t.Errorf("schema version %d, want %d", v, len(migrations))
 	}
 }
 
