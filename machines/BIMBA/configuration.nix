@@ -52,7 +52,7 @@
         nativePort = 9010;
         httpPort = 8124;
         memoryRatio = 0.9;
-        maxMemory = 9663676416;
+        maxMemory = 12884901888;
       };
       matrix.enable = false;
       niks3 = {
