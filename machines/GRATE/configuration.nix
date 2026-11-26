@@ -14,6 +14,8 @@
 
       hardware.morefine.m6s.enable = true;
 
+      networking.tunnels.warp.inbound = [ "airvpn" ];
+
       networking.wireless = {
         enable = true;
         networks = {

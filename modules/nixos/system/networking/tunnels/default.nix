@@ -9,6 +9,7 @@ let
   inherit (lib)
     attrNames
     attrValues
+    concatMap
     concatMapStringsSep
     elem
     filterAttrs
@@ -31,6 +32,8 @@ let
   referenced = unique (attrValues cfg.routes.confine ++ routed);
   inherit (config.clan.core.vars) generators;
   enabled = filterAttrs (_: tunnel: tunnel.enable && tunnel.type == "wireguard") cfg.tunnels;
+  joined = unique (concatMap (tunnel: tunnel.inbound) (attrValues enabled));
+  configured = enabled // filterAttrs (name: _: elem name joined) cfg.tunnels;
   hostAccess = filterAttrs (_: tunnel: tunnel.hostAccess.enable) enabled;
   position = name: names: lib.lists.findFirstIndex (other: other == name) null names;
   index = name: position name (attrNames cfg.tunnels);
@@ -99,6 +102,12 @@ let
           default = [ ];
           description = "Server endpoints of a wireguard tunnel, one interface each on the keys of the config; empty keeps the endpoint of the config.";
         };
+        inbound = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          example = [ "airvpn" ];
+          description = "Wireguard tunnels whose interfaces join the namespace of this one for incoming connections: they accept its open ports and answer through themselves, new flows leave through this tunnel.";
+        };
         hostAccess = {
           enable = mkEnableOption "routing marked host traffic into the tunnel" // {
             default = config.type == "wireguard" && elem name routed;
@@ -160,7 +169,7 @@ in
           persist = true;
         };
       }
-    ) enabled;
+    ) configured;
 
     networking.firewall.extraReversePathFilterRules = concatMapStringsSep "\n" (
       name: ''iifname "${name}-br" accept''
@@ -181,6 +190,10 @@ in
         enable = true;
         wireguardConfigFile = tunnel.configFile;
         inherit (tunnel) mtu endpoints;
+        inbound = map (other: {
+          wireguardConfigFile = cfg.tunnels.${other}.configFile;
+          inherit (cfg.tunnels.${other}) mtu;
+        }) tunnel.inbound;
         transportMark = cfg.tunnelTransportMark;
         hostAccess = {
           inherit (tunnel.hostAccess) enable mark table;

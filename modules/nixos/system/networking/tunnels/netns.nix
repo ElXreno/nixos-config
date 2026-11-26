@@ -185,12 +185,33 @@ let
           default = [ ];
           description = "Server endpoints, one tunnel each on the keys of the config; empty keeps the endpoint of the config. New flows spread over the tunnels by destination, an incoming TCP connection is answered through the tunnel it came in on, an incoming UDP flow only by a socket bound to that interface.";
         };
+        inbound = mkOption {
+          type = types.listOf (
+            types.submodule {
+              options = {
+                wireguardConfigFile = mkOption {
+                  type = types.path;
+                  description = "The wg-quick config of the tunnel.";
+                };
+                mtu = mkOption {
+                  type = types.nullOr types.ints.positive;
+                  default = null;
+                  description = "MTU of its interface, the config value or 1420 when unset.";
+                };
+              };
+            }
+          );
+          default = [ ];
+          description = "Further tunnels for incoming connections: they accept the open ports and answer through themselves, sockets bound to them leave through them, new flows never do.";
+        };
         interfaces = mkOption {
           type = types.listOf types.str;
-          default = genList (index: "${name}${toString index}") (max 1 (length config.endpoints));
-          defaultText = "The namespace name with a number per endpoint.";
+          default = genList (index: "${name}${toString index}") (
+            max 1 (length config.endpoints) + length config.inbound
+          );
+          defaultText = "The namespace name with a number per endpoint and per inbound tunnel.";
           readOnly = true;
-          description = "Tunnel interfaces inside the namespace.";
+          description = "Tunnel interfaces inside the namespace, the inbound ones last.";
         };
       };
     };
@@ -375,52 +396,57 @@ let
         printf '%s' "''${text%%+([[:space:]])}"
       }
 
-      config=""
       endpoints=(${escapeShellArgs namespace.endpoints})
-      addresses=()
       servers=()
       search=()
-      mtu=""
-      section=""
-      while IFS= read -r line || [[ -n $line ]]; do
-        stripped=''${line%%#*}
-        key=$(trim "''${stripped%%=*}")
-        value=$(trim "''${stripped#*=}")
-        if [[ $key == \[*\] ]]; then
-          section=$key
-        fi
-        if [[ $section == "[Interface]" ]]; then
-          case $key in
-            Address)
-              read -ra parts <<< "''${value//,/ }"
-              addresses+=("''${parts[@]}")
-              continue
-              ;;
-            MTU)
-              mtu=$value
-              continue
-              ;;
-            DNS)
-              read -ra parts <<< "''${value//,/ }"
-              for part in "''${parts[@]}"; do
-                if [[ $part =~ ^[0-9.]+$ || $part == *:* ]]; then
-                  servers+=("$part")
-                else
-                  search+=("$part")
-                fi
-              done
-              continue
-              ;;
-            Table | PreUp | PreDown | PostUp | PostDown | SaveConfig)
-              continue
-              ;;
-          esac
-        fi
-        if [[ $key == Endpoint && ''${#endpoints[@]} -gt 0 ]]; then
-          continue
-        fi
-        config+=$line$'\n'
-      done < ${namespace.wireguardConfigFile}
+
+      parse() {
+        config=""
+        addresses=()
+        mtu=""
+        local line stripped key value parts part section=""
+        while IFS= read -r line || [[ -n $line ]]; do
+          stripped=''${line%%#*}
+          key=$(trim "''${stripped%%=*}")
+          value=$(trim "''${stripped#*=}")
+          if [[ $key == \[*\] ]]; then
+            section=$key
+          fi
+          if [[ $section == "[Interface]" ]]; then
+            case $key in
+              Address)
+                read -ra parts <<< "''${value//,/ }"
+                addresses+=("''${parts[@]}")
+                continue
+                ;;
+              MTU)
+                mtu=$value
+                continue
+                ;;
+              DNS)
+                read -ra parts <<< "''${value//,/ }"
+                for part in "''${parts[@]}"; do
+                  if [[ $part =~ ^[0-9.]+$ || $part == *:* ]]; then
+                    servers+=("$part")
+                  else
+                    search+=("$part")
+                  fi
+                done
+                continue
+                ;;
+              Table | PreUp | PreDown | PostUp | PostDown | SaveConfig)
+                continue
+                ;;
+            esac
+          fi
+          if [[ $key == Endpoint && $2 == no ]]; then
+            continue
+          fi
+          config+=$line$'\n'
+        done < "$1"
+      }
+
+      parse ${namespace.wireguardConfigFile} ${if namespace.endpoints == [ ] then "yes" else "no"}
 
       if [[ ''${#servers[@]} -eq 0 ]]; then
         echo "${name}: the WireGuard config sets no DNS server" >&2
@@ -448,24 +474,41 @@ let
       done
 
       interfaces=(${escapeShellArgs namespace.interfaces})
-      for number in "''${!interfaces[@]}"; do
-        interface=''${interfaces[$number]}
-        tunnel=$config
-        if [[ ''${#endpoints[@]} -gt 0 ]]; then
-          tunnel+="Endpoint = ''${endpoints[$number]}"$'\n'
-        fi
-        ip link add "$interface" type wireguard
-        wg setconf "$interface" <(printf '%s' "$tunnel")
+      outbound=${toString (max 1 (length namespace.endpoints))}
+
+      tunnel() {
+        ip link add "$1" type wireguard
+        wg setconf "$1" <(printf '%s' "$config")
         ${optionalString (
           namespace.transportMark != null
-        ) ''wg set "$interface" fwmark ${toString namespace.transportMark}''}
-        ip link set "$interface" netns ${name}
+        ) ''wg set "$1" fwmark ${toString namespace.transportMark}''}
+        ip link set "$1" netns ${name}
         for address in "''${addresses[@]}"; do
-          ${inside} address add "$address" dev "$interface"
+          ${inside} address add "$address" dev "$1"
         done
-        ${inside} link set "$interface" mtu ${
+        ${inside} link set "$1" mtu "$2" up
+      }
+
+      shared=$config
+      for ((number = 0; number < outbound; number++)); do
+        config=$shared
+        if [[ ''${#endpoints[@]} -gt 0 ]]; then
+          config+="Endpoint = ''${endpoints[$number]}"$'\n'
+        fi
+        tunnel "''${interfaces[$number]}" ${
           if namespace.mtu != null then toString namespace.mtu else ''"''${mtu:-1420}"''
-        } up
+        }
+      done
+
+      inbound=(${escapeShellArgs (map (tunnel: tunnel.wireguardConfigFile) namespace.inbound)})
+      inboundMtu=(${
+        escapeShellArgs (
+          map (tunnel: if tunnel.mtu != null then toString tunnel.mtu else "") namespace.inbound
+        )
+      })
+      for index in "''${!inbound[@]}"; do
+        parse "''${inbound[$index]}" yes
+        tunnel "''${interfaces[$((outbound + index))]}" "''${inboundMtu[$index]:-''${mtu:-1420}}"
       done
       ${optionalString (length namespace.interfaces > 1) ''
         ip netns exec ${name} sysctl -wq net.ipv4.tcp_fwmark_accept=1 net.ipv4.fwmark_reflect=1 ${optionalString ipv6 "net.ipv6.fwmark_reflect=1"}
@@ -491,12 +534,15 @@ let
         for number in "''${!interfaces[@]}"; do
           interface=''${interfaces[$number]}
           ${inside} $family route add default dev "$interface" "''${nexthop[@]}" table $((51820 + number))
-          hops+=(nexthop "''${nexthop[@]::2}" dev "$interface" weight 1 "''${nexthop[@]:2}")
+          if ((number < outbound)); then
+            hops+=(nexthop "''${nexthop[@]::2}" dev "$interface" weight 1 "''${nexthop[@]:2}")
+          fi
           ${optionalString (length namespace.interfaces > 1) ''
             ${inside} $family rule add fwmark $((number + 1)) lookup $((51820 + number)) priority 90
+            ${inside} $family rule add oif "$interface" lookup $((51820 + number)) priority 90
           ''}
         done
-        if [[ ''${#interfaces[@]} -eq 1 ]]; then
+        if ((outbound == 1)); then
           ${inside} $family route add default dev ${name}0 "''${nexthop[@]}"
         else
           ${inside} $family route add default "''${hops[@]}"
