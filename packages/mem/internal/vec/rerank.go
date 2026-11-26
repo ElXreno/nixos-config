@@ -90,7 +90,7 @@ func (r *Reranker) rerankAt(ctx context.Context, url string, body []byte, query 
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, &httpError{resp.StatusCode, redact(raw, append([]string{query}, docs...))}
+		return nil, &httpError{status: resp.StatusCode, msg: redact(raw, append([]string{query}, docs...))}
 	}
 	if int64(len(raw)) > r.o.MaxBody {
 		return nil, fmt.Errorf("%w: larger than %d bytes", ErrBadRerank, r.o.MaxBody)

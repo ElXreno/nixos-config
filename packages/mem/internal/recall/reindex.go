@@ -35,15 +35,16 @@ type ReindexOptions struct {
 }
 
 type ReindexResult struct {
-	Current     int     `json:"current"`
-	Expired     int     `json:"expired"`
-	Fresh       int     `json:"fresh"`
-	Embedded    int     `json:"embedded"`
-	Raced       int     `json:"raced"`
-	SkippedLogs int     `json:"skipped_logs"`
-	Deferred    int     `json:"deferred"`
-	Dim         int     `json:"dim"`
-	Seconds     float64 `json:"seconds"`
+	Current     int      `json:"current"`
+	Expired     int      `json:"expired"`
+	Fresh       int      `json:"fresh"`
+	Embedded    int      `json:"embedded"`
+	Raced       int      `json:"raced"`
+	SkippedLogs int      `json:"skipped_logs"`
+	Deferred    int      `json:"deferred"`
+	Clipped     []string `json:"clipped,omitempty"`
+	Dim         int      `json:"dim"`
+	Seconds     float64  `json:"seconds"`
 }
 
 type todo struct {
@@ -136,7 +137,7 @@ func Reindex(ctx context.Context, s *store.Store, o ReindexOptions) (ReindexResu
 				for i, w := range b {
 					texts[i] = w.text
 				}
-				vecs, err := o.Embedder.Embed(ctx, texts)
+				vecs, clipped, err := embedFitting(ctx, o.Embedder, texts)
 				if err != nil {
 					fail(fmt.Errorf("embedding %d texts: %w", len(b), err))
 					continue
@@ -172,6 +173,12 @@ func Reindex(ctx context.Context, s *store.Store, o ReindexOptions) (ReindexResu
 				}
 				res.Embedded += written
 				res.Raced += skipped
+				for _, c := range clipped {
+					res.Clipped = append(res.Clipped, b[c.idx].key)
+					if o.Progress != nil {
+						_, _ = fmt.Fprintf(o.Progress, "clipped %s to %d of %d chars, it is %d tokens against a context of %d\n", b[c.idx].key, c.kept, c.chars, c.tokens, c.limit)
+					}
+				}
 				if o.Progress != nil {
 					_, _ = fmt.Fprintf(o.Progress, "embedded %d/%d\n", res.Embedded+res.Raced, len(work))
 				}
@@ -195,6 +202,69 @@ func Reindex(ctx context.Context, s *store.Store, o ReindexOptions) (ReindexResu
 		return res, firstErr
 	}
 	return res, ctx.Err()
+}
+
+type clip struct {
+	idx, chars, kept, tokens, limit int
+}
+
+func overflow(err error) (prompt, limit int, ok bool) {
+	var o interface {
+		ContextOverflow() (prompt, limit int, ok bool)
+	}
+	if !errors.As(err, &o) {
+		return 0, 0, false
+	}
+	return o.ContextOverflow()
+}
+
+func embedFitting(ctx context.Context, e Embedder, texts []string) ([][]float32, []clip, error) {
+	vecs, err := e.Embed(ctx, texts)
+	if _, _, ok := overflow(err); !ok {
+		return vecs, nil, err
+	}
+	vecs = make([][]float32, len(texts))
+	var clipped []clip
+	for i, t := range texts {
+		v, c, err := embedClipped(ctx, e, t)
+		if err != nil {
+			return nil, nil, err
+		}
+		vecs[i] = v
+		if c.kept > 0 {
+			c.idx = i
+			clipped = append(clipped, c)
+		}
+	}
+	return vecs, clipped, nil
+}
+
+func embedClipped(ctx context.Context, e Embedder, text string) ([]float32, clip, error) {
+	r := []rune(text)
+	c := clip{chars: len(r)}
+	for range 4 {
+		vs, err := e.Embed(ctx, []string{string(r)})
+		prompt, limit, ok := overflow(err)
+		if !ok {
+			if err != nil {
+				return nil, c, err
+			}
+			if len(vs) != 1 {
+				return nil, c, fmt.Errorf("embedder returned %d vectors for 1 text", len(vs))
+			}
+			return vs[0], c, nil
+		}
+		n := int(float64(len(r)) * float64(limit) / float64(prompt) * 0.95)
+		if n <= 0 || n >= len(r) {
+			return nil, c, err
+		}
+		if c.tokens == 0 {
+			c.tokens, c.limit = prompt, limit
+		}
+		r = r[:n]
+		c.kept = n
+	}
+	return nil, c, fmt.Errorf("text of %d chars still exceeds the embedder context after clipping it to %d", c.chars, c.kept)
 }
 
 func checkDims(res *ReindexResult, freshDim map[int]int, rows []store.VecRow) error {

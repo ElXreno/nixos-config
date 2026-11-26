@@ -196,9 +196,30 @@ func redact(body []byte, inputs []string) string {
 type httpError struct {
 	status int
 	msg    string
+	prompt int
+	nCtx   int
 }
 
 func (e *httpError) Error() string { return fmt.Sprintf("http %d: %s", e.status, e.msg) }
+
+func (e *httpError) ContextOverflow() (prompt, limit int, ok bool) {
+	return e.prompt, e.nCtx, e.prompt > e.nCtx && e.nCtx > 0
+}
+
+func newHTTPError(status int, raw []byte, inputs []string) *httpError {
+	he := &httpError{status: status, msg: redact(raw, inputs)}
+	var body struct {
+		Error struct {
+			Type   string `json:"type"`
+			Prompt int    `json:"n_prompt_tokens"`
+			NCtx   int    `json:"n_ctx"`
+		} `json:"error"`
+	}
+	if status == http.StatusBadRequest && json.Unmarshal(raw, &body) == nil && body.Error.Type == "exceed_context_size_error" {
+		he.prompt, he.nCtx = body.Error.Prompt, body.Error.NCtx
+	}
+	return he
+}
 
 func (c *client) once(ctx context.Context, url string, inputs []string) ([][]float32, error) {
 	body, err := json.Marshal(map[string]any{"model": c.o.Model, "input": inputs, "encoding_format": "float"})
@@ -224,7 +245,7 @@ func (c *client) once(ctx context.Context, url string, inputs []string) ([][]flo
 		return nil, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, &httpError{resp.StatusCode, redact(raw, inputs)}
+		return nil, newHTTPError(resp.StatusCode, raw, inputs)
 	}
 	if int64(len(raw)) > limit {
 		return nil, fmt.Errorf("response is larger than %d bytes", limit)
