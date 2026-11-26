@@ -8,7 +8,13 @@
 }:
 
 let
-  inherit (lib) mkIf mkMerge mkEnableOption;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkEnableOption
+    mkOption
+    types
+    ;
   cfg = config.${namespace}.services.nixflix;
   vars = config.clan.core.vars.generators;
   ports = config.${namespace}.ports;
@@ -39,7 +45,7 @@ let
   };
   serve = serveAt "localhost";
 
-  tunnel = "airvpn";
+  inherit (cfg) tunnel;
 
   arrDatabases = lib.concatMap (
     name:
@@ -121,6 +127,11 @@ in
 {
   options.${namespace}.services.nixflix = {
     enable = mkEnableOption "managing Nixflix";
+    tunnel = mkOption {
+      type = types.str;
+      default = "airvpn";
+      description = "Tunnel qBittorrent is confined to.";
+    };
     retain = mkEnableOption "backing up its data while the service is off" // {
       default = options.${namespace}.services.nixflix.enable.highestPrio < 1500;
       defaultText = "Whether this host sets `enable` at all, even to false.";

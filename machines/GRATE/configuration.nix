@@ -24,7 +24,10 @@
     };
 
     services = {
-      nixflix.enable = true;
+      nixflix = {
+        enable = true;
+        tunnel = "warp";
+      };
       ripe-atlas.enable = true;
 
       home-assistant.enable = true;
