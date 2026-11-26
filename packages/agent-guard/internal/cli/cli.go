@@ -2,6 +2,7 @@ package cli
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"agent-guard/internal/claudecode"
 	"agent-guard/internal/config"
 	"agent-guard/internal/edit"
+	"agent-guard/internal/evidence"
 	"agent-guard/internal/guard"
 	"agent-guard/internal/harness"
 	"agent-guard/internal/journal"
@@ -33,7 +35,11 @@ hooks (JSON on stdin):
   hook                one hook event of the configured harness: the shell guards on shell commands,
                       the file checks on edits and writes, a journal line for every confirmation
                       dialog, and with power enabled a note on battery before a heavy build and one
-                      line after a tool call or with a prompt when the power source changed
+                      line after a tool call or with a prompt when the power source changed; Claude
+                      Code results of the evidenceTools lose the REA Evidence parts this agent was
+                      already shown, merge limitations that differ in one address and put a
+                      multi-line result after the JSON as plain text; what was shown is
+                      forgotten on PreCompact
   confine <agent>     Claude Code PreToolUse for a read-only agent: writes only under its memory dirs
 
 power (no config needed, $AGENT_GUARD_POWER_SUPPLY overrides /sys/class/power_supply):
@@ -263,13 +269,49 @@ func (r *run) failed(e *guard.Engine, c call.Call, label string, err error) {
 	e.Record(c, label, guard.Decision{Outcome: verdict.Failed})
 }
 
+func (r *run) evidence(cfg *config.Config) evidence.Memory {
+	return evidence.Memory{Dir: cfg.EvidenceState(), Now: r.env.Now}
+}
+
+func (r *run) compactEvidence(cfg *config.Config, e *guard.Engine, c call.Call, response json.RawMessage) (string, bool) {
+	if !evidence.Matches(cfg.EvidenceTools, c.Tool) {
+		return "", false
+	}
+	var text string
+	if json.Unmarshal(response, &text) != nil {
+		return "", false
+	}
+	out, ok, err := r.evidence(cfg).Compact(c.StateKey(), text)
+	if err != nil {
+		_, _ = fmt.Fprintln(r.env.Stderr, program+": evidence:", err)
+		return "", false
+	}
+	if ok {
+		e.Record(c, journal.Evidence, guard.Decision{Outcome: verdict.Rewrite, Notes: []string{fmt.Sprintf("%d -> %d bytes", len(text), len(out))}})
+	}
+	return out, ok
+}
+
 func (r *run) claudeCode(cfg *config.Config) int {
 	e := r.hookEngine(cfg)
 	in, err := claudecode.Read(r.env.Stdin)
+	if err == nil && in.HookEventName == "PreCompact" {
+		key := call.Call{Harness: cfg.Spec.ID, Session: in.SessionID}.StateKey()
+		if err := r.evidence(cfg).Forget(key); err != nil {
+			_, _ = fmt.Fprintln(r.env.Stderr, program+": evidence:", err)
+		}
+		return 0
+	}
 	if hook, ok := claudeObserved[in.HookEventName]; err == nil && ok {
 		c, _ := claudecode.Decode(in)
 		c.Harness = cfg.Spec.ID
-		return claudecode.Write(r.env.Stdout, r.env.Stderr, claudecode.Context(in.HookEventName, observe(e, c, hook)))
+		d := observe(e, c, hook)
+		if in.HookEventName == "PostToolUse" {
+			if out, ok := r.compactEvidence(cfg, e, c, in.ToolResponse); ok {
+				return claudecode.Write(r.env.Stdout, r.env.Stderr, claudecode.PostTool(d, out))
+			}
+		}
+		return claudecode.Write(r.env.Stdout, r.env.Stderr, claudecode.Context(in.HookEventName, d))
 	}
 	var c call.Call
 	if err == nil {

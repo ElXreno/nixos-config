@@ -6,12 +6,19 @@
   ...
 }:
 let
-  inherit (lib) mkIf optionalAttrs;
+  inherit (lib)
+    concatMapStringsSep
+    mkIf
+    optional
+    optionalAttrs
+    replaceStrings
+    ;
   cfg = config.${namespace}.programs.claude-code;
   home = config.home.homeDirectory;
   guard = config.${namespace}.programs.agent-guard;
   cc = guard.harnesses.claude-code;
   editTools = "Edit|MultiEdit|Write";
+  evidenceMatcher = concatMapStringsSep "|" (replaceStrings [ "*" ] [ ".*" ]) cc.evidenceTools;
   hook = {
     type = "command";
     command = "${cc.command} hook";
@@ -31,6 +38,7 @@ in
           ".claude/agent-memory/"
           ".claude/agent-memory-local/"
         ];
+        evidenceTools = optional (config.programs.mcp.servers ? rea) "mcp__plugin_hm_rea__*";
       };
     };
 
@@ -49,14 +57,19 @@ in
         ];
         PermissionRequest = [ { hooks = [ hook ]; } ];
       }
-      // optionalAttrs guard.power.enable {
+      // optionalAttrs (guard.power.enable || cc.evidenceTools != [ ]) {
         PostToolUse = [
           {
-            matcher = "*";
+            matcher = if guard.power.enable then "*" else evidenceMatcher;
             hooks = [ hook ];
           }
         ];
+      }
+      // optionalAttrs guard.power.enable {
         UserPromptSubmit = [ { hooks = [ hook ]; } ];
+      }
+      // optionalAttrs (cc.evidenceTools != [ ]) {
+        PreCompact = [ { hooks = [ hook ]; } ];
       };
 
       settings.env.AGENT_GUARD_ASK_TIMEOUT_MS = toString (guard.askTimeoutMinutes * 60 * 1000);

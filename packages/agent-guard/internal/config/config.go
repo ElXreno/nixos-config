@@ -10,6 +10,7 @@ import (
 
 	"agent-guard/internal/checks"
 	"agent-guard/internal/edit"
+	"agent-guard/internal/evidence"
 	"agent-guard/internal/harness"
 	"agent-guard/internal/power"
 	"agent-guard/internal/treesitter"
@@ -30,6 +31,7 @@ type Config struct {
 	MemoryPaths    []string              `json:"memoryPaths"`
 	ProtectedRepos []string              `json:"protectedRepos"`
 	Power          Power                 `json:"power"`
+	EvidenceTools  []string              `json:"evidenceTools"`
 	Grammars       treesitter.Grammars   `json:"grammars"`
 
 	Spec harness.Spec `json:"-"`
@@ -111,6 +113,11 @@ func (c *Config) Check() error {
 	if _, err := power.Parse(c.Power.HeavyCommands); err != nil {
 		errs = append(errs, fmt.Errorf("power: %w", err))
 	}
+	for _, p := range c.EvidenceTools {
+		if err := evidence.ValidPattern(p); err != nil {
+			errs = append(errs, fmt.Errorf("evidenceTools entry %q: %w", p, err))
+		}
+	}
 	for name := range c.Grammars {
 		if _, err := c.Grammars.Load(name); err != nil {
 			errs = append(errs, err)
@@ -120,10 +127,18 @@ func (c *Config) Check() error {
 }
 
 func (c *Config) PowerState() string {
+	return c.stateDir("power")
+}
+
+func (c *Config) EvidenceState() string {
+	return c.stateDir("evidence")
+}
+
+func (c *Config) stateDir(name string) string {
 	if c.Journal == "" {
 		return ""
 	}
-	return filepath.Join(filepath.Dir(c.Journal), "power")
+	return filepath.Join(filepath.Dir(c.Journal), name)
 }
 
 func (c *Config) Checks() *checks.Settings {

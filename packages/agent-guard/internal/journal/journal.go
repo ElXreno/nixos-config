@@ -27,6 +27,7 @@ const (
 	DialogResult      = "dialog-result"
 	PostTool          = "post-tool"
 	UserPrompt        = "user-prompt"
+	Evidence          = "evidence"
 )
 
 const maxLine = 1 << 20

@@ -86,6 +86,11 @@ let
           default = [ ];
           description = "Memory directories the file checks skip; a relative pattern starts at the git root.";
         };
+        evidenceTools = mkOption {
+          type = types.listOf types.str;
+          default = [ ];
+          description = "Globs over tool names whose REA Evidence results drop the limitations and envelope this agent was already shown, a raw_result equal to normalized_result and empty fields, merge limitations that differ in one address, and move a multi-line normalized_result after the JSON as plain text; Claude Code only.";
+        };
         configFile = mkOption {
           type = types.path;
           readOnly = true;
@@ -100,6 +105,7 @@ let
                     transcripts
                     readOnlyRoots
                     memoryPaths
+                    evidenceTools
                     ;
                   inherit home;
                   inherit (cfg)

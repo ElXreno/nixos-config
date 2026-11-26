@@ -34,17 +34,6 @@ type Power struct {
 	Memory power.Memory
 }
 
-func (p *Power) key(c call.Call) string {
-	if c.Session == "" {
-		return ""
-	}
-	k := string(c.Harness) + "-" + c.Session
-	if c.Agent != "" {
-		k += "-" + c.Agent
-	}
-	return k
-}
-
 type Decision struct {
 	Outcome  verdict.Outcome
 	Verdicts verdict.Verdicts
@@ -140,7 +129,7 @@ func (e *Engine) heavy(c call.Call, a *shell.Analysis, d Decision) Decision {
 	if d.Outcome == verdict.Silent.Outcome() {
 		d.Outcome = verdict.Advise.Outcome()
 	}
-	if k := e.Power.key(c); k != "" {
+	if k := c.StateKey(); k != "" {
 		_, _, _ = e.Power.Memory.Swap(k, s)
 	}
 	return d
@@ -150,7 +139,7 @@ func (e *Engine) PowerChange(c call.Call) Decision {
 	if e.Power == nil {
 		return decide(nil)
 	}
-	k := e.Power.key(c)
+	k := c.StateKey()
 	if k == "" || e.Power.Memory.Dir == "" {
 		return decide(nil)
 	}

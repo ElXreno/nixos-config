@@ -18,6 +18,7 @@ type Input struct {
 	HookEventName  string          `json:"hook_event_name"`
 	ToolName       string          `json:"tool_name"`
 	ToolInput      json.RawMessage `json:"tool_input"`
+	ToolResponse   json.RawMessage `json:"tool_response"`
 	ToolUseID      string          `json:"tool_use_id"`
 }
 
@@ -83,6 +84,17 @@ func Context(event string, d guard.Decision) Output {
 		"hookEventName":     event,
 		"additionalContext": ctx,
 	})}
+}
+
+func PostTool(d guard.Decision, output string) Output {
+	spec := map[string]any{
+		"hookEventName":     "PostToolUse",
+		"updatedToolOutput": output,
+	}
+	if ctx := d.Context(); ctx != "" {
+		spec["additionalContext"] = ctx
+	}
+	return Output{Stdout: encode(spec)}
 }
 
 func Write(stdout, stderr io.Writer, out Output) int {

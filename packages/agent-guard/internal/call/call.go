@@ -72,6 +72,17 @@ type Call struct {
 	URL     string
 }
 
+func (c Call) StateKey() string {
+	if c.Session == "" {
+		return ""
+	}
+	k := string(c.Harness) + "-" + c.Session
+	if c.Agent != "" {
+		k += "-" + c.Agent
+	}
+	return k
+}
+
 func (c Call) Summary() string {
 	for _, s := range []string{c.Command, c.Change.Path, c.URL} {
 		if s != "" {
