@@ -163,13 +163,8 @@ in
           qbittorrent-webui = config.nixflix.torrentClients.qbittorrent.webuiPort;
           qbittorrent-torrenting = config.nixflix.torrentClients.qbittorrent.torrentingPort;
         };
-        system.networking = {
-          routes.confine.qbittorrent = tunnel;
-          firewall.public = {
-            jellyfin.tcp = [ ports.jellyfin ];
-            jellyfin-discovery.udp = [ 7359 ];
-          };
-        };
+        system.networking.routes.confine.qbittorrent = tunnel;
+        tailscale.serveNode."tcp:8920".backend = "http://localhost:${toString ports.jellyfin}";
         tailscale.serve = {
           "svc:radarr" = serve "Radarr movie manager" ports.radarr;
           "svc:sonarr" = serve "Sonarr TV show manager" ports.sonarr;
