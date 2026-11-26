@@ -14,6 +14,9 @@ let
     types
     ;
   cfg = config.${namespace}.services.searxng;
+  engineOverrides = {
+    yandex.base_url_web = "https://yandex.ru/search/site/";
+  };
 in
 {
   options.${namespace}.services.searxng = {
@@ -28,10 +31,10 @@ in
     engines = mkOption {
       type = types.listOf types.str;
       default = [
-        "duckduckgo"
-        "yahoo"
-        "bing"
-        "mwmbl"
+        "google cse"
+        "yandex"
+        "keenable"
+        "privacywall"
         "wikipedia"
         "github"
         "stackoverflow"
@@ -57,10 +60,15 @@ in
       environmentFile = config.clan.core.vars.generators.searxng.files.env.path;
       settings = {
         use_default_settings.engines.keep_only = cfg.engines;
-        engines = map (name: {
-          inherit name;
-          disabled = false;
-        }) cfg.engines;
+        engines = map (
+          name:
+          {
+            inherit name;
+            disabled = false;
+            inactive = false;
+          }
+          // engineOverrides.${name} or { }
+        ) cfg.engines;
         general.instance_name = "searxng";
         server = {
           bind_address = "127.0.0.1";
