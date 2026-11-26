@@ -237,6 +237,7 @@ in
                   # the same full initialization (regex compile, GeoIP load) as
                   # the daemon itself. On slow CPUs this doubles startup time.
                   ExecStartPre = lib.mkForce [ ];
+                  ExecReload = lib.mkIf (!isServer) (lib.mkForce [ "${pkgs.coreutils}/bin/kill -HUP $MAINPID" ]);
                   TimeoutStartSec = 300;
                 };
               };
