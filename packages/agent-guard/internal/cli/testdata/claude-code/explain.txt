@@ -45,8 +45,8 @@ advise: shell-tool
     cat ran, but a file you may edit next should be opened with Read: Edit refuses files not read through it, Read pages large files with offset and limit, and its line numbers anchor citations. cat is fine for one-off looks inside a command chain.
 === grep foo a b
 [local d0] ["grep" "foo" "a" "b"]
-deny: shell-tool
-    Blocked: use rg instead of grep for searching files - it is the standard here and far faster. Remember rg -r is --replace, not recursive. grep stays fine for filtering a stream in a pipeline.
+advise: shell-tool
+    Prefer rg over grep for searching files - it is the standard here and far faster. Remember rg -r is --replace, not recursive. grep stays fine for filtering a stream in a pipeline.
 === ls /nix/store
 [local d0] ["ls" "/nix/store"]
 deny: nix-store-root

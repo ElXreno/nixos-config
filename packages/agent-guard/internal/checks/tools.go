@@ -16,7 +16,7 @@ func catMsg(v harness.Vocabulary) string {
 	return "cat ran, but a file you may edit next " + v.ReadFile + " cat is fine for one-off looks inside a command chain."
 }
 
-const grepMsg = "Blocked: use rg instead of grep for searching files - it is the standard here and far faster. Remember rg -r is --replace, not recursive. grep stays fine for filtering a stream in a pipeline."
+const grepMsg = "Prefer rg over grep for searching files - it is the standard here and far faster. Remember rg -r is --replace, not recursive. grep stays fine for filtering a stream in a pipeline."
 
 func shellTool(cmd shell.Command, cfg *Settings) *verdict.Verdict {
 	if cmd.Kind == shell.Remote {
@@ -42,7 +42,7 @@ func shellTool(cmd shell.Command, cfg *Settings) *verdict.Verdict {
 		if len(files) < 2 || cfg.allUnder(files[1:], cfg.ShellReadRoots) {
 			return nil
 		}
-		return deny(grepMsg)
+		return advise(grepMsg)
 	}
 	return nil
 }

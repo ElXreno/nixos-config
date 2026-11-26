@@ -86,10 +86,10 @@ var matrix = []struct {
 	{"shell-tool", "silent", `cat file | head`},
 	{"shell-tool", "deny", `find . -name "*.nix"`},
 	{"shell-tool", "silent", `ssh host "find / -name x"`},
-	{"shell-tool", "deny", `grep -rn foo src/`},
+	{"shell-tool", "advise", `grep -rn foo src/`},
 	{"shell-tool", "silent", `ps aux | grep foo`},
 	{"shell-tool", "silent", `ssh host "find / -name x" && cat /proc/version`},
-	{"shell-tool", "deny", `echo "n: $(grep -c pattern file.txt)"`},
+	{"shell-tool", "advise", `echo "n: $(grep -c pattern file.txt)"`},
 
 	// git scope is denied, destructive git asks
 	{"git-scope", "deny", `git add -A`},
@@ -142,7 +142,7 @@ var matrix = []struct {
 	{"sleep", "deny", `for i in (seq 1 10); sleep 120; set st (ssh boba 'true'); echo $st; end`},
 	{"background", "deny", `podman run --rm --entrypoint sh img -c 'svc &'`},
 	{"shell-tool", "silent", `grep -e a -e b`},
-	{"shell-tool", "deny", `grep -A 3 foo file.txt`},
+	{"shell-tool", "advise", `grep -A 3 foo file.txt`},
 	{"shell-tool", "silent", `grep --include=*.go -c foo`},
 	{"background", "deny", "ssh root@host bash -c \"'\nsleep 60 &\nwait\n'\""},
 
