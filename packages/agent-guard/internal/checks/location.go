@@ -462,3 +462,7 @@ func urlBase(u string) string {
 	u = strings.TrimSuffix(u, "/")
 	return filepath.Base(u)
 }
+
+func WalkDirs(a *shell.Analysis, cwd string, cfg *Settings, visit func(cmd shell.Command, cwd string, known bool)) {
+	walkDirs(a, cwd, cfg, visit)
+}

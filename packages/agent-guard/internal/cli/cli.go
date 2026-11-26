@@ -32,8 +32,9 @@ const program = "agent-guard"
 const usage = `usage: ` + program + ` [--config file.json] <command>
 
 hooks (JSON on stdin):
-  hook                one hook event of the configured harness: the shell guards on shell commands,
-                      the file checks on edits and writes, a journal line for every confirmation
+  hook                one hook event of the configured harness: the shell guards on shell commands
+                      and the script files they run, the file checks on edits and writes with
+                      shell notes on written scripts and Nix shell strings, a journal line for every confirmation
                       dialog, and with power enabled a note on battery before a heavy build and one
                       line after a tool call or with a prompt when the power source changed; Claude
                       Code results of the evidenceTools lose the REA Evidence parts this agent was
@@ -227,6 +228,7 @@ func (r *run) engine(cfg *config.Config) *guard.Engine {
 
 func (r *run) hookEngine(cfg *config.Config) *guard.Engine {
 	e := r.engine(cfg)
+	e.ReadScript = edit.ReadFile
 	if !cfg.Power.Enable {
 		return e
 	}
@@ -648,7 +650,7 @@ func (r *run) explain(command string) (int, error) {
 	}
 	cwd, _ := r.env.Getwd()
 	e := r.engine(cfg)
-	e.Journal = ""
+	e.Journal, e.ReadScript = "", edit.ReadFile
 	d := e.PreTool(call.Call{Kind: call.Shell, Command: command, Cwd: cwd, Session: "explain"})
 	for _, v := range d.Verdicts {
 		_, _ = fmt.Fprintf(w, "%s: %s\n    %s\n", v.Level, v.Check, v.Message)

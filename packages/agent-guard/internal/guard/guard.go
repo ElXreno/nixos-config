@@ -19,13 +19,14 @@ import (
 const AgentMemory = "agent-memory-write"
 
 type Engine struct {
-	Checks    *checks.Settings
-	Edit      edit.Options
-	Memory    func(path, cwd string) bool
-	Now       func() time.Time
-	Journal   string
-	AssumeNew bool
-	Power     *Power
+	Checks     *checks.Settings
+	Edit       edit.Options
+	Memory     func(path, cwd string) bool
+	Now        func() time.Time
+	Journal    string
+	AssumeNew  bool
+	Power      *Power
+	ReadScript func(path string) (string, bool)
 }
 
 type Power struct {
@@ -65,6 +66,7 @@ func (e *Engine) PreTool(c call.Call) Decision {
 		ctx := e.context(c)
 		a := shell.Analyze(c.Command)
 		v := checks.Evaluate(a, ctx, e.Checks)
+		v = append(v, e.scripts(a, ctx, map[string]bool{}, 0)...)
 		d, ok := e.rewrite(v, ctx)
 		if !ok {
 			d = decide(v)
@@ -86,6 +88,7 @@ func (e *Engine) PreTool(c call.Call) Decision {
 				v = append(v, *l)
 			}
 		}
+		v = append(v, e.scriptAdvice(c.Change, opts)...)
 		d := decide(v)
 		d.Notes = notes
 		return d
@@ -96,7 +99,7 @@ func (e *Engine) PreTool(c call.Call) Decision {
 func (e *Engine) rewrite(v verdict.Verdicts, ctx checks.Context) (Decision, bool) {
 	var rg *verdict.Verdict
 	for i, x := range v {
-		if x.Level >= verdict.Ask && x.Check != checks.RgReplace {
+		if x.Level >= verdict.Ask && (x.Check != checks.RgReplace || x.Fix == "") {
 			return Decision{}, false
 		}
 		if x.Check == checks.RgReplace && x.Fix != "" {

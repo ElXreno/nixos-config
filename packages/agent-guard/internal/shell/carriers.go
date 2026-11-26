@@ -638,3 +638,46 @@ func pythonShellStrings(code string) []string {
 	}
 	return out
 }
+
+var scriptShells = map[string]bool{"bash": true, "sh": true, "dash": true, "zsh": true, "ksh": true}
+
+var shellShebang = regexp.MustCompile(`^#!\s*\S*/(?:env\s+(?:-\S+\s+)*)?(?:ba|da|z|k)?sh(?:\s|$)`)
+
+func ShellShebang(src string) bool { return shellShebang.MatchString(src) }
+
+func ScriptFile(c Command) (path string, direct, ok bool) {
+	argv := c.effective()
+	if len(argv) == 0 {
+		return "", false, false
+	}
+	head, args := base(argv[0]), argv[1:]
+	switch {
+	case head == "source" || head == ".":
+		if len(args) > 0 {
+			return args[0], false, true
+		}
+	case scriptShells[head]:
+		for i := 0; i < len(args); i++ {
+			w := args[i]
+			switch {
+			case w == "--":
+				if i+1 < len(args) {
+					return args[i+1], false, true
+				}
+				return "", false, false
+			case w == "--rcfile" || w == "--init-file" || w == "-o" || w == "-O" || w == "+o" || w == "+O":
+				i++
+			case strings.HasPrefix(w, "--"):
+			case strings.HasPrefix(w, "-") || strings.HasPrefix(w, "+"):
+				if strings.ContainsAny(w, "csn") {
+					return "", false, false
+				}
+			default:
+				return w, false, true
+			}
+		}
+	case strings.Contains(argv[0], "/"):
+		return argv[0], true, true
+	}
+	return "", false, false
+}

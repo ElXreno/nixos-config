@@ -241,3 +241,16 @@ func lineAt(text string, starts []int, k int, tree *treesitter.Tree, lang langua
 	}
 	return line{text: raw, comment: comment, code: code}
 }
+
+func Before(c call.Change, opts Options) string {
+	if c.Write {
+		return opts.previous(c.Path)
+	}
+	s, _ := opts.read(c.Path)
+	return s
+}
+
+func After(c call.Change, opts Options) (string, bool) {
+	text, _, _, ok := applyEdit(c, opts)
+	return text, ok
+}

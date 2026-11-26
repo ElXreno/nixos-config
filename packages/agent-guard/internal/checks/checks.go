@@ -248,3 +248,21 @@ func (cfg *Settings) underAny(p string, roots []string) bool {
 	}
 	return false
 }
+
+var scriptChecks = []check{
+	{name: RgReplace, command: rgReplace},
+	{name: NixStoreRoot, command: nixStoreRoot},
+	{name: NixOutputs, command: nixOutputs},
+	{name: Pkill, command: pkill},
+}
+
+func Script(cmd shell.Command, cfg *Settings) verdict.Verdicts {
+	var out verdict.Verdicts
+	for _, c := range scriptChecks {
+		if v := c.command(cmd, cfg); v != nil {
+			v.Check = c.name
+			out = append(out, *v)
+		}
+	}
+	return out
+}
