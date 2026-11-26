@@ -198,6 +198,7 @@ in
             backendPort = 18101;
             ctxSize = 524288;
             environment.STRATA_ZFS_ARC = "1";
+            settings.api_monitor = true;
             webSearch.searxng = "http://127.0.0.1:${toString config.${namespace}.ports.searxng}";
           };
       };
