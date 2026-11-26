@@ -27,6 +27,7 @@ in
         fish.enable = true;
       };
 
+      system.tools.enable = true;
       system.zswap.enable = mkDefault true;
     };
 

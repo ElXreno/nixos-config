@@ -19,25 +19,14 @@ in
       # CLI Stuff
       age
       aria2
-      bc
-      binutils
       compsize
-      dua
-      fd
-      file
-      iotop
-      mtr
+      entr
+      hyperfine
       nvtopPackages.full
-      pciutils
-      python3
       restic
-      ripgrep
       screen
-      smartmontools
       sops
-      tree
-      unzip
-      usbutils
+      yq-go
 
       # Nix stuff
       nix-tree
