@@ -115,7 +115,6 @@ in
       settings = {
         model = "claude-opus-5-5";
         fallbackModel = [ "claude-opus-5" ];
-        maxEffortLevel = "xhigh";
         modelSettings = lib.genAttrs [ "claude-opus-5-5" "claude-opus-5" "claude-fable-5-1" ] (_: {
           effortLevel = "high";
         });
