@@ -19,7 +19,7 @@ var storeSearchers = map[string]bool{"rg": true, "grep": true, "ag": true, "ack"
 
 const nixStoreMsg = `Blocked: no traversing the root of /nix or /nix/store: the store holds hundreds of thousands of entries and a sweep costs minutes of disk IO. A concrete entry is fine, globs inside it included: /nix/store/<hash>-<name>/**/*.so
 Derive the path instead of searching for it:
-  nix build <attr> --no-link --print-out-paths
+  nix build <attr>^out --no-link --print-out-paths   (^bin, ^lib: name the output)
   nix eval <attr> --raw
   nix path-info <attr>            (-r for the closure, -S for sizes)
   nix derivation show <attr>

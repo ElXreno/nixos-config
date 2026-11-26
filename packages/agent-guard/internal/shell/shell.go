@@ -58,6 +58,7 @@ type Command struct {
 	Background bool
 	Detached   bool
 	InPipeline bool
+	StdoutTo   string
 	Redirects  []Redirect
 	Heredoc    string
 	Stdin      string
@@ -363,6 +364,7 @@ func (a *Analysis) add(src string, kind Kind, depth int) {
 			Kind:       kind,
 			Background: stmt.Background,
 			InPipeline: inPipeline(stack),
+			StdoutTo:   stdoutReader(stack),
 			Raw:        strings.TrimSpace(slice(src, stmt)),
 			Depth:      depth,
 			Env:        a.commandEnv(call.Assigns),
@@ -459,6 +461,41 @@ func wholeQuoted(file *syntax.File) (string, bool) {
 		return inner, true
 	}
 	return "", false
+}
+
+const Substitution = "$()"
+
+func stdoutReader(stack []syntax.Node) string {
+	for i := len(stack) - 2; i >= 0; i-- {
+		switch n := stack[i].(type) {
+		case *syntax.BinaryCmd:
+			if (n.Op == syntax.Pipe || n.Op == syntax.PipeAll) && syntax.Node(n.X) == stack[i+1] {
+				return pipeReader(n.Y)
+			}
+		case *syntax.CmdSubst, *syntax.ProcSubst:
+			return Substitution
+		}
+	}
+	return ""
+}
+
+func pipeReader(s *syntax.Stmt) string {
+	for {
+		switch c := s.Cmd.(type) {
+		case *syntax.BinaryCmd:
+			s = c.X
+			continue
+		case *syntax.CallExpr:
+			if len(c.Args) > 0 {
+				if argv := Unwrap([]string{Flatten(c.Args[0])}); len(argv) > 0 {
+					return base(argv[0])
+				}
+			}
+		case *syntax.WhileClause:
+			return "while"
+		}
+		return "?"
+	}
 }
 
 func inPipeline(stack []syntax.Node) bool {

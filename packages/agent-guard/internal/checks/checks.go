@@ -42,6 +42,7 @@ const (
 	GitDestructive = "git-destructive"
 	GitPush        = "git-push"
 	NixStoreRoot   = "nix-store-root"
+	NixOutputs     = "nix-outputs"
 	ShellTool      = "shell-tool"
 	Sleep          = "sleep"
 	Background     = "background"
@@ -64,6 +65,7 @@ var registry = []check{
 	{name: GitScope, command: gitScope},
 	{name: GitDestructive, command: gitDestructive},
 	{name: NixStoreRoot, command: nixStoreRoot},
+	{name: NixOutputs, command: nixOutputs},
 	{name: ShellTool, command: shellTool},
 	{name: Sleep, command: sleepCheck},
 	{name: Background, command: background},
