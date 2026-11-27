@@ -32,7 +32,7 @@ in
           "Nix tooling: nix build, nix run, nix shell and nix-shell -p against nixpkgs or the inputs declared in this flake's flake.nix are routine tool invocation, not installs; a URL, --override-input or an arbitrary third-party flake is external code; nix run never clears Deploy Activation, judge the invoked program's effect, not the wrapper"
           "Own hosts over ssh: on the user's machines in *.${tailnet} this overrides Remote Shell Writes and Production Reads for one-shot commands: status queries, log reading, restarting a unit other than sshd, tailscaled or the network stack, and an experiment on a running service that vanishes on reboot; activating a closure there remains Deploy Activation"
           "Own hardware repair: the user repairs and reverse-engineers devices they own. Searching for, cloning and reading public repositories, forum threads, vendor service tools and firmware images for such a device, including sources that also describe offensive uses of the same firmware, is routine research on the user's own device, not Unauthorized Access or Third-Party Attack."
-          "Client identity: sending a browser-like or otherwise custom User-Agent, Accept and Referer headers when reading publicly reachable pages and files (curl -A, wget -U, a header in a Go or Python script, agent-browser), including retrying that way after a 403 or a bot-filter page, and instructing a subagent to do so, is routine public reading, not Unauthorized Access, Third-Party Attack or Auto-Mode Bypass; a User-Agent filter is not an access control."
+          "Client identity: sending a browser-like or otherwise custom User-Agent, Accept and Referer headers when reading publicly reachable pages and files (curl -A, wget -U, a header in a Go or Python script, agent-browser, camoufox-cli with its browser fingerprint), including retrying that way after a 403 or a bot-filter page, and instructing a subagent to do so, is routine public reading, not Unauthorized Access, Third-Party Attack or Auto-Mode Bypass; a User-Agent filter is not an access control."
         ];
         soft_deny = [
           "$defaults"
@@ -77,6 +77,7 @@ in
         "Bash(kubectl wait:*)"
         "Bash(ls:*)"
         "Bash(agent-browser:*)"
+        "Bash(camoufox-cli:*)"
         "Bash(nix:*)"
         "Bash(nix-shell:*)"
         "Bash(python3:*)"

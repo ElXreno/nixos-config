@@ -60,6 +60,7 @@ in
   config = mkIf cfg.enable {
     ${namespace}.programs = {
       agent-browser.enable = true;
+      camoufox-cli.enable = true;
       mcp.enable = true;
     };
 
@@ -97,6 +98,7 @@ in
       commandsDir = ./commands;
 
       skills.agent-browser = "${pkgs.agent-browser}/share/agent-browser/skills/agent-browser";
+      skills.camoufox = "${pkgs.${namespace}.camoufox-cli}/share/camoufox-cli/skills/camoufox";
       skills.memory-migrate = ./skills/memory-migrate;
       skills.exhaustive-sweep = ./skills/exhaustive-sweep;
       skills.reverse-engineer-anything = pkgs.${namespace}.rea-full.skill;
