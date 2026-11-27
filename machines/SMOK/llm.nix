@@ -79,7 +79,7 @@ in
           kvCacheDtype = "fp8_e4m3";
           linearStateCacheRatio = 4.0;
           maxPrefillLength = 4096;
-          maxRunningRequests = 2;
+          maxRunningRequests = 4;
           memoryRatio = 0.7;
           minP = 0.05;
           moeCpuThreads = 8;
@@ -103,6 +103,11 @@ in
       searxng.enable = true;
 
       llm-gateway.enable = true;
+
+      digger = {
+        enable = true;
+        peer = "freetoken-ornith35";
+      };
 
       strata = {
         enable = true;

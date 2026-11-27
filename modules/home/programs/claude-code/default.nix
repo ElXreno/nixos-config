@@ -1,5 +1,6 @@
 {
   config,
+  osConfig,
   namespace,
   lib,
   pkgs,
@@ -101,6 +102,7 @@ in
       skills.camoufox = "${pkgs.${namespace}.camoufox-cli}/share/camoufox-cli/skills/camoufox";
       skills.memory-migrate = ./skills/memory-migrate;
       skills.exhaustive-sweep = ./skills/exhaustive-sweep;
+      skills.digger = mkIf osConfig.${namespace}.services.digger.enable ./skills/digger;
       skills.reverse-engineer-anything = pkgs.${namespace}.rea-full.skill;
 
       plugins.claude-security = "${officialPlugins}/plugins/claude-security";
