@@ -2,11 +2,13 @@
   config,
   namespace,
   lib,
+  pkgs,
   ...
 }:
 
 let
   inherit (lib)
+    getExe'
     mkIf
     mkEnableOption
     mkOption
@@ -14,6 +16,25 @@ let
     ;
   cfg = config.${namespace}.services.llm-gateway;
   services = config.${namespace}.services;
+  systemctl = getExe' config.systemd.package "systemctl";
+
+  front = r: "${lib.removeSuffix "-backend.service" r.unit}.service";
+
+  managedUnits = lib.concatMap (r: [
+    (front r)
+    r.unit
+  ]) routes;
+
+  unitRunner = pkgs.writeShellApplication {
+    name = "llm-gateway-unit";
+    runtimeInputs = [ config.systemd.package ];
+    text = ''
+      systemctl start --no-ask-password "$1"
+      while state=$(systemctl show --property=ActiveState --value "$2") && [[ $state != inactive && $state != failed ]]; do
+        sleep 2
+      done
+    '';
+  };
 
   backends = lib.filterAttrs (_: s: s.enable) { inherit (services) freetoken strata xolotl; };
 
@@ -48,7 +69,7 @@ let
 in
 {
   options.${namespace}.services.llm-gateway = {
-    enable = mkEnableOption "a llama-swap gateway that routes local model requests by model id, one backend at a time";
+    enable = mkEnableOption "a llama-swap gateway that routes local model requests by model id, one backend at a time, swapping only once the loaded one has no request in flight";
 
     port = mkOption {
       type = types.port;
@@ -60,6 +81,12 @@ in
       type = types.ints.unsigned;
       default = 1800;
       description = "Seconds a backend may take to send response headers, covering a cold start and a long prefill.";
+    };
+
+    loadTimeout = mkOption {
+      type = types.ints.positive;
+      default = 600;
+      description = "Seconds a backend may take to become ready, and to stop before the next one starts.";
     };
 
     models = mkOption {
@@ -76,20 +103,37 @@ in
 
     systemd.services = exclusive;
 
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.freedesktop.systemd1.manage-units" &&
+            subject.user == "llama-swap" &&
+            ${builtins.toJSON managedUnits}.indexOf(action.lookup("unit")) >= 0 &&
+            ["start", "stop"].indexOf(action.lookup("verb")) >= 0) {
+          return polkit.Result.YES;
+        }
+      });
+    '';
+
     services.llama-swap = {
       enable = true;
       listenAddress = "127.0.0.1";
       inherit (cfg) port;
-      settings.peers = lib.listToAttrs (
-        map (
-          r:
-          lib.nameValuePair r.peer {
-            proxy = "http://127.0.0.1:${toString r.port}";
-            models = [ r.model ];
-            timeouts.responseHeader = cfg.responseHeaderTimeout;
-          }
-        ) routes
-      );
+      settings = {
+        healthCheckTimeout = cfg.loadTimeout;
+        models = lib.listToAttrs (
+          map (
+            r:
+            lib.nameValuePair r.model {
+              cmd = "${lib.getExe unitRunner} ${front r} ${r.unit}";
+              cmdStop = "${systemctl} stop --no-ask-password ${r.unit}";
+              proxy = "http://127.0.0.1:${toString r.port}";
+              checkEndpoint = "/health";
+              concurrencyLimit = 64;
+              timeouts.responseHeader = cfg.responseHeaderTimeout;
+            }
+          ) routes
+        );
+      };
     };
   };
 }
