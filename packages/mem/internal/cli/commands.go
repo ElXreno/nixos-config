@@ -30,7 +30,8 @@ func cmdPut(e env.Env, args []string) int {
 	update := f.Bool("update", false, "change the existing record in place")
 	f.Var(&supersedes, "supersedes", "keys this record replaces; repeatable, comma-separated")
 	f.Var(&distinct, "distinct", "flagged near-duplicates this record is distinct from; repeatable, comma-separated")
-	why := f.String("why", "", "reason kept in history; required with --distinct")
+	why := f.String("why", "", "reason kept in history; required with --distinct and --no-gate")
+	noGate := f.Bool("no-gate", false, "skip the duplicate gate for a new key, for records that repeat by design")
 	dup := f.Float64("dup", store.DefaultDup, "duplicate similarity threshold")
 	rel := f.Float64("rel", store.DefaultRel, "similarity from which a neighbour is printed as check for conflict; one that shares two words of key and title is printed from 0.1")
 	minShared := f.Int("min-shared", store.DefaultMinShared, "stems a duplicate must share at least")
@@ -68,13 +69,16 @@ func cmdPut(e env.Env, args []string) int {
 			return fail(e, err)
 		}
 	}
+	if *noGate && strings.TrimSpace(*why) == "" {
+		return f.usageErr("--no-gate needs --why")
+	}
 	req := store.PutRequest{
 		Key:        *key,
 		Update:     *update,
 		Supersedes: supersedes,
 		Distinct:   distinct,
 		Why:        *why,
-		Gate:       store.Gate{Dup: *dup, Rel: *rel, MinShared: *minShared},
+		Gate:       store.Gate{Dup: *dup, Rel: *rel, MinShared: *minShared, Skip: *noGate},
 	}
 	if *kind != "" {
 		k, err := store.ParseKind(*kind)

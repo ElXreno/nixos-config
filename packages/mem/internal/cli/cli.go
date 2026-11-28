@@ -19,7 +19,7 @@ const usage = `usage: mem [--db PATH] <command> [flags]
 
 records:
   put KEY --kind KIND --scope S... --title T [--body TEXT | < body] [--core] [--trigger TOOL:REGEX]... [--verify CMD]
-      [--ttl N|Nd|Nw|Nh, 1 to 36500 days] [--update | --supersedes OLD... | --distinct OTHER... --why TEXT]
+      [--ttl N|Nd|Nw|Nh, 1 to 36500 days] [--update | --supersedes OLD... | --distinct OTHER... --why TEXT | --no-gate --why TEXT]
                       write one record; a new key passes the duplicate gate first; KEY may also be --key K, flags go before or after it;
                       --body absent or - reads stdin; --update keeps kind, scopes and title when omitted
   get K... [--body] [--history]
@@ -61,6 +61,10 @@ hooks and tools:
   import-legacy --dir D --project P
   import-records [--scope S]... [--distinct FILE] [--conflicts FILE] [--related FILE] [--why TEXT] [--dry-run] [--json] FILE.jsonl...
                       migrated records through the put path and its duplicate gate; exit 3 lists the gate rejections
+  merge --from DB [--since TIME] [--key K]... [--source S] [--why TEXT] [--dry-run] [--json]
+                      current records of another database changed after --since: new keys pass the duplicate gate,
+                      existing keys are updated in place, keys they superseded there are superseded here; one line per record
+                      (new, update, same, conflict, failed), exit 3 on gate conflicts
   eval --transcripts GLOB --legacy-dir D --out DIR
   eval --legacy-dir D --export-texts DIR
                       queries.jsonl and docs.jsonl of the eval, the input of embed
@@ -104,6 +108,7 @@ var commands = map[string]command{
 	"ui":             cmdUI,
 	"import-legacy":  cmdImportLegacy,
 	"import-records": cmdImportRecords,
+	"merge":          cmdMerge,
 	"eval":           cmdEval,
 	"embed":          cmdEmbed,
 	"vecdiff":        cmdVecdiff,
