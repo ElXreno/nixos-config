@@ -18,13 +18,6 @@ let
 
   models = lib.listToAttrs (map (m: lib.nameValuePair m.peer m) gateway.models);
 
-  ledgerHook = [
-    {
-      type = "command";
-      command = "${lib.getExe pkgs.${namespace}.compact-ledger} hook";
-    }
-  ];
-
   settings = pkgs.writeText "claude-local-settings.json" (
     builtins.toJSON {
       modelPicker = {
@@ -35,16 +28,6 @@ let
         }) gateway.models;
       };
       env.OBSERVER_EVERY_STEPS = toString cfg.local.observerEverySteps;
-      hooks = {
-        PreCompact = [ { hooks = ledgerHook; } ];
-        PostCompact = [ { hooks = ledgerHook; } ];
-        SessionStart = [
-          {
-            matcher = "compact";
-            hooks = ledgerHook;
-          }
-        ];
-      };
     }
   );
 
