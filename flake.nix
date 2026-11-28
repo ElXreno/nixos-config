@@ -229,6 +229,12 @@
               hash = "sha256-Lj3RlXOUD/qvirmVaWWK1n88WGLtgJcJQS/NyXbx+lo=";
             })
 
+            # NixOS/nixpkgs#592763
+            (patcher.fetchpatch {
+              name = "sing-box-fix-build.patch";
+              url = "https://github.com/NixOS/nixpkgs/commit/92b03f1f2bd69ea794a14b39268b1ed865da4275.patch";
+              hash = "sha256-fhYhEWuQlbZzc8qvHeCLqiK/OGF2cZiT1rnIVdOuv9I=";
+            })
           ];
 
           nix-minecraft.patches = [
