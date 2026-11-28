@@ -74,6 +74,9 @@ in
 
   config = mkIf cfg.enable {
     ${namespace}.programs = {
+      agent-guard.harnesses.claude-code.agentStores = mkIf cfg.observer.enable [
+        "${config.xdg.stateHome}/claude-observer/agents"
+      ];
       agent-browser.enable = true;
       camoufox-cli.enable = true;
       mcp.enable = true;

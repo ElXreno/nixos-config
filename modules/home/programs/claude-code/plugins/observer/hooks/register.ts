@@ -115,7 +115,8 @@ async function open($: Engine): Promise<Session | undefined> {
   if (current?.id === id) return current
   const home = (await $.env.get('HOME').catch(() => undefined)) ?? ''
   const state = (await $.env.get('XDG_STATE_HOME').catch(() => undefined)) || `${home}/.local/state`
-  const dir = `${state}/claude-observer`
+  const agent = (await $.env.get('MEM_AGENT').catch(() => undefined)) ?? ''
+  const dir = agent === '' ? `${state}/claude-observer` : `${state}/claude-observer/agents/${agent}`
   const saved = await $.store.get(`${SESSION_PREFIX}${id}`).catch(() => undefined)
   const s: Session = {
     id,

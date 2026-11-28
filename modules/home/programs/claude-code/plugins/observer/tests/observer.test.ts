@@ -97,11 +97,11 @@ test('the digest lists dead ends, exclusions, objects and open leads', () => {
   expect(digest(emptyLedger())).toBe('')
 })
 
-type Seen = { prompts: string[]; mem: string[][]; appended: string[]; store: Map<string, unknown> }
+type Seen = { prompts: string[]; mem: string[][]; appended: string[]; dirs: string[]; store: Map<string, unknown> }
 
-function engine(on: On, session: string, reply: () => string): Seen {
-  const seen: Seen = { prompts: [], mem: [], appended: [], store: new Map() }
-  const env: Record<string, string> = { HOME: '/home/t', OBSERVER_EVERY_STEPS: '4' }
+function engine(on: On, session: string, reply: () => string, extra: Record<string, string> = {}): Seen {
+  const seen: Seen = { prompts: [], mem: [], appended: [], dirs: [], store: new Map() }
+  const env: Record<string, string> = { HOME: '/home/t', OBSERVER_EVERY_STEPS: '4', ...extra }
   mock.clock(on, { now: Date.parse('2026-11-28T10:00:00Z') })
   on('store.get', (_, e) => ({ value: seen.store.get(e.key) }))
   on('store.set', (_, e) => {
@@ -139,7 +139,10 @@ function engine(on: On, session: string, reply: () => string): Seen {
               ]
             : [],
         )
-    } else seen.appended.push(e.stdin ?? '')
+    } else {
+      seen.appended.push(e.stdin ?? '')
+      seen.dirs.push(e.argv[4] ?? '')
+    }
     return { value: { exitCode, stdout, stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }
   })
   on('model.fork', (_, e) => {
@@ -193,4 +196,10 @@ test('a subagent call and a denied call leave the registry alone', async ($, on)
   const seen = engine(on, 'session-b', () => '{}')
   await $.tool.call({ tool: 'Bash', command: 'ls', agentId: 'a1' } as never)
   expect(seen.appended).toEqual([])
+})
+
+test('a session of a local agent keeps its pairs under a directory of its own', async ($, on) => {
+  const seen = engine(on, 'session-c', () => '{}', { MEM_AGENT: 'local' })
+  await $.tool.call({ tool: 'Bash', command: 'ls' })
+  expect(seen.dirs).toEqual(['/home/t/.local/state/claude-observer/agents/local'])
 })
