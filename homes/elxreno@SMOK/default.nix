@@ -1,6 +1,8 @@
 { namespace, pkgs, ... }:
 {
   home.packages = with pkgs; [
+    antigravity-cli
+    antigravity-hub
     qbittorrent
 
     # Games
