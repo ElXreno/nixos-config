@@ -287,7 +287,13 @@ in
     })
 
     (mkIf cc.enable {
-      ${namespace}.programs.claude-code.memoryRules = memorySection + "\n" + coreImport + "\n";
+      ${namespace}.programs = {
+        claude-code.memoryRules = memorySection + "\n" + coreImport + "\n";
+        agent-guard.harnesses.claude-code.agentStores = [
+          "${config.xdg.dataHome}/agent-memory"
+          "${config.xdg.stateHome}/agent-memory/agents"
+        ];
+      };
 
       programs.claude-code.settings = {
         autoMemoryEnabled = mkIf cfg.disableBuiltin false;

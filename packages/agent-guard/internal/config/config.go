@@ -30,6 +30,7 @@ type Config struct {
 	AvoidRoots     []string              `json:"avoidRoots"`
 	MemoryPaths    []string              `json:"memoryPaths"`
 	ProtectedRepos []string              `json:"protectedRepos"`
+	AgentStores    []string              `json:"agentStores"`
 	Power          Power                 `json:"power"`
 	EvidenceTools  []string              `json:"evidenceTools"`
 	Grammars       treesitter.Grammars   `json:"grammars"`
@@ -65,6 +66,9 @@ func Load(path string, getenv func(string) string) (*Config, error) {
 	cfg.Spec = spec
 	if cfg.Home == "" {
 		cfg.Home = getenv("HOME")
+	}
+	if getenv("MEM_AGENT") != "" {
+		cfg.AgentStores = nil
 	}
 	return cfg, nil
 }
@@ -104,6 +108,9 @@ func (c *Config) Check() error {
 		if d.Reason == "" {
 			errs = append(errs, fmt.Errorf("deniedWrites entry %q has no reason", d.Path))
 		}
+	}
+	for _, p := range c.AgentStores {
+		absolute("agentStores entry", p)
 	}
 	for _, p := range c.ProtectedRepos {
 		if err := checks.ValidRepoPattern(p); err != nil {
@@ -152,6 +159,7 @@ func (c *Config) Checks() *checks.Settings {
 		ReposRoot:      c.ReposRoot,
 		AvoidRoots:     c.AvoidRoots,
 		ProtectedRepos: c.ProtectedRepos,
+		AgentStores:    c.AgentStores,
 		Spec:           c.Spec,
 	}
 }

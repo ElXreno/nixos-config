@@ -86,6 +86,11 @@ let
           default = [ ];
           description = "Memory directories the file checks skip; a relative pattern starts at the git root.";
         };
+        agentStores = mkOption {
+          type = roots;
+          default = [ ];
+          description = "Directories holding the memory of other agents; mem --as, MEM_AGENT and any read of them ask the owner first. Left empty, the check is off.";
+        };
         evidenceTools = mkOption {
           type = types.listOf types.str;
           default = [ ];
@@ -106,6 +111,7 @@ let
                     readOnlyRoots
                     memoryPaths
                     evidenceTools
+                    agentStores
                     ;
                   inherit home;
                   inherit (cfg)

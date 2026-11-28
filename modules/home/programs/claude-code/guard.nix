@@ -11,6 +11,7 @@ let
     mkIf
     optional
     optionalAttrs
+    optionalString
     replaceStrings
     ;
   cfg = config.${namespace}.programs.claude-code;
@@ -51,7 +52,7 @@ in
       settings.hooks = {
         PreToolUse = [
           {
-            matcher = "Bash|${editTools}";
+            matcher = "Bash|${editTools}" + optionalString (cc.agentStores != [ ]) "|Read|Grep|Glob";
             hooks = [ hook ];
           }
         ];

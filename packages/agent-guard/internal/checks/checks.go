@@ -25,6 +25,7 @@ type Settings struct {
 	ReposRoot      string
 	AvoidRoots     []string
 	ProtectedRepos []string
+	AgentStores    []string
 	Spec           harness.Spec
 }
 
@@ -76,6 +77,7 @@ var registry = []check{
 	{name: NoWrite, analysis: noWrite},
 	{name: Location, analysis: location},
 	{name: GitPush, analysis: gitPush},
+	{name: MemAgent, analysis: memAgent},
 }
 
 func Names() []string {

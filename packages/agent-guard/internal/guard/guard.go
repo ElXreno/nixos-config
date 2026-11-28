@@ -93,6 +93,9 @@ func (e *Engine) PreTool(c call.Call) Decision {
 		d.Notes = notes
 		return d
 	}
+	if r := checks.AgentStoreForFile(c.Change.Path, e.context(c), e.Checks); r != nil {
+		return decide(verdict.Verdicts{*r})
+	}
 	return decide(nil)
 }
 
