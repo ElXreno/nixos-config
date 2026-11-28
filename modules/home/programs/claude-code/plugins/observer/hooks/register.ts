@@ -97,6 +97,7 @@ async function mem($: Engine, s: Session, cfg: Config, args: string[]): Promise<
   const answer = await $.process
     .run(['mem', ...args], { timeoutMs: cfg.memTimeoutMs })
     .catch((error: unknown) => ({ exitCode: -1, stdout: '', stderr: String(error) }))
+  if (answer.exitCode === 1 && answer.stderr.includes('no memory database')) return answer
   s.memFailures = answer.exitCode === 0 || answer.exitCode === 3 ? 0 : s.memFailures + 1
   if (answer.exitCode !== 0) note(s, `mem ${args[0]} exit ${answer.exitCode}: ${squash(answer.stderr).slice(0, 200)}`)
   return answer

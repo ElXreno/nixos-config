@@ -105,6 +105,77 @@ test('a quote that occurs in several outputs rests on the latest of them', () =>
   expect(hits(ledger, 'ls tool', CWD, new Set())).toEqual([])
 })
 
+test('a quote may be abbreviated or carry written-out newlines, and a relative command names its object', () => {
+  const ledger = emptyLedger()
+  const pairs = [
+    pair(
+      'ls -la /work/orch',
+      'total 1061 drwxr-xr-x 4 user users 6 Nov 28 20:41 . -rw-r--r-- 1 user users 391 Nov 28 20:41 SUMMARY.md drwxr-xr-x 2 user users 4 Nov 28 20:38 notes',
+      CWD,
+    ),
+    pair('rg -n "TODO" . | head', './notes/a.txt:2:TODO: rotate the staging keys ./notes/b.txt:1:TODO: write the migration plan', CWD),
+    pair('cat notes/a.txt', 'meeting notes TODO: rotate the staging keys all good here', CWD),
+  ]
+  const attempts = [
+    {
+      subject: 'directory layout',
+      object: '/work/orch',
+      verdict: 'confirmed',
+      reason: 'holds notes',
+      evidence: 'total 1061 ... -rw-r--r-- 1 user users 391 Nov 28 20:41 SUMMARY.md ... drwxr-xr-x 2 user users 4 Nov 28 20:38 notes',
+    },
+    {
+      subject: 'search with rg',
+      object: '/work/orch (rg -n todo .)',
+      verdict: 'confirmed',
+      reason: 'two lines',
+      evidence: './notes/a.txt:2:TODO: rotate the staging keys',
+    },
+    {
+      subject: 'first note',
+      object: '/work/orch/notes/a.txt',
+      verdict: 'confirmed',
+      reason: 'one todo',
+      evidence: 'meeting notes\\nTODO: rotate the staging keys\\nall good here',
+    },
+    {
+      subject: 'second note',
+      object: '/work/orch/notes/b.txt',
+      verdict: 'confirmed',
+      reason: 'never read',
+      evidence: 'meeting notes ... nothing of the kind was printed',
+    },
+    {
+      subject: 'elsewhere',
+      object: '/opt/other/file',
+      verdict: 'confirmed',
+      reason: 'never read',
+      evidence: 'meeting notes TODO: rotate the staging keys',
+    },
+  ]
+  merge(ledger, pairs, { attempts }, 3)
+  expect(ledger.records.map(rec => rec.grounded)).toEqual([true, true, true, false, false])
+  const file = pair('file data.bin; echo ---', 'data.bin: ELF 64-bit LSB pie executable, x86-64', CWD)
+  merge(
+    ledger,
+    [file],
+    {
+      attempts: [
+        {
+          subject: 'data file type',
+          object: '/work/orch/data.bin',
+          verdict: 'confirmed',
+          reason: 'an executable',
+          evidence: 'data.bin: ELF 64-bit LSB pie executable',
+        },
+      ],
+    },
+    4,
+  )
+  expect(hits(ledger, 'xxd -l 64 data.bin', CWD, new Set()).map(rec => rec.subject)).toEqual(['data file type'])
+  expect(hits(ledger, 'xxd -l 64 other.bin', CWD, new Set())).toEqual([])
+})
+
 test('the digest lists dead ends, exclusions, objects and open leads', () => {
   const text = digest(seeded().ledger)
   expect(text).toContain('Dead ends, do not try these again:\na3 scan approach')
@@ -137,11 +208,15 @@ function engine(on: On, session: string, reply: () => string, extra: Record<stri
   on('fs.exists', () => ({ value: false }))
   on('process.run', (_, e) => {
     let stdout = ''
+    let stderr = ''
     let exitCode = 0
     if (e.argv[0] === 'mem') {
       seen.mem.push(e.argv.slice(1))
       if (e.argv[1] === 'here') stdout = '["project:orch","host:smok"]'
-      if (e.argv[1] === 'search')
+      if (e.argv[1] === 'search' && extra.NO_DB !== undefined) {
+        exitCode = 1
+        stderr = 'mem: no memory database at /home/t/.local/share/agent-memory/mem.db; mem put creates it'
+      } else if (e.argv[1] === 'search')
         stdout = JSON.stringify(
           e.argv.at(-1)?.includes('replay')
             ? [
@@ -161,7 +236,7 @@ function engine(on: On, session: string, reply: () => string, extra: Record<stri
       seen.appended.push(e.stdin ?? '')
       seen.dirs.push(e.argv[4] ?? '')
     }
-    return { value: { exitCode, stdout, stderr: '', isStdoutTruncated: false, isStderrTruncated: false } }
+    return { value: { exitCode, stdout, stderr, isStdoutTruncated: false, isStderrTruncated: false } }
   })
   on('model.fork', (_, e) => {
     seen.prompts.push(e.prompt)
@@ -220,4 +295,12 @@ test('a session of a local agent keeps its pairs under a directory of its own', 
   const seen = engine(on, 'session-c', () => '{}', { MEM_AGENT: 'local' })
   await $.tool.call({ tool: 'Bash', command: 'ls' })
   expect(seen.dirs).toEqual(['/home/t/.local/state/claude-observer/agents/local'])
+})
+
+test('searches before the memory database exists do not switch memory off', async ($, on) => {
+  const seen = engine(on, 'session-d', () => JSON.stringify({ attempts: ATTEMPTS }), { NO_DB: '1' })
+  for (const command of [at('./bin/start'), at('./bin/diag bogugos net'), at('./bin/scan'), 'file /work/orch/bin/*'])
+    await $.tool.call({ tool: 'Bash', command })
+  expect(seen.mem.filter(args => args[0] === 'search').length).toBeGreaterThan(3)
+  expect(seen.mem.filter(args => args[0] === 'put').length).toBe(4)
 })

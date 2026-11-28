@@ -95,7 +95,7 @@ function locate(dir: string, token: string): string {
   return cut.endsWith('/') && path !== '/' ? `${path}/` : path
 }
 
-type Segment = { program: string; args: string[] }
+type Segment = { program: string; args: string[]; paths: string[] }
 
 function segments(command: string, cwd: string): Segment[] {
   let dir = cwd
@@ -113,8 +113,10 @@ function segments(command: string, cwd: string): Segment[] {
       continue
     }
     const place = (word: string): string => (word.includes('/') ? locate(dir, word) : word.toLowerCase())
+    const rest = words.slice(1).filter(word => !word.startsWith('-') && !/^\d+$/.test(word))
     found.push({
       program: place(head),
+      paths: rest.map(word => locate(dir, word)).filter(word => word !== ''),
       args: words
         .slice(1)
         .filter(word => !word.startsWith('-') && !/^\d+$/.test(word))
@@ -133,7 +135,7 @@ function signature(call: string, cwd: string): string[] {
 }
 
 function examined(command: string, cwd: string): string[] {
-  return [...new Set(segments(command, cwd).flatMap(segment => segment.args.filter(token => token.startsWith('/'))))]
+  return [...new Set(segments(command, cwd).flatMap(segment => segment.paths))]
 }
 
 function commandTokens(command: string, cwd: string): Set<string> {
@@ -158,6 +160,20 @@ function names(lower: string, path: string): boolean {
   return cut > 0 && lower.includes(path.slice(0, cut)) && lower.includes(path.slice(cut + 1))
 }
 
+function named(entry: Pair, path: string): boolean {
+  if (names(entry.lower, path)) return true
+  const cwd = entry.cwd.toLowerCase()
+  if (path === cwd || cwd.startsWith(`${path}/`)) return true
+  if (!path.startsWith(`${cwd}/`)) return false
+  const inside = path.slice(cwd.length + 1)
+  return inside !== '' && names(entry.lower, inside)
+}
+
+function quoted(text: string, evidence: string): boolean {
+  const parts = evidence.split(/\s*(?:\.\.\.|\u2026)\s*/).filter(part => part.length >= 8)
+  return parts.length > 0 && parts.every(part => text.includes(part))
+}
+
 function objectsOf(object: string, source: Pair): string[] {
   const seen = examined(source.call, source.cwd).flatMap(path => (path.endsWith('/') ? [path] : [path, `${path}/`]))
   return [...new Set(located(object, source.cwd).filter(token => token.startsWith('/') && covers(seen, token)))]
@@ -172,7 +188,7 @@ export function merge(ledger: Ledger, pairs: readonly Pair[], data: Record<strin
     if (typeof attempt.subject !== 'string' || typeof attempt.verdict !== 'string' || !VERDICTS.includes(attempt.verdict)) continue
     const subject = squash(attempt.subject).slice(0, 200)
     if (subject === '') continue
-    const evidence = typeof attempt.evidence === 'string' ? squash(attempt.evidence) : ''
+    const evidence = typeof attempt.evidence === 'string' ? squash(attempt.evidence.replace(/\\[nrt]/g, ' ')) : ''
     const object = typeof attempt.object === 'string' ? squash(attempt.object).toLowerCase().slice(0, 200) : ''
     const tokens = [...identifiers(subject), ...identifiers(object)]
     const need = Math.max(1, Math.ceil(tokens.length / 2))
@@ -181,10 +197,10 @@ export function merge(ledger: Ledger, pairs: readonly Pair[], data: Record<strin
       .map(token => token.replace(/\/+$/, ''))
       .filter(token => token !== '')
     const about = (entry: Pair): boolean =>
-      paths.some(path => names(entry.lower, path)) || tokens.filter(token => entry.lower.includes(token)).length >= need
+      paths.some(path => named(entry, path)) || tokens.filter(token => entry.lower.includes(token)).length >= need
     const source =
       evidence.length >= 8
-        ? [...pairs].reverse().find(entry => entry.call.includes(evidence) || (entry.text.includes(evidence) && about(entry)))
+        ? [...pairs].reverse().find(entry => entry.call.includes(evidence) || (quoted(entry.text, evidence) && about(entry)))
         : undefined
     const grounded = source !== undefined
     const byId = typeof attempt.id === 'string' ? ledger.records.find(rec => rec.id === attempt.id) : undefined
