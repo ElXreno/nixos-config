@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import type { GoalDraft, GoalItem, GoalPhase, GoalRun, GoalSettings } from '../types'
+import type { GoalDraft, GoalItem, GoalPhase, GoalRun, GoalSession, GoalSettings } from '../types'
 
 const PANE = 'goal'
 const DRAFT_TOOL = 'mcp__goal__draft'
@@ -11,18 +11,172 @@ const GOAL_LIMIT = 4000
 const CLEAR = new Set(['clear', 'stop', 'off', 'reset', 'none', 'cancel'])
 const FORCED_CLEAR = /^Goal cleared after [^(]*\(([^)]+)\)/
 const DEFAULTS: GoalSettings = { auditor: false, maxTurns: 40, maxTokens: 0 }
+const SHAPES = { draft: 'draft-1', settings: 'settings-1', run: 'run-4', log: 'log-1' } as const
+const SESSION_PREFIX = 'session:'
+const SESSION_SHAPE = `session-1/${SHAPES.draft}/${SHAPES.run}/${SHAPES.log}`
+const KEEP_SESSIONS = 20
+const SESSION_TTL = 30 * 24 * 60 * 60 * 1000
+const SAVE_DELAY = 250
+const PRUNE_DELAY = 5000
 
 const phaseAtom = atom({ plugin: 'goal', key: 'phase' } as const, 'idle' as GoalPhase)
 const draftAtom = atom({ plugin: 'goal', key: 'draft' } as const, null as GoalDraft | null, {
-  shape: 'draft-1',
+  shape: SHAPES.draft,
 })
 const settingsAtom = atom({ plugin: 'goal', key: 'settings' } as const, DEFAULTS, {
-  shape: 'settings-1',
+  shape: SHAPES.settings,
 })
 const runAtom = atom({ plugin: 'goal', key: 'run' } as const, null as GoalRun | null, {
-  shape: 'run-4',
+  shape: SHAPES.run,
 })
-const logAtom = atom({ plugin: 'goal', key: 'log' } as const, [] as string[], { shape: 'log-1' })
+const logAtom = atom({ plugin: 'goal', key: 'log' } as const, [] as string[], { shape: SHAPES.log })
+
+let transcriptPath: string | null = null
+let sessionKey: string | null = null
+let endedSession: string | null = null
+let restoring: Promise<void> = Promise.resolve()
+let saving: Promise<void> = Promise.resolve()
+let reconcileWanted = false
+let pendingSave: { cancel: () => void } | null = null
+let lastSaved = ''
+
+function persist($: EngineInterface): void {
+  if (pendingSave !== null) return
+  pendingSave = $.clock.after(SAVE_DELAY, () => {
+    pendingSave = null
+    queueSave($)
+  })
+}
+
+function queueSave($: EngineInterface): Promise<void> {
+  saving = saving.then(() => saveSession($)).catch(() => undefined)
+  return saving
+}
+
+async function flushSave($: EngineInterface): Promise<void> {
+  if (pendingSave !== null) {
+    pendingSave.cancel()
+    pendingSave = null
+    await queueSave($)
+  }
+  await saving
+}
+
+async function activeSession($: EngineInterface): Promise<string | null> {
+  if (sessionKey !== null) return sessionKey
+  const id = await $.session.id().catch(() => '')
+  if (id === '' || id === endedSession) return null
+  await ensureRestored($, id)
+  return id
+}
+
+async function saveSession($: EngineInterface): Promise<void> {
+  const id = await activeSession($)
+  if (id === null) return
+  await restoring
+  const phase = await read($, phaseAtom)
+  const draft = await read($, draftAtom)
+  const run = await read($, runAtom)
+  const history = await read($, logAtom)
+  const key = `${SESSION_PREFIX}${id}`
+  if (phase === 'idle' && draft === null && run === null) {
+    if (lastSaved === `${key}\n`) return
+    if ((await $.store.get(key)) !== undefined) await $.store.delete(key)
+    lastSaved = `${key}\n`
+    return
+  }
+  const body = JSON.stringify([phase, draft, run, history])
+  if (lastSaved === `${key}\n${body}`) return
+  const saved: GoalSession = { shape: SESSION_SHAPE, savedAt: await $.clock.now(), phase, draft, run, log: history }
+  await $.store.set(key, saved)
+  lastSaved = `${key}\n${body}`
+}
+
+function parseSaved(value: unknown): GoalSession | null {
+  if (value === null || typeof value !== 'object') return null
+  const entry = value as Partial<GoalSession>
+  if (entry.shape !== SESSION_SHAPE || typeof entry.phase !== 'string' || !(entry.phase in PHASE_TITLE)) return null
+  return {
+    shape: SESSION_SHAPE,
+    savedAt: typeof entry.savedAt === 'number' ? entry.savedAt : 0,
+    phase: entry.phase,
+    draft: entry.draft ?? null,
+    run: entry.run ?? null,
+    log: Array.isArray(entry.log) ? entry.log.filter(line => typeof line === 'string') : [],
+  }
+}
+
+function ensureRestored($: EngineInterface, id: string): Promise<void> {
+  if (sessionKey === id) return restoring
+  sessionKey = id
+  restoring = restoreSession($, id).catch(() => undefined)
+  return restoring
+}
+
+async function restoreSession($: EngineInterface, id: string): Promise<void> {
+  const blank =
+    (await read($, phaseAtom)) === 'idle' && (await read($, draftAtom)) === null && (await read($, runAtom)) === null
+  if (!blank) return
+  const saved = parseSaved(await $.store.get(`${SESSION_PREFIX}${id}`))
+  if (saved === null) return
+  await update($, draftAtom, () => saved.draft)
+  await update($, runAtom, () => saved.run)
+  await update($, logAtom, () => saved.log)
+  await update($, phaseAtom, () => saved.phase)
+  reconcileWanted = saved.phase === 'running' || saved.phase === 'interrupted'
+  await log($, `restored after a restart (${saved.phase})`)
+  await settleRestore($)
+  await refreshStatus($)
+  if ((await read($, phaseAtom)) !== 'done') await openPane($).catch(() => undefined)
+}
+
+async function settleRestore($: EngineInterface): Promise<void> {
+  const path = transcriptPath
+  if (!reconcileWanted || path === null) return
+  reconcileWanted = false
+  await reconcile($, path)
+}
+
+async function reconcile($: EngineInterface, path: string): Promise<void> {
+  const phase = await read($, phaseAtom)
+  const run = await read($, runAtom)
+  if (run === null || (phase !== 'running' && phase !== 'interrupted')) return
+  const last = await lastGoalStatus($, path)
+  if (last !== null && !last.met && !last.failed && last.condition !== '') {
+    if (last.condition !== run.condition.trim()) await beginRun($, last.condition)
+    else if (phase === 'interrupted') await continueRun($)
+    return
+  }
+  if (last !== null && last.met && !last.sentinel) {
+    await finish($, last.reason === '' ? 'condition met' : last.reason.slice(0, 300), 'achieved')
+    return
+  }
+  if (last !== null && last.failed) {
+    await finish($, last.reason.slice(0, 300), 'failed')
+    return
+  }
+  await interrupt($, 'Claude Code did not restore the goal after the restart')
+}
+
+async function rememberTranscript($: EngineInterface, path: string): Promise<void> {
+  if (path === '') return
+  transcriptPath = path
+  await settleRestore($).catch(() => undefined)
+}
+
+async function pruneSessions($: EngineInterface): Promise<void> {
+  const now = await $.clock.now()
+  const current = `${SESSION_PREFIX}${sessionKey}`
+  const dated: { key: string; savedAt: number }[] = []
+  for (const key of await $.store.keys()) {
+    if (!key.startsWith(SESSION_PREFIX) || key === current) continue
+    const saved = parseSaved(await $.store.get(key))
+    if (saved === null || now - saved.savedAt > SESSION_TTL) await $.store.delete(key)
+    else dated.push({ key, savedAt: saved.savedAt })
+  }
+  dated.sort((a, b) => b.savedAt - a.savedAt)
+  for (const { key } of dated.slice(KEEP_SESSIONS - 1)) await $.store.delete(key)
+}
 
 const TURN_OPTIONS = [0, 10, 20, 40, 80, 160]
 const TOKEN_OPTIONS = [0, 200_000, 500_000, 1_000_000, 2_000_000, 5_000_000]
@@ -130,7 +284,15 @@ async function goalStatusOf(
 async function lastGoalStatus(
   $: EngineInterface,
   path: string,
-): Promise<{ uuid: string; at: number; met: boolean; sentinel: boolean } | null> {
+): Promise<{
+  uuid: string
+  at: number
+  met: boolean
+  sentinel: boolean
+  failed: boolean
+  condition: string
+  reason: string
+} | null> {
   const found = await $.process
     .run(['sh', '-c', 'tac "$1" | grep -F -m 1 "$2"', 'sh', path, '"type":"goal_status"'])
     .catch(() => null)
@@ -147,6 +309,9 @@ async function lastGoalStatus(
       at: Date.parse(asString(row.timestamp)),
       met: status.met === true,
       sentinel: status.sentinel === true,
+      failed: status.failed === true,
+      condition: asString(status.condition),
+      reason: asString(status.reason),
     }
   } catch {
     return null
@@ -352,9 +517,11 @@ async function log($: EngineInterface, text: string): Promise<void> {
   const now = new Date(await $.clock.now())
   const stamp = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
   await update($, logAtom, list => [...list, `${stamp} ${text}`].slice(-20))
+  persist($)
 }
 
 async function refreshStatus($: EngineInterface): Promise<void> {
+  persist($)
   const phase = await read($, phaseAtom)
   const run = await read($, runAtom)
   const settings = await read($, settingsAtom)
@@ -665,29 +832,31 @@ async function settleAudit($: EngineInterface, answer: string, runStartedAt: num
 export const register: Register = on => {
   let focusWhenIdle = false
   let pendingAudit: { agentId: string; runStartedAt: number } | null = null
-  let transcriptPath: string | null = null
 
-  const rememberTranscript = (path: string): void => {
-    if (path !== '') transcriptPath = path
-  }
-
-  on('classic.SessionStart', (_, e, next) => {
-    rememberTranscript(e.transcript_path)
-    return next(e)
+  on('classic.SessionStart', async ($, e, next) => {
+    const result = await next(e)
+    await rememberTranscript($, e.transcript_path)
+    if (e.session_id) await ensureRestored($, e.session_id)
+    return result
   })
 
   on('session.end', async ($, e, next) => {
-    if (e.reason === 'clear') {
+    await flushSave($)
+    if (e.reason === 'clear' || e.reason === 'resume') {
+      endedSession = e.sessionId
+      sessionKey = null
+      reconcileWanted = false
       await update($, phaseAtom, () => 'idle')
       await update($, draftAtom, () => null)
       await update($, runAtom, () => null)
+      await update($, logAtom, () => [])
       $.ui.status(undefined)
     }
     return next(e)
   })
 
-  on('classic.UserPromptSubmit', (_, e, next) => {
-    rememberTranscript(e.transcript_path)
+  on('classic.UserPromptSubmit', async ($, e, next) => {
+    await rememberTranscript($, e.transcript_path)
     return next(e)
   }).catch((_, e, next) => next(e))
 
@@ -718,6 +887,9 @@ export const register: Register = on => {
       disallowedTools: ['Edit', 'Write', 'NotebookEdit'],
     })
     await loadSettings($).catch(() => undefined)
+    const id = await $.session.id().catch(() => '')
+    if (id !== '') await ensureRestored($, id)
+    $.clock.after(PRUNE_DELAY, () => void pruneSessions($).catch(() => undefined))
     await refreshStatus($)
     return result
   })

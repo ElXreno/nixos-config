@@ -29,6 +29,15 @@ export type GoalRun = {
   auditTask: string | null
 }
 
+export type GoalSession = {
+  shape: string
+  savedAt: number
+  phase: GoalPhase
+  draft: GoalDraft | null
+  run: GoalRun | null
+  log: string[]
+}
+
 declare module 'claude-code' {
   interface PluginState {
     goal: {

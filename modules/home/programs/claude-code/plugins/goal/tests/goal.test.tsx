@@ -26,6 +26,7 @@ const DRAFT = {
 
 const COMPOSED = { wait: false, origin: { kind: 'composer' } } as const
 const TRANSCRIPT = '/tmp/session.jsonl'
+const SESSION = 'session-1'
 const STARTED = Date.parse('2026-11-12T10:00:00Z')
 const FORCED = 'Goal cleared after an unrecoverable error (authentication failed): "tests pass". Run /goal again to continue.'
 
@@ -51,6 +52,7 @@ type Seen = {
   spawned: string[]
   tasks: { id: string; subject: string; status: string }[]
   rows: Row[]
+  store: Map<string, unknown>
   clock: ReturnType<typeof mock.clock>
   clearEntered: Promise<void>
   releaseClear: () => void
@@ -60,7 +62,13 @@ type Seen = {
 
 function engine(
   on: On,
-  options: { taskCreateFails?: boolean; clearUnconfirmed?: boolean; holdClear?: boolean; holdGoalAt?: number } = {},
+  options: {
+    taskCreateFails?: boolean
+    clearUnconfirmed?: boolean
+    holdClear?: boolean
+    holdGoalAt?: number
+    store?: Record<string, unknown>
+  } = {},
 ): Seen {
   let enterClear = (): void => undefined
   let releaseClear = (): void => undefined
@@ -87,6 +95,7 @@ function engine(
     spawned: [],
     tasks: [],
     rows: [],
+    store: new Map(),
     clock: mock.clock(on, { now: STARTED }),
     clearEntered,
     releaseClear: () => releaseClear(),
@@ -97,7 +106,19 @@ function engine(
         else awaited.push({ fragment, resolve })
       }),
   }
-  mock.store(on)
+  const store = seen.store
+  for (const [key, value] of Object.entries(options.store ?? {})) store.set(key, value)
+  on('store.get', (_, e) => ({ value: store.get(e.key) }))
+  on('store.set', (_, e) => {
+    store.set(e.key, e.value)
+    return { value: undefined }
+  })
+  on('store.delete', (_, e) => {
+    store.delete(e.key)
+    return { value: undefined }
+  })
+  on('store.keys', () => ({ value: [...store.keys()] }))
+  on('session.id', () => ({ value: SESSION }))
   on('process.run', (_, e) => {
     const pattern = e.argv[0] === 'sh' ? 'last goal_status' : (e.argv[4] ?? '')
     const row =
@@ -143,6 +164,8 @@ function engine(
     return { value: undefined }
   })
   on('session.start', (_, e) => ({ cwd: e.cwd }))
+  on('session.end', (_, e) => ({ sessionId: e.sessionId }))
+  on('classic.SessionStart', () => ({}))
   on('classic.UserPromptSubmit', () => ({}))
   on('turn.start', (_, e) => ({ turnId: e.turnId }))
   on('turn.complete', () => ({ text: '' }))
@@ -601,4 +624,202 @@ test('/goal-draft over an interrupted goal deletes the tasks it kept', async ($,
   const drafting = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await drafting.find({ type: 'Text', text: /Drafting/ })).toBeDefined()
   await drafting.unmount()
+})
+
+const SESSION_SHAPE = 'session-1/draft-1/run-4/log-1'
+
+type Saved = { phase?: string; draft?: { objective?: string } | null; run?: { condition?: string; turns?: number } | null }
+
+function savedSession(phase: string, run: Record<string, unknown> | null, draft: typeof DRAFT | null = null) {
+  return {
+    shape: SESSION_SHAPE,
+    savedAt: STARTED - 60_000,
+    phase,
+    draft,
+    run:
+      run === null
+        ? null
+        : {
+            condition: 'tests pass',
+            startedAt: STARTED - 120_000,
+            turns: 3,
+            tokens: 1500,
+            auditor: null,
+            outcome: null,
+            result: null,
+            verdict: null,
+            tasks: [],
+            done: [],
+            auditTask: null,
+            ...run,
+          },
+    log: ['09:58 goal started, 10 chars'],
+  }
+}
+
+async function storedWhen(
+  read: () => Promise<unknown>,
+  check: (saved: Saved | undefined) => boolean,
+): Promise<Saved | undefined> {
+  let saved: Saved | undefined
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    saved = (await read()) as Saved | undefined
+    if (check(saved)) return saved
+  }
+  return saved
+}
+
+test('a running goal is kept in the store under the session id, turn by turn', async ($, on) => {
+  const seen = engine(on)
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  const key = `session:${SESSION}`
+  await $.command.run({ command: 'goal', args: 'tests pass', ...TYPED })
+  await $.turn.complete(turnEnd('t0'))
+  await seen.clock.advance(1000)
+  const saved = await storedWhen(
+    async () => seen.store.get(key),
+    value => value?.run?.turns === 1,
+  )
+  expect(saved?.phase).toBe('running')
+  expect(saved?.run?.condition).toBe('tests pass')
+  expect(saved?.run?.turns).toBe(1)
+})
+
+test('a restart brings a running goal back with its progress', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, { store: { [`session:${id}`]: savedSession('running', {}) } })
+  seen.rows.push(sentinel('set-1', false))
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.classic.SessionStart({ source: 'resume', session_id: SESSION, transcript_path: TRANSCRIPT })
+  await seen.clock.advance(100)
+
+  const pane = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await pane.find({ type: 'Text', text: /Goal running/ })).toBeDefined()
+  expect(await pane.find({ type: 'Text', text: /turn 3/ })).toBeDefined()
+  expect(await pane.find({ type: 'Text', text: /restored after a restart/ })).toBeDefined()
+  await pane.unmount()
+  expect(seen.goals.length).toBe(0)
+
+  await $.turn.complete(turnEnd('t0'))
+  const after = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await after.find({ type: 'Text', text: /turn 4/ })).toBeDefined()
+  await after.unmount()
+})
+
+test('a goal met just before the restart is closed as achieved', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, { store: { [`session:${id}`]: savedSession('running', {}) } })
+  seen.rows.push(sentinel('set-1', false), {
+    type: 'attachment',
+    uuid: 'met-1',
+    timestamp: new Date(STARTED + 120_000).toISOString(),
+    attachment: { type: 'goal_status', met: true, condition: 'tests pass', reason: 'all 12 tests pass' },
+  })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.classic.SessionStart({ source: 'resume', session_id: SESSION, transcript_path: TRANSCRIPT })
+  await seen.clock.advance(100)
+
+  const pane = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await pane.find({ type: 'Text', text: /Goal achieved/ })).toBeDefined()
+  expect(await pane.find({ type: 'Text', text: /outcome: all 12 tests pass/ })).toBeDefined()
+  await pane.unmount()
+})
+
+test('a goal Claude Code no longer holds after the restart is interrupted', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, { store: { [`session:${id}`]: savedSession('running', {}) } })
+  seen.rows.push(sentinel('cleared-1', true))
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.classic.SessionStart({ source: 'resume', session_id: SESSION, transcript_path: TRANSCRIPT })
+  await seen.clock.advance(100)
+
+  const pane = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await pane.find({ type: 'Text', text: /Goal interrupted/ })).toBeDefined()
+  expect(await pane.find({ type: 'Text', text: /did not restore the goal/ })).toBeDefined()
+  await pane.unmount()
+})
+
+test('a draft comes back ready to start after a restart', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, { store: { [`session:${id}`]: savedSession('ready', null, DRAFT) } })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: /Draft ready/ })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: /nix build of the goal package exits 0/ })).toBeDefined()
+  await ui.press({ key: 'start' })
+  await ui.unmount()
+  expect(seen.goals.length).toBe(1)
+  expect(seen.goals[0]).toContain('a. the package builds Verify: nix build .#goal exits 0')
+})
+
+test('/clear keeps the old session saved and a resume into another session restores that one', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, { store: { 'session:other': savedSession('ready', null, DRAFT) } })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await $.command.run({ command: 'goal', args: 'tests pass', ...TYPED })
+  await $.turn.complete(turnEnd('t0'))
+  await seen.clock.advance(1000)
+  await storedWhen(
+    async () => seen.store.get(`session:${id}`),
+    value => value?.run?.turns === 1,
+  )
+
+  await $.session.end({ reason: 'clear', sessionId: id, resume: { id } })
+  const cleared = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await cleared.find({ type: 'Text', text: /No goal/ })).toBeDefined()
+  await cleared.unmount()
+  await seen.clock.advance(1000)
+  const kept = (seen.store.get(`session:${id}`)) as Saved | undefined
+  expect(kept?.phase).toBe('running')
+  expect(kept?.run?.turns).toBe(1)
+
+  await $.classic.SessionStart({ source: 'resume', session_id: 'other', transcript_path: TRANSCRIPT })
+  const other = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await other.find({ type: 'Text', text: /Draft ready/ })).toBeDefined()
+  await other.unmount()
+})
+
+test('closing a finished goal drops its saved session', async ($, on) => {
+  const id = SESSION
+  const seen = engine(on, {
+    store: { [`session:${id}`]: savedSession('done', { result: 'achieved', outcome: 'condition met' }) },
+  })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: /Goal achieved/ })).toBeDefined()
+  await ui.press({ key: 'close' })
+  await ui.unmount()
+  await seen.clock.advance(1000)
+  const gone = await storedWhen(
+    async () => seen.store.get(`session:${id}`),
+    value => value === undefined,
+  )
+  expect(gone).toBeUndefined()
+})
+
+test('old and surplus saved sessions are pruned at start', async ($, on) => {
+  const entries: Record<string, unknown> = {
+    'session:stale': { ...savedSession('running', {}), savedAt: STARTED - 31 * 24 * 60 * 60 * 1000 },
+    'session:old-shape': { ...savedSession('running', {}), shape: 'session-0' },
+    settings: { auditor: false, maxTurns: 40, maxTokens: 0 },
+  }
+  for (let index = 0; index < 25; index++) {
+    entries[`session:s${index}`] = { ...savedSession('running', {}), savedAt: STARTED - index * 1000 }
+  }
+  const seen = engine(on, { store: entries })
+  await $.session.start({ cwd: '/', surface: 'terminal', isInteractive: true })
+  await seen.clock.advance(10_000)
+  let keys: string[] = []
+  for (let attempt = 0; attempt < 5000; attempt++) {
+    keys = [...seen.store.keys()]
+    if (keys.filter(key => key.startsWith('session:')).length <= 19) break
+  }
+  const sessions = keys.filter(key => key.startsWith('session:')).sort()
+  expect(sessions.length).toBe(19)
+  expect(sessions).not.toContain('session:stale')
+  expect(sessions).not.toContain('session:old-shape')
+  expect(sessions).toContain('session:s0')
+  expect(sessions).not.toContain('session:s19')
+  expect(keys).toContain('settings')
 })
