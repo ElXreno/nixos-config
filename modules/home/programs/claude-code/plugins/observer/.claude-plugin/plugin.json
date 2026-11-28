@@ -1,0 +1,5 @@
+{
+  "name": "observer",
+  "version": "0.1.0",
+  "description": "Keep a registry of examined objects and closed approaches outside the conversation and bring it back after compactions"
+}

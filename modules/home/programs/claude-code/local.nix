@@ -34,6 +34,7 @@ let
           description = "${m.peer}, ${toString (m.ctxSize / 1024)}k context";
         }) gateway.models;
       };
+      env.OBSERVER_EVERY_STEPS = toString cfg.local.observerEverySteps;
       hooks = {
         PreCompact = [ { hooks = ledgerHook; } ];
         PostCompact = [ { hooks = ledgerHook; } ];
@@ -66,6 +67,7 @@ let
     export BASH_MAX_TIMEOUT_MS=10800000
     export ENABLE_TOOL_SEARCH="$toolsearch"
     export CLAUDE_LOCAL_COMMAND="claude-local-$peer"
+    export MEM_AGENT=${cfg.local.memAgent}
     exec claude --model "$model" --effort ${cfg.local.effort} --settings ${settings} --permission-mode ${cfg.local.permissionMode} "$@"
   '';
 
@@ -141,6 +143,16 @@ in
       type = types.int;
       default = 32768;
       description = "Output token cap Claude Code requests.";
+    };
+    observerEverySteps = mkOption {
+      type = types.ints.unsigned;
+      default = 20;
+      description = "Tool calls between observer passes in claude-local; 0 leaves only the pass before a compaction.";
+    };
+    memAgent = mkOption {
+      type = types.strMatching "[a-z0-9][a-z0-9_.+@-]*";
+      default = "local";
+      description = "Name the local models write memory under: mem keeps their records out of the sessions of the cloud models, and they read every record.";
     };
     effort = mkOption {
       type = types.enum [

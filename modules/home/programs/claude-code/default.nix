@@ -11,6 +11,7 @@ let
     mkIf
     mkEnableOption
     mkOption
+    optionalAttrs
     types
     ;
   cfg = config.${namespace}.programs.claude-code;
@@ -51,6 +52,19 @@ in
       description = "Commands run with the status line JSON on stdin.";
     };
 
+    observer = {
+      enable =
+        mkEnableOption "the observer mod, a registry of examined objects and closed approaches kept outside the conversation"
+        // {
+          default = true;
+        };
+      everySteps = mkOption {
+        type = types.ints.unsigned;
+        default = 0;
+        description = "Tool calls between observer passes; 0 leaves only the pass before a compaction.";
+      };
+    };
+
     memoryRules = mkOption {
       type = types.lines;
       default = builtins.readFile ./memory-builtin.md;
@@ -78,6 +92,9 @@ in
 
     # workaround for https://github.com/nix-community/home-manager/issues/9906
     home.file."${config.programs.claude-code.configDir}/skills/goal".source = ./plugins/goal;
+    home.file."${config.programs.claude-code.configDir}/skills/observer" = mkIf cfg.observer.enable {
+      source = ./plugins/observer;
+    };
 
     # /effort, /model and /tui rewrite settings.json, which fails on a store symlink.
     home.file."${config.programs.claude-code.configDir}/settings.json".enable = false;
@@ -185,6 +202,9 @@ in
           CLAUDE_CODE_NO_FLICKER = "1";
           # Background waiters must outlive a PSI spike caused by a VM test or the ARC.
           CLAUDE_CODE_DISABLE_BG_SHELL_PRESSURE_REAP = "1";
+        }
+        // optionalAttrs (cfg.observer.everySteps != 0) {
+          OBSERVER_EVERY_STEPS = toString cfg.observer.everySteps;
         };
       };
     };
