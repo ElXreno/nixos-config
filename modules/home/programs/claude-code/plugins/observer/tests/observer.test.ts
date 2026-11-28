@@ -176,6 +176,34 @@ test('a quote may be abbreviated or carry written-out newlines, and a relative c
   expect(hits(ledger, 'xxd -l 64 other.bin', CWD, new Set())).toEqual([])
 })
 
+test('a line that many outputs share rests on the command that names the subject', () => {
+  const ledger = emptyLedger()
+  const pairs = [
+    pair(at('./bin/diag rezafen net'), 'diag report: subsystem=rezafen angle=net result: no anomaly found related: levix', CWD),
+    pair(at('./bin/diag rezafen disk'), 'diag report: subsystem=rezafen angle=disk result: no anomaly found related: remir', CWD),
+    pair(at('./bin/diag levix disk'), 'diag report: subsystem=levix angle=disk result: no anomaly found related: rezafen', CWD),
+  ]
+  const attempt = { subject: 'rezafen net angle', verdict: 'ruled_out', reason: 'clean', evidence: 'result: no anomaly found' }
+  merge(ledger, pairs, { attempts: [attempt] }, 3)
+  const none = new Set<string>()
+  expect(hits(ledger, at('./bin/diag rezafen net'), CWD, none).map(rec => rec.subject)).toEqual(['rezafen net angle'])
+  expect(hits(ledger, at('./bin/diag levix disk'), CWD, none)).toEqual([])
+  expect(hits(ledger, at('./bin/diag rezafen disk'), CWD, none)).toEqual([])
+  const other = { id: 'a1', subject: 'rezafen disk angle', verdict: 'ruled_out', reason: 'clean', evidence: 'subsystem=rezafen angle=disk' }
+  merge(ledger, pairs, { attempts: [other] }, 4)
+  expect(ledger.records.map(rec => `${rec.id} ${rec.subject}`)).toEqual(['a1 rezafen net angle', 'a2 rezafen disk angle'])
+  const reworded = {
+    id: 'a1',
+    subject: 'rezafen net angle check',
+    verdict: 'ruled_out',
+    reason: 'still clean',
+    evidence: 'subsystem=rezafen angle=net',
+  }
+  merge(ledger, pairs, { attempts: [reworded] }, 5)
+  expect(ledger.records.length).toBe(2)
+  expect(ledger.records[0]?.reason).toBe('still clean')
+})
+
 test('the digest lists dead ends, exclusions, objects and open leads', () => {
   const text = digest(seeded().ledger)
   expect(text).toContain('Dead ends, do not try these again:\na3 scan approach')

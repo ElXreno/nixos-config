@@ -182,6 +182,15 @@ function objectsOf(object: string, source: Pair): string[] {
   return [...new Set(located(object, source.cwd).filter(token => token.startsWith('/') && covers(seen, token)))]
 }
 
+function sameSubject(before: string, after: string): boolean {
+  const words = (text: string): Set<string> => new Set(text.toLowerCase().match(/[a-z0-9_./-]{3,}/g) ?? [])
+  const old = words(before)
+  const next = words(after)
+  const shared = [...old].filter(word => next.has(word)).length
+  const all = new Set([...old, ...next]).size
+  return all === 0 || shared / all >= 0.6
+}
+
 export function merge(ledger: Ledger, pairs: readonly Pair[], data: Record<string, unknown>, step: number): Rec[] {
   const changed: Rec[] = []
   const attempts: unknown[] = Array.isArray(data.attempts) ? data.attempts : []
@@ -201,13 +210,22 @@ export function merge(ledger: Ledger, pairs: readonly Pair[], data: Record<strin
       .filter(token => token !== '')
     const about = (entry: Pair): boolean =>
       paths.some(path => named(entry, path)) || tokens.filter(token => entry.lower.includes(token)).length >= need
-    const source =
-      evidence.length >= 8
-        ? [...pairs].reverse().find(entry => entry.call.includes(evidence) || (quoted(entry.text, evidence) && about(entry)))
-        : undefined
+    const words = `${subject} ${object}`.toLowerCase().match(/[a-z0-9_./-]{3,}/g) ?? []
+    let source: Pair | undefined
+    let best = -1
+    for (const entry of evidence.length >= 8 ? pairs : []) {
+      const inCall = entry.call.includes(evidence)
+      if (!inCall && !(quoted(entry.text, evidence) && about(entry))) continue
+      const call = entry.call.toLowerCase()
+      const score = inCall ? words.length + 1 : words.filter(word => call.includes(word)).length
+      if (score >= best) {
+        best = score
+        source = entry
+      }
+    }
     const grounded = source !== undefined
     const byId = typeof attempt.id === 'string' ? ledger.records.find(rec => rec.id === attempt.id) : undefined
-    const key = byId?.key ?? subject.toLowerCase()
+    const key = byId !== undefined && sameSubject(byId.subject, subject) ? byId.key : subject.toLowerCase()
     const at = ledger.records.findIndex(rec => rec.key === key)
     const previous = at >= 0 ? ledger.records[at] : undefined
     if (previous?.grounded === true && !grounded) continue
