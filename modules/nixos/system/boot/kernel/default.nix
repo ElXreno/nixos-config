@@ -69,11 +69,6 @@ in
 
       kernelPatches =
         optionals isx86_64 [
-          # workaround for https://lore.kernel.org/all/E76BE609-83E4-4FB6-88B8-191F7816EFD6@gmail.com/
-          {
-            name = "cputime-dyntick-exit-tick";
-            patch = ./patches/cputime-dyntick-exit-tick.patch;
-          }
           {
             name = "baytrail-clear-native-pin-triggers";
             patch = ./patches/baytrail-clear-native-pin-triggers.patch;
