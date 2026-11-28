@@ -89,13 +89,50 @@ let
     '';
   };
 
-  waitSocket = pkgs.writeShellScript "digger-wait-work-socket" ''
-    for _ in $(${pkgs.coreutils}/bin/seq 100); do
-      [ -S work.sock ] && exit 0
-      ${pkgs.coreutils}/bin/sleep 0.1
-    done
-    exit 1
-  '';
+  waitSocket =
+    socket:
+    pkgs.writeShellScript "digger-wait-${socket}" ''
+      for _ in $(${pkgs.coreutils}/bin/seq 100); do
+        [ -S ${socket} ] && exit 0
+        ${pkgs.coreutils}/bin/sleep 0.1
+      done
+      exit 1
+    '';
+
+  storeView = "/run/digger-store";
+
+  guestClosure =
+    n:
+    pkgs.closureInfo {
+      rootPaths = [ config.microvm.vms.${vmName n}.config.config.system.build.toplevel ];
+    };
+
+  stored = pkgs.writeShellApplication {
+    name = "digger-stored";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.util-linux
+      pkgs.virtiofsd
+    ];
+    text = ''
+      mount -t tmpfs -o mode=0755 digger-store ${storeView}
+      while IFS= read -r path; do
+        name=''${path#/nix/store/}
+        if [ -L "$path" ]; then
+          cp -P "$path" "${storeView}/$name"
+          continue
+        fi
+        if [ -d "$path" ]; then
+          mkdir "${storeView}/$name"
+        else
+          touch "${storeView}/$name"
+        fi
+        mount --bind -o ro "$path" "${storeView}/$name"
+      done < "$1"
+      exec virtiofsd --socket-path=store.sock --socket-group=kvm --shared-dir=${storeView} \
+        --readonly --cache=always --no-announce-submounts
+    '';
+  };
 
   shareVsock = pkgs.writeShellScript "digger-share-vsock" ''
     for _ in $(${pkgs.coreutils}/bin/seq 100); do
@@ -251,6 +288,8 @@ in
         forSlots (
           n:
           lib.nameValuePair "microvm@${vmName n}" {
+            requires = [ "${vmName n}-store.service" ];
+            after = [ "${vmName n}-store.service" ];
             serviceConfig = {
               Type = lib.mkForce "simple";
               Restart = "no";
@@ -275,7 +314,22 @@ in
                 ""
                 "${lib.getExe workd} ${toString n}"
               ];
-              ExecStartPost = [ waitSocket ];
+              ExecStartPost = [ (waitSocket "work.sock") ];
+              Restart = "no";
+            };
+          }
+        )
+        // forSlots (
+          n:
+          lib.nameValuePair "${vmName n}-store" {
+            description = "Read-only store view of the ${vmName n} guest closure";
+            serviceConfig = {
+              Type = "simple";
+              WorkingDirectory = "${stateDir}/${vmName n}";
+              PrivateMounts = true;
+              ExecStartPre = [ "${pkgs.coreutils}/bin/rm -f store.sock" ];
+              ExecStart = "${lib.getExe stored} ${guestClosure n}/store-paths";
+              ExecStartPost = [ (waitSocket "store.sock") ];
               Restart = "no";
             };
           }
@@ -316,6 +370,11 @@ in
           mode = "0750";
         };
         "/run/digger".d = {
+          user = "root";
+          group = "root";
+          mode = "0755";
+        };
+        ${storeView}.d = {
           user = "root";
           group = "root";
           mode = "0755";

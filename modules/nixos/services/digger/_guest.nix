@@ -386,6 +386,13 @@ in
     registerClosure = false;
     shares = [
       {
+        tag = "ro-store";
+        proto = "virtiofs";
+        source = "/nix/store";
+        socket = "store.sock";
+        mountPoint = "/nix/.ro-store";
+      }
+      {
         tag = "work";
         proto = "virtiofs";
         source = "work";
