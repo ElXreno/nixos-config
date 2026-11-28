@@ -221,6 +221,10 @@ func here(e env.Env, in Input, cfg config) store.Here {
 	return h
 }
 
+func LocalScopes(e env.Env, cwd string) []string {
+	return localScopes(e, Input{Cwd: cwd})
+}
+
 func localScopes(e env.Env, in Input) []string {
 	var out []string
 	if p := project(e, in); p != "" {

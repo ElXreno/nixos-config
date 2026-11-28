@@ -291,6 +291,7 @@ func (s *Store) Lists(ctx context.Context, q Query) (words, tri []ListHit, err e
 		depth = max(MinDepth, 5*max(q.Limit, DefaultLimit))
 	}
 	f := q.filter()
+	f.see(s.access)
 	terms := q.terms()
 	conv := func(in []ranked) []ListHit {
 		out := make([]ListHit, len(in))
@@ -329,6 +330,7 @@ func (s *Store) search(ctx context.Context, db querier, q Query) ([]Hit, error) 
 		depth = max(MinDepth, 5*q.Limit)
 	}
 	f := q.filter()
+	f.see(s.access)
 	terms := q.terms()
 	type acc struct {
 		hit Hit

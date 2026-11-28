@@ -32,7 +32,7 @@ func cmdUI(e env.Env, args []string) int {
 	if err := ui.CheckListen(*listen, *remote); err != nil {
 		return fail(e, fmt.Errorf("%w: ui: %v", store.ErrInvalid, err))
 	}
-	s, err := store.Open(context.Background(), e.DBPath(), store.Options{Now: e.Now, ReadOnly: true})
+	s, err := store.Open(context.Background(), e.DBPath(), store.Options{Now: e.Now, ReadOnly: true, Access: store.Access{All: true}})
 	if err != nil {
 		if store.IsNotExist(err) {
 			return fail(e, fmt.Errorf("no memory database at %s; mem put creates it", e.DBPath()))

@@ -226,8 +226,14 @@ func (s *Store) update(ctx context.Context, tx *sql.Tx, req PutRequest, g Gate) 
 	if old.rec.Status != Current && old.rec.Status != Expired {
 		return PutResult{}, &StatusError{Key: req.Key, Status: old.rec.Status, SupersededBy: old.rec.SupersededBy, Op: "update"}
 	}
+	if err := s.owned(old.rec, "update"); err != nil {
+		return PutResult{}, err
+	}
 	next := old.rec
 	apply(&next, req)
+	if err := s.stamp(&next, old.rec.Agent()); err != nil {
+		return PutResult{}, err
+	}
 	if next.Kind != old.rec.Kind && req.TTLDays == nil {
 		next.TTLDays = 0
 	}
@@ -264,13 +270,19 @@ func (s *Store) update(ctx context.Context, tx *sql.Tx, req PutRequest, g Gate) 
 }
 
 func (s *Store) create(ctx context.Context, tx *sql.Tx, req PutRequest, g Gate) (PutResult, error) {
-	if old, err := s.getRow(ctx, tx, req.Key); err == nil {
+	if old, err := s.Unrestricted().getRow(ctx, tx, req.Key); err == nil {
+		if !s.access.Sees(old.rec.Scopes) {
+			return PutResult{}, &ForeignError{Key: req.Key, Op: "create"}
+		}
 		return PutResult{}, &ExistsError{Key: req.Key, Status: old.rec.Status, SupersededBy: old.rec.SupersededBy}
 	} else if !errors.Is(err, ErrNotFound) {
 		return PutResult{}, err
 	}
 	rec := Record{Key: req.Key}
 	apply(&rec, req)
+	if err := s.stamp(&rec, ""); err != nil {
+		return PutResult{}, err
+	}
 	if err := rec.normalize(); err != nil {
 		return PutResult{}, err
 	}
@@ -279,6 +291,9 @@ func (s *Store) create(ctx context.Context, tx *sql.Tx, req PutRequest, g Gate) 
 	for _, k := range req.Supersedes {
 		o, err := s.getRow(ctx, tx, k)
 		if err != nil {
+			return PutResult{}, err
+		}
+		if err := s.owned(o.rec, "supersede"); err != nil {
 			return PutResult{}, err
 		}
 		if o.rec.Status != Current && o.rec.Status != Expired {
@@ -439,6 +454,9 @@ func (s *Store) Retire(ctx context.Context, key, why string) (Record, error) {
 		if err != nil {
 			return err
 		}
+		if err := s.owned(old.rec, "retire"); err != nil {
+			return err
+		}
 		if old.rec.Status != Current && old.rec.Status != Expired {
 			return &StatusError{Key: key, Status: old.rec.Status, SupersededBy: old.rec.SupersededBy, Op: "retire"}
 		}
@@ -463,7 +481,7 @@ func (s *Store) Retire(ctx context.Context, key, why string) (Record, error) {
 func (s *Store) Expire(ctx context.Context) ([]Record, error) {
 	var out []Record
 	err := s.tx(ctx, func(tx *sql.Tx) error {
-		rows, err := s.loadWhere(ctx, tx, "WHERE r.kind = ? AND r.status = ? ORDER BY r.key", State, Current)
+		rows, err := s.Unrestricted().loadWhere(ctx, tx, "WHERE r.kind = ? AND r.status = ? ORDER BY r.key", State, Current)
 		if err != nil {
 			return err
 		}
@@ -496,6 +514,9 @@ func (s *Store) Verify(ctx context.Context, key, why string) (Record, error) {
 	err := s.tx(ctx, func(tx *sql.Tx) error {
 		old, err := s.getRow(ctx, tx, key)
 		if err != nil {
+			return err
+		}
+		if err := s.owned(old.rec, "verify"); err != nil {
 			return err
 		}
 		if old.rec.Status != Current && old.rec.Status != Expired {
@@ -553,9 +574,18 @@ func (s *Store) Upsert(ctx context.Context, recs []Record, links []Link, why str
 				return err
 			}
 			asOf := sourceDate(rec, now)
-			old, err := s.getRow(ctx, tx, rec.Key)
+			old, err := s.Unrestricted().getRow(ctx, tx, rec.Key)
 			if err == nil {
+				if err := s.owned(old.rec, "import"); err != nil {
+					return err
+				}
 				rec.Scopes = keepTopics(old.rec.Scopes, rec.Scopes)
+			}
+			if err := s.stamp(&rec, old.rec.Agent()); err != nil {
+				return err
+			}
+			if err := rec.normalize(); err != nil {
+				return err
 			}
 			switch {
 			case errors.Is(err, ErrNotFound):

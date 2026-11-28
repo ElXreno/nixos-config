@@ -176,6 +176,9 @@ func (s *Store) setTopics(ctx context.Context, as []TopicAssign, auto bool) (Top
 			if err != nil {
 				return err
 			}
+			if err := s.owned(rw.rec, "set the topic of"); err != nil {
+				return err
+			}
 			mark := `DELETE FROM auto_topics WHERE key = ?`
 			if auto {
 				mark = `INSERT OR IGNORE INTO auto_topics (key) VALUES (?)`
@@ -233,7 +236,7 @@ func (s *Store) Topics(ctx context.Context) ([]TopicInfo, error) {
 	}
 	counts, err := s.db.QueryContext(ctx, `SELECT substr(s.scope, 7), r.kind = 'log', count(*)
 		FROM scopes s JOIN records r ON r.id = s.record_id
-		WHERE substr(s.scope, 1, 6) = ? AND r.status = ? GROUP BY 1, 2`, TopicPrefix, Current)
+		WHERE substr(s.scope, 1, 6) = ? AND r.status = ?`+s.visible()+` GROUP BY 1, 2`, TopicPrefix, Current)
 	if err != nil {
 		return nil, err
 	}
@@ -303,7 +306,7 @@ func (s *Store) TopicMap(ctx context.Context, keywords int) ([]TopicEntry, error
 	}
 	rows, err := s.db.QueryContext(ctx, `SELECT substr(s.scope, 7), r.key, r.title
 		FROM scopes s JOIN records r ON r.id = s.record_id
-		WHERE substr(s.scope, 1, 6) = ? AND r.status = ? AND r.kind <> 'log'
+		WHERE substr(s.scope, 1, 6) = ? AND r.status = ? AND r.kind <> 'log'`+s.visible()+`
 		ORDER BY s.scope, r.key`, TopicPrefix, Current)
 	if err != nil {
 		return nil, err

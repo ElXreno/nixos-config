@@ -145,6 +145,7 @@ type VecScan struct {
 
 func (s *Store) ScanVectors(ctx context.Context, model string, q Query, fn func(VecScan) error) error {
 	f := q.filter()
+	f.see(s.access)
 	args := append([]any{model}, f.args...)
 	rows, err := s.db.QueryContext(ctx, `SELECT v.key, r.kind, r.status, r.source, v.dim, v.vec FROM vectors v JOIN records r ON r.key = v.key
 		WHERE v.model = ?`+f.sql()+` ORDER BY v.key`, args...)

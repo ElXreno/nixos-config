@@ -491,7 +491,7 @@ func openStore(ctx context.Context, e env.Env, write bool) (*store.Store, bool, 
 		}
 		return nil, false, err
 	}
-	opt := store.Options{ReadOnly: !write, BusyTimeout: busyTimeout, Now: e.Now}
+	opt := store.Options{ReadOnly: !write, BusyTimeout: busyTimeout, Now: e.Now, Access: store.Access{Agent: e.Agent()}}
 	s, err := store.Open(ctx, path, opt)
 	if errors.Is(err, store.ErrSchemaOutdated) {
 		opt.ReadOnly = false

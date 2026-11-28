@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -26,12 +27,14 @@ type Options struct {
 	ReadOnly    bool
 	BusyTimeout time.Duration
 	Now         func() time.Time
+	Access      Access
 }
 
 type Store struct {
-	db   *sql.DB
-	path string
-	now  func() time.Time
+	db     *sql.DB
+	path   string
+	now    func() time.Time
+	access Access
 }
 
 type querier interface {
@@ -46,6 +49,10 @@ func Open(ctx context.Context, path string, opt Options) (*Store, error) {
 	}
 	abs, err := filepath.Abs(path)
 	if err != nil {
+		return nil, err
+	}
+	access := opt.Access.normal()
+	if err := access.validate(); err != nil {
 		return nil, err
 	}
 	if opt.ReadOnly {
@@ -78,7 +85,7 @@ func Open(ctx context.Context, path string, opt Options) (*Store, error) {
 	if now == nil {
 		now = time.Now
 	}
-	s := &Store{db: db, path: abs, now: now}
+	s := &Store{db: db, path: abs, now: now, access: access}
 	if err := s.migrate(ctx, opt.ReadOnly); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -329,7 +336,7 @@ func scanRecord(sc interface{ Scan(...any) error }) (row, error) {
 }
 
 func (s *Store) loadWhere(ctx context.Context, q querier, where string, args ...any) ([]row, error) {
-	rows, err := q.QueryContext(ctx, "SELECT "+recordColumns+" FROM records r "+where, args...)
+	rows, err := q.QueryContext(ctx, "SELECT "+recordColumns+" FROM records r "+s.access.scoped(where), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -520,7 +527,34 @@ func boolInt(b bool) int {
 	return 0
 }
 
+func (s *Store) hidden(ctx context.Context, keys []string) (map[string]bool, error) {
+	out := map[string]bool{}
+	if s.access.clause() == "" || len(keys) == 0 {
+		return out, nil
+	}
+	args := make([]any, len(keys))
+	for i, k := range keys {
+		args[i] = k
+	}
+	rows, err := s.db.QueryContext(ctx, "SELECT r.key FROM records r WHERE r.key IN ("+placeholders(len(keys))+") AND NOT "+s.access.clause(), args...)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = rows.Close() }()
+	for rows.Next() {
+		var k string
+		if err := rows.Scan(&k); err != nil {
+			return nil, err
+		}
+		out[k] = true
+	}
+	return out, rows.Err()
+}
+
 func (s *Store) History(ctx context.Context, key string) ([]Version, error) {
+	if hid, err := s.hidden(ctx, []string{key}); err != nil || hid[key] {
+		return nil, err
+	}
 	rows, err := s.db.QueryContext(ctx, `SELECT key, version, kind, scopes, core, title, body, status, superseded_by,
 		valid_from, valid_to, ttl_days, verify_cmd, verified_at, triggers, source, created_at, updated_at, changed_at, reason
 		FROM history WHERE key = ? ORDER BY version, id`, key)
@@ -579,7 +613,18 @@ func (s *Store) Links(ctx context.Context, key string) ([]Link, error) {
 		}
 		out = append(out, l)
 	}
-	return out, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	ends := make([]string, 0, 2*len(out))
+	for _, l := range out {
+		ends = append(ends, l.Src, l.Dst)
+	}
+	hid, err := s.hidden(ctx, ends)
+	if err != nil {
+		return nil, err
+	}
+	return slices.DeleteFunc(out, func(l Link) bool { return hid[l.Src] || hid[l.Dst] }), nil
 }
 
 func (s *Store) AddLinks(ctx context.Context, links []Link) error {

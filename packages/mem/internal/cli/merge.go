@@ -75,7 +75,7 @@ func cmdMerge(e env.Env, args []string) int {
 		src = "merge:" + *from
 	}
 	ctx := context.Background()
-	in, err := store.Open(ctx, *from, store.Options{Now: e.Now, ReadOnly: true})
+	in, err := store.Open(ctx, *from, store.Options{Now: e.Now, ReadOnly: true, Access: store.Access{All: true}})
 	if err != nil {
 		return fail(e, fmt.Errorf("--from %s: %w", *from, err))
 	}

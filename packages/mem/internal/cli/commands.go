@@ -439,6 +439,32 @@ func cmdRetire(e env.Env, args []string) int {
 	return fail(e, writeCore(e, s))
 }
 
+func cmdShare(e env.Env, args []string) int {
+	f := newFlags(&e, "share", "KEY... --why TEXT", false)
+	f.example = "mem --as deepseek share some_key --why \"the owner asked for it\""
+	why := f.String("why", "", "reason kept in history")
+	pos, code, ok := f.parse(args)
+	if !ok {
+		return code
+	}
+	if len(pos) == 0 {
+		return f.usageErr("needs at least one key")
+	}
+	s, err := openStore(e, false)
+	if err != nil {
+		return fail(e, err)
+	}
+	defer func() { _ = s.Close() }()
+	for _, key := range pos {
+		r, err := s.Share(context.Background(), key, *why)
+		if err != nil {
+			return fail(e, err)
+		}
+		_, _ = fmt.Fprintf(e.Stdout, "%s\tshared\tversion %d\n", r.Key, r.Version)
+	}
+	return fail(e, writeCore(e, s))
+}
+
 func cmdVerify(e env.Env, args []string) int {
 	f := newFlags(&e, "verify", "KEY [--why TEXT]", false)
 	why := f.String("why", "", "how it was checked; kept in history when an expired record comes back")
@@ -532,9 +558,11 @@ func cmdExpire(e env.Env, args []string) int {
 	if err != nil {
 		return fail(e, err)
 	}
-	keys := make([]string, len(recs))
-	for i, r := range recs {
-		keys[i] = r.Key
+	keys := make([]string, 0, len(recs))
+	for _, r := range recs {
+		if s.Access().Sees(r.Scopes) {
+			keys = append(keys, r.Key)
+		}
 	}
 	if f.asJSON() {
 		if err := printJSON(e.Stdout, map[string][]string{"expired": keys}); err != nil {

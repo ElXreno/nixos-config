@@ -82,7 +82,8 @@ func cmdReindex(e env.Env, args []string) int {
 	defer func() { _ = s.Close() }()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	res, err := recall.Reindex(ctx, s, recall.ReindexOptions{
+	all := s.Unrestricted()
+	res, err := recall.Reindex(ctx, all, recall.ReindexOptions{
 		Model: ef.model, DocPrefix: vec.ExpandEscapes(ef.docPrefix), Batch: *batch, Par: *par, SkipLogs: *skipLogs, Force: *force, MaxDocs: *maxDocs, Progress: e.Stderr,
 		Embedder: vec.NewClient(vec.Options{URL: ef.url, Model: ef.model, Retries: *retries, Timeout: *timeout}),
 	})
@@ -91,12 +92,15 @@ func cmdReindex(e env.Env, args []string) int {
 		return 1
 	}
 	if *autoTopic {
-		at, err := recall.AutoTopics(ctx, s, recall.AutoTopicOptions{Model: ef.model, K: *autoK, MinCos: *autoMin})
+		at, err := recall.AutoTopics(ctx, all, recall.AutoTopicOptions{Model: ef.model, K: *autoK, MinCos: *autoMin})
 		if err != nil {
 			_, _ = fmt.Fprintf(e.Stderr, "mem reindex: auto topics: %v\n", err)
 			return 1
 		}
 		for _, p := range at.Assigned {
+			if _, err := s.Get(ctx, p.Key); err != nil {
+				continue
+			}
 			_, _ = fmt.Fprintf(e.Stderr, "topic %s -> %s (cos %.3f)\n", p.Key, p.Topic, p.Cos)
 		}
 	}

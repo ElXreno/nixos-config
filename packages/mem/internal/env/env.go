@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	DirName  = "agent-memory"
-	DBName   = "mem.db"
-	CoreName = "memory-core.md"
+	DirName   = "agent-memory"
+	DBName    = "mem.db"
+	CoreName  = "memory-core.md"
+	AgentsDir = "agents"
 )
 
 type Env struct {
@@ -23,6 +24,7 @@ type Env struct {
 	Getwd    func() (string, error)
 	Hostname func() (string, error)
 	DBFlag   string
+	AsFlag   string
 }
 
 func System() Env {
@@ -60,8 +62,16 @@ func (e Env) DataDir() string {
 	return filepath.Join(e.xdg("XDG_DATA_HOME", ".local/share"), DirName)
 }
 
+func (e Env) Agent() string {
+	return strings.ToLower(strings.TrimSpace(e.Getenv("MEM_AGENT")))
+}
+
 func (e Env) StateDir() string {
-	return filepath.Join(e.xdg("XDG_STATE_HOME", ".local/state"), DirName)
+	dir := filepath.Join(e.xdg("XDG_STATE_HOME", ".local/state"), DirName)
+	if a := e.Agent(); a != "" {
+		return filepath.Join(dir, AgentsDir, a)
+	}
+	return dir
 }
 
 func (e Env) DBPath() string {
@@ -77,6 +87,9 @@ func (e Env) DBPath() string {
 func (e Env) CorePath() string {
 	if v := e.Getenv("MEM_CORE"); v != "" {
 		return v
+	}
+	if a := e.Agent(); a != "" {
+		return filepath.Join(e.DataDir(), AgentsDir, a, CoreName)
 	}
 	return filepath.Join(e.Home(), ".claude", CoreName)
 }

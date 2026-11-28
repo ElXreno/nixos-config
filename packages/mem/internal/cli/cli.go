@@ -15,7 +15,7 @@ import (
 
 const program = "mem"
 
-const usage = `usage: mem [--db PATH] <command> [flags]
+const usage = `usage: mem [--db PATH] [--as AGENT] <command> [flags]
 
 records:
   put KEY --kind KIND --scope S... --title T [--body TEXT | < body] [--core] [--trigger TOOL:REGEX]... [--verify CMD]
@@ -38,6 +38,8 @@ records:
                       with --mode vector|hybrid it is a usage error
   list [--kind K]... [--scope S]... [--status S|all] [--core]
   retire K --why TEXT
+  share K... --why TEXT
+                      with --as AGENT: move records of that agent into the shared memory
   topics set --map FILE.tsv [--strict] [--json]
                       topic of every record of the map (key, topic id, topic title per line, tab separated); idempotent
   topics list [--json]
@@ -52,6 +54,8 @@ records:
 
 hooks and tools:
   hook <event>        Claude Code command hook, JSON on stdin
+  here [--cwd DIR] [--json]
+                      scopes of a directory as the hooks see it: project:<name> of its git repository, host:<name>
   ui [--listen ADDR] [--allow-remote] [--state-dir D] [--relayout]
                       read-only local web dashboard of the store and the live hook turns, loopback only by default; the map layout is kept in the state dir, --relayout redoes it
   stats [--days N] [--top N] [--json]
@@ -85,8 +89,10 @@ hooks and tools:
   build-en --db RU.db --en en.jsonl --out EN.db
                       English copy of a database with the FTS indexes rebuilt
 
-exit codes: 0 ok, 1 error, 2 usage, 3 conflict (existing key, duplicate, wrong status)
+exit codes: 0 ok, 1 error, 2 usage, 3 conflict (existing key, duplicate, wrong status, record of another agent)
 database: --db, else $MEM_DB, else $XDG_DATA_HOME/agent-memory/mem.db; core file: $MEM_CORE, else ~/.claude/memory-core.md
+agents: with $MEM_AGENT=NAME every record written gets the scope agent:NAME, that agent reads all records and changes only its own,
+        and its core file and hook state live under agents/NAME; without it records of agents stay hidden, --as NAME shows those of one
 embedder: $MEM_EMBED_URL, $MEM_EMBED_MODEL, $MEM_EMBED_DOC_PREFIX and $MEM_EMBED_QUERY_PREFIX stand in for the matching flags
 `
 
@@ -100,11 +106,13 @@ var commands = map[string]command{
 	"search":         cmdSearch,
 	"list":           cmdList,
 	"retire":         cmdRetire,
+	"share":          cmdShare,
 	"verify":         cmdVerify,
 	"expire":         cmdExpire,
 	"retime":         cmdRetime,
 	"core":           cmdCore,
 	"hook":           cmdHook,
+	"here":           cmdHere,
 	"ui":             cmdUI,
 	"import-legacy":  cmdImportLegacy,
 	"import-records": cmdImportRecords,
@@ -123,6 +131,7 @@ func Run(args []string, e env.Env) int {
 	fs := flag.NewFlagSet(program, flag.ContinueOnError)
 	fs.SetOutput(e.Stderr)
 	db := fs.String("db", e.DBFlag, "database path")
+	as := fs.String("as", e.AsFlag, "also read the records of this agent; read commands and share only")
 	fs.Usage = func() { _, _ = fmt.Fprint(e.Stderr, usage) }
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -131,6 +140,7 @@ func Run(args []string, e env.Env) int {
 		return 2
 	}
 	e.DBFlag = *db
+	e.AsFlag = *as
 	rest := fs.Args()
 	if len(rest) == 0 {
 		fs.Usage()
@@ -288,11 +298,12 @@ func fail(e env.Env, err error) int {
 		se *store.StatusError
 		ge *store.GateError
 		me *store.MatchError
+		fe *store.ForeignError
 	)
 	switch {
 	case errors.Is(err, store.ErrInvalid):
 		return 2
-	case errors.As(err, &ee), errors.As(err, &se), errors.As(err, &ge), errors.As(err, &me):
+	case errors.As(err, &ee), errors.As(err, &se), errors.As(err, &ge), errors.As(err, &me), errors.As(err, &fe):
 		return 3
 	}
 	return 1
@@ -300,7 +311,10 @@ func fail(e env.Env, err error) int {
 
 func openStore(e env.Env, readOnly bool) (*store.Store, error) {
 	ctx := context.Background()
-	opt := store.Options{Now: e.Now, ReadOnly: readOnly}
+	opt := store.Options{Now: e.Now, ReadOnly: readOnly, Access: access(e)}
+	if e.AsFlag != "" && e.Agent() != "" {
+		return nil, fmt.Errorf("%w: --as is for the primary agent; agent %s already reads every record", store.ErrInvalid, e.Agent())
+	}
 	s, err := store.Open(ctx, e.DBPath(), opt)
 	if readOnly && errors.Is(err, store.ErrSchemaOutdated) {
 		opt.ReadOnly = false
@@ -310,6 +324,14 @@ func openStore(e env.Env, readOnly bool) (*store.Store, error) {
 		return nil, fmt.Errorf("no memory database at %s; mem put creates it", e.DBPath())
 	}
 	return s, err
+}
+
+func access(e env.Env) store.Access {
+	a := store.Access{Agent: e.Agent()}
+	if e.AsFlag != "" {
+		a.See = []string{e.AsFlag}
+	}
+	return a
 }
 
 func writeCore(e env.Env, s *store.Store) error {

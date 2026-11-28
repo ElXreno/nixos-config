@@ -176,9 +176,9 @@ func NormalizeScope(s string) (string, error) {
 		return s, nil
 	}
 	prefix, name, ok := strings.Cut(s, ":")
-	valid := ok && (prefix == "project" && validProjectName(name) || (prefix == "host" || prefix == "topic") && scopeNameRe.MatchString(name))
+	valid := ok && (prefix == "project" && validProjectName(name) || (prefix == "host" || prefix == "topic" || prefix == "agent") && scopeNameRe.MatchString(name))
 	if !valid {
-		return "", invalid("scope %q is not global, project:<name>, host:<name> or topic:<id>", s)
+		return "", invalid("scope %q is not global, project:<name>, host:<name>, topic:<id> or agent:<name>", s)
 	}
 	return s, nil
 }
@@ -196,6 +196,9 @@ func NormalizeScopes(in []string) ([]string, error) {
 	}
 	if n := len(slices.DeleteFunc(slices.Clone(out), func(s string) bool { return !isTopicScope(s) })); n > 1 {
 		return nil, invalid("a record belongs to one topic, got %d topic scopes", n)
+	}
+	if n := len(slices.DeleteFunc(slices.Clone(out), func(s string) bool { return !isAgentScope(s) })); n > 1 {
+		return nil, invalid("a record belongs to one agent, got %d agent scopes", n)
 	}
 	slices.Sort(out)
 	return out, nil
@@ -269,7 +272,7 @@ func (r *Record) normalize() error {
 	if r.Scopes, err = NormalizeScopes(r.Scopes); err != nil {
 		return err
 	}
-	if len(r.Scopes) == 0 {
+	if len(r.Scopes) == 0 || len(r.Scopes) == 1 && isAgentScope(r.Scopes[0]) {
 		return invalid("record %s needs at least one scope", r.Key)
 	}
 	if r.Triggers, err = normalizeTriggers(r.Triggers); err != nil {
