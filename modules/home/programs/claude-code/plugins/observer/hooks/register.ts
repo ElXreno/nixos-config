@@ -1,6 +1,7 @@
 import type { EngineInterface, Register } from 'claude-code'
 
 import {
+  COMPACT_NOTE,
   INSTRUCTION,
   delta,
   digest,
@@ -99,7 +100,8 @@ async function mem($: Engine, s: Session, cfg: Config, args: string[]): Promise<
     .catch((error: unknown) => ({ exitCode: -1, stdout: '', stderr: String(error) }))
   if (answer.exitCode === 1 && answer.stderr.includes('no memory database')) return answer
   s.memFailures = answer.exitCode === 0 || answer.exitCode === 3 ? 0 : s.memFailures + 1
-  if (answer.exitCode !== 0) note(s, `mem ${args[0]} exit ${answer.exitCode}: ${squash(answer.stderr).slice(0, 200)}`)
+  if (answer.exitCode !== 0 && answer.exitCode !== 3)
+    note(s, `mem ${args[0]} exit ${answer.exitCode}: ${squash(answer.stderr).slice(0, 200)}`)
   return answer
 }
 
@@ -268,7 +270,12 @@ async function pass($: Engine, s: Session, cfg: Config): Promise<Rec[]> {
       return []
     }
     const changed = merge(s.ledger, s.pairs, data, s.steps)
-    note(s, `pass kept ${changed.filter(rec => rec.grounded).length} of ${changed.length} changed records`)
+    note(
+      s,
+      changed.length > 0
+        ? `pass kept ${changed.filter(rec => rec.grounded).length} of ${changed.length} changed records`
+        : `pass changed nothing: ${squash(reply.text).slice(0, 160)}`,
+    )
     await save($, s)
     for (const rec of changed) await remember($, s, cfg, rec)
     return changed
@@ -337,15 +344,21 @@ export const register: Register = on => {
     if (s === undefined) return next(e)
     const cfg = await settings($)
     if (cfg.beforeCompact && e.trigger !== 'precompute' && s.steps > s.lastPass) await pass($, s, cfg).catch(() => [])
-    const res = await next(e)
+    const res = await next(cfg.feedback ? { ...e, instructions: [e.instructions, COMPACT_NOTE].filter(Boolean).join('\n\n') } : e)
     if (res.skip !== undefined) return res
     s.nudged.clear()
     s.recalled.clear()
     s.afterCompact = true
     const whole = cfg.feedback ? digest(s.ledger) : ''
-    const last = res.messages[res.messages.length - 1]
+    const at = res.messages.findLastIndex(message => message.role === 'user')
+    const last = res.messages[at]
     if (whole === '' || last === undefined) return res
     s.digestVersion = s.ledger.version
-    return { ...res, messages: [...res.messages.slice(0, -1), { ...last, text: `${last.text}\n\n${whole}` }] }
+    note(s, `compaction by ${e.trigger}: registry of ${whole.length} chars appended`)
+    await save($, s)
+    return {
+      ...res,
+      messages: res.messages.map((message, index) => (index === at ? { ...last, text: `${last.text}\n\n${whole}` } : message)),
+    }
   })
 }

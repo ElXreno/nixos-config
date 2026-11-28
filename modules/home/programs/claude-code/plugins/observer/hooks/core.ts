@@ -37,6 +37,9 @@ Verdicts: dead_end is an approach or tool that was tried and gave nothing useful
 Registry so far:
 `
 
+export const COMPACT_NOTE =
+  'Summarize only what the user asked for and what the work established. Leave out everything the harness supplies: the system prompt, the environment block, tool and skill listings, memory and hook reminders, attribution and safety rules. They are sent again after the summary, so repeating them only spends its room. Do not copy lines of the registry kept outside the conversation either: it is appended after your summary.'
+
 export function emptyLedger(): Ledger {
   return { records: [], open: [], next: '', seq: 0, version: 0 }
 }

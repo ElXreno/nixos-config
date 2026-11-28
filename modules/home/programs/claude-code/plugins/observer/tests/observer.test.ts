@@ -186,10 +186,10 @@ test('the digest lists dead ends, exclusions, objects and open leads', () => {
   expect(digest(emptyLedger())).toBe('')
 })
 
-type Seen = { prompts: string[]; mem: string[][]; appended: string[]; dirs: string[]; store: Map<string, unknown> }
+type Seen = { prompts: string[]; mem: string[][]; appended: string[]; dirs: string[]; instructions: string[]; store: Map<string, unknown> }
 
 function engine(on: On, session: string, reply: () => string, extra: Record<string, string> = {}): Seen {
-  const seen: Seen = { prompts: [], mem: [], appended: [], dirs: [], store: new Map() }
+  const seen: Seen = { prompts: [], mem: [], appended: [], dirs: [], instructions: [], store: new Map() }
   const env: Record<string, string> = { HOME: '/home/t', OBSERVER_EVERY_STEPS: '4', ...extra }
   mock.clock(on, { now: Date.parse('2026-11-28T10:00:00Z') })
   on('store.get', (_, e) => ({ value: seen.store.get(e.key) }))
@@ -243,7 +243,15 @@ function engine(on: On, session: string, reply: () => string, extra: Record<stri
     return { value: { isAnswered: true, text: reply() } as never }
   })
   on('tool.call', { tool: 'Bash' }, (_, e) => ({ result: {} as never, text: OUTPUTS[e.command] ?? '' }))
-  on('session.compact', () => ({ messages: [{ role: 'user', text: 'summary of the work', toolUses: [] }] }))
+  on('session.compact', (_, e) => {
+    seen.instructions.push(e.instructions ?? '')
+    return {
+      messages: [
+        { role: 'user', text: 'summary of the work', toolUses: [] },
+        { role: 'assistant', text: 'going on', toolUses: [] },
+      ],
+    }
+  })
   return seen
 }
 
@@ -277,7 +285,9 @@ test('tool calls feed the pass, and its records come back with later results and
 
   const compacted = await $.session.compact({ trigger: 'manual', messages: [{ role: 'user', text: 'the task', toolUses: [] }] } as never)
   expect(seen.prompts.length).toBe(2)
-  const last = compacted.messages?.at(-1)
+  expect(seen.instructions[0]).toContain('Leave out everything the harness supplies')
+  expect(compacted.messages?.at(-1)?.text).toBe('going on')
+  const last = compacted.messages?.at(0)
   expect(last?.text).toContain('summary of the work\n\nRegistry kept outside the conversation:')
   expect(last?.text).toContain('Dead ends, do not try these again:\na3 scan approach')
   const after = await run(at('./bin/scan'))
