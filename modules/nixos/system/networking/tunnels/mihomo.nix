@@ -53,6 +53,17 @@ let
 
   isSet = hasPrefix "geosite:";
   usesSets = any isSet (concatLists (attrValues domains));
+  nameserverPolicy = listToAttrs (
+    concatLists (
+      mapAttrsToList (
+        tunnel:
+        map (
+          entry:
+          nameValuePair (if isSet entry then entry else "+.${entry}") [ "${cfg.routes.tunnelDns}#${tunnel}" ]
+        )
+      ) domains
+    )
+  );
   depth = entry: if isSet entry then 0 else length (splitString "." entry);
   rule =
     tunnel: entry:
@@ -133,6 +144,7 @@ let
       ipv6 = false;
       enhanced-mode = "redir-host";
       nameserver = [ cfg.routes.dnsUpstream ];
+      nameserver-policy = nameserverPolicy;
     };
     sniffer = {
       enable = true;
@@ -330,6 +342,11 @@ in
       type = types.str;
       default = "127.0.0.1:53";
       description = "Resolver the domain router forwards queries to, as address:port.";
+    };
+    tunnelDns = mkOption {
+      type = types.str;
+      default = "https://1.1.1.1/dns-query";
+      description = "Resolver queried through the tunnel for the domains routed into it, in mihomo nameserver syntax with an IP host.";
     };
     killSwitch = mkEnableOption "blocking non-local traffic while the domain router is down" // {
       default = true;
