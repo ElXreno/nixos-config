@@ -9,6 +9,11 @@
     system = {
       impermanence.enable = true;
 
+      ccache = {
+        enable = true;
+        aliases = [ "/nix/ccache" ];
+      };
+
       hardware = {
         gpu.nvidia = {
           overclock = {
@@ -31,6 +36,11 @@
 
     services = {
       monitoring.prometheus.exporters.nvidia.enable = false;
+      niks3.push.enable = true;
+      nix-farm = {
+        enable = true;
+        acOnly = true;
+      };
     };
 
     home-manager.syncthing.randomPortIncrement = 42;
