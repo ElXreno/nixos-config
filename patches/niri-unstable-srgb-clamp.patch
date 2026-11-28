@@ -526,7 +526,7 @@ index 00000000..bedba7a7
 +    }
 +}
 diff --git a/src/backend/tty.rs b/src/backend/tty.rs
-index d14c1f8a..958865cb 100644
+index d14c1f8a..3154c970 100644
 --- a/src/backend/tty.rs
 +++ b/src/backend/tty.rs
 @@ -62,7 +62,7 @@ use smithay_drm_extras::drm_scanner::{DrmScanEvent, DrmScanner};
@@ -585,7 +585,7 @@ index d14c1f8a..958865cb 100644
                          if let Some(gamma_props) = &mut surface.gamma_props {
                              if let Some(ramp) = surface.pending_gamma_change.take() {
                                  if let Err(err) = gamma_props.set_gamma(&device.drm, ramp) {
-@@ -1364,6 +1383,30 @@ impl Tty {
+@@ -1364,6 +1383,38 @@ impl Tty {
              }
          }
  
@@ -595,28 +595,36 @@ index d14c1f8a..958865cb 100644
 +            &config,
 +            gamma_props.as_ref(),
 +        );
-+        let mut ctm_props = None;
-+        if clamp.is_some() {
-+            ctm_props = CtmProps::new(&device.drm, crtc)
-+                .map_err(|err| warn!("srgb-clamp: couldn't get color properties: {err:?}"))
-+                .ok();
-+        }
-+        if let (Some(ctm_props), Some(gamma_props)) = (&mut ctm_props, &mut gamma_props) {
++        let mut ctm_props = CtmProps::new(&device.drm, crtc)
++            .map_err(|err| {
++                if clamp.is_some() {
++                    warn!("srgb-clamp: couldn't get color properties: {err:?}");
++                } else {
++                    debug!("couldn't get color properties: {err:?}");
++                }
++            })
++            .ok();
++        if let Some(ctm_props) = &mut ctm_props {
 +            match ctm_props.set_clamp(&device.drm, clamp.clone()) {
 +                Ok(()) => {
-+                    gamma_props.encode = clamp;
-+                    if let Err(err) = gamma_props.set_gamma(&device.drm, None) {
-+                        warn!("srgb-clamp: couldn't set re-encoding gamma: {err:?}");
++                    if clamp.is_some() {
++                        if let Some(gamma_props) = &mut gamma_props {
++                            gamma_props.encode = clamp;
++                            if let Err(err) = gamma_props.set_gamma(&device.drm, None) {
++                                warn!("srgb-clamp: couldn't set re-encoding gamma: {err:?}");
++                            }
++                        }
 +                    }
 +                }
-+                Err(err) => warn!("srgb-clamp: couldn't apply: {err:?}"),
++                Err(err) if clamp.is_some() => warn!("srgb-clamp: couldn't apply: {err:?}"),
++                Err(err) => debug!("couldn't reset color properties: {err:?}"),
 +            }
 +        }
 +
          let surface = device
              .drm
              .create_surface(crtc, mode, &[connector.handle()])?;
-@@ -1571,6 +1614,7 @@ impl Tty {
+@@ -1571,6 +1622,7 @@ impl Tty {
              compositor,
              dmabuf_feedback,
              gamma_props,
@@ -624,7 +632,7 @@ index d14c1f8a..958865cb 100644
              pending_gamma_change: None,
              vblank_frame: None,
              vblank_frame_name,
-@@ -2467,6 +2511,33 @@ impl Tty {
+@@ -2467,6 +2519,33 @@ impl Tty {
                      continue;
                  }
  
@@ -658,7 +666,7 @@ index d14c1f8a..958865cb 100644
                  // Check if we need to change the mode.
                  let Some(connector) = device.drm_scanner.connectors().get(&surface.connector)
                  else {
-@@ -2786,7 +2857,15 @@ impl GammaProps {
+@@ -2786,7 +2865,15 @@ impl GammaProps {
              }
          };
  
@@ -675,7 +683,7 @@ index d14c1f8a..958865cb 100644
      }
  
      fn gamma_size(&self) -> u32 {
-@@ -2800,6 +2879,15 @@ impl GammaProps {
+@@ -2800,6 +2887,15 @@ impl GammaProps {
      fn set_gamma(&mut self, device: &DrmDevice, gamma: Option<Vec<u16>>) -> anyhow::Result<()> {
          let _span = tracy_client::span!("GammaProps::set_gamma");
  
@@ -691,7 +699,7 @@ index d14c1f8a..958865cb 100644
          let (prop, prop_name) = match &mut self.mode {
              GammaMode::Lut { gamma_lut, .. } => (*gamma_lut, "GAMMA_LUT"),
              GammaMode::Ctm { ctm, .. } => (*ctm, "CTM"),
-@@ -2946,6 +3034,243 @@ impl GammaProps {
+@@ -2946,6 +3042,243 @@ impl GammaProps {
      }
  }
  
