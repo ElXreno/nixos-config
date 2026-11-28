@@ -19,6 +19,20 @@ let
   onFarm = farm.enable && farm.role == "hub" && farm.ci.enable;
   ports = config.${namespace}.ports;
   vars = config.clan.core.vars.generators;
+  grpcStore = config.programs.nix-grpc-store.packageSet;
+  evalJobsPlugin = grpcStore.pluginFor {
+    libs = {
+      inherit (config.services.nixbot.packages.nix-eval-jobs.passthru.nixComponents) nix-store nix-util;
+    };
+  };
+  grpcDispatcher = grpcStore.plugin-dispatcher.overrideAttrs (old: {
+    buildCommand = old.buildCommand + ''
+      for v in ${evalJobsPlugin}/lib/nix/nix-grpc-store-versions/*; do
+        rm -rf "$out/lib/nix/nix-grpc-store-versions/$(basename "$v")"
+        ln -s "$v" "$out/lib/nix/nix-grpc-store-versions/"
+      done
+    '';
+  });
 in
 {
   options.${namespace}.services.nixbot = {
@@ -111,6 +125,8 @@ in
       max-jobs = cfg.maxJobs;
       inherit (cfg) cores;
     };
+
+    programs.nix-grpc-store.package = mkIf onFarm grpcDispatcher;
 
     services.nixbot = {
       enable = true;
