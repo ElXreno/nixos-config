@@ -28,7 +28,8 @@ let
       hash = "sha256-Py6x0EUfpY5F5D5V9eYYFWUGl5GuYMBXTwzrHwE0HDM=";
     };
 
-    sourceRoot = ".";
+    unpackCmd = "unzip -q $curSrc -d source";
+    sourceRoot = "source";
 
     nativeBuildInputs = [
       unzip
