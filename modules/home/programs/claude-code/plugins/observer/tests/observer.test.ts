@@ -87,6 +87,24 @@ test('a tool that was run is not an examined object, and cd is not part of a com
   expect(hits(ledger, at('strings -n 4 bin/diag'), CWD, new Set(['a4']))).toEqual([])
 })
 
+test('a quote that occurs in several outputs rests on the latest of them', () => {
+  const ledger = emptyLedger()
+  const pairs = [
+    pair('Read /work/orch/tool/report.sh', 'echo "report: storage backend is not reachable"', CWD),
+    pair('./tool/report.sh; echo "EXIT:$?"', 'report: storage backend is not reachable EXIT:1', CWD),
+  ]
+  const attempt = {
+    subject: 'running the report tool',
+    object: './tool/report.sh',
+    verdict: 'dead_end',
+    reason: 'no backend',
+    evidence: 'report: storage backend is not reachable',
+  }
+  expect(merge(ledger, pairs, { attempts: [attempt] }, 2).length).toBe(1)
+  expect(hits(ledger, './tool/report.sh; wc -l SUMMARY.md', CWD, new Set()).map(rec => rec.id)).toEqual(['a1'])
+  expect(hits(ledger, 'ls tool', CWD, new Set())).toEqual([])
+})
+
 test('the digest lists dead ends, exclusions, objects and open leads', () => {
   const text = digest(seeded().ledger)
   expect(text).toContain('Dead ends, do not try these again:\na3 scan approach')

@@ -48,9 +48,11 @@ type Session = {
   recalled: Set<string>
   scope: string
   memFailures: number
+  trail: string[]
+  savedTrail: number
 }
 
-type Saved = { ledger: Ledger; steps: number; lastPass: number; savedAt: number }
+type Saved = { ledger: Ledger; steps: number; lastPass: number; savedAt: number; trail?: string[] }
 
 type Engine = EngineInterface
 
@@ -92,9 +94,17 @@ async function settings($: Engine): Promise<Config> {
 }
 
 async function mem($: Engine, s: Session, cfg: Config, args: string[]): Promise<{ exitCode: number; stdout: string }> {
-  const answer = await $.process.run(['mem', ...args], { timeoutMs: cfg.memTimeoutMs }).catch(() => ({ exitCode: -1, stdout: '' }))
+  const answer = await $.process
+    .run(['mem', ...args], { timeoutMs: cfg.memTimeoutMs })
+    .catch((error: unknown) => ({ exitCode: -1, stdout: '', stderr: String(error) }))
   s.memFailures = answer.exitCode === 0 || answer.exitCode === 3 ? 0 : s.memFailures + 1
+  if (answer.exitCode !== 0) note(s, `mem ${args[0]} exit ${answer.exitCode}: ${squash(answer.stderr).slice(0, 200)}`)
   return answer
+}
+
+function note(s: Session, line: string): void {
+  s.trail.push(`step ${s.steps}: ${line}`)
+  if (s.trail.length > 30) s.trail.splice(0, s.trail.length - 30)
 }
 
 async function prune($: Engine, now: number): Promise<void> {
@@ -134,6 +144,8 @@ async function open($: Engine): Promise<Session | undefined> {
     recalled: new Set(),
     scope: '',
     memFailures: 0,
+    trail: isSaved(saved) ? (saved.trail ?? []) : [],
+    savedTrail: 0,
   }
   s.savedVersion = s.ledger.version
   if (await $.fs.exists(s.file).catch(() => false)) {
@@ -164,9 +176,16 @@ async function open($: Engine): Promise<Session | undefined> {
 }
 
 async function save($: Engine, s: Session): Promise<void> {
-  if (s.savedVersion === s.ledger.version && s.steps % 10 !== 0) return
+  if (s.savedVersion === s.ledger.version && s.steps % 10 !== 0 && s.trail.length === s.savedTrail) return
+  s.savedTrail = s.trail.length
   s.savedVersion = s.ledger.version
-  const saved: Saved = { ledger: s.ledger, steps: s.steps, lastPass: s.lastPass, savedAt: await $.clock.now().catch(() => Date.now()) }
+  const saved: Saved = {
+    ledger: s.ledger,
+    steps: s.steps,
+    lastPass: s.lastPass,
+    savedAt: await $.clock.now().catch(() => Date.now()),
+    trail: s.trail,
+  }
   await $.store.set(`${SESSION_PREFIX}${s.id}`, saved).catch(() => undefined)
 }
 
@@ -238,10 +257,17 @@ async function pass($: Engine, s: Session, cfg: Config): Promise<Rec[]> {
   try {
     s.lastPass = s.steps
     const reply = await $.model.fork({ prompt: INSTRUCTION + registryText(s.ledger, cfg.registryLines) })
-    if (!reply.isAnswered) return []
+    if (!reply.isAnswered) {
+      note(s, `pass without a reply: ${reply.reason}`)
+      return []
+    }
     const data = extractJson(reply.text)
-    if (data === undefined) return []
+    if (data === undefined) {
+      note(s, `pass reply is not JSON: ${squash(reply.text).slice(0, 120)}`)
+      return []
+    }
     const changed = merge(s.ledger, s.pairs, data, s.steps)
+    note(s, `pass kept ${changed.filter(rec => rec.grounded).length} of ${changed.length} changed records`)
     await save($, s)
     for (const rec of changed) await remember($, s, cfg, rec)
     return changed

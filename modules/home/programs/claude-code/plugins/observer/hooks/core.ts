@@ -184,7 +184,7 @@ export function merge(ledger: Ledger, pairs: readonly Pair[], data: Record<strin
       paths.some(path => names(entry.lower, path)) || tokens.filter(token => entry.lower.includes(token)).length >= need
     const source =
       evidence.length >= 8
-        ? pairs.find(entry => entry.call.includes(evidence) || (entry.text.includes(evidence) && about(entry)))
+        ? [...pairs].reverse().find(entry => entry.call.includes(evidence) || (entry.text.includes(evidence) && about(entry)))
         : undefined
     const grounded = source !== undefined
     const byId = typeof attempt.id === 'string' ? ledger.records.find(rec => rec.id === attempt.id) : undefined
