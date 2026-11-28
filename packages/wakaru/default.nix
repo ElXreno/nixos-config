@@ -6,7 +6,7 @@
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "wakaru";
-  version = "1.14.0";
+  version = "1.17.0";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -15,10 +15,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "pionxzh";
     repo = "wakaru";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-HdSrirk4VcWlifK4m97fJbyfXeIhLfzWRWQGPxAd0hI=";
+    hash = "sha256-SDpB2lrbzVxqhlJyd0iF1QmK3Mj7HV+9ZFigChyfuJI=";
   };
 
-  cargoHash = "sha256-t3LS3nMihmHmRmJ014YkvXYynv4XwtQWn267GAWnLiE=";
+  cargoHash = "sha256-/KrAIkGtj2vgLqEEVsEC6elHlYQrCakkMLa/9Wmfjjc=";
 
   cargoBuildFlags = [
     "--package"

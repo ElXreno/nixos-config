@@ -22,7 +22,7 @@ let
     in
     rustPlatform.buildRustPackage rec {
       pname = "text-embeddings-inference";
-      version = "1.9.4";
+      version = "1.10.0";
 
       __structuredAttrs = true;
       strictDeps = true;
@@ -31,10 +31,10 @@ let
         owner = "huggingface";
         repo = pname;
         rev = "v${version}";
-        hash = "sha256-4sxL47jrKqcvFHafwix2l+a+44neDLw+DrZw89ywjtc=";
+        hash = "sha256-amomN9uT27HLSHeRFxDzlTbsMrP5GZiou3kdrG26UjQ=";
       };
 
-      cargoHash = "sha256-mMAzKHzoXm6JEQGJRk4aPIVhr/WdbNB6qTkrcRWctyQ=";
+      cargoHash = "sha256-Xw+OGQwgW184AenErbhUip+bGEJ1NXqGc/neXtr5avA=";
 
       buildAndTestSubdir = "router";
       buildNoDefaultFeatures = true;
