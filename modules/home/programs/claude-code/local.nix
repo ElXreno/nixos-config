@@ -66,7 +66,7 @@ let
     export BASH_MAX_TIMEOUT_MS=10800000
     export ENABLE_TOOL_SEARCH="$toolsearch"
     export CLAUDE_LOCAL_COMMAND="claude-local-$peer"
-    exec claude --model "$model" --settings ${settings} --permission-mode ${cfg.local.permissionMode} "$@"
+    exec claude --model "$model" --effort ${cfg.local.effort} --settings ${settings} --permission-mode ${cfg.local.permissionMode} "$@"
   '';
 
   wrapper =
@@ -141,6 +141,17 @@ in
       type = types.int;
       default = 32768;
       description = "Output token cap Claude Code requests.";
+    };
+    effort = mkOption {
+      type = types.enum [
+        "low"
+        "medium"
+        "high"
+        "xhigh"
+        "max"
+      ];
+      default = "max";
+      description = "Effort level claude-local starts with; /effort or a later --effort still changes it.";
     };
     permissionMode = mkOption {
       type = types.enum [
