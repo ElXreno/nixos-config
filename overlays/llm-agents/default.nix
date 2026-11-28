@@ -22,7 +22,7 @@ _final: prev: {
     }).overrideAttrs
       (old: {
         postInstall = (old.postInstall or "") + ''
-          ${prev.lib.getExe (bunpatch prev)} $out/bin/claude ${./claude-code-live-progress.json} ${./claude-code-ask-timeout.json}
+          ${prev.lib.getExe (bunpatch prev)} $out/bin/claude ${./claude-code-live-progress.json} ${./claude-code-ask-timeout.json} ${./claude-code-goal-check-timeout.json}
         '';
         postFixup = old.postFixup + ''
           wrapProgram $out/bin/claude \

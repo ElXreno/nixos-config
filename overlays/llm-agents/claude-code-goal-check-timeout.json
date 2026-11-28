@@ -1,0 +1,11 @@
+[
+  {
+    "module": "/$bunfs/root/chunk-ht4evfxm.js",
+    "replace": [
+      {
+        "old": "function fPs(e){let t={type:\"prompt\",prompt:e};",
+        "new": "function fPs(e){let t={type:\"prompt\",prompt:e},Gq=+process.env.CLAUDE_CODE_GOAL_CHECK_TIMEOUT_MS;if(Gq>0&&Gq<2**31)t.timeout=Gq/1000;"
+      }
+    ]
+  }
+]
