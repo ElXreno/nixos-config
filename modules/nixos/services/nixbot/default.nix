@@ -125,6 +125,7 @@ in
       buildSystems = [ config.nixpkgs.hostPlatform.system ] ++ config.boot.binfmt.emulatedSystems;
       inherit (cfg) buildConcurrency;
       buildMaxSilentTime = 3600;
+      packages.nix-eval-jobs = pkgs.nix-eval-jobs-optimized;
       database = {
         createLocally = false;
         url = "postgresql://nixbot@/nixbot?host=/run/postgresql";
