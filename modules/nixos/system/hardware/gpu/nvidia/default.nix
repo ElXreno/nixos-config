@@ -366,6 +366,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
+          ExecCondition = "${pkgs.gnugrep}/bin/grep -qxF ${nvidiaPackage.version} /sys/module/nvidia/version";
           ExecStart =
             "${pkgs.nvidia_oc}/bin/nvidia_oc set --index 0 --freq-offset ${toString cfg.overclock.freqOffset}"
             + optionalString (
@@ -376,7 +377,10 @@ in
         };
       };
 
-      nvidia-powerd.serviceConfig.Restart = mkIf cfg.dynamicBoost.enable "always";
+      nvidia-powerd = mkIf cfg.dynamicBoost.enable {
+        restartIfChanged = false;
+        serviceConfig.Restart = "always";
+      };
     };
   };
 }
