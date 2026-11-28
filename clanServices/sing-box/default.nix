@@ -360,7 +360,9 @@ in
                   "fragment.com"
                   "nvidia.com"
 
+                  "geosite:google"
                   "geosite:microsoft"
+                  "geosite:xai"
                 ];
               };
             };
