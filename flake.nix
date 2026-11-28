@@ -229,12 +229,6 @@
               hash = "sha256-Lj3RlXOUD/qvirmVaWWK1n88WGLtgJcJQS/NyXbx+lo=";
             })
 
-            # NixOS/nixpkgs#583684
-            (patcher.fetchpatch {
-              name = "nvidia-production-620.70.06.patch";
-              url = "https://github.com/NixOS/nixpkgs/commit/1fc17581c358927eae6449a131ad6191b7e30233.patch";
-              hash = "sha256-M434gFCP5fEq12dRsQSdsfT9ymwVJFA1ti5lhXeUZd4=";
-            })
           ];
 
           nix-minecraft.patches = [
